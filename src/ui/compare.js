@@ -1,7 +1,6 @@
 import { clampConfig, DEFAULT_CONFIG, METHOD_SPECS, PRESETS } from "../config.js";
 import {
   PRACTITIONER_REFERENCES,
-  PRODUCTION_LENSES,
   STRATEGY_SYSTEMS,
   VERSION_LABEL,
   VERSION_TAG,
@@ -13,11 +12,11 @@ const RUNNABLE_KEYS = ["seed", "steps", "anchorBeta", "pStress"];
 let worker = null;
 let activeConfig = { ...DEFAULT_CONFIG };
 let latestResult = null;
+let latestSummary = null;
 
 export function initComparisonPage() {
   renderVersionChip();
-  renderProductionLenses();
-  renderSystemCards();
+  renderSystemRows();
   renderPractitionerRefs();
   syncControls(activeConfig);
   bindEvents();
@@ -38,16 +37,24 @@ function bindEvents() {
     }
 
     input.addEventListener("change", () => {
-      const merged = clampConfig({ ...activeConfig, ...readControls() });
-      activeConfig = merged;
+      activeConfig = clampConfig({ ...activeConfig, ...readControls() });
       syncControls(activeConfig);
-      setStatus("Knobs updated. Run scorecard to refresh decisions.");
+      setStatus("Knobs updated. Run scorecard to refresh the decision.");
+    });
+  }
+
+  const deepDive = document.querySelector(".deep-dive");
+  if (deepDive) {
+    deepDive.addEventListener("toggle", () => {
+      if (deepDive.open && latestResult && latestSummary) {
+        renderCharts(latestResult, latestSummary);
+      }
     });
   }
 
   window.addEventListener("resize", () => {
-    if (latestResult) {
-      renderCharts(latestResult, summarizeAllMethods(latestResult));
+    if (latestResult && latestSummary) {
+      renderCharts(latestResult, latestSummary);
     }
   });
 }
@@ -57,21 +64,8 @@ function renderVersionChip() {
   host.textContent = `Locked baseline: ${VERSION_LABEL} (${VERSION_TAG})`;
 }
 
-function renderProductionLenses() {
-  const host = document.getElementById("production-lenses");
-  host.innerHTML = PRODUCTION_LENSES.map(
-    (lens) => `
-      <article class="lens-card">
-        <h3>${lens.title}</h3>
-        <p class="question">${lens.question}</p>
-        <p class="why">${lens.why}</p>
-      </article>
-    `,
-  ).join("");
-}
-
-function renderSystemCards() {
-  const host = document.getElementById("system-cards");
+function renderSystemRows() {
+  const host = document.getElementById("system-rows");
 
   host.innerHTML = METHOD_SPECS.map((method) => {
     const meta = STRATEGY_SYSTEMS[method.id];
@@ -85,27 +79,10 @@ function renderSystemCards() {
 
         <div class="system-lines">
           <p><strong>Protects:</strong> ${meta.protects}</p>
-          <p><strong>Relies on:</strong> ${meta.reliesOn}</p>
+          <p><strong>Uses:</strong> ${meta.reliesOn}</p>
           <p><strong>Sacrifices:</strong> ${meta.sacrifices}</p>
           <p><strong>Deploy when:</strong> ${meta.deployWhen}</p>
         </div>
-
-        <div class="symbol-row">
-          ${meta.symbols.map((s) => `<code>${s}</code>`).join("")}
-        </div>
-
-        <div class="pipeline-strip">
-          ${meta.pipeline
-            .map(
-              (step, idx) => `
-                <div class="pipeline-step kind-${step.kind}">${step.text}</div>
-                ${idx < meta.pipeline.length - 1 ? '<span class="pipeline-arrow">-></span>' : ""}
-              `,
-            )
-            .join("")}
-        </div>
-
-        <p class="failure"><strong>Failure mode:</strong> ${meta.failureMode}</p>
       </article>
     `;
   }).join("");
@@ -135,12 +112,11 @@ function applyPreset(name) {
 }
 
 function runScorecard() {
-  const merged = clampConfig({ ...activeConfig, ...readControls() });
-  activeConfig = merged;
+  activeConfig = clampConfig({ ...activeConfig, ...readControls() });
   syncControls(activeConfig);
 
   setRunning(true);
-  setStatus("Running shared-path evaluation across all strategy systems...");
+  setStatus("Running shared-path comparison...");
   setProgress(0);
 
   ensureWorker().postMessage({
@@ -162,14 +138,15 @@ function ensureWorker() {
     const { type, payload } = event.data;
 
     if (type === "progress") {
-      handleProgress(payload);
+      renderProgress(payload);
       return;
     }
 
     if (type === "result") {
       setRunning(false);
       latestResult = payload;
-      renderScorecardResult(payload);
+      latestSummary = summarizeMethods(payload);
+      renderAll(payload, latestSummary);
       return;
     }
 
@@ -182,170 +159,106 @@ function ensureWorker() {
   return worker;
 }
 
-function handleProgress(payload) {
+function renderProgress(payload) {
   if (payload.kind === "training") {
     const numerator = payload.methodIndex * payload.totalSteps + payload.step;
     const denominator = payload.totalMethods * payload.totalSteps;
-
     setProgress((100 * numerator) / Math.max(1, denominator));
-    setStatus(`Training ${payload.methodLabel}: step ${payload.step}/${payload.totalSteps}`);
+    setStatus(`Training ${payload.methodLabel}: ${payload.step}/${payload.totalSteps}`);
     return;
   }
 
   if (payload.kind === "building_charts") {
     setProgress(100);
-    setStatus("Finalizing scorecard...");
+    setStatus("Finalizing decision outputs...");
   }
 }
 
-function renderScorecardResult(result) {
-  setStatus("Run complete. Compare systems and choose a deployment candidate.");
+function renderAll(result, summary) {
+  setStatus("Run complete. Read the decision card, then inspect the frontier chart.");
   setProgress(100);
 
-  const summaryByMethod = summarizeAllMethods(result);
-  const rows = buildDecisionRows(summaryByMethod);
-  const totals = buildOverallTotals(rows);
+  const rows = buildGateRows(summary);
+  const totals = buildTotals(rows);
 
-  renderOverallRanking(totals, summaryByMethod);
+  renderWinnerCard(totals, summary);
+  renderGateStrip(rows);
   renderDecisionMatrix(rows);
-  renderDeploymentCall(totals, summaryByMethod);
-  renderCharts(result, summaryByMethod);
+  renderCharts(result, summary);
 }
 
-function summarizeAllMethods(result) {
-  const summaries = {};
-  const regimes = result.streamRegimes || [];
+function summarizeMethods(result) {
+  const out = {};
 
   for (const method of METHOD_SPECS) {
     const id = method.id;
     const metrics = result.metrics[id];
     const diag = result.sharedDiagnostics[id];
 
-    const returns = diag.returns || [];
-    const turnovers = diag.turnovers || [];
-
-    const stressReturns = [];
-    const driftReturns = [];
-    for (let t = 0; t < returns.length; t += 1) {
-      const regime = regimes[t] || "drift";
-      if (regime === "stress") {
-        stressReturns.push(returns[t]);
-      } else {
-        driftReturns.push(returns[t]);
-      }
-    }
-
-    const annRet = mean(returns) * 252;
-    const annVol = std(returns) * Math.sqrt(252);
-    const sharpe = annRet / Math.max(1e-12, annVol);
-
-    const downside = std(returns.filter((x) => x < 0)) * Math.sqrt(252);
-    const sortino = annRet / Math.max(1e-12, downside);
-
-    const stressHitRate = fraction(stressReturns, (x) => x > -0.05);
-    const regimeGap = Math.abs(mean(stressReturns) - mean(driftReturns));
-
-    summaries[id] = {
+    out[id] = {
       ...metrics,
-      annRet,
-      annVol,
-      sharpe,
-      sortino,
-      turnover: mean(turnovers),
-      stressHitRate,
-      regimeGap,
+      turnover: mean(diag.turnovers || []),
     };
   }
 
-  return summaries;
+  return out;
 }
 
-function buildDecisionRows(summaryByMethod) {
+function buildGateRows(summary) {
   const ids = METHOD_SPECS.map((m) => m.id);
 
-  const driftVals = ids.map((id) => summaryByMethod[id].driftMse);
-  const stressVals = ids.map((id) => summaryByMethod[id].stressMse);
-  const drawVals = ids.map((id) => summaryByMethod[id].maxDrawdown);
-  const worstStressVals = ids.map((id) => summaryByMethod[id].worstStressDay);
-  const turnoverVals = ids.map((id) => summaryByMethod[id].turnover);
-  const stressHitVals = ids.map((id) => summaryByMethod[id].stressHitRate);
-  const regimeGapVals = ids.map((id) => summaryByMethod[id].regimeGap);
-  const returnVals = ids.map((id) => summaryByMethod[id].totalReturn);
-  const sharpeVals = ids.map((id) => summaryByMethod[id].sharpe);
+  const stressVals = ids.map((id) => summary[id].stressMse);
+  const drawdownVals = ids.map((id) => summary[id].maxDrawdown);
+  const driftVals = ids.map((id) => summary[id].driftMse);
+  const turnoverVals = ids.map((id) => summary[id].turnover);
 
-  const scores = {
-    adaptation: normalizeLowerBetter(driftVals),
-    stress: normalizeLowerBetter(stressVals),
-    drawdown: normalizeHigherBetter(drawVals),
-    worstStress: normalizeHigherBetter(worstStressVals),
-    turnover: normalizeLowerBetter(turnoverVals),
-    stressHit: normalizeHigherBetter(stressHitVals),
-    regimeGap: normalizeLowerBetter(regimeGapVals),
-    ret: normalizeHigherBetter(returnVals),
-    sharpe: normalizeHigherBetter(sharpeVals),
-  };
+  const stressScore = normalizeLowerBetter(stressVals);
+  const drawdownScore = normalizeHigherBetter(drawdownVals);
+  const driftScore = normalizeLowerBetter(driftVals);
+  const turnoverScore = normalizeLowerBetter(turnoverVals);
 
   return [
     {
-      id: "stress_retention",
+      id: "stress",
       title: "Stress Retention",
-      gate: "Preserve anchor behavior in stress regime.",
-      weight: 0.24,
-      values: mapById(ids, stressVals),
-      score: mapById(ids, scores.stress),
+      subtitle: "Lower stress MSE is better",
+      weight: 0.4,
+      raw: mapById(ids, stressVals),
+      score: mapById(ids, stressScore),
       format: (x) => fmtSci(x),
     },
     {
-      id: "drawdown_control",
-      title: "Tail + Drawdown Control",
-      gate: "Avoid deep troughs and severe stress-day losses.",
-      weight: 0.22,
-      values: mapById(ids, ids.map((id, i) => 0.65 * scores.drawdown[i] + 0.35 * scores.worstStress[i])),
-      score: mapById(ids, ids.map((id, i) => 0.65 * scores.drawdown[i] + 0.35 * scores.worstStress[i])),
-      format: (x) => `${x.toFixed(1)} score`,
+      id: "drawdown",
+      title: "Drawdown Control",
+      subtitle: "Less negative max drawdown is better",
+      weight: 0.3,
+      raw: mapById(ids, drawdownVals),
+      score: mapById(ids, drawdownScore),
+      format: (x) => pct(x),
     },
     {
-      id: "adaptation_quality",
-      title: "Drift Adaptation Quality",
-      gate: "Track changing drift signal without collapse.",
-      weight: 0.15,
-      values: mapById(ids, driftVals),
-      score: mapById(ids, scores.adaptation),
+      id: "adaptation",
+      title: "Drift Adaptation",
+      subtitle: "Lower drift MSE is better",
+      weight: 0.2,
+      raw: mapById(ids, driftVals),
+      score: mapById(ids, driftScore),
       format: (x) => fmtSci(x),
     },
     {
-      id: "implementation_friction",
+      id: "turnover",
       title: "Implementation Friction",
-      gate: "Limit turnover-induced execution drag.",
-      weight: 0.11,
-      values: mapById(ids, turnoverVals),
-      score: mapById(ids, scores.turnover),
+      subtitle: "Lower turnover is better",
+      weight: 0.1,
+      raw: mapById(ids, turnoverVals),
+      score: mapById(ids, turnoverScore),
       format: (x) => x.toFixed(3),
-    },
-    {
-      id: "regime_robustness",
-      title: "Regime Robustness",
-      gate: "Stable outcomes across drift and stress segments.",
-      weight: 0.17,
-      values: mapById(ids, ids.map((id, i) => 0.5 * scores.stressHit[i] + 0.5 * scores.regimeGap[i])),
-      score: mapById(ids, ids.map((id, i) => 0.5 * scores.stressHit[i] + 0.5 * scores.regimeGap[i])),
-      format: (x) => `${x.toFixed(1)} score`,
-    },
-    {
-      id: "outcome_quality",
-      title: "Outcome Quality",
-      gate: "Return quality after risk filters.",
-      weight: 0.11,
-      values: mapById(ids, ids.map((id, i) => 0.55 * scores.ret[i] + 0.45 * scores.sharpe[i])),
-      score: mapById(ids, ids.map((id, i) => 0.55 * scores.ret[i] + 0.45 * scores.sharpe[i])),
-      format: (x) => `${x.toFixed(1)} score`,
     },
   ];
 }
 
-function buildOverallTotals(rows) {
+function buildTotals(rows) {
   const totals = {};
-
   for (const method of METHOD_SPECS) {
     let s = 0;
     for (const row of rows) {
@@ -353,25 +266,50 @@ function buildOverallTotals(rows) {
     }
     totals[method.id] = s;
   }
-
   return totals;
 }
 
-function renderOverallRanking(totals, summaryByMethod) {
-  const host = document.getElementById("overall-ranking");
+function renderWinnerCard(totals, summary) {
+  const host = document.getElementById("winner-card");
   const ordered = [...METHOD_SPECS].sort((a, b) => totals[b.id] - totals[a.id]);
 
-  host.innerHTML = ordered
-    .map((method, idx) => {
-      const m = summaryByMethod[method.id];
+  const naive = summary.naive;
+  const gated = ordered.map((m) => m.id).filter((id) => passesHardGate(summary[id], naive));
+  const winner = gated.length > 0 ? gated[0] : ordered[0].id;
+
+  const w = summary[winner];
+  const stressGain = improvement(naive.stressMse, w.stressMse);
+  const drawdownGain = w.maxDrawdown - naive.maxDrawdown;
+  const driftPenalty = ratioPenalty(naive.driftMse, w.driftMse);
+
+  const hardPass = passesHardGate(w, naive);
+
+  host.className = `winner-card ${hardPass ? "good" : "caution"}`;
+  host.innerHTML = `
+    <h3>Recommended for Pilot: ${STRATEGY_SYSTEMS[winner].label}</h3>
+    <p>
+      ${hardPass ? "Passes" : "Does not fully pass"} hard stress gate.
+      Stress retention gain <strong>${pct(stressGain)}</strong>,
+      drawdown improvement <strong>${pp(drawdownGain)}</strong>,
+      drift penalty <strong>${pct(driftPenalty / 100)}</strong>.
+    </p>
+    <p class="next-action">
+      Next action: ${hardPass ? "run pilot validation with live risk gates" : "tune anchor/projection settings before pilot"}.
+    </p>
+  `;
+}
+
+function renderGateStrip(rows) {
+  const host = document.getElementById("gate-strip");
+
+  host.innerHTML = rows
+    .map((row) => {
+      const winner = winnerId(row.score);
       return `
-        <article class="rank-card ${idx === 0 ? "winner" : ""}">
-          <div class="rank-head">
-            <span class="rank-pos">#${idx + 1}</span>
-            <h3><span class="dot" style="background:${method.color}"></span>${STRATEGY_SYSTEMS[method.id].shortLabel}</h3>
-          </div>
-          <p class="rank-score">Composite score: <strong>${totals[method.id].toFixed(1)}</strong></p>
-          <p class="rank-detail">Stress MSE ${fmtSci(m.stressMse)} | Max DD ${pct(m.maxDrawdown)} | Return ${pct(m.totalReturn)}</p>
+        <article class="gate-card">
+          <h4>${row.title}</h4>
+          <p>${row.subtitle}</p>
+          <p><strong>Gate winner:</strong> ${STRATEGY_SYSTEMS[winner].shortLabel}</p>
         </article>
       `;
     })
@@ -385,39 +323,35 @@ function renderDecisionMatrix(rows) {
     <table>
       <thead>
         <tr>
-          <th>Decision Gate</th>
+          <th>Gate</th>
           ${METHOD_SPECS.map((m) => `<th>${STRATEGY_SYSTEMS[m.id].shortLabel}</th>`).join("")}
-          <th>Preferred</th>
         </tr>
       </thead>
       <tbody>
         ${rows
-          .map((row) => {
-            const winner = winnerId(row.score);
-            return `
+          .map(
+            (row) => `
               <tr>
                 <th>
                   <div class="gate-title">${row.title}</div>
-                  <div class="gate-note">${row.gate}</div>
+                  <div class="gate-note">Weight ${Math.round(100 * row.weight)}%</div>
                 </th>
-                ${METHOD_SPECS.map((m) => renderScoreCell(row, m.id, winner)).join("")}
-                <td class="winner-cell">${STRATEGY_SYSTEMS[winner].shortLabel}</td>
+                ${METHOD_SPECS.map((m) => renderMatrixCell(row, m.id)).join("")}
               </tr>
-            `;
-          })
+            `,
+          )
           .join("")}
       </tbody>
     </table>
   `;
 }
 
-function renderScoreCell(row, methodId, winner) {
+function renderMatrixCell(row, methodId) {
   const score = row.score[methodId];
-  const raw = row.values[methodId];
-  const best = methodId === winner;
+  const raw = row.raw[methodId];
 
   return `
-    <td class="score-cell ${best ? "best" : ""}">
+    <td class="score-cell">
       <div class="score-bar"><span style="width:${Math.max(0, Math.min(100, score)).toFixed(1)}%"></span></div>
       <div class="score-meta">
         <strong>${score.toFixed(1)}</strong>
@@ -427,61 +361,32 @@ function renderScoreCell(row, methodId, winner) {
   `;
 }
 
-function renderDeploymentCall(totals, summaryByMethod) {
-  const host = document.getElementById("deployment-call");
+function renderCharts(result, summary) {
+  drawRegimeFrontier(document.getElementById("regime-frontier"), summary);
 
-  const ordered = [...METHOD_SPECS].sort((a, b) => totals[b.id] - totals[a.id]);
-  const n = summaryByMethod.naive;
+  const eqCanvas = document.getElementById("compare-equity");
+  if (!eqCanvas) {
+    return;
+  }
 
-  const gated = ordered
-    .map((m) => m.id)
-    .filter((id) => passesHardGate(summaryByMethod[id], n));
+  const rect = eqCanvas.getBoundingClientRect();
+  if (rect.width < 40 || rect.height < 40) {
+    return;
+  }
 
-  const winner = gated.length > 0 ? gated[0] : ordered[0].id;
-  const second = ordered.map((m) => m.id).find((id) => id !== winner) || winner;
-
-  const w = summaryByMethod[winner];
-
-  const stressGain = improvement(n.stressMse, w.stressMse);
-  const ddGain = w.maxDrawdown - n.maxDrawdown;
-
-  const hardGatePass = passesHardGate(w, n);
-  const compositeWinner = ordered[0].id;
-
-  host.className = `takeaway ${hardGatePass ? "good" : "caution"}`;
-  host.innerHTML = `
-    <h4>Deployment Recommendation</h4>
-    <ul>
-      <li><strong>Primary candidate:</strong> ${STRATEGY_SYSTEMS[winner].label} (composite ${totals[winner].toFixed(1)}).</li>
-      <li><strong>Primary challenger:</strong> ${STRATEGY_SYSTEMS[second].label} (composite ${totals[second].toFixed(1)}).</li>
-      <li><strong>Composite winner:</strong> ${STRATEGY_SYSTEMS[compositeWinner].shortLabel}. Gate override is applied when hard stress retention thresholds are missed.</li>
-      <li>Winner vs naive: stress retention gain <strong>${pct(stressGain)}</strong>, drawdown improvement <strong>${pp(ddGain)}</strong>.</li>
-      <li>Pilot gate: ${hardGatePass ? "pass" : "conditional"} under current synthetic stress frequency ${pct(activeConfig.pStress)}.</li>
-      <li>Monitor before promotion: stress-hit-rate floor, turnover drift, and projection distortion trends.</li>
-    </ul>
-  `;
-}
-
-function passesHardGate(candidate, naive) {
-  const stressGain = improvement(naive.stressMse, candidate.stressMse);
-  const ddGain = candidate.maxDrawdown - naive.maxDrawdown;
-  return stressGain > 0.5 && ddGain > 0.04;
-}
-
-function renderCharts(result, summaryByMethod) {
   const eqSeries = METHOD_SPECS.map((method) => ({
     label: STRATEGY_SYSTEMS[method.id].shortLabel,
     color: method.color,
     values: result.equityCurves[method.id],
   }));
 
-  drawEquity(document.getElementById("compare-equity"), eqSeries, result.stressMarkers || []);
-  drawRegimeFrontier(document.getElementById("regime-frontier"), summaryByMethod);
+  drawEquity(eqCanvas, eqSeries, result.stressMarkers || []);
 }
 
-function drawRegimeFrontier(canvas, summaryByMethod) {
+function drawRegimeFrontier(canvas, summary) {
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
+
   canvas.width = Math.max(1, Math.floor(rect.width * dpr));
   canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
@@ -489,28 +394,27 @@ function drawRegimeFrontier(canvas, summaryByMethod) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, rect.width, rect.height);
 
-  const dims = { left: 64, right: rect.width - 16, top: 24, bottom: rect.height - 46 };
+  const dims = { left: 64, right: rect.width - 16, top: 20, bottom: rect.height - 46 };
+  const naive = summary.naive;
 
-  const naive = summaryByMethod.naive;
   const points = METHOD_SPECS.map((method) => {
-    const m = summaryByMethod[method.id];
+    const m = summary[method.id];
     return {
       id: method.id,
       label: STRATEGY_SYSTEMS[method.id].shortLabel,
       color: method.color,
       x: 100 * improvement(naive.stressMse, m.stressMse),
       y: 100 * (m.maxDrawdown - naive.maxDrawdown),
-      ret: 100 * (m.totalReturn - naive.totalReturn),
     };
   });
 
   const xs = points.map((p) => p.x);
   const ys = points.map((p) => p.y);
 
-  const xMin = Math.min(-5, ...xs) - 5;
-  const xMax = Math.max(5, ...xs) + 5;
-  const yMin = Math.min(-5, ...ys) - 5;
-  const yMax = Math.max(5, ...ys) + 5;
+  const xMin = Math.min(-5, ...xs) - 4;
+  const xMax = Math.max(5, ...xs) + 4;
+  const yMin = Math.min(-5, ...ys) - 4;
+  const yMax = Math.max(5, ...ys) + 4;
 
   const xToPx = (x) => dims.left + ((x - xMin) / Math.max(1e-12, xMax - xMin)) * (dims.right - dims.left);
   const yToPx = (y) => dims.bottom - ((y - yMin) / Math.max(1e-12, yMax - yMin)) * (dims.bottom - dims.top);
@@ -542,7 +446,7 @@ function drawRegimeFrontier(canvas, summaryByMethod) {
     ctx.fillStyle = "#24374f";
     ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText(`${p.label} (${p.ret >= 0 ? "+" : ""}${p.ret.toFixed(1)}pp ret)`, x + 9, y - 6);
+    ctx.fillText(p.label, x + 8, y - 6);
   }
 }
 
@@ -585,6 +489,12 @@ function drawAxes(ctx, dims, xLabel, yLabel) {
   ctx.rotate(-Math.PI / 2);
   ctx.fillText(yLabel, 0, 0);
   ctx.restore();
+}
+
+function passesHardGate(candidate, naive) {
+  const stressGain = improvement(naive.stressMse, candidate.stressMse);
+  const ddGain = candidate.maxDrawdown - naive.maxDrawdown;
+  return stressGain > 0.5 && ddGain > 0.04;
 }
 
 function winnerId(scoreMap) {
@@ -679,45 +589,19 @@ function setProgress(value) {
 function setRunning(isRunning) {
   const button = document.getElementById("compare-run");
   button.disabled = isRunning;
-  button.textContent = isRunning ? "Running..." : "Run Production Scorecard";
+  button.textContent = isRunning ? "Running..." : "Run Decision Scorecard";
 }
 
 function mean(values) {
   if (!values || values.length === 0) {
     return 0;
   }
+
   let s = 0;
   for (let i = 0; i < values.length; i += 1) {
     s += values[i];
   }
   return s / values.length;
-}
-
-function std(values) {
-  if (!values || values.length < 2) {
-    return 0;
-  }
-  const m = mean(values);
-  let s2 = 0;
-  for (let i = 0; i < values.length; i += 1) {
-    const d = values[i] - m;
-    s2 += d * d;
-  }
-  return Math.sqrt(s2 / (values.length - 1));
-}
-
-function fraction(values, predicate) {
-  if (!values || values.length === 0) {
-    return 0;
-  }
-
-  let c = 0;
-  for (let i = 0; i < values.length; i += 1) {
-    if (predicate(values[i])) {
-      c += 1;
-    }
-  }
-  return c / values.length;
 }
 
 function improvement(base, current) {
@@ -727,11 +611,18 @@ function improvement(base, current) {
   return (base - current) / Math.abs(base);
 }
 
+function ratioPenalty(base, current) {
+  if (Math.abs(base) < 1e-12) {
+    return 0;
+  }
+  return Math.max(0, (current / base - 1) * 100);
+}
+
 function fmtSci(x) {
   if (!Number.isFinite(x)) {
     return "n/a";
   }
-  if (Math.abs(x) < 1e-4) {
+  if (Math.abs(x) > 0 && Math.abs(x) < 1e-4) {
     return x.toExponential(2);
   }
   return x.toFixed(6);
@@ -748,6 +639,6 @@ function pp(x) {
   if (!Number.isFinite(x)) {
     return "n/a";
   }
-  const val = x * 100;
-  return `${val >= 0 ? "+" : ""}${val.toFixed(2)} pp`;
+  const v = x * 100;
+  return `${v >= 0 ? "+" : ""}${v.toFixed(2)} pp`;
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Strategy Systems Comparison | Constraint-Aligned PEFT</title>
+    <title>Strategy Decision Page | Constraint-Aligned PEFT</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body class="comparison-body">
@@ -14,16 +14,15 @@
           <span id="version-chip" class="version-chip"></span>
         </nav>
 
-        <p class="eyebrow">Decisive Synthesis</p>
-        <h1>Which Continual-Update Strategy Deserves Production Capital?</h1>
+        <p class="eyebrow">Strategy Decision</p>
+        <h1>Choose the Update Rule You Would Actually Deploy</h1>
         <p class="lead">
-          This page treats naive, anchor, and projection methods as competing decision systems.
-          It evaluates them with the same discipline used in portfolio selection: robustness,
-          drawdown behavior, implementation friction, and regime stability.
+          One goal only: decide between naive, anchor, and projection under a risk-first portfolio standard.
+          Run once, read the recommendation, then inspect one chart for why.
         </p>
 
         <div class="hero-actions">
-          <button id="compare-run" class="btn-primary">Run Production Scorecard</button>
+          <button id="compare-run" class="btn-primary">Run Decision Scorecard</button>
           <a class="btn-ghost" href="./index.html">Back to Live Demo</a>
         </div>
       </div>
@@ -32,24 +31,8 @@
     <main class="container compare-main">
       <section class="panel compare-panel">
         <div class="panel-head">
-          <h2>Judgment Lens Used by Portfolio Teams</h2>
-          <p>Each lens maps to a deployment gate, not an academic metric.</p>
-        </div>
-        <div id="production-lenses" class="lens-grid"></div>
-      </section>
-
-      <section class="panel compare-panel">
-        <div class="panel-head">
-          <h2>Strategy Decision Systems (Side-by-Side)</h2>
-          <p>What each method protects, what it uses, and what it gives up.</p>
-        </div>
-        <div id="system-cards" class="systems-grid"></div>
-      </section>
-
-      <section class="panel compare-panel">
-        <div class="panel-head">
-          <h2>Live Production Scorecard</h2>
-          <p>Run the shared-path test and compare systems under identical conditions.</p>
+          <h2>Step 1: Run the Same Test Path for All Methods</h2>
+          <p>Default settings are tuned for clear separation.</p>
         </div>
 
         <div class="compare-controls">
@@ -59,62 +42,77 @@
             <button id="compare-stress" class="btn-ghost">Stress+</button>
           </div>
 
-          <div class="compare-knobs">
-            <label>Seed <input id="compare-seed" type="number" step="1" /></label>
-            <label>Steps <input id="compare-steps" type="number" step="1" /></label>
-            <label>Anchor weight <input id="compare-anchor-beta" type="number" step="0.01" /></label>
-            <label>Stress frequency <input id="compare-p-stress" type="number" step="0.01" /></label>
-          </div>
+          <details>
+            <summary>Adjust core knobs</summary>
+            <div class="compare-knobs compact">
+              <label>Seed <input id="compare-seed" type="number" step="1" /></label>
+              <label>Steps <input id="compare-steps" type="number" step="1" /></label>
+              <label>Anchor weight <input id="compare-anchor-beta" type="number" step="0.01" /></label>
+              <label>Stress frequency <input id="compare-p-stress" type="number" step="0.01" /></label>
+            </div>
+          </details>
         </div>
 
         <div class="run-status">
           <p id="compare-status">Ready.</p>
           <div class="progress-track"><div id="compare-progress-fill"></div></div>
         </div>
-
-        <div id="overall-ranking" class="overall-ranking"></div>
-        <div id="decision-matrix" class="decision-matrix"></div>
-
-        <div class="chart-grid compare-charts">
-          <article>
-            <h3>Regime Frontier (Shared Path)</h3>
-            <canvas id="regime-frontier" class="chart-canvas"></canvas>
-          </article>
-          <article>
-            <h3>Equity Curve Comparison</h3>
-            <canvas id="compare-equity" class="chart-canvas"></canvas>
-          </article>
-        </div>
-
-        <article id="deployment-call" class="takeaway"></article>
       </section>
 
       <section class="panel compare-panel">
         <div class="panel-head">
-          <h2>Pipeline Symbols</h2>
-          <p>Every symbol appears in the system diagrams above.</p>
+          <h2>Step 2: Decision</h2>
+          <p>The recommendation below is the page's primary output.</p>
         </div>
-        <div class="symbol-grid">
-          <article><code>D_t</code><span>Current drift minibatch.</span></article>
-          <article><code>A_t</code><span>Anchor stress set sampled from preserved regime behavior.</span></article>
-          <article><code>g_new</code><span>Gradient from current drift objective.</span></article>
-          <article><code>g_anc</code><span>Gradient from anchor retention objective.</span></article>
-          <article><code>Pi(g_new|g_anc)</code><span>Projected update that avoids first-order anchor interference.</span></article>
-          <article><code>O(mu_t)</code><span>Portfolio optimizer converting forecasts into constrained weights.</span></article>
-        </div>
+
+        <article id="winner-card" class="winner-card"></article>
+        <div id="gate-strip" class="gate-strip"></div>
       </section>
 
       <section class="panel compare-panel">
         <div class="panel-head">
-          <h2>Practitioner Calibration References</h2>
-          <p>Used to align the scorecard with production strategy evaluation norms.</p>
+          <h2>Step 3: Why This Choice</h2>
+          <p>Top-right quadrant means better stress retention and better drawdown control.</p>
         </div>
-        <ul id="practitioner-refs" class="refs-list wide-refs"></ul>
+
+        <article>
+          <canvas id="regime-frontier" class="chart-canvas"></canvas>
+        </article>
       </section>
+
+      <section class="panel compare-panel">
+        <div class="panel-head">
+          <h2>Method Tradeoffs at a Glance</h2>
+          <p>Three systems, three explicit tradeoffs.</p>
+        </div>
+        <div id="system-rows" class="systems-grid"></div>
+      </section>
+
+      <details class="panel compare-panel deep-dive">
+        <summary>Open Technical Deep Dive</summary>
+        <div class="deep-dive-content">
+          <div class="chart-grid compare-charts">
+            <article>
+              <h3>Equity Curve Comparison</h3>
+              <canvas id="compare-equity" class="chart-canvas"></canvas>
+            </article>
+            <article>
+              <h3>Gate Matrix (Raw + Score)</h3>
+              <div id="decision-matrix" class="decision-matrix"></div>
+            </article>
+          </div>
+
+          <div class="panel-head">
+            <h2>Practitioner Anchors</h2>
+            <p>References for the risk-first evaluation style used above.</p>
+          </div>
+          <ul id="practitioner-refs" class="refs-list wide-refs"></ul>
+        </div>
+      </details>
     </main>
 
     <footer class="footer">
-      <p>Decision principle: prefer the method that survives bad regimes with controlled implementation cost.</p>
+      <p>Rule: if an element does not improve a deployment decision, remove it.</p>
     </footer>
 
     <script type="module" src="./src/compare-main.js"></script>
