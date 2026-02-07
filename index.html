@@ -6,7 +6,7 @@
     <title>LLM Portfolio Optimization Portal</title>
     <link rel="stylesheet" href="./llm-portal.css" />
   </head>
-  <body>
+  <body class="mode-focus">
     <header class="hero">
       <div class="container">
         <p class="tag">Industry-Facing Research Portal</p>
@@ -20,6 +20,14 @@
           <a class="btn-ghost" href="#repos">Browse Repositories</a>
           <a class="btn-ghost" href="#diligence">Open Due-Diligence Layer</a>
         </div>
+        <div class="mode-toggle" role="group" aria-label="Reading mode">
+          <button id="mode-focus" type="button" class="mode-btn active">First-Read Mode</button>
+          <button id="mode-research" type="button" class="mode-btn">Research Mode</button>
+        </div>
+        <p id="mode-hint" class="mode-hint">
+          First-Read Mode shows only decision-critical content. Switch to Research Mode for full repository, math,
+          and production due-diligence depth.
+        </p>
       </div>
     </header>
 
@@ -68,7 +76,15 @@
         <div id="ic-cards" class="overview-cards"></div>
       </section>
 
-      <section id="repos" class="panel">
+      <section id="deploy-snapshot" class="panel">
+        <div class="panel-head split">
+          <h2>Deployment Snapshot</h2>
+          <p>How this plugs into a real research stack this quarter.</p>
+        </div>
+        <div id="deploy-cards" class="overview-cards"></div>
+      </section>
+
+      <section id="repos" class="panel deep-layer">
         <div class="panel-head split">
           <h2>2. Curated Repository Map</h2>
           <p>Grouped by role in a production pipeline.</p>
@@ -137,7 +153,7 @@
         </div>
       </section>
 
-      <section id="math" class="panel">
+      <section id="math" class="panel deep-layer">
         <div class="panel-head">
           <h2>4. Core Ideas and Math</h2>
         </div>
@@ -183,7 +199,7 @@ s.t.   w >= 0, 1^T w = 1</pre>
         </div>
       </section>
 
-      <section id="comparison" class="panel">
+      <section id="comparison" class="panel deep-layer">
         <div class="panel-head split">
           <h2>5. References and Comparative Analysis</h2>
           <p>What LLM augmentation adds, and what it cannot remove.</p>
@@ -249,7 +265,7 @@ s.t.   w >= 0, 1^T w = 1</pre>
         </div>
       </section>
 
-      <section id="diligence" class="panel">
+      <section id="diligence" class="panel deep-layer">
         <div class="panel-head split">
           <h2>Production Due-Diligence Layer</h2>
           <p>For repeated reads, implementation planning, and risk challenge sessions.</p>
@@ -272,7 +288,7 @@ s.t.   w >= 0, 1^T w = 1</pre>
     </main>
 
     <footer class="footer">
-      <p>Action-ready objective: zero context -> codebase map -> runnable demo -> decision-relevant takeaway.</p>
+      <p>Action-ready objective: zero context -> decision clarity -> runnable demo -> production-grade diligence.</p>
     </footer>
 
     <script type="module" src="./src/llm-portal-main.js"></script>

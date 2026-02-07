@@ -155,6 +155,25 @@ const IC_BRIEF = [
   },
 ];
 
+const DEPLOYMENT_SNAPSHOT = [
+  {
+    title: "Data Inputs",
+    body: "Daily prices/volumes, benchmark/factor data, and timestamped text streams (news, filings, call transcripts).",
+  },
+  {
+    title: "Integration Point",
+    body: "LLM views enter as expected-return/scenario adjustments before constrained portfolio optimization.",
+  },
+  {
+    title: "Monitoring",
+    body: "Track signal hit-rate, drawdown pressure, turnover budget, and confidence drift each rebalance cycle.",
+  },
+  {
+    title: "Success Metric",
+    body: "Sustained uplift in risk-adjusted return after costs, with stable drawdown and policy-compliant turnover.",
+  },
+];
+
 const REPO_SCORES = {
   "youngandbin/LLM-BLM": { llmDepth: 5, optFit: 5, repro: 4, deploy: 3 },
   "franjgs/llm-rl-finance-trader": { llmDepth: 4, optFit: 3, repro: 3, deploy: 2 },
@@ -253,7 +272,9 @@ const REBAL_EVERY = 20;
 const STEPS = 220;
 
 function init() {
+  wireModeToggle();
   renderIcBrief();
+  renderDeploymentSnapshot();
   renderTaxonomy();
   renderRepositories();
   renderRepoMatrix();
@@ -263,9 +284,45 @@ function init() {
   runDemo();
 }
 
+function wireModeToggle() {
+  const focusBtn = document.getElementById("mode-focus");
+  const researchBtn = document.getElementById("mode-research");
+  const hint = document.getElementById("mode-hint");
+  const deepLinks = document.querySelectorAll('a[href="#repos"], a[href="#math"], a[href="#comparison"], a[href="#diligence"]');
+
+  function setMode(mode) {
+    const isFocus = mode === "focus";
+    document.body.classList.toggle("mode-focus", isFocus);
+    focusBtn.classList.toggle("active", isFocus);
+    researchBtn.classList.toggle("active", !isFocus);
+    hint.textContent = isFocus
+      ? "First-Read Mode shows only decision-critical content. Switch to Research Mode for full repository, math, and production due-diligence depth."
+      : "Research Mode enabled. Full repository map, equations, comparative analysis, and due-diligence layers are visible.";
+  }
+
+  focusBtn.addEventListener("click", () => setMode("focus"));
+  researchBtn.addEventListener("click", () => setMode("research"));
+  for (const link of deepLinks) {
+    link.addEventListener("click", () => setMode("research"));
+  }
+  setMode("focus");
+}
+
 function renderIcBrief() {
   const host = document.getElementById("ic-cards");
   host.innerHTML = IC_BRIEF.map(
+    (x) => `
+      <article>
+        <h3>${x.title}</h3>
+        <p>${x.body}</p>
+      </article>
+    `,
+  ).join("");
+}
+
+function renderDeploymentSnapshot() {
+  const host = document.getElementById("deploy-cards");
+  host.innerHTML = DEPLOYMENT_SNAPSHOT.map(
     (x) => `
       <article>
         <h3>${x.title}</h3>
@@ -318,6 +375,11 @@ function renderRepositories() {
 
 function renderRepoMatrix() {
   const host = document.getElementById("repo-matrix");
+  const ranked = REPOSITORIES.map((r) => {
+    const s = REPO_SCORES[r.name];
+    const score = 0.3 * s.llmDepth + 0.35 * s.optFit + 0.15 * s.repro + 0.2 * s.deploy;
+    return { repo: r, scores: s, score };
+  }).sort((a, b) => b.score - a.score);
 
   host.innerHTML = `
     <table class="comparison-table">
@@ -328,18 +390,19 @@ function renderRepoMatrix() {
           <th>Optimization Fit</th>
           <th>Reproducibility</th>
           <th>Deployment Readiness</th>
+          <th>Conviction Score</th>
         </tr>
       </thead>
       <tbody>
-        ${REPOSITORIES.map((r) => {
-          const s = REPO_SCORES[r.name];
+        ${ranked.map(({ repo, scores, score }) => {
           return `
             <tr>
-              <th>${r.name}</th>
-              <td>${s.llmDepth}/5</td>
-              <td>${s.optFit}/5</td>
-              <td>${s.repro}/5</td>
-              <td>${s.deploy}/5</td>
+              <th>${repo.name}</th>
+              <td>${scores.llmDepth}/5</td>
+              <td>${scores.optFit}/5</td>
+              <td>${scores.repro}/5</td>
+              <td>${scores.deploy}/5</td>
+              <td><strong>${score.toFixed(2)}/5</strong></td>
             </tr>
           `;
         }).join("")}
@@ -420,6 +483,14 @@ function renderRunInterpretation(result) {
   const sharpeDelta = l.sharpe - b.sharpe;
   const ddDelta = l.maxDrawdown - b.maxDrawdown;
   const turnDelta = l.turnover - b.turnover;
+  const gates = evaluateRunGates({ retDelta, sharpeDelta, ddDelta, turnDelta });
+  const passCount = gates.filter((g) => g.status === "pass").length;
+  let call = "Hold: investigate signal quality and cost controls before promotion.";
+  if (passCount >= 4) {
+    call = "Promote to larger paper-trading allocation with monitoring gates active.";
+  } else if (passCount <= 1) {
+    call = "Reject for deployment in current form; keep as research candidate only.";
+  }
 
   host.innerHTML = `
     <h3>Run Interpretation</h3>
@@ -428,8 +499,21 @@ function renderRunInterpretation(result) {
       <li>Risk-adjusted spread: Sharpe <strong>${delta(sharpeDelta)}</strong>.</li>
       <li>Tail impact: drawdown change <strong>${pp(ddDelta)}</strong> (higher is better).</li>
       <li>Implementation burden: turnover change <strong>${delta(turnDelta)}</strong> per rebalance cycle.</li>
-      <li>Read as a system: prefer LLM variant only if return and Sharpe gains survive drawdown and turnover constraints.</li>
     </ul>
+    <div class="gate-grid">
+      ${gates
+        .map(
+          (g) => `
+            <article class="gate ${g.status}">
+              <h4>${g.name}</h4>
+              <p>${g.value}</p>
+              <span>${g.label}</span>
+            </article>
+          `,
+        )
+        .join("")}
+    </div>
+    <p class="gate-call"><strong>Deployment call:</strong> ${call}</p>
   `;
 }
 
@@ -448,6 +532,7 @@ function simulateStrategies({ regime, risk, signalStrength }) {
 
   let turnBase = 0;
   let turnLlm = 0;
+  const edgeDaily = cfg.signal.map((x) => 0.00022 * signalStrength * x);
 
   const retBase = [];
   const retLlm = [];
@@ -470,7 +555,7 @@ function simulateStrategies({ regime, risk, signalStrength }) {
       wLlm = newLlm;
     }
 
-    const draw = sampleReturns(cfg.mu, cfg.vol, rng);
+    const draw = sampleReturns(cfg.mu, cfg.vol, edgeDaily, rng);
 
     const rb = dot(wBaseline, draw);
     const rl = dot(wLlm, draw);
@@ -531,6 +616,35 @@ function optimizeWeights(muAnnual, covAnnual, risk, prevW) {
   return w;
 }
 
+function evaluateRunGates({ retDelta, sharpeDelta, ddDelta, turnDelta }) {
+  return [
+    {
+      name: "Return Spread",
+      value: `${pp(retDelta)}`,
+      status: retDelta >= 0.01 ? "pass" : retDelta >= 0 ? "warn" : "fail",
+      label: retDelta >= 0.01 ? "Pass" : retDelta >= 0 ? "Watch" : "Fail",
+    },
+    {
+      name: "Sharpe Spread",
+      value: `${delta(sharpeDelta)}`,
+      status: sharpeDelta >= 0.05 ? "pass" : sharpeDelta >= 0 ? "warn" : "fail",
+      label: sharpeDelta >= 0.05 ? "Pass" : sharpeDelta >= 0 ? "Watch" : "Fail",
+    },
+    {
+      name: "Drawdown Impact",
+      value: `${pp(ddDelta)}`,
+      status: ddDelta >= -0.01 ? "pass" : ddDelta >= -0.02 ? "warn" : "fail",
+      label: ddDelta >= -0.01 ? "Pass" : ddDelta >= -0.02 ? "Watch" : "Fail",
+    },
+    {
+      name: "Turnover Impact",
+      value: `${delta(turnDelta)}`,
+      status: turnDelta <= 0.04 ? "pass" : turnDelta <= 0.08 ? "warn" : "fail",
+      label: turnDelta <= 0.04 ? "Pass" : turnDelta <= 0.08 ? "Watch" : "Fail",
+    },
+  ];
+}
+
 function projectSimplex(v) {
   const n = v.length;
   const u = v.slice().sort((a, b) => b - a);
@@ -559,13 +673,13 @@ function projectSimplex(v) {
   return out.map((x) => x / s);
 }
 
-function sampleReturns(muAnnual, volAnnual, rng) {
+function sampleReturns(muAnnual, volAnnual, edgeDaily, rng) {
   const dt = 1 / 252;
   const out = [];
 
   for (let i = 0; i < muAnnual.length; i += 1) {
     const z = boxMuller(rng);
-    const r = muAnnual[i] * dt + volAnnual[i] * Math.sqrt(dt) * z;
+    const r = muAnnual[i] * dt + volAnnual[i] * Math.sqrt(dt) * z + edgeDaily[i];
     out.push(r);
   }
 
@@ -665,6 +779,11 @@ function renderMetrics(result) {
       <div class="k">Max Drawdown</div>
       <div class="v">${pct(l.maxDrawdown)}</div>
       <div class="n">Baseline ${pct(b.maxDrawdown)}</div>
+    </article>
+    <article>
+      <div class="k">Turnover / Rebalance</div>
+      <div class="v">${l.turnover.toFixed(2)}</div>
+      <div class="n">Baseline ${b.turnover.toFixed(2)}</div>
     </article>
   `;
 }
