@@ -76,12 +76,24 @@ function drawGrid(ctx, dims, ticks = 4) {
 }
 
 function drawLegend(ctx, legendItems, width, y) {
-  let x = width - 250;
+  let x = 14;
   ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
 
   for (const item of legendItems) {
-    ctx.fillStyle = item.color;
-    ctx.fillRect(x, y, 14, 3);
+    if (item.kind === "bar") {
+      ctx.fillStyle = item.color;
+      ctx.fillRect(x, y - 1, 14, 5);
+    } else {
+      ctx.save();
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash(item.dash || []);
+      ctx.beginPath();
+      ctx.moveTo(x, y + 2);
+      ctx.lineTo(x + 14, y + 2);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     ctx.fillStyle = "#222222";
     ctx.textAlign = "left";
@@ -137,23 +149,23 @@ export function drawImpactBars(canvas, impact) {
     const group = impact[i];
     const cx = xCenter(i, impact.length);
 
-    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, "#5a5a5a");
-    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, "#111111");
+    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, "#0f5fbf");
+    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, "#b55400");
 
     ctx.fillStyle = "#222222";
     ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText(group.label, cx, dims.bottom + 16);
 
-    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#5a5a5a", zeroY);
-    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#111111", zeroY);
+    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#0f5fbf", zeroY);
+    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#b55400", zeroY);
   }
 
   drawLegend(
     ctx,
     [
-      { label: "Anchor", color: "#5a5a5a" },
-      { label: "Anchor + Projection", color: "#111111" },
+      { label: "Anchor", color: "#0f5fbf", kind: "bar" },
+      { label: "Anchor + Projection", color: "#b55400", kind: "bar" },
     ],
     width,
     10,
@@ -220,6 +232,7 @@ export function drawEquity(canvas, series, stressMarkers) {
   for (const s of series) {
     ctx.strokeStyle = s.color;
     ctx.lineWidth = 2;
+    ctx.setLineDash(s.dash || []);
     ctx.beginPath();
 
     for (let t = 0; t < s.values.length; t += 1) {
@@ -233,7 +246,8 @@ export function drawEquity(canvas, series, stressMarkers) {
     }
 
     ctx.stroke();
+    ctx.setLineDash([]);
   }
 
-  drawLegend(ctx, series, width, 10);
+  drawLegend(ctx, series.map((s) => ({ label: s.label, color: s.color, dash: s.dash })), width, 10);
 }

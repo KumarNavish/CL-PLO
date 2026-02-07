@@ -2,10 +2,10 @@ import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { drawEquity, drawImpactBars } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
-const METHOD_COLORS = {
-  naive: "#767676",
-  anchor: "#4b4b4b",
-  anchor_proj: "#111111",
+const METHOD_STYLES = {
+  naive: { color: "#6e6e6e", dash: [10, 6] },
+  anchor: { color: "#0f5fbf", dash: [2, 6] },
+  anchor_proj: { color: "#111111", dash: [] },
 };
 
 let worker = null;
@@ -296,7 +296,8 @@ function renderCharts(result) {
 
   const lineSeries = result.methods.map((method) => ({
     label: method.label,
-    color: METHOD_COLORS[method.id] || "#111111",
+    color: METHOD_STYLES[method.id]?.color || "#111111",
+    dash: METHOD_STYLES[method.id]?.dash || [],
     values: result.equityCurves[method.id],
   }));
 
@@ -353,7 +354,8 @@ function renderMethodTable(result) {
             <tr>
               <td>
                   <span class="method-name">
-                  <span class="dot" style="background:${METHOD_COLORS[row.method.id] || "#111111"}"></span>
+                  <span class="dot" style="background:${METHOD_STYLES[row.method.id]?.color || "#111111"}"></span>
+                  <span class="line-chip line-chip-${row.method.id}"></span>
                   ${row.method.label}
                 </span>
               </td>

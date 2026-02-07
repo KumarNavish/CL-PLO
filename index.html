@@ -9,10 +9,11 @@
   <body>
     <header class="hero">
       <div class="shell">
-        <h1>How each continual-learning strategy actually works</h1>
+        <h1>How continual-learning strategies behave in a live portfolio system</h1>
         <p class="lead">
-          If you are deciding whether to trust this mechanism, this page is designed to answer one question quickly:
-          where do memory and constraints enter the update, and how does that change the portfolio decision path?
+          Real deployment pressure is simple: adapt fast to new regimes, but do not forget behavior that protects the
+          book during stress events. This page is built so you can understand that tradeoff visually, then verify it
+          with one run.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#pipelines">Read Pipelines</a>
@@ -22,71 +23,266 @@
     </header>
 
     <main class="shell">
-      <section id="map" class="section">
-        <h2>Reading map</h2>
-        <div class="reading-map">
+      <section id="problem" class="section">
+        <h2>1. Start with the real decision</h2>
+        <p class="section-intro">
+          A portfolio team using a frozen backbone plus online adapters needs one clear decision rule:
+          <strong>which update method adapts to drift without erasing stress behavior</strong>. This page evaluates that
+          exact decision under a fixed optimizer, shared data stream, and explicit risk controls.
+        </p>
+
+        <div class="decision-strip">
           <article>
-            <h3>1. Shared system</h3>
-            <p>See what stays fixed across all methods.</p>
+            <h3>What can fail</h3>
+            <p>Fast online updates may improve current fit while degrading stress-day behavior that protects capital.</p>
           </article>
           <article>
-            <h3>2. Three strategy pipelines</h3>
-            <p>See exactly what each strategy adds or constrains.</p>
+            <h3>What stays fixed</h3>
+            <p>Portfolio construction, turnover penalties, and risk constraints are unchanged across strategies.</p>
           </article>
           <article>
-            <h3>3. Validation run</h3>
-            <p>Check if results follow what the pipelines predict.</p>
+            <h3>What changes</h3>
+            <p>Only the adapter update rule: unconstrained, soft-regularized, or projection-constrained.</p>
           </article>
+        </div>
+
+        <div class="problem-grid">
+          <article>
+            <h3>Operational failure mode</h3>
+            <p>
+              Naive continual updates often pass short-horizon metrics, then fail when stress regimes reappear because
+              retained behavior was overwritten.
+            </p>
+          </article>
+          <article>
+            <h3>How this maps to production</h3>
+            <ul>
+              <li>Research loop: model update and portfolio simulation on shared scenarios.</li>
+              <li>Risk loop: stress-memory retention and drawdown checks before promotion.</li>
+              <li>Execution loop: turnover-aware optimization with fixed controls.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Positioning vs prior art</h3>
+            <p>
+              Established baselines cover static retraining, replay regularization, and A-GEM-style projection. The
+              proposed strategy applies projection directly in the PEFT adapter update path while leaving portfolio
+              optimization unchanged.
+            </p>
+          </article>
+        </div>
+
+        <article class="baseline-wrap">
+          <h3>Established baselines vs this proposal</h3>
+          <table class="baseline-table">
+            <thead>
+              <tr>
+                <th>System</th>
+                <th>Status</th>
+                <th>Primary protection</th>
+                <th>Typical failure mode</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Periodic full retrain</td>
+                <td>Established</td>
+                <td>Stability via batch retraining cadence</td>
+                <td>Slow response to abrupt drift</td>
+              </tr>
+              <tr>
+                <td>Naive online PEFT update</td>
+                <td>Established</td>
+                <td>Rapid adaptation</td>
+                <td>Catastrophic forgetting on stress regimes</td>
+              </tr>
+              <tr>
+                <td>Anchor-regularized replay</td>
+                <td>Established</td>
+                <td>Soft memory retention</td>
+                <td>Retention can collapse under persistent drift pressure</td>
+              </tr>
+              <tr>
+                <td>Anchor + projection-constrained PEFT</td>
+                <td>Proposed here</td>
+                <td>Hard first-order interference control</td>
+                <td>Potential drift-fit penalty if constraint is too strict</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <p class="refs">
+          Literature anchors:
+          <a href="https://dl.acm.org/doi/10.1145/2638548" target="_blank" rel="noreferrer">Online portfolio selection survey</a>,
+          <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">multi-period convex portfolio control</a>,
+          <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">LoRA</a>,
+          <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM</a>,
+          <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">continual PEFT projection methods</a>,
+          <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2460551" target="_blank" rel="noreferrer">deflated Sharpe ratio</a>.
+        </p>
+      </section>
+
+      <section id="notation" class="section">
+        <h2>2. Symbols used in the pipelines</h2>
+        <p class="section-intro">
+          Symbols appear after the decision framing. Each object below maps to an implementation component used later in
+          the diagrams.
+        </p>
+
+        <div class="symbol-grid">
+          <article><h3>\(x_t\)</h3><p>Input stream at time \(t\): market, macro, and text features.</p></article>
+          <article><h3>\(\phi\)</h3><p>Frozen backbone parameters.</p></article>
+          <article><h3>\(\theta_t\)</h3><p>Adapter parameters updated online.</p></article>
+          <article><h3>\(\mathcal{D}^{\mathrm{drift}}_t\)</h3><p>Current-regime training slice.</p></article>
+          <article><h3>\(\mathcal{D}^{\mathrm{anchor}}_t\)</h3><p>Anchor memory slice from stress-relevant history.</p></article>
+          <article><h3>\(\mathbf{g}_{\mathrm{d}},\mathbf{g}_{\mathrm{a}}\)</h3><p>Drift and anchor gradients.</p></article>
+          <article><h3>\(\varepsilon\)</h3><p>Allowed negative interference budget in projection constraint.</p></article>
+          <article><h3>\(\mathbf{w}^\star_t\)</h3><p>Portfolio weights from the fixed optimizer.</p></article>
         </div>
       </section>
 
       <section id="shared" class="section">
-        <h2>Shared system (constant for all strategies)</h2>
+        <h2>3. Shared system (constant for all strategies)</h2>
         <p class="section-intro">
-          Only the adapter update rule changes. The data streams, frozen backbone, and portfolio optimizer are shared.
+          The portfolio optimizer is fixed for every method. Only adapter updates differ.
         </p>
 
         <div class="system-board">
           <div class="system-step">
             <span class="step-id">1</span>
             <h3>Inputs</h3>
-            <p>Market features, macro context, text signals</p>
-            <p class="math">\(x_t\)</p>
+            <p>\(x_t\)</p>
           </div>
           <div class="system-link">&rarr;</div>
           <div class="system-step frozen">
             <span class="step-id">2</span>
             <h3>Backbone</h3>
-            <p>Base model parameters are frozen</p>
-            <p class="math">\(\phi\)</p>
+            <p>Frozen \(\phi\)</p>
           </div>
           <div class="system-link">&rarr;</div>
           <div class="system-step updated">
             <span class="step-id">3</span>
             <h3>Adapter</h3>
-            <p>Only LoRA parameters are updated</p>
-            <p class="math">\(\theta_t\)</p>
+            <p>Updated \(\theta_t\)</p>
           </div>
           <div class="system-link">&rarr;</div>
           <div class="system-step">
             <span class="step-id">4</span>
-            <h3>Portfolio optimizer</h3>
-            <p class="math">
-              \(\displaystyle
-              \mathbf{w}_t^\star=
-              \arg\min_{\mathbf{w}\in\mathcal{W}}
-              \left(-\hat{\mu}_t^\top\mathbf{w}+\frac{\gamma}{2}\mathbf{w}^\top\hat{\Sigma}_t\mathbf{w}+\lambda_{\mathrm{tc}}\lVert\mathbf{w}-\mathbf{w}_{t-1}\rVert_1\right)
-              \)
-            </p>
+            <h3>Forecasts</h3>
+            <p>\(\hat{\mu}_t,\hat{\Sigma}_t\)</p>
           </div>
+          <div class="system-link">&rarr;</div>
+          <div class="system-step">
+            <span class="step-id">5</span>
+            <h3>Weights</h3>
+            <p>\(\mathbf{w}_t^\star\)</p>
+          </div>
+        </div>
+
+        <div class="math-frame">
+          <p class="math-title">Fixed optimizer (same for all strategies)</p>
+          <p class="math-block">
+            \[
+            \begin{aligned}
+            \mathbf{w}_t^\star=\arg\min_{\mathbf{w}\in\mathcal{W}}
+            \Big(
+            -\hat{\mu}_t^\top\mathbf{w}
+            +\frac{\gamma}{2}\mathbf{w}^\top\hat{\Sigma}_t\mathbf{w}
+            +\lambda_{\mathrm{tc}}\lVert\mathbf{w}-\mathbf{w}_{t-1}\rVert_1
+            \Big)
+            \end{aligned}
+            \]
+          </p>
+        </div>
+      </section>
+
+      <section id="concrete" class="section">
+        <h2>4. Make anchors and projection concrete</h2>
+        <p class="section-intro">
+          These are operational objects, not abstract symbols. The examples below reflect how a production team would
+          construct and audit them.
+        </p>
+        <div class="concrete-grid">
+          <article>
+            <h3>Anchor set \(\mathcal{D}^{\mathrm{anchor}}_t\)</h3>
+            <p>
+              A pinned memory slice used to prevent forgetting. Built from tagged stress windows and preserved as a
+              fixed evaluation set during updates.
+            </p>
+            <table class="anchor-table">
+              <thead>
+                <tr>
+                  <th>Regime tag</th>
+                  <th>Example content</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Credit shock</td>
+                  <td>Spread blowout + funding stress signals</td>
+                </tr>
+                <tr>
+                  <td>Liquidity break</td>
+                  <td>Limit-down tape + widening bid-ask proxies</td>
+                </tr>
+                <tr>
+                  <td>Inflation surprise</td>
+                  <td>Macro release text + factor reversal features</td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
+          <article>
+            <h3>Projection step \(\Pi_{\mathcal{C}_{\varepsilon}}\)</h3>
+            <p>
+              We project the drift update direction onto a feasible set that limits negative interference with anchor
+              memory gradients.
+            </p>
+            <p class="math-block">
+              \[
+              \tilde{\mathbf{g}}
+              =
+              \arg\min_{\mathbf{g}}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2
+              \quad
+              \text{s.t.}
+              \quad
+              \langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon
+              \]
+            </p>
+            <figure class="projection-figure" aria-label="Projected gradient geometry">
+              <svg viewBox="0 0 260 138" role="img">
+                <line x1="28" y1="115" x2="238" y2="115" stroke="#999" stroke-width="1.5"></line>
+                <line x1="28" y1="115" x2="28" y2="20" stroke="#999" stroke-width="1.5"></line>
+                <line x1="28" y1="115" x2="172" y2="48" stroke="#666" stroke-width="2" stroke-dasharray="5 4"></line>
+                <line x1="28" y1="115" x2="146" y2="74" stroke="#111" stroke-width="2.5"></line>
+                <line x1="146" y1="74" x2="172" y2="48" stroke="#b1b1b1" stroke-width="1.5"></line>
+                <text x="176" y="44" font-size="10" fill="#333">g_d</text>
+                <text x="150" y="70" font-size="10" fill="#111">g_tilde</text>
+                <text x="40" y="34" font-size="10" fill="#444">feasible boundary</text>
+              </svg>
+            </figure>
+          </article>
+          <article>
+            <h3>Operational interpretation</h3>
+            <p>
+              Projection does <strong>not</strong> change the optimizer objective directly. It changes the adapter
+              update so that forecast means \(\hat{\mu}_t\) retain behavior on anchor scenarios while still tracking
+              drift.
+            </p>
+            <ul>
+              <li>Projected: adapter gradient step in PEFT parameter space.</li>
+              <li>Preserved: first-order anchor alignment up to budget \(\varepsilon\).</li>
+              <li>Unchanged: downstream optimizer and risk constraints.</li>
+            </ul>
+          </article>
         </div>
       </section>
 
       <section id="pipelines" class="section">
-        <h2>Strategy pipelines</h2>
+        <h2>5. Strategy pipelines</h2>
         <p class="section-intro">
-          All three strategies use the same five pipeline columns below. This makes differences explicit and
-          comparable.
+          Each row uses the same columns: <em>Inputs → Memory → Constraint → Update → Output</em>. Compare row by row.
         </p>
 
         <div class="pipeline-legend">
@@ -98,28 +294,9 @@
 
         <article class="strategy-card">
           <header class="strategy-head">
+            <p class="method-tag">Established baseline</p>
             <h3>Strategy A: Naive continual update</h3>
-            <p>Plain language: adapt immediately to current drift; no explicit memory protection.</p>
-          </header>
-          <div class="pipeline-grid">
-            <div class="col-head">Inputs</div>
-            <div class="col-head">Memory</div>
-            <div class="col-head">Constraint</div>
-            <div class="col-head">Update</div>
-            <div class="col-head">Output</div>
-
-            <div class="cell">Drift stream \(\mathcal{D}^{\mathrm{drift}}_t\)</div>
-            <div class="cell">None</div>
-            <div class="cell">None</div>
-            <div class="cell updated">\(\mathbf{g}_{\mathrm{d}}=\nabla\mathcal{L}_{\mathrm{drift}}\), \(\theta_{t+1}=\theta_t-\eta\mathbf{g}_{\mathrm{d}}\)</div>
-            <div class="cell">Forecasts \(\hat{\mu}_t,\hat{\Sigma}_t\) \(\rightarrow\) weights \(\mathbf{w}_t^\star\)</div>
-          </div>
-        </article>
-
-        <article class="strategy-card">
-          <header class="strategy-head">
-            <h3>Strategy B: Anchor-regularized update</h3>
-            <p>Plain language: reuse stress memory as a soft penalty so updates are less forgetful.</p>
+            <p>Adapt immediately to drift. No explicit memory protection.</p>
           </header>
           <div class="pipeline-grid">
             <div class="col-head">Inputs</div>
@@ -129,24 +306,34 @@
             <div class="col-head">Output</div>
 
             <div class="cell">\(\mathcal{D}^{\mathrm{drift}}_t\)</div>
-            <div class="cell memory">
-              Anchor set \(\mathcal{D}^{\mathrm{anchor}}_t\)
-              <ul class="examples">
-                <li>"2008 credit spread dislocation"</li>
-                <li>"2020 limit-down shock"</li>
-                <li>"2022 inflation surprise"</li>
-              </ul>
-            </div>
-            <div class="cell">Soft via \(\beta\)</div>
-            <div class="cell updated">\(\min_{\theta}\,\mathcal{L}_{\mathrm{drift}}+\beta\mathcal{L}_{\mathrm{anchor}}\), \(\theta_{t+1}=\theta_t-\eta\nabla\mathcal{L}\)</div>
+            <div class="cell">None</div>
+            <div class="cell">None</div>
+            <div class="cell updated">\(\theta_{t+1}=\theta_t-\eta\mathbf{g}_{\mathrm{d}}\)</div>
             <div class="cell">\(\hat{\mu}_t,\hat{\Sigma}_t\rightarrow\mathbf{w}_t^\star\)</div>
+          </div>
+          <div class="strategy-math">
+            <p><strong>Intuition</strong>: optimize short-horizon drift fit only.</p>
+            <p class="math-block">
+              \[
+              \mathbf{g}_{\mathrm{d}}=\nabla_{\theta}\mathcal{L}_{\mathrm{drift}},
+              \qquad
+              \theta_{t+1}=\theta_t-\eta\mathbf{g}_{\mathrm{d}}
+              \]
+            </p>
+            <p><strong>Implication</strong>: highest adaptation speed, weakest stress-memory retention.</p>
+            <p class="method-ref">
+              Reference:
+              <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">LoRA</a>
+              + standard online updating.
+            </p>
           </div>
         </article>
 
         <article class="strategy-card">
           <header class="strategy-head">
-            <h3>Strategy C: Anchor + projection (proposed)</h3>
-            <p>Plain language: enforce memory protection directly in gradient geometry before the update is applied.</p>
+            <p class="method-tag">Established baseline</p>
+            <h3>Strategy B: Anchor-regularized update</h3>
+            <p>Soft memory pressure via replay-weighted objective.</p>
           </header>
           <div class="pipeline-grid">
             <div class="col-head">Inputs</div>
@@ -155,28 +342,79 @@
             <div class="col-head">Update</div>
             <div class="col-head">Output</div>
 
-            <div class="cell">Drift gradient \(\mathbf{g}_{\mathrm{d}}\)</div>
-            <div class="cell memory">
-              Anchor gradient \(\mathbf{g}_{\mathrm{a}}\)
-              <ul class="examples">
-                <li>Stress-memory snapshots</li>
-                <li>Regime archive: calm, inflation, liquidity shock</li>
-              </ul>
-            </div>
-            <div class="cell constraint">
-              \(\tilde{\mathbf{g}}=\Pi_{\mathcal{C}_{\varepsilon}}(\mathbf{g}_{\mathrm{d}})\)
-              <p class="math-small">\(\mathcal{C}_{\varepsilon}=\{\mathbf{g}:\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\}\)</p>
-            </div>
+            <div class="cell">\(\mathcal{D}^{\mathrm{drift}}_t\)</div>
+            <div class="cell memory">\(\mathcal{D}^{\mathrm{anchor}}_t\)</div>
+            <div class="cell">Soft via \(\beta\)</div>
+            <div class="cell updated">\(\theta_{t+1}=\theta_t-\eta\nabla_\theta(\mathcal{L}_{\mathrm{d}}+\beta\mathcal{L}_{\mathrm{a}})\)</div>
+            <div class="cell">\(\hat{\mu}_t,\hat{\Sigma}_t\rightarrow\mathbf{w}_t^\star\)</div>
+          </div>
+          <div class="strategy-math">
+            <p><strong>Intuition</strong>: keep drift learning while penalizing deviation on anchor memory.</p>
+            <p class="math-block">
+              \[
+              \min_{\theta}\;\mathcal{L}_{\mathrm{drift}}(\theta)+\beta\mathcal{L}_{\mathrm{anchor}}(\theta),
+              \qquad
+              \theta_{t+1}=\theta_t-\eta\nabla_{\theta}\mathcal{L}
+              \]
+            </p>
+            <p><strong>Implication</strong>: retention improves when \(\beta\) is tuned, but guarantees are weak.</p>
+            <p class="method-ref">
+              Reference:
+              replay-style continual learning and regularized online fine-tuning.
+            </p>
+          </div>
+        </article>
+
+        <article class="strategy-card">
+          <header class="strategy-head">
+            <p class="method-tag proposed">Proposed in this work</p>
+            <h3>Strategy C: Anchor + projection (proposed)</h3>
+            <p>Hard geometric memory protection before update is applied.</p>
+          </header>
+          <div class="pipeline-grid">
+            <div class="col-head">Inputs</div>
+            <div class="col-head">Memory</div>
+            <div class="col-head">Constraint</div>
+            <div class="col-head">Update</div>
+            <div class="col-head">Output</div>
+
+            <div class="cell">\(\mathcal{D}^{\mathrm{drift}}_t\)</div>
+            <div class="cell memory">\(\mathcal{D}^{\mathrm{anchor}}_t\)</div>
+            <div class="cell constraint">\(\mathbf{g}_{\mathrm{d}}\rightarrow\tilde{\mathbf{g}}\) under anchor alignment</div>
             <div class="cell updated">\(\theta_{t+1}=\theta_t-\eta\tilde{\mathbf{g}}\)</div>
             <div class="cell">\(\hat{\mu}_t,\hat{\Sigma}_t\rightarrow\mathbf{w}_t^\star\)</div>
+          </div>
+          <div class="strategy-math">
+            <p><strong>Intuition</strong>: keep the drift step as close as possible, but forbid harmful anchor interference.</p>
+            <p class="math-block">
+              \[
+              \begin{aligned}
+              \mathbf{g}_{\mathrm{d}}&=\nabla_{\theta}\mathcal{L}_{\mathrm{drift}},\quad
+              \mathbf{g}_{\mathrm{a}}=\nabla_{\theta}\mathcal{L}_{\mathrm{anchor}} \\
+              \tilde{\mathbf{g}}&=
+              \arg\min_{\mathbf{g}}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2
+              \;\text{s.t.}\;
+              \langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon \\
+              \theta_{t+1}&=\theta_t-\eta\left(\tilde{\mathbf{g}}+\beta\mathbf{g}_{\mathrm{a}}\right)
+              \end{aligned}
+              \]
+            </p>
+            <p><strong>Implication</strong>: explicit retention guard with measurable adaptation distortion tradeoff.</p>
+            <p class="method-ref">
+              Reference:
+              <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM</a>
+              and projection-based continual PEFT
+              <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">(Qiao et al., 2024)</a>.
+            </p>
           </div>
         </article>
       </section>
 
       <section id="validation" class="section" aria-label="Validation">
-        <h2>Validation run</h2>
+        <h2>6. Validation run (evidence after theory)</h2>
         <p class="section-intro">
-          This section checks whether observed behavior matches the pipeline logic above.
+          The experiment is intentionally downstream of the mechanism sections above. Use it to verify whether observed
+          outcomes match the theoretical expectations.
         </p>
         <article id="expectation-check" class="expectation-check"></article>
 
