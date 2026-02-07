@@ -3,184 +3,136 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Continual Learning for Portfolio Optimization | Internship Proposal Artifact</title>
-    <link rel="stylesheet" href="./styles.css" />
+    <title>CL-PLO | Constraint-Aligned PEFT Decision Artifact</title>
+    <link rel="stylesheet" href="./coreline.css" />
   </head>
   <body>
     <header class="hero">
-      <div class="container">
-        <nav class="top-nav">
-          <a class="nav-link" href="./strategy-comparison.html">Strategy Comparison</a>
-          <span class="version-chip">Locked baseline: Coreline V2 (CL-PLO only)</span>
+      <div class="shell">
+        <nav class="topbar">
+          <a class="toplink" href="./strategy-comparison.html">Strategy Comparison</a>
+          <span class="version">Coreline V3 · CL-PLO only</span>
         </nav>
 
         <p class="eyebrow">Continual Learning for Portfolio Optimization</p>
-        <h1>Constrained PEFT Keeps Adaptation Without Losing Stress Retention</h1>
+        <h1>Constrained PEFT protects stress behavior while adapting to drift.</h1>
         <p class="lead">
-          This page has one job: decide whether the CL-PLO mechanism is pilot-worthy.
-          No scope creep, just the core comparison: naive updates vs anchor vs anchor-plus-projection.
+          This page exists for one decision: should anchor-plus-projection be promoted over naive online updates for a
+          pilot portfolio stack.
         </p>
 
         <div class="hero-actions">
-          <button id="hero-run" class="btn-primary">Run Experiment</button>
-          <a class="btn-ghost" href="./strategy-comparison.html">Compare Strategy Systems</a>
-          <a class="btn-ghost" href="#appendix">Technical Appendix</a>
+          <button id="hero-run" class="btn btn-primary">Run Core Test</button>
+          <a class="btn btn-ghost" href="#demo">Open Live Evaluation</a>
+          <a class="btn btn-ghost" href="#appendix">Open Technical Backbone</a>
         </div>
       </div>
     </header>
 
-    <main class="container">
-      <section id="demo" class="panel">
-        <div class="panel-head">
-          <h2>Live Evaluation</h2>
-          <p>Default setup is tuned for high signal. Start there before changing knobs.</p>
-        </div>
-
-        <div class="demo-layout">
-          <aside class="controls">
-            <h3>Controls</h3>
-
-            <div class="preset-row">
-              <button id="apply-quick" class="btn-ghost">Quick</button>
-              <button id="apply-proposal" class="btn-ghost">Default</button>
-              <button id="apply-stress" class="btn-ghost">Stress+</button>
-            </div>
-
-            <form id="config-form">
-              <fieldset>
-                <legend>Main Knobs</legend>
-                <label>Update steps <input name="steps" type="number" step="1" /></label>
-                <label>Anchor weight <input name="anchorBeta" type="number" step="0.01" /></label>
-                <label>Stress frequency <input name="pStress" type="number" step="0.01" /></label>
-                <label>LoRA rank <input name="loraRank" type="number" step="1" /></label>
-              </fieldset>
-
-              <details>
-                <summary>Advanced Settings</summary>
-                <fieldset>
-                  <label>Seed <input name="seed" type="number" step="1" /></label>
-                  <label>Learning rate <input name="lr" type="number" step="0.001" /></label>
-                  <label>Train drift samples <input name="nTrainDrift" type="number" step="1" /></label>
-                  <label>Anchor stress samples <input name="nAnchorStress" type="number" step="1" /></label>
-                  <label>Test drift samples <input name="nTestDrift" type="number" step="1" /></label>
-                  <label>Test stress samples <input name="nTestStress" type="number" step="1" /></label>
-                  <label>Batch size <input name="batchSize" type="number" step="1" /></label>
-                  <label>Anchor batch size <input name="anchorBatchSize" type="number" step="1" /></label>
-                  <label>Simulation horizon <input name="simT" type="number" step="1" /></label>
-                  <label>Max risky weight <input name="wMaxRisky" type="number" step="0.01" /></label>
-                  <label>Turnover smoothing <input name="turnoverEta" type="number" step="0.01" /></label>
-                  <label>Noise std <input name="noiseStd" type="number" step="0.01" /></label>
-                  <label>Return scale <input name="returnScale" type="number" step="0.001" /></label>
-                </fieldset>
-              </details>
-            </form>
-
-            <div class="control-actions">
-              <button id="run-demo" class="btn-primary">Run</button>
-              <button id="reset-form" class="btn-ghost">Reset</button>
-            </div>
-          </aside>
-
-          <section class="results">
-            <div class="run-status">
-              <p id="status-line">Ready.</p>
-              <div class="progress-track"><div id="progress-fill"></div></div>
-            </div>
-
-            <article id="decision-card" class="decision-card"></article>
-
-            <div id="impact-kpis" class="impact-kpis"></div>
-
-            <div class="chart-grid">
-              <article>
-                <h3>Relative Impact vs Naive</h3>
-                <canvas id="impact-chart" class="chart-canvas"></canvas>
-              </article>
-              <article>
-                <h3>Equity Curve Comparison</h3>
-                <canvas id="equity-chart" class="chart-canvas"></canvas>
-              </article>
-            </div>
-
-            <div id="metrics-grid" class="method-summary"></div>
-
-            <article id="takeaway" class="takeaway"></article>
-
-            <div class="report-actions">
-              <button id="export-run" class="btn-ghost">Export Run Report</button>
-            </div>
-          </section>
-        </div>
+    <main class="shell">
+      <section class="card thesis" aria-label="Core thesis">
+        <h2>Core Thesis</h2>
+        <p>
+          Use naive updates as the speed baseline, anchor regularization as retention support, and projection as the
+          hard guardrail against catastrophic stress forgetting.
+        </p>
+        <ul>
+          <li><strong>Protect:</strong> stress-regime retention and drawdown behavior.</li>
+          <li><strong>Accept:</strong> some drift-fit penalty when retention is non-negotiable.</li>
+          <li><strong>Promote:</strong> only if gains survive explicit risk gates.</li>
+        </ul>
       </section>
 
-      <section id="appendix" class="panel">
-        <div class="panel-head">
-          <h2>Appendix</h2>
-          <p>Detail is available, but intentionally secondary.</p>
+      <section id="demo" class="card" aria-label="Live evaluation">
+        <div class="section-head">
+          <h2>Run The Decision Test</h2>
+          <p>Three methods, shared data path, deployment-oriented gates.</p>
         </div>
 
+        <div class="control-stack">
+          <div class="preset-row">
+            <button id="apply-quick" class="btn btn-ghost" type="button">Quick</button>
+            <button id="apply-proposal" class="btn btn-ghost" type="button">Default</button>
+            <button id="apply-stress" class="btn btn-ghost" type="button">Stress+</button>
+          </div>
+
+          <form id="config-form" class="knob-grid">
+            <label>Update steps<input name="steps" type="number" step="1" /></label>
+            <label>Anchor weight<input name="anchorBeta" type="number" step="0.01" /></label>
+            <label>Stress frequency<input name="pStress" type="number" step="0.01" /></label>
+            <label>LoRA rank<input name="loraRank" type="number" step="1" /></label>
+            <label>Seed<input name="seed" type="number" step="1" /></label>
+          </form>
+
+          <div class="action-row">
+            <button id="run-demo" class="btn btn-primary" type="button">Run</button>
+            <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
+            <button id="export-run" class="btn btn-ghost" type="button">Export JSON</button>
+          </div>
+        </div>
+
+        <div class="run-status">
+          <p id="status-line">Ready.</p>
+          <div class="progress-track"><div id="progress-fill"></div></div>
+        </div>
+
+        <article id="decision-card" class="decision-card"></article>
+
+        <div id="impact-kpis" class="kpi-row"></div>
+
+        <div class="chart-grid">
+          <article>
+            <h3>Impact vs Naive</h3>
+            <canvas id="impact-chart" class="chart-canvas"></canvas>
+          </article>
+          <article>
+            <h3>Equity Curves</h3>
+            <canvas id="equity-chart" class="chart-canvas"></canvas>
+          </article>
+        </div>
+
+        <article class="table-wrap">
+          <h3>Method Scoreboard</h3>
+          <table id="method-table" class="method-table"></table>
+        </article>
+
+        <article id="takeaway" class="takeaway"></article>
+      </section>
+
+      <section id="appendix" class="card" aria-label="Technical backbone">
         <details>
-          <summary>Math and Definitions</summary>
-          <div class="appendix-block">
-            <pre class="equation">w_t = arg min_{w in W} -μ̂_t^T w + γ w^T Σ̂_t w + λ_tc TC(w, w_{t-1})
-subject to c_k(w) ≤ 0,
-           CVaR_α(w) ≤ τ_α,
-           Drawdown(w) ≤ τ_dd
+          <summary>Technical Backbone</summary>
+          <div class="appendix-grid">
+            <article>
+              <h3>Update And Constraint Form</h3>
+              <pre>w_t = arg min_w -μ̂_t^T w + γ w^T Σ̂_t w + λ_tc TC(w, w_{t-1})
+subject to risk and drawdown constraints
 
 v_t = arg min_v 0.5 ||v - g_new||^2
 subject to &lt;v, g_anchor&gt; ≥ -ε</pre>
-            <p><code>g_new</code> fits drift, <code>g_anchor</code> enforces retention, <code>ε</code> sets allowed regression.</p>
-          </div>
-        </details>
+            </article>
 
-        <details>
-          <summary>Deployment Path</summary>
-          <div class="appendix-block">
-            <ol class="compact-list">
-              <li>Run PEFT-only update with frozen backbone.</li>
-              <li>Evaluate drift fit, anchor regression, and risk proxies.</li>
-              <li>Promote only when gate thresholds pass.</li>
-              <li>Rollback on regression alarms.</li>
-            </ol>
-          </div>
-        </details>
+            <article>
+              <h3>Deployment Path</h3>
+              <ol>
+                <li>Train PEFT adapters with rolling drift + stress anchor data.</li>
+                <li>Run naive, anchor, and projection on the same test path.</li>
+                <li>Gate by stress retention, drawdown, and drift-fit penalty.</li>
+                <li>Promote only if risk gates hold under stress-heavy settings.</li>
+              </ol>
+            </article>
 
-        <details>
-          <summary>Evidence and References</summary>
-          <div class="appendix-block">
-            <img src="./assets/validation_wide.png" alt="Validation figure" class="reference-figure" />
-            <div id="claim-checks" class="claim-checks"></div>
-
-            <div class="refs-grid">
-              <article>
-                <h3>Papers</h3>
-                <ul id="paper-refs" class="refs-list"></ul>
-              </article>
-              <article>
-                <h3>Datasets</h3>
-                <ul id="dataset-refs" class="refs-list"></ul>
-              </article>
-              <article>
-                <h3>Repositories</h3>
-                <ul id="repo-refs" class="refs-list"></ul>
-              </article>
-            </div>
-
-            <div class="artifact-links">
-              <a href="./strategy-comparison.html">Strategy Comparison</a>
-              <a href="./docs/INTERNSHIP_PROPOSAL_MEMO.md">Proposal Memo</a>
-              <a href="./docs/DEPLOYMENT_PLAYBOOK.md">Deployment Playbook</a>
-              <a href="./docs/VERSIONS.md">Version Checkpoints</a>
-              <a href="./validation_experiment.py">Validation Script</a>
-              <a href="./README.md">Repository Guide</a>
-            </div>
+            <article>
+              <h3>References</h3>
+              <ul id="ref-list" class="ref-list"></ul>
+            </article>
           </div>
         </details>
       </section>
     </main>
 
     <footer class="footer">
-      <p>Principle: if it does not improve the decision, remove it.</p>
+      <p>Principle: if an element does not improve the decision, remove it.</p>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

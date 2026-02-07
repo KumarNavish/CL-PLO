@@ -2,25 +2,7 @@ import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { REFERENCES } from "../content/references.js";
 import { drawEquity, drawImpactBars } from "./charts.js";
 
-const FIELD_MAP = [
-  "seed",
-  "nTrainDrift",
-  "nAnchorStress",
-  "nTestDrift",
-  "nTestStress",
-  "loraRank",
-  "lr",
-  "steps",
-  "batchSize",
-  "anchorBatchSize",
-  "anchorBeta",
-  "simT",
-  "pStress",
-  "wMaxRisky",
-  "turnoverEta",
-  "noiseStd",
-  "returnScale",
-];
+const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
 
 let worker = null;
 let latestResult = null;
@@ -29,15 +11,18 @@ export function initApp() {
   fillForm(DEFAULT_CONFIG);
   renderReferences();
 
-  document.getElementById("run-demo").addEventListener("click", () => runCurrentConfig());
-  document.getElementById("apply-quick").addEventListener("click", () => applyPreset("quick_check"));
-  document.getElementById("apply-proposal").addEventListener("click", () => applyPreset("proposal_like"));
-  document.getElementById("apply-stress").addEventListener("click", () => applyPreset("stress_heavy"));
-  document.getElementById("reset-form").addEventListener("click", () => fillForm(DEFAULT_CONFIG));
-  document.getElementById("export-run").addEventListener("click", () => exportCurrentRun());
+  document.getElementById("run-demo")?.addEventListener("click", () => runCurrentConfig());
+  document.getElementById("apply-quick")?.addEventListener("click", () => applyPreset("quick_check"));
+  document.getElementById("apply-proposal")?.addEventListener("click", () => applyPreset("proposal_like"));
+  document.getElementById("apply-stress")?.addEventListener("click", () => applyPreset("stress_heavy"));
+  document.getElementById("reset-form")?.addEventListener("click", () => {
+    fillForm(DEFAULT_CONFIG);
+    setStatus("Controls reset to default.");
+  });
+  document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
 
-  document.querySelector("#hero-run").addEventListener("click", () => {
-    document.querySelector("#demo").scrollIntoView({ behavior: "smooth", block: "start" });
+  document.getElementById("hero-run")?.addEventListener("click", () => {
+    document.getElementById("demo")?.scrollIntoView({ behavior: "smooth", block: "start" });
     runCurrentConfig();
   });
 
@@ -84,12 +69,12 @@ function ensureWorker() {
 }
 
 function runCurrentConfig() {
-  const cfg = readConfigFromForm();
-  const safe = clampConfig(cfg);
+  const userCfg = readConfigFromForm();
+  const safe = clampConfig({ ...DEFAULT_CONFIG, ...userCfg });
   fillForm(safe);
 
   setRunning(true);
-  setStatus("Running experiment...");
+  setStatus("Running shared-path comparison...");
   setProgress(0);
 
   ensureWorker().postMessage({
@@ -100,6 +85,7 @@ function runCurrentConfig() {
 
 function readConfigFromForm() {
   const cfg = {};
+
   for (const key of FIELD_MAP) {
     const input = document.querySelector(`[name="${key}"]`);
     if (!input) {
@@ -107,6 +93,7 @@ function readConfigFromForm() {
     }
     cfg[key] = Number(input.value);
   }
+
   return cfg;
 }
 
@@ -126,19 +113,27 @@ function applyPreset(name) {
     return;
   }
 
-  const merged = { ...readConfigFromForm(), ...preset.values };
-  fillForm(clampConfig(merged));
+  const merged = clampConfig({ ...DEFAULT_CONFIG, ...readConfigFromForm(), ...preset.values });
+  fillForm(merged);
   setStatus(`Preset applied: ${preset.label}`);
 }
 
 function setRunning(isRunning) {
   const runButton = document.getElementById("run-demo");
+  if (!runButton) {
+    return;
+  }
+
   runButton.disabled = isRunning;
   runButton.textContent = isRunning ? "Running..." : "Run";
 }
 
 function setStatus(msg, isError = false) {
   const status = document.getElementById("status-line");
+  if (!status) {
+    return;
+  }
+
   status.textContent = msg;
   status.classList.toggle("error", isError);
 }
@@ -146,6 +141,10 @@ function setStatus(msg, isError = false) {
 function setProgress(value) {
   const pct = Math.max(0, Math.min(100, value));
   const bar = document.getElementById("progress-fill");
+  if (!bar) {
+    return;
+  }
+
   bar.style.width = `${pct.toFixed(1)}%`;
 }
 
@@ -153,32 +152,33 @@ function renderProgress(payload) {
   if (payload.kind === "training") {
     const numerator = payload.methodIndex * payload.totalSteps + payload.step;
     const denominator = payload.totalMethods * payload.totalSteps;
-    setProgress((100 * numerator) / denominator);
-
+    setProgress((100 * numerator) / Math.max(1, denominator));
     setStatus(`Training ${payload.methodLabel}: ${payload.step}/${payload.totalSteps}`);
     return;
   }
 
   if (payload.kind === "building_charts") {
     setProgress(100);
-    setStatus("Finalizing outputs...");
+    setStatus("Finalizing decision outputs...");
   }
 }
 
 function renderAll(result) {
-  setStatus("Run complete. Review deltas vs naive and make a pilot decision.");
   setProgress(100);
+  setStatus("Run complete. Review decision, gates, then method table.");
 
   renderDecisionCard(result);
-  renderImpactKpis(result);
-  renderMethodSummary(result);
+  renderKpis(result);
   renderCharts(result);
+  renderMethodTable(result);
   renderTakeaway(result);
-  renderClaimChecks(result);
 }
 
 function renderDecisionCard(result) {
   const host = document.getElementById("decision-card");
+  if (!host) {
+    return;
+  }
 
   const naive = result.metrics.naive;
   const proj = result.metrics.anchor_proj;
@@ -188,91 +188,66 @@ function renderDecisionCard(result) {
   const driftPenalty = ratioPenalty(naive.driftMse, proj.driftMse);
 
   let level = "caution";
-  let title = "Decision Signal: Validate in Pilot";
+  let title = "Decision: Validate in pilot before promotion";
 
-  if (stressGain > 0.8 && drawdownGain > 0.08 && driftPenalty < 60) {
+  if (stressGain > 0.8 && drawdownGain > 0.06 && driftPenalty < 70) {
     level = "good";
-    title = "Decision Signal: Strong Pilot Candidate";
-  } else if (stressGain < 0.4 || drawdownGain < 0.0) {
+    title = "Decision: Projection is pilot-ready";
+  } else if (stressGain < 0.45 || drawdownGain < 0) {
     level = "bad";
-    title = "Decision Signal: Not Ready for Pilot";
+    title = "Decision: Hold deployment";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Projection vs naive: stress retention gain <strong>${pct(stressGain)}</strong>,
-      drawdown improvement <strong>${pp(drawdownGain)}</strong>,
-      drift error penalty <strong>${pct(driftPenalty / 100)}</strong>.
+      Projection vs naive: stress retention <strong>${pct(stressGain)}</strong>, drawdown change
+      <strong>${pp(drawdownGain)}</strong>, drift-fit penalty <strong>${pct(driftPenalty / 100)}</strong>.
     </p>
   `;
 }
 
-function renderImpactKpis(result) {
+function renderKpis(result) {
   const host = document.getElementById("impact-kpis");
+  if (!host) {
+    return;
+  }
 
   const naive = result.metrics.naive;
+  const anchor = result.metrics.anchor;
   const proj = result.metrics.anchor_proj;
 
   const stressGain = improvement(naive.stressMse, proj.stressMse);
   const drawdownGain = proj.maxDrawdown - naive.maxDrawdown;
-  const returnGain = proj.totalReturn - naive.totalReturn;
+  const anchorGap = proj.stressMse - anchor.stressMse;
 
   host.innerHTML = `
-    <article class="kpi ${classBySign(stressGain)}">
+    <article class="${classBySign(stressGain)}">
       <div class="label">Stress Retention Gain</div>
       <div class="value">${pct(stressGain)}</div>
       <div class="note">Projection vs naive</div>
     </article>
-    <article class="kpi ${classBySign(drawdownGain)}">
-      <div class="label">Drawdown Improvement</div>
+    <article class="${classBySign(drawdownGain)}">
+      <div class="label">Drawdown Change</div>
       <div class="value">${pp(drawdownGain)}</div>
       <div class="note">Higher is better</div>
     </article>
-    <article class="kpi ${classBySign(returnGain)}">
-      <div class="label">Return Uplift</div>
-      <div class="value">${pp(returnGain)}</div>
-      <div class="note">Projection vs naive</div>
+    <article class="${classBySign(-anchorGap)}">
+      <div class="label">Projection vs Anchor</div>
+      <div class="value">${fmt(anchorGap, 6)}</div>
+      <div class="note">Stress MSE delta (lower is better)</div>
     </article>
   `;
-}
-
-function renderMethodSummary(result) {
-  const host = document.getElementById("metrics-grid");
-  const naive = result.metrics.naive;
-
-  host.innerHTML = result.methods
-    .map((method) => {
-      const m = result.metrics[method.id];
-      const stressGain = method.id === "naive" ? 0 : improvement(naive.stressMse, m.stressMse);
-      const ddGain = method.id === "naive" ? 0 : m.maxDrawdown - naive.maxDrawdown;
-      const retGain = method.id === "naive" ? 0 : m.totalReturn - naive.totalReturn;
-
-      return `
-      <article class="method-card">
-        <div class="title">
-          <span class="dot" style="background:${method.color}"></span>
-          <h4>${method.label}</h4>
-        </div>
-        <dl>
-          <div><dt>Drift MSE</dt><dd>${fmt(m.driftMse, 6)}</dd></div>
-          <div><dt>Stress MSE</dt><dd>${fmt(m.stressMse, 6)}</dd></div>
-          <div><dt>Max Drawdown</dt><dd>${pct(m.maxDrawdown)}</dd></div>
-          <div><dt>Total Return</dt><dd>${pct(m.totalReturn)}</dd></div>
-          <div><dt>Stress gain vs naive</dt><dd>${method.id === "naive" ? "baseline" : pct(stressGain)}</dd></div>
-          <div><dt>Drawdown vs naive</dt><dd>${method.id === "naive" ? "baseline" : pp(ddGain)}</dd></div>
-          <div><dt>Return vs naive</dt><dd>${method.id === "naive" ? "baseline" : pp(retGain)}</dd></div>
-        </dl>
-      </article>
-      `;
-    })
-    .join("");
 }
 
 function renderCharts(result) {
   const impactCanvas = document.getElementById("impact-chart");
   const equityCanvas = document.getElementById("equity-chart");
+
+  if (!impactCanvas || !equityCanvas) {
+    return;
+  }
 
   const n = result.metrics.naive;
   const a = result.metrics.anchor;
@@ -280,12 +255,12 @@ function renderCharts(result) {
 
   drawImpactBars(impactCanvas, [
     {
-      label: "Stress Retention Gain",
+      label: "Stress retention gain",
       anchor: 100 * improvement(n.stressMse, a.stressMse),
       proj: 100 * improvement(n.stressMse, p.stressMse),
     },
     {
-      label: "Drawdown Improvement",
+      label: "Drawdown change",
       anchor: 100 * (a.maxDrawdown - n.maxDrawdown),
       proj: 100 * (p.maxDrawdown - n.maxDrawdown),
     },
@@ -300,63 +275,116 @@ function renderCharts(result) {
   drawEquity(equityCanvas, lineSeries, result.stressMarkers);
 }
 
-function renderTakeaway(result) {
-  const host = document.getElementById("takeaway");
+function renderMethodTable(result) {
+  const host = document.getElementById("method-table");
+  if (!host) {
+    return;
+  }
 
-  const naive = result.metrics.naive;
-  const anchor = result.metrics.anchor;
-  const proj = result.metrics.anchor_proj;
+  const metrics = result.metrics;
+  const ids = result.methods.map((m) => m.id);
+  const stressVals = ids.map((id) => metrics[id].stressMse);
+  const driftVals = ids.map((id) => metrics[id].driftMse);
+  const drawVals = ids.map((id) => metrics[id].maxDrawdown);
+
+  const stressScore = normalizeLowerBetter(stressVals);
+  const driftScore = normalizeLowerBetter(driftVals);
+  const drawScore = normalizeHigherBetter(drawVals);
+
+  const rows = result.methods.map((method, idx) => {
+    const m = metrics[method.id];
+    const score = 100 * (0.55 * stressScore[idx] + 0.3 * drawScore[idx] + 0.15 * driftScore[idx]);
+
+    return {
+      method,
+      stressMse: m.stressMse,
+      driftMse: m.driftMse,
+      maxDrawdown: m.maxDrawdown,
+      totalReturn: m.totalReturn,
+      score,
+    };
+  });
+
+  rows.sort((a, b) => b.score - a.score);
 
   host.innerHTML = `
-    <h4>Interpretation</h4>
-    <ul>
-      <li>Naive adapts quickly but carries the highest anchor regression risk.</li>
-      <li>Anchor-only improves retention, but projection is the strongest retention control.</li>
-      <li>Projection improves stress retention by <strong>${pct(improvement(naive.stressMse, proj.stressMse))}</strong> vs naive, with drawdown change <strong>${pp(proj.maxDrawdown - naive.maxDrawdown)}</strong>.</li>
-      <li>Tradeoff is explicit: projection usually increases drift error relative to naive (${fmt(proj.driftMse / Math.max(1e-12, naive.driftMse), 2)}x here).</li>
-      <li>Decision framing: if stress retention is a hard constraint, projection is the primary pilot candidate.</li>
-      <li>Anchor-only reference: stress gain ${pct(improvement(naive.stressMse, anchor.stressMse))}, drawdown change ${pp(anchor.maxDrawdown - naive.maxDrawdown)}.</li>
-    </ul>
+    <thead>
+      <tr>
+        <th>Method</th>
+        <th>Stress MSE</th>
+        <th>Drawdown</th>
+        <th>Drift MSE</th>
+        <th>Total Return</th>
+        <th>Deployment Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows
+        .map(
+          (row) => `
+            <tr>
+              <td>
+                <span class="method-name">
+                  <span class="dot" style="background:${row.method.color}"></span>
+                  ${row.method.label}
+                </span>
+              </td>
+              <td>${fmt(row.stressMse, 6)}</td>
+              <td>${pct(row.maxDrawdown)}</td>
+              <td>${fmt(row.driftMse, 6)}</td>
+              <td>${pct(row.totalReturn)}</td>
+              <td><strong>${row.score.toFixed(1)}</strong></td>
+            </tr>
+          `,
+        )
+        .join("")}
+    </tbody>
   `;
 }
 
-function renderClaimChecks(result) {
-  const host = document.getElementById("claim-checks");
+function renderTakeaway(result) {
+  const host = document.getElementById("takeaway");
+  if (!host) {
+    return;
+  }
+
   const naive = result.metrics.naive;
   const anchor = result.metrics.anchor;
   const proj = result.metrics.anchor_proj;
 
+  const stressGainProj = improvement(naive.stressMse, proj.stressMse);
+  const stressGainAnchor = improvement(naive.stressMse, anchor.stressMse);
+  const ddProj = proj.maxDrawdown - naive.maxDrawdown;
+
   host.innerHTML = `
-    <article>
-      <h4>Claim A: projection improves stress retention</h4>
-      <p>Stress MSE: ${fmt(naive.stressMse, 6)} (naive) -> ${fmt(proj.stressMse, 6)} (projection).</p>
-    </article>
-    <article>
-      <h4>Claim B: anchor-only is intermediate</h4>
-      <p>Stress MSE: ${fmt(anchor.stressMse, 6)} (anchor) sits between naive and projection.</p>
-    </article>
-    <article>
-      <h4>Claim C: model behavior affects portfolio outcomes</h4>
-      <p>Max drawdown: ${pct(naive.maxDrawdown)} (naive), ${pct(anchor.maxDrawdown)} (anchor), ${pct(proj.maxDrawdown)} (projection).</p>
-    </article>
+    <h4>Practical Read</h4>
+    <p>
+      Naive is the speed baseline. Anchor improves retention, but projection is the strongest stress-preserving update
+      in this setup: stress gain <strong>${pct(stressGainProj)}</strong> vs naive (anchor: ${pct(stressGainAnchor)}),
+      with drawdown change <strong>${pp(ddProj)}</strong>. Promote only if this pattern holds under stress-heavy runs.
+    </p>
   `;
 }
 
 function renderReferences() {
-  renderRefGroup("paper-refs", REFERENCES.papers);
-  renderRefGroup("dataset-refs", REFERENCES.datasets);
-  renderRefGroup("repo-refs", REFERENCES.repositories);
-}
+  const host = document.getElementById("ref-list");
+  if (!host) {
+    return;
+  }
 
-function renderRefGroup(id, refs) {
-  const host = document.getElementById(id);
-  host.innerHTML = refs
+  const curated = [
+    ...REFERENCES.papers.slice(0, 4),
+    ...REFERENCES.repositories.slice(0, 2),
+    ...REFERENCES.datasets.slice(0, 1),
+  ];
+
+  host.innerHTML = curated
     .map(
       (item) => `
-      <li>
-        <a href="${item.link}" target="_blank" rel="noreferrer">${item.title}</a>
-        <span>${item.authors ? `${item.authors} · ` : ""}${item.why}</span>
-      </li>
+        <li>
+          <a href="${item.link}" target="_blank" rel="noreferrer">${item.title}</a>
+          <span>${item.authors ? `${item.authors} · ` : ""}${item.why}</span>
+        </li>
       `,
     )
     .join("");
@@ -364,7 +392,7 @@ function renderRefGroup(id, refs) {
 
 function exportCurrentRun() {
   if (!latestResult) {
-    setStatus("Run the demo before exporting a report.", true);
+    setStatus("Run the test before exporting.", true);
     return;
   }
 
@@ -373,7 +401,6 @@ function exportCurrentRun() {
     config: latestResult.config,
     keyResult: latestResult.keyResult,
     metrics: latestResult.metrics,
-    trainLogs: latestResult.trainLogs,
   };
 
   const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
@@ -381,7 +408,7 @@ function exportCurrentRun() {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = `constraint_aligned_peft_run_${Date.now()}.json`;
+  a.download = `cl_plo_run_${Date.now()}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -398,6 +425,20 @@ function classBySign(v) {
     return "bad";
   }
   return "caution";
+}
+
+function normalizeLowerBetter(values) {
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = Math.max(1e-12, hi - lo);
+  return values.map((v) => (hi - v) / span);
+}
+
+function normalizeHigherBetter(values) {
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = Math.max(1e-12, hi - lo);
+  return values.map((v) => (v - lo) / span);
 }
 
 function improvement(base, current) {
@@ -418,6 +459,7 @@ function fmt(x, digits = 4) {
   if (!Number.isFinite(x)) {
     return "n/a";
   }
+
   const ax = Math.abs(x);
   if (ax > 0 && (ax < 1e-4 || ax > 1e4)) {
     return x.toExponential(2);
