@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CL-PLO | Theory-First Decision Artifact</title>
+    <title>CL-PLO | Theory and Validation</title>
     <link rel="stylesheet" href="./coreline.css" />
   </head>
   <body>
@@ -11,166 +11,146 @@
       <div class="shell">
         <nav class="topbar">
           <a class="toplink" href="./strategy-comparison.html">Strategy Comparison</a>
-          <span class="version">Coreline V4 · theory-first CL-PLO</span>
+          <span class="version">Coreline V5 · theory section rewrite</span>
         </nav>
 
-        <p class="eyebrow">Continual Learning for Portfolio Optimization</p>
-        <h1>Theory first: constrain adaptation so stress behavior is not forgotten.</h1>
+        <h1>Constraint-aligned PEFT for continual portfolio learning</h1>
         <p class="lead">
-          This page is ordered as a technical argument. First: formulation and method mechanics. Second: validation
-          runs that confirm or reject what the mechanics predict.
+          The central question is simple: can we keep adapting to regime drift without erasing the behavior that
+          protects the portfolio in stress periods? This page answers that question in two stages. First, it explains
+          the mechanisms. Then it shows the validation runs.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#foundations">Read Technical Foundations</a>
-          <a class="btn btn-ghost" href="#methods">Inspect Method Pipelines</a>
-          <a class="btn btn-ghost" href="#validation">Run Validation Experiment</a>
+          <a class="btn btn-primary" href="#foundations">Start With Theory</a>
+          <a class="btn btn-ghost" href="#validation">Jump To Validation</a>
         </div>
       </div>
     </header>
 
     <main class="shell">
-      <section class="card thesis" aria-label="Core thesis">
-        <h2>Core Thesis</h2>
+      <section id="foundations" class="section" aria-label="Foundations">
+        <h2>1. Problem setup</h2>
         <p>
-          Naive continual updates are adaptation-fast but retention-fragile. Anchor regularization improves retention,
-          and projection adds an explicit geometric guardrail against stress-regime forgetting.
+          Portfolio construction is held fixed. At each step, weights are obtained from the same constrained optimizer.
+          What changes across methods is only the update rule for the adapter parameters that feed forecast inputs into
+          that optimizer.
         </p>
-        <ul>
-          <li><strong>What is protected:</strong> stress-regime signal retention and drawdown behavior.</li>
-          <li><strong>What is allowed:</strong> drift adaptation in directions that do not violate anchor constraints.</li>
-          <li><strong>Deployment rule:</strong> promote only if stress gains survive drawdown and drift-fit tradeoffs.</li>
-        </ul>
-      </section>
-
-      <section id="foundations" class="card" aria-label="Technical foundations">
-        <div class="section-head">
-          <h2>1. Problem Formulation and Assumptions</h2>
-          <p>Define the mechanism before looking at evidence.</p>
-        </div>
-
-        <div class="foundation-grid">
-          <article>
-            <h3>Optimization Layer</h3>
-            <pre>w_t = arg min_w -mu_hat_t^T w + gamma * w^T Sigma_hat_t w + lambda_tc * TC(w, w_{t-1})
+        <pre>w_t = arg min_w -mu_hat_t^T w + gamma * w^T Sigma_hat_t w + lambda_tc * TC(w, w_{t-1})
 subject to risk and drawdown constraints</pre>
-            <p>
-              Portfolio construction is fixed across methods. The comparison only changes how the PEFT adapter update
-              is computed under drift and stress conditions.
-            </p>
-          </article>
+        <p>
+          This separation matters. It lets us compare update mechanisms cleanly, without conflating learning behavior
+          with a different optimizer.
+        </p>
 
-          <article>
-            <h3>Learning Assumptions</h3>
-            <ul>
-              <li>Market regimes drift over time and occasionally enter stress states.</li>
-              <li>A frozen backbone with LoRA adapters is sufficient for online adaptation.</li>
-              <li>Stress anchor samples approximate behavior that must not regress.</li>
-              <li>Drawdown and turnover realism are non-negotiable deployment filters.</li>
-            </ul>
-          </article>
+        <h3>Assumptions used in the comparison</h3>
+        <ul>
+          <li>Regime drift is persistent, but stress periods appear intermittently.</li>
+          <li>Adapters should absorb new information while the backbone remains frozen.</li>
+          <li>A stress-anchor buffer approximates behavior that should not regress.</li>
+          <li>Deployment quality is judged by retention, drawdown, and adaptation cost together.</li>
+        </ul>
 
-          <article>
-            <h3>Expected Ordering Before Tests</h3>
-            <ol>
-              <li>Naive: best short-horizon drift fit, weakest stress retention.</li>
-              <li>Anchor: intermediate retention and intermediate adaptation.</li>
-              <li>Projection: strongest stress retention, highest drift-fit penalty risk.</li>
-            </ol>
-          </article>
-        </div>
+        <p>
+          Before running any experiment, the expected ordering is: naive should adapt fastest; anchor should be more
+          stable; projection should preserve stress behavior most strongly, at the cost of some drift-fit flexibility.
+        </p>
       </section>
 
-      <section id="methods" class="card" aria-label="Method theory and pipelines">
-        <div class="section-head">
-          <h2>2. Method Theory and Pipeline Diagrams</h2>
-          <p>Each method is specified by objective, constraints, and update geometry.</p>
-        </div>
+      <section id="methods" class="section" aria-label="Method mechanics">
+        <h2>2. Method mechanics</h2>
+        <p>
+          The three methods below differ only in how they update adapter gradients. Each method description is
+          deliberately explicit: objective, constraint, what is preserved, and what is allowed to move.
+        </p>
 
-        <div class="method-theory-grid">
-          <article class="method-theory">
-            <h3>Naive LoRA Update (Baseline)</h3>
-            <ul class="method-meta">
-              <li><strong>Objective:</strong> minimize current drift loss only.</li>
-              <li><strong>Constraint:</strong> no retention constraint in gradient space.</li>
-              <li><strong>Preserves:</strong> short-term fit to current regime.</li>
-              <li><strong>Allows change:</strong> all adapter directions, including stress-critical ones.</li>
-            </ul>
-            <pre>g = grad L_drift
+        <article class="method">
+          <h3>Method A: Naive continual update</h3>
+          <p>
+            This baseline follows the current drift objective directly. It is usually the most responsive method, but it
+            has no explicit memory of stress behavior.
+          </p>
+          <dl>
+            <div><dt>Objective</dt><dd>Minimize current drift loss.</dd></div>
+            <div><dt>Constraint</dt><dd>No retention constraint in gradient space.</dd></div>
+            <div><dt>Preserves</dt><dd>Short-horizon fit to the present regime.</dd></div>
+            <div><dt>Allows to change</dt><dd>All adapter directions, including stress-sensitive directions.</dd></div>
+          </dl>
+          <pre>g = grad L_drift
 theta_{t+1} = theta_t - eta * g</pre>
-            <div class="pipeline" aria-label="Naive method pipeline">
-              <span class="node input">Drift batch</span><span class="arrow">-&gt;</span>
-              <span class="node update">Adapter gradient</span><span class="arrow">-&gt;</span>
-              <span class="node update">LoRA update</span><span class="arrow">-&gt;</span>
-              <span class="node decision">Portfolio optimizer</span><span class="arrow">-&gt;</span>
-              <span class="node decision">Weights</span>
-            </div>
-            <p class="method-ref">
-              References:
-              <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">LoRA (Hu et al., 2022)</a>,
-              <a href="https://dl.acm.org/doi/10.1145/2638548" target="_blank" rel="noreferrer">Online Portfolio Selection Survey</a>.
-            </p>
-          </article>
+          <figure class="mechanism">
+            <figcaption>Update path</figcaption>
+            <div class="flow">Drift batch -> Gradient -> Adapter update -> Forecasts -> Optimizer -> Weights</div>
+          </figure>
+          <p class="refs">
+            References:
+            <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">LoRA (Hu et al., 2022)</a>,
+            <a href="https://dl.acm.org/doi/10.1145/2638548" target="_blank" rel="noreferrer">Online Portfolio Selection survey</a>.
+          </p>
+        </article>
 
-          <article class="method-theory">
-            <h3>Anchor-Regularized Update</h3>
-            <ul class="method-meta">
-              <li><strong>Objective:</strong> fit drift while penalizing regression on anchor stress samples.</li>
-              <li><strong>Constraint:</strong> soft retention via anchor weight beta.</li>
-              <li><strong>Preserves:</strong> part of stress behavior through weighted replay.</li>
-              <li><strong>Allows change:</strong> directions that trade off drift fit and retention loss.</li>
-            </ul>
-            <pre>L = L_drift + beta * L_anchor
+        <article class="method">
+          <h3>Method B: Anchor-regularized update</h3>
+          <p>
+            This variant adds a soft memory term from stress anchors. It usually reduces forgetting, but still permits
+            destructive updates when drift pressure is strong enough.
+          </p>
+          <dl>
+            <div><dt>Objective</dt><dd>Fit drift while penalizing anchor regression.</dd></div>
+            <div><dt>Constraint</dt><dd>Soft retention through the anchor weight beta.</dd></div>
+            <div><dt>Preserves</dt><dd>Part of stress behavior through replay pressure.</dd></div>
+            <div><dt>Allows to change</dt><dd>Any direction if compensated by loss tradeoff.</dd></div>
+          </dl>
+          <pre>L = L_drift + beta * L_anchor
 g = grad L
 theta_{t+1} = theta_t - eta * g</pre>
-            <div class="pipeline" aria-label="Anchor method pipeline">
-              <span class="node input">Drift batch</span><span class="arrow">+</span>
-              <span class="node memory">Anchor buffer</span><span class="arrow">-&gt;</span>
-              <span class="node update">Weighted loss</span><span class="arrow">-&gt;</span>
-              <span class="node update">LoRA update</span><span class="arrow">-&gt;</span>
-              <span class="node decision">Portfolio optimizer</span>
-            </div>
-            <p class="method-ref">
-              References:
-              <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM (Chaudhry et al., 2019)</a>,
-              <a href="https://proceedings.neurips.cc/paper/2012/hash/5d44ee6f2c3f71b73125876103c8f6c4-Abstract.html" target="_blank" rel="noreferrer">Online Constraints (Mahdavi et al., 2012)</a>.
-            </p>
-          </article>
+          <figure class="mechanism">
+            <figcaption>Update path</figcaption>
+            <div class="flow">Drift batch + Anchor buffer -> Weighted loss -> Gradient -> Adapter update -> Optimizer</div>
+          </figure>
+          <p class="refs">
+            References:
+            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM (Chaudhry et al., 2019)</a>,
+            <a href="https://proceedings.neurips.cc/paper/2012/hash/5d44ee6f2c3f71b73125876103c8f6c4-Abstract.html" target="_blank" rel="noreferrer">Online optimization with constraints</a>.
+          </p>
+        </article>
 
-          <article class="method-theory">
-            <h3>Anchor + Projection (Proposed)</h3>
-            <ul class="method-meta">
-              <li><strong>Objective:</strong> maximize drift adaptation subject to no harmful anchor interference.</li>
-              <li><strong>Constraint:</strong> hard gradient-space projection against anchor direction.</li>
-              <li><strong>Preserves:</strong> anchor-consistent stress response by construction.</li>
-              <li><strong>Allows change:</strong> drift-aligned directions that satisfy projection gate.</li>
-            </ul>
-            <pre>g_tilde = arg min_g 0.5 * ||g - g_drift||^2
+        <article class="method">
+          <h3>Method C: Anchor + gradient projection</h3>
+          <p>
+            This is the proposed mechanism. Instead of only penalizing harmful movement, it projects the drift gradient
+            onto a feasible region defined by the anchor direction. In practice, that makes retention a geometric
+            condition rather than a soft preference.
+          </p>
+          <dl>
+            <div><dt>Objective</dt><dd>Stay close to drift gradient while satisfying anchor safety.</dd></div>
+            <div><dt>Constraint</dt><dd>Hard inequality in gradient space.</dd></div>
+            <div><dt>Preserves</dt><dd>Anchor-consistent stress response by construction.</dd></div>
+            <div><dt>Allows to change</dt><dd>Directions compatible with the projection constraint.</dd></div>
+          </dl>
+          <pre>g_tilde = arg min_g 0.5 * ||g - g_drift||^2
 subject to &lt;g, g_anchor&gt; >= -eps
 
 theta_{t+1} = theta_t - eta * g_tilde</pre>
-            <div class="pipeline" aria-label="Projection method pipeline">
-              <span class="node input">Drift gradient</span><span class="arrow">+</span>
-              <span class="node memory">Anchor gradient</span><span class="arrow">-&gt;</span>
-              <span class="node gate">Projection gate</span><span class="arrow">-&gt;</span>
-              <span class="node update">Projected update</span><span class="arrow">-&gt;</span>
-              <span class="node decision">Portfolio optimizer</span>
-            </div>
-            <p class="method-ref">
-              References:
-              <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM</a>,
-              <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">Gradient Projection for Continual PEFT</a>,
-              <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">Convex Portfolio Control</a>.
-            </p>
-          </article>
-        </div>
+          <figure class="mechanism">
+            <figcaption>Update path</figcaption>
+            <div class="flow">Drift gradient + Anchor gradient -> Projection step -> Safe update -> Optimizer</div>
+          </figure>
+          <p class="refs">
+            References:
+            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM</a>,
+            <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">Gradient projection for continual PEFT</a>,
+            <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">Convex portfolio control</a>.
+          </p>
+        </article>
       </section>
 
-      <section id="validation" class="card" aria-label="Validation experiments">
-        <div class="section-head">
-          <h2>3. Validation Experiments (Evidence)</h2>
-          <p>Run after theory review. Results are interpreted against prior expectations.</p>
-        </div>
+      <section id="validation" class="section" aria-label="Validation">
+        <h2>3. Validation</h2>
+        <p>
+          These runs are evidence checks, not discovery. They test whether measured ordering agrees with the mechanism
+          claims above.
+        </p>
 
         <article id="expectation-check" class="expectation-check"></article>
 
@@ -207,17 +187,17 @@ theta_{t+1} = theta_t - eta * g_tilde</pre>
 
         <div class="chart-grid">
           <article>
-            <h3>Impact vs Naive</h3>
+            <h3>Impact vs naive</h3>
             <canvas id="impact-chart" class="chart-canvas"></canvas>
           </article>
           <article>
-            <h3>Equity Curves</h3>
+            <h3>Equity curves</h3>
             <canvas id="equity-chart" class="chart-canvas"></canvas>
           </article>
         </div>
 
         <article class="table-wrap">
-          <h3>Method Scoreboard (Validation Output)</h3>
+          <h3>Method scoreboard</h3>
           <table id="method-table" class="method-table"></table>
         </article>
 
@@ -226,7 +206,7 @@ theta_{t+1} = theta_t - eta * g_tilde</pre>
     </main>
 
     <footer class="footer">
-      <p>Principle: theory defines expectations; experiments test them.</p>
+      <p>Theory first. Validation second.</p>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

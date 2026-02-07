@@ -2,6 +2,11 @@ import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { drawEquity, drawImpactBars } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
+const METHOD_COLORS = {
+  naive: "#767676",
+  anchor: "#4b4b4b",
+  anchor_proj: "#111111",
+};
 
 let worker = null;
 let latestResult = null;
@@ -67,7 +72,7 @@ function runCurrentConfig() {
   fillForm(safe);
 
   setRunning(true);
-  setStatus("Running validation against theory...", false);
+  setStatus("Running validation...");
   setProgress(0);
 
   ensureWorker().postMessage({
@@ -152,13 +157,13 @@ function renderProgress(payload) {
 
   if (payload.kind === "building_charts") {
     setProgress(100);
-    setStatus("Computing evidence summary...");
+    setStatus("Compiling summary...");
   }
 }
 
 function renderAll(result) {
   setProgress(100);
-  setStatus("Validation complete. Check expectation alignment, then deployment call.");
+  setStatus("Validation complete.");
 
   renderExpectationCheck(result);
   renderDecisionCard(result);
@@ -182,15 +187,16 @@ function renderExpectationCheck(result) {
   const driftOrder = n.driftMse <= a.driftMse && a.driftMse <= p.driftMse;
 
   host.innerHTML = `
-    <h3>Theory-to-Evidence Check</h3>
+    <h3>Expectation check</h3>
     <ul>
-      <li><strong>Expected stress-retention order:</strong> naive &gt; anchor &gt; projection (MSE).
-        <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Matched" : "Partially matched"}</span>
+      <li>
+        Stress retention expected: naive &gt; anchor &gt; projection (MSE).
+        <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Observed" : "Not fully observed"}</span>
       </li>
-      <li><strong>Expected drift-fit cost:</strong> naive &lt;= anchor &lt;= projection (MSE).
-        <span class="${driftOrder ? "pass" : "warn"}">${driftOrder ? "Matched" : "Partially matched"}</span>
+      <li>
+        Drift-fit cost expected: naive &lt;= anchor &lt;= projection (MSE).
+        <span class="${driftOrder ? "pass" : "warn"}">${driftOrder ? "Observed" : "Not fully observed"}</span>
       </li>
-      <li><strong>Interpretation rule:</strong> deployment preference requires stress gains that survive drawdown and adaptation penalties.</li>
     </ul>
   `;
 }
@@ -209,22 +215,22 @@ function renderDecisionCard(result) {
   const driftPenalty = ratioPenalty(naive.driftMse, proj.driftMse);
 
   let level = "caution";
-  let title = "Deployment call: validate in pilot before promotion";
+  let title = "Provisional decision: keep in pilot review";
 
   if (stressGain > 0.8 && drawdownGain > 0.06 && driftPenalty < 70) {
     level = "good";
-    title = "Deployment call: projection is pilot-ready";
+    title = "Provisional decision: promote to pilot";
   } else if (stressGain < 0.45 || drawdownGain < 0) {
     level = "bad";
-    title = "Deployment call: hold deployment";
+    title = "Provisional decision: do not promote";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Projection vs naive: stress retention <strong>${pct(stressGain)}</strong>, drawdown change
-      <strong>${pp(drawdownGain)}</strong>, drift-fit penalty <strong>${pct(driftPenalty / 100)}</strong>.
+      Relative to naive, projection changes stress retention by <strong>${pct(stressGain)}</strong>, drawdown by
+      <strong>${pp(drawdownGain)}</strong>, and drift-fit error by <strong>${pct(driftPenalty / 100)}</strong>.
     </p>
   `;
 }
@@ -245,19 +251,19 @@ function renderKpis(result) {
 
   host.innerHTML = `
     <article class="${classBySign(stressGain)}">
-      <div class="label">Stress Retention Gain</div>
+      <div class="label">Stress retention</div>
       <div class="value">${pct(stressGain)}</div>
-      <div class="note">Projection vs naive</div>
+      <div class="note">projection vs naive</div>
     </article>
     <article class="${classBySign(drawdownGain)}">
-      <div class="label">Drawdown Change</div>
+      <div class="label">Drawdown change</div>
       <div class="value">${pp(drawdownGain)}</div>
-      <div class="note">Higher is better</div>
+      <div class="note">projection vs naive</div>
     </article>
     <article class="${classBySign(-anchorGap)}">
-      <div class="label">Projection vs Anchor</div>
+      <div class="label">Projection-anchor gap</div>
       <div class="value">${fmt(anchorGap, 6)}</div>
-      <div class="note">Stress MSE delta (lower is better)</div>
+      <div class="note">stress MSE delta</div>
     </article>
   `;
 }
@@ -289,7 +295,7 @@ function renderCharts(result) {
 
   const lineSeries = result.methods.map((method) => ({
     label: method.label,
-    color: method.color,
+    color: METHOD_COLORS[method.id] || "#111111",
     values: result.equityCurves[method.id],
   }));
 
@@ -336,7 +342,7 @@ function renderMethodTable(result) {
         <th>Drawdown</th>
         <th>Drift MSE</th>
         <th>Total Return</th>
-        <th>Deployment Score</th>
+        <th>Score</th>
       </tr>
     </thead>
     <tbody>
@@ -345,8 +351,8 @@ function renderMethodTable(result) {
           (row) => `
             <tr>
               <td>
-                <span class="method-name">
-                  <span class="dot" style="background:${row.method.color}"></span>
+                  <span class="method-name">
+                  <span class="dot" style="background:${METHOD_COLORS[row.method.id] || "#111111"}"></span>
                   ${row.method.label}
                 </span>
               </td>
@@ -378,12 +384,11 @@ function renderTakeaway(result) {
   const ddProj = proj.maxDrawdown - naive.maxDrawdown;
 
   host.innerHTML = `
-    <h4>Validation Read</h4>
+    <h4>Reading this run</h4>
     <p>
-      Evidence should be read as confirmation or rejection of the pre-stated theory. In this run, projection stress
-      retention gain is <strong>${pct(stressGainProj)}</strong> vs naive (anchor: ${pct(stressGainAnchor)}), with
-      drawdown change <strong>${pp(ddProj)}</strong>. Deployment is rational only if this relation persists across
-      stress-heavy settings.
+      In this sample path, projection improves stress retention by <strong>${pct(stressGainProj)}</strong> relative to
+      naive (anchor: ${pct(stressGainAnchor)}), with drawdown change <strong>${pp(ddProj)}</strong>. Treat this as
+      one piece of evidence; promotion requires the same ordering to hold across repeated stress-heavy configurations.
     </p>
   `;
 }

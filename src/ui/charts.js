@@ -34,7 +34,7 @@ function extent(values, paddingRatio = 0.1) {
 function drawAxes(ctx, dims, xLabel, yLabel) {
   const { left, top, right, bottom } = dims;
 
-  ctx.strokeStyle = "#8b99af";
+  ctx.strokeStyle = "#555555";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(left, top);
@@ -42,7 +42,7 @@ function drawAxes(ctx, dims, xLabel, yLabel) {
   ctx.lineTo(right, bottom);
   ctx.stroke();
 
-  ctx.fillStyle = "#4d5f78";
+  ctx.fillStyle = "#222222";
   ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(xLabel, (left + right) / 2, bottom + 30);
@@ -56,7 +56,7 @@ function drawAxes(ctx, dims, xLabel, yLabel) {
 
 function drawGrid(ctx, dims, ticks = 4) {
   const { left, top, right, bottom } = dims;
-  ctx.strokeStyle = "rgba(83, 106, 137, 0.18)";
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.12)";
   ctx.lineWidth = 1;
 
   for (let i = 1; i <= ticks; i += 1) {
@@ -83,7 +83,7 @@ function drawLegend(ctx, legendItems, width, y) {
     ctx.fillStyle = item.color;
     ctx.fillRect(x, y, 14, 3);
 
-    ctx.fillStyle = "#24354d";
+    ctx.fillStyle = "#222222";
     ctx.textAlign = "left";
     ctx.fillText(item.label, x + 18, y + 4);
 
@@ -123,7 +123,7 @@ export function drawImpactBars(canvas, impact) {
   drawAxes(ctx, dims, "Metrics", "Delta vs naive (percentage points)");
 
   const zeroY = yToPx(0);
-  ctx.strokeStyle = "#3d4f6b";
+  ctx.strokeStyle = "#333333";
   ctx.lineWidth = 1.4;
   ctx.beginPath();
   ctx.moveTo(dims.left, zeroY);
@@ -137,23 +137,23 @@ export function drawImpactBars(canvas, impact) {
     const group = impact[i];
     const cx = xCenter(i, impact.length);
 
-    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, "#1f7b63");
-    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, "#2758ad");
+    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, "#5a5a5a");
+    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, "#111111");
 
-    ctx.fillStyle = "#22354d";
+    ctx.fillStyle = "#222222";
     ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
     ctx.textAlign = "center";
     ctx.fillText(group.label, cx, dims.bottom + 16);
 
-    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#1f7b63", zeroY);
-    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#2758ad", zeroY);
+    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#5a5a5a", zeroY);
+    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#111111", zeroY);
   }
 
   drawLegend(
     ctx,
     [
-      { label: "Anchor", color: "#1f7b63" },
-      { label: "Anchor + Projection", color: "#2758ad" },
+      { label: "Anchor", color: "#5a5a5a" },
+      { label: "Anchor + Projection", color: "#111111" },
     ],
     width,
     10,
@@ -207,7 +207,7 @@ export function drawEquity(canvas, series, stressMarkers) {
     return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
   }
 
-  ctx.strokeStyle = "rgba(191, 71, 55, 0.14)";
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.14)";
   ctx.lineWidth = 1;
   for (let i = 0; i < stressMarkers.length; i += 1) {
     const x = xToPx(stressMarkers[i]);
