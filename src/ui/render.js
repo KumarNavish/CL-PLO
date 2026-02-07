@@ -167,7 +167,7 @@ function renderProgress(payload) {
 }
 
 function renderAll(result) {
-  setStatus("Run complete. Review decision signal, then evaluate deployment assumptions.");
+  setStatus("Run complete. Check decision signal, then decide pilot or no-pilot.");
   setProgress(100);
 
   renderDecisionCard(result);
@@ -226,15 +226,12 @@ function renderMetrics(result) {
         <dl>
           <div><dt>Drift MSE</dt><dd>${fmt(m.driftMse, 6)}</dd></div>
           <div><dt>Stress MSE</dt><dd>${fmt(m.stressMse, 6)}</dd></div>
-          <div><dt>Total Return</dt><dd>${pct(m.totalReturn)}</dd></div>
           <div><dt>Max Drawdown</dt><dd>${pct(m.maxDrawdown)}</dd></div>
-          <div><dt>Worst Stress Day</dt><dd>${pct(m.worstStressDay)}</dd></div>
-          <div><dt>Avg Risky (Stress)</dt><dd>${pct(m.avgRiskyWeightStress)}</dd></div>
-          <div><dt>Avg Risky (Drift)</dt><dd>${pct(m.avgRiskyWeightDrift)}</dd></div>
+          <div><dt>Total Return</dt><dd>${pct(m.totalReturn)}</dd></div>
+          <div><dt>Stress Risk Weight</dt><dd>${pct(m.avgRiskyWeightStress)}</dd></div>
           ${
             method.id === "anchor_proj"
-              ? `<div><dt>Interference Rate</dt><dd>${pct(log.interferenceRate || 0)}</dd></div>
-                 <div><dt>Update Distortion</dt><dd>${fmt(log.updateDistortion || 0, 4)}</dd></div>`
+              ? `<div><dt>Interference Rate</dt><dd>${pct(log.interferenceRate || 0)}</dd></div>`
               : ""
           }
         </dl>
@@ -278,10 +275,10 @@ function renderQualitative(result) {
   host.innerHTML = `
     <h4>Run Takeaway</h4>
     <ul>
-      <li>Stress retention gain: <strong>${pct(stressDelta)}</strong> for projection versus naive.</li>
-      <li>Tail-risk impact: max drawdown change <strong>${pct(drawdownDelta)}</strong>.</li>
-      <li>Risk behavior: stress-period risky allocation reduced by <strong>${pct(riskyStressDelta)}</strong>.</li>
-      <li>Anchor-only improves retention (${fmt(anchor.stressMse, 6)}), projection improves it further (${fmt(proj.stressMse, 6)}).</li>
+      <li>Projection cuts stress regression by <strong>${pct(stressDelta)}</strong> versus naive.</li>
+      <li>Drawdown changes by <strong>${pct(drawdownDelta)}</strong> (less negative is better).</li>
+      <li>Stress-period risky exposure shifts by <strong>${pct(riskyStressDelta)}</strong>.</li>
+      <li>Anchor-only helps (${fmt(anchor.stressMse, 6)}), projection helps more (${fmt(proj.stressMse, 6)}).</li>
     </ul>
   `;
 }
@@ -294,15 +291,15 @@ function renderClaimChecks(result) {
 
   host.innerHTML = `
     <article>
-      <h4>Claim A: Projection protects invariant behavior</h4>
+      <h4>Claim A: Projection protects anchors</h4>
       <p>Observed stress MSE: ${fmt(naive.stressMse, 6)} (naive) → ${fmt(proj.stressMse, 6)} (projection).</p>
     </article>
     <article>
-      <h4>Claim B: Retention does not eliminate adaptation</h4>
+      <h4>Claim B: Adaptation remains viable</h4>
       <p>Observed drift MSE: ${fmt(naive.driftMse, 6)} (naive), ${fmt(anchor.driftMse, 6)} (anchor), ${fmt(proj.driftMse, 6)} (projection).</p>
     </article>
     <article>
-      <h4>Claim C: Model behavior changes portfolio outcomes</h4>
+      <h4>Claim C: Behavior change reaches portfolio layer</h4>
       <p>Observed max drawdown: ${pct(naive.maxDrawdown)} (naive) vs ${pct(proj.maxDrawdown)} (projection), with lower stress risk-taking.</p>
     </article>
   `;
