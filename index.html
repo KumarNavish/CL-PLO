@@ -3,294 +3,186 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LLM Portfolio Optimization Portal</title>
-    <link rel="stylesheet" href="./llm-portal.css" />
+    <title>Continual Learning for Portfolio Optimization | Internship Proposal Artifact</title>
+    <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body class="mode-focus">
+  <body>
     <header class="hero">
       <div class="container">
-        <p class="tag">Industry-Facing Research Portal</p>
-        <h1>Interactive Portal for LLM-Based Portfolio Optimization: Code, Concepts, and Live Demos.</h1>
+        <nav class="top-nav">
+          <a class="nav-link" href="./strategy-comparison.html">Strategy Comparison</a>
+          <span class="version-chip">Locked baseline: Coreline V2 (CL-PLO only)</span>
+        </nav>
+
+        <p class="eyebrow">Continual Learning for Portfolio Optimization</p>
+        <h1>Constrained PEFT Keeps Adaptation Without Losing Stress Retention</h1>
         <p class="lead">
-          Built from open-source GitHub projects and a runnable browser demo to show how Transformer LLM signals
-          can feed directly into portfolio construction decisions.
+          This page has one job: decide whether the CL-PLO mechanism is pilot-worthy.
+          No scope creep, just the core comparison: naive updates vs anchor vs anchor-plus-projection.
         </p>
+
         <div class="hero-actions">
-          <a class="btn-primary" href="#demo">Run Live Demo</a>
-          <a class="btn-ghost" href="#repos">Browse Repositories</a>
-          <a class="btn-ghost" href="#diligence">Open Due-Diligence Layer</a>
+          <button id="hero-run" class="btn-primary">Run Experiment</button>
+          <a class="btn-ghost" href="./strategy-comparison.html">Compare Strategy Systems</a>
+          <a class="btn-ghost" href="#appendix">Technical Appendix</a>
         </div>
-        <div class="mode-toggle" role="group" aria-label="Reading mode">
-          <button id="mode-focus" type="button" class="mode-btn active">First-Read Mode</button>
-          <button id="mode-research" type="button" class="mode-btn">Research Mode</button>
-        </div>
-        <p id="mode-hint" class="mode-hint">
-          First-Read Mode shows only decision-critical content. Switch to Research Mode for full repository, math,
-          and production due-diligence depth.
-        </p>
       </div>
     </header>
 
-    <main class="container page-grid">
-      <section id="overview" class="panel">
-        <div class="panel-head">
-          <h2>1. Overview of LLM-Driven Portfolio Optimization</h2>
-        </div>
-        <p>
-          In practice, LLM-driven portfolio optimization means using a Transformer language model to turn unstructured
-          text (news, filings, calls, macro commentary) into structured signals, then combining those signals with a
-          risk model and optimizer to produce allocations.
-        </p>
-        <p>
-          <strong>Scope statement:</strong> every testbed, codebase, and example on this page explicitly uses
-          LLMs (Transformer language models) as part of the decision pipeline.
-        </p>
-        <div class="overview-cards">
-          <article>
-            <h3>What changes</h3>
-            <p>Text becomes a measurable input into expected returns, scenarios, or constraints.</p>
-          </article>
-          <article>
-            <h3>What stays</h3>
-            <p>Risk controls, drawdown discipline, turnover limits, and backtesting standards remain mandatory.</p>
-          </article>
-          <article>
-            <h3>What matters</h3>
-            <p>Whether LLM signals improve risk-adjusted outcomes without breaking stability or execution realism.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="brief" class="panel">
-        <div class="panel-head split">
-          <h2>Investment Committee Brief</h2>
-          <p>Designed for first-read conviction in under 2 minutes.</p>
-        </div>
-        <article class="thesis-card">
-          <h3>Core Thesis</h3>
-          <p>
-            Transformer LLM signals are most valuable when treated as a structured view layer inside a constrained
-            optimizer, not as a replacement for risk management.
-          </p>
-        </article>
-        <div id="ic-cards" class="overview-cards"></div>
-      </section>
-
-      <section id="deploy-snapshot" class="panel">
-        <div class="panel-head split">
-          <h2>Deployment Snapshot</h2>
-          <p>How this plugs into a real research stack this quarter.</p>
-        </div>
-        <div id="deploy-cards" class="overview-cards"></div>
-      </section>
-
-      <section id="repos" class="panel deep-layer">
-        <div class="panel-head split">
-          <h2>2. Curated Repository Map</h2>
-          <p>Grouped by role in a production pipeline.</p>
-        </div>
-        <div id="taxonomy" class="taxonomy"></div>
-        <div id="repo-list" class="repo-list"></div>
-        <div class="matrix-wrap">
-          <h3>Repository Conviction Matrix</h3>
-          <p>Scored for LLM integration depth, optimization relevance, reproducibility, and deployment readiness.</p>
-          <div id="repo-matrix" class="comparison-table-wrap"></div>
-        </div>
-      </section>
-
+    <main class="container">
       <section id="demo" class="panel">
-        <div class="panel-head split">
-          <h2>3. Interactive Live Demo Section</h2>
-          <p>Single run: change knobs, inspect allocations and risk outcomes.</p>
+        <div class="panel-head">
+          <h2>Live Evaluation</h2>
+          <p>Default setup is tuned for high signal. Start there before changing knobs.</p>
         </div>
 
         <div class="demo-layout">
           <aside class="controls">
             <h3>Controls</h3>
-            <label>
-              Market regime
-              <select id="regime">
-                <option value="bull">Bull</option>
-                <option value="neutral" selected>Neutral</option>
-                <option value="bear">Bear</option>
-                <option value="stress">Stress</option>
-              </select>
-            </label>
 
-            <label>
-              Risk tolerance
-              <input id="risk" type="range" min="1" max="10" step="1" value="5" />
-              <span id="risk-val" class="inline-value">5</span>
-            </label>
+            <div class="preset-row">
+              <button id="apply-quick" class="btn-ghost">Quick</button>
+              <button id="apply-proposal" class="btn-ghost">Default</button>
+              <button id="apply-stress" class="btn-ghost">Stress+</button>
+            </div>
 
-            <label>
-              LLM signal strength
-              <input id="signal" type="range" min="0" max="1" step="0.05" value="0.5" />
-              <span id="signal-val" class="inline-value">0.50</span>
-            </label>
+            <form id="config-form">
+              <fieldset>
+                <legend>Main Knobs</legend>
+                <label>Update steps <input name="steps" type="number" step="1" /></label>
+                <label>Anchor weight <input name="anchorBeta" type="number" step="0.01" /></label>
+                <label>Stress frequency <input name="pStress" type="number" step="0.01" /></label>
+                <label>LoRA rank <input name="loraRank" type="number" step="1" /></label>
+              </fieldset>
 
-            <button id="run-demo" class="btn-primary full">Run Simulation</button>
-            <p class="control-note">LLM strategy uses Transformer-derived text signals; baseline uses only market priors.</p>
+              <details>
+                <summary>Advanced Settings</summary>
+                <fieldset>
+                  <label>Seed <input name="seed" type="number" step="1" /></label>
+                  <label>Learning rate <input name="lr" type="number" step="0.001" /></label>
+                  <label>Train drift samples <input name="nTrainDrift" type="number" step="1" /></label>
+                  <label>Anchor stress samples <input name="nAnchorStress" type="number" step="1" /></label>
+                  <label>Test drift samples <input name="nTestDrift" type="number" step="1" /></label>
+                  <label>Test stress samples <input name="nTestStress" type="number" step="1" /></label>
+                  <label>Batch size <input name="batchSize" type="number" step="1" /></label>
+                  <label>Anchor batch size <input name="anchorBatchSize" type="number" step="1" /></label>
+                  <label>Simulation horizon <input name="simT" type="number" step="1" /></label>
+                  <label>Max risky weight <input name="wMaxRisky" type="number" step="0.01" /></label>
+                  <label>Turnover smoothing <input name="turnoverEta" type="number" step="0.01" /></label>
+                  <label>Noise std <input name="noiseStd" type="number" step="0.01" /></label>
+                  <label>Return scale <input name="returnScale" type="number" step="0.001" /></label>
+                </fieldset>
+              </details>
+            </form>
+
+            <div class="control-actions">
+              <button id="run-demo" class="btn-primary">Run</button>
+              <button id="reset-form" class="btn-ghost">Reset</button>
+            </div>
           </aside>
 
-          <div class="results">
-            <article id="decision-summary" class="decision-summary"></article>
+          <section class="results">
+            <div class="run-status">
+              <p id="status-line">Ready.</p>
+              <div class="progress-track"><div id="progress-fill"></div></div>
+            </div>
+
+            <article id="decision-card" class="decision-card"></article>
+
+            <div id="impact-kpis" class="impact-kpis"></div>
 
             <div class="chart-grid">
               <article>
-                <h3>Portfolio Value Path</h3>
-                <canvas id="equity-chart" class="chart"></canvas>
+                <h3>Relative Impact vs Naive</h3>
+                <canvas id="impact-chart" class="chart-canvas"></canvas>
               </article>
               <article>
-                <h3>Final Asset Weights (LLM Strategy)</h3>
-                <canvas id="weights-chart" class="chart"></canvas>
+                <h3>Equity Curve Comparison</h3>
+                <canvas id="equity-chart" class="chart-canvas"></canvas>
               </article>
             </div>
 
-            <div id="metric-cards" class="metric-cards"></div>
-            <article id="run-interpretation" class="run-interpretation"></article>
-          </div>
+            <div id="metrics-grid" class="method-summary"></div>
+
+            <article id="takeaway" class="takeaway"></article>
+
+            <div class="report-actions">
+              <button id="export-run" class="btn-ghost">Export Run Report</button>
+            </div>
+          </section>
         </div>
       </section>
 
-      <section id="math" class="panel deep-layer">
+      <section id="appendix" class="panel">
         <div class="panel-head">
-          <h2>4. Core Ideas and Math</h2>
+          <h2>Appendix</h2>
+          <p>Detail is available, but intentionally secondary.</p>
         </div>
 
-        <div class="math-grid">
-          <article>
-            <h3>Signal Mapping</h3>
-            <p>
-              Transformer output is converted into an asset-level signal vector \(s_t\). Expected return input becomes:
-            </p>
-            <pre>mu_t = mu_market,t + alpha * s_t</pre>
-            <p>
-              where <code>alpha</code> controls the influence of LLM text signals.
-            </p>
-          </article>
+        <details>
+          <summary>Math and Definitions</summary>
+          <div class="appendix-block">
+            <pre class="equation">w_t = arg min_{w in W} -μ̂_t^T w + γ w^T Σ̂_t w + λ_tc TC(w, w_{t-1})
+subject to c_k(w) ≤ 0,
+           CVaR_α(w) ≤ τ_α,
+           Drawdown(w) ≤ τ_dd
 
-          <article>
-            <h3>Optimization Layer</h3>
-            <p>At each rebalance, weights solve a risk-aware objective:</p>
-            <pre>max_w  mu_t^T w - gamma * w^T Sigma_t w - lambda_tc * ||w - w_prev||_1
-s.t.   w >= 0, 1^T w = 1</pre>
-            <p>
-              <code>gamma</code>: risk aversion, <code>Sigma_t</code>: covariance, <code>lambda_tc</code>: turnover control.
-            </p>
-          </article>
-        </div>
-
-        <div class="flow-wrap">
-          <h3>Data Flow and Optimization Loop</h3>
-          <div class="flow">
-            <div class="node">Market Data</div>
-            <div class="arrow">→</div>
-            <div class="node">Transformer LLM<br /><small>(news/filings/calls)</small></div>
-            <div class="arrow">→</div>
-            <div class="node">Text Signal Vector<br /><code>s_t</code></div>
-            <div class="arrow">→</div>
-            <div class="node">Risk + Return Builder<br /><code>(mu_t, Sigma_t)</code></div>
-            <div class="arrow">→</div>
-            <div class="node">Constrained Optimizer</div>
-            <div class="arrow">→</div>
-            <div class="node">Portfolio Weights + Monitoring</div>
+v_t = arg min_v 0.5 ||v - g_new||^2
+subject to &lt;v, g_anchor&gt; ≥ -ε</pre>
+            <p><code>g_new</code> fits drift, <code>g_anchor</code> enforces retention, <code>ε</code> sets allowed regression.</p>
           </div>
-        </div>
-      </section>
+        </details>
 
-      <section id="comparison" class="panel deep-layer">
-        <div class="panel-head split">
-          <h2>5. References and Comparative Analysis</h2>
-          <p>What LLM augmentation adds, and what it cannot remove.</p>
-        </div>
+        <details>
+          <summary>Deployment Path</summary>
+          <div class="appendix-block">
+            <ol class="compact-list">
+              <li>Run PEFT-only update with frozen backbone.</li>
+              <li>Evaluate drift fit, anchor regression, and risk proxies.</li>
+              <li>Promote only when gate thresholds pass.</li>
+              <li>Rollback on regression alarms.</li>
+            </ol>
+          </div>
+        </details>
 
-        <div class="comparison-table-wrap">
-          <table class="comparison-table">
-            <thead>
-              <tr>
-                <th>Dimension</th>
-                <th>Traditional Optimization</th>
-                <th>LLM-Augmented Optimization</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>Primary inputs</th>
-                <td>Prices, factors, macro series</td>
-                <td>Prices/factors + Transformer text signals and scenarios</td>
-              </tr>
-              <tr>
-                <th>Edge source</th>
-                <td>Historical structure and factor persistence</td>
-                <td>New information extraction from unstructured text</td>
-              </tr>
-              <tr>
-                <th>Main strengths</th>
-                <td>Stable, interpretable, mature controls</td>
-                <td>Faster adaptation to narrative and regime shifts</td>
-              </tr>
-              <tr>
-                <th>Main assumptions</th>
-                <td>Stationary/slowly varying dynamics</td>
-                <td>LLM signals are timely, calibrated, and not overfit</td>
-              </tr>
-              <tr>
-                <th>Failure modes</th>
-                <td>Lag in new regimes</td>
-                <td>Hallucinated or noisy signals, hidden turnover drift</td>
-              </tr>
-              <tr>
-                <th>Production requirement</th>
-                <td>Backtest + execution controls</td>
-                <td>All traditional controls + LLM signal validation and drift monitoring</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <details>
+          <summary>Evidence and References</summary>
+          <div class="appendix-block">
+            <img src="./assets/validation_wide.png" alt="Validation figure" class="reference-figure" />
+            <div id="claim-checks" class="claim-checks"></div>
 
-        <div class="refs-grid">
-          <article>
-            <h3>Key Papers</h3>
-            <ul id="paper-refs" class="refs"></ul>
-          </article>
-          <article>
-            <h3>Codebases</h3>
-            <ul id="codebase-refs" class="refs"></ul>
-          </article>
-          <article>
-            <h3>Evidence Summaries</h3>
-            <ul id="evidence-refs" class="refs"></ul>
-          </article>
-        </div>
-      </section>
+            <div class="refs-grid">
+              <article>
+                <h3>Papers</h3>
+                <ul id="paper-refs" class="refs-list"></ul>
+              </article>
+              <article>
+                <h3>Datasets</h3>
+                <ul id="dataset-refs" class="refs-list"></ul>
+              </article>
+              <article>
+                <h3>Repositories</h3>
+                <ul id="repo-refs" class="refs-list"></ul>
+              </article>
+            </div>
 
-      <section id="diligence" class="panel deep-layer">
-        <div class="panel-head split">
-          <h2>Production Due-Diligence Layer</h2>
-          <p>For repeated reads, implementation planning, and risk challenge sessions.</p>
-        </div>
-        <div class="diligence-grid">
-          <article>
-            <h3>Failure Mode Register</h3>
-            <ul id="failure-modes" class="refs"></ul>
-          </article>
-          <article>
-            <h3>Validation Protocol</h3>
-            <ul id="validation-protocol" class="refs"></ul>
-          </article>
-          <article>
-            <h3>Monitoring and Rollback Gates</h3>
-            <ul id="monitoring-gates" class="refs"></ul>
-          </article>
-        </div>
+            <div class="artifact-links">
+              <a href="./strategy-comparison.html">Strategy Comparison</a>
+              <a href="./docs/INTERNSHIP_PROPOSAL_MEMO.md">Proposal Memo</a>
+              <a href="./docs/DEPLOYMENT_PLAYBOOK.md">Deployment Playbook</a>
+              <a href="./docs/VERSIONS.md">Version Checkpoints</a>
+              <a href="./validation_experiment.py">Validation Script</a>
+              <a href="./README.md">Repository Guide</a>
+            </div>
+          </div>
+        </details>
       </section>
     </main>
 
     <footer class="footer">
-      <p>Action-ready objective: zero context -> decision clarity -> runnable demo -> production-grade diligence.</p>
+      <p>Principle: if it does not improve the decision, remove it.</p>
     </footer>
 
-    <script type="module" src="./src/llm-portal-main.js"></script>
+    <script type="module" src="./src/main.js"></script>
   </body>
 </html>
