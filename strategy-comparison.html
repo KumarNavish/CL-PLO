@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Strategy Systems Comparison | Constraint-Aligned PEFT</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body class="comparison-body">
+    <header class="compare-hero">
+      <div class="container">
+        <nav class="top-nav">
+          <a class="nav-link" href="./index.html">Live Demo</a>
+          <span id="version-chip" class="version-chip"></span>
+        </nav>
+
+        <p class="eyebrow">Decisive Synthesis</p>
+        <h1>Which Continual-Update Strategy Deserves Production Capital?</h1>
+        <p class="lead">
+          This page treats naive, anchor, and projection methods as competing decision systems.
+          It evaluates them with the same discipline used in portfolio selection: robustness,
+          drawdown behavior, implementation friction, and regime stability.
+        </p>
+
+        <div class="hero-actions">
+          <button id="compare-run" class="btn-primary">Run Production Scorecard</button>
+          <a class="btn-ghost" href="./index.html">Back to Live Demo</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container compare-main">
+      <section class="panel compare-panel">
+        <div class="panel-head">
+          <h2>Judgment Lens Used by Portfolio Teams</h2>
+          <p>Each lens maps to a deployment gate, not an academic metric.</p>
+        </div>
+        <div id="production-lenses" class="lens-grid"></div>
+      </section>
+
+      <section class="panel compare-panel">
+        <div class="panel-head">
+          <h2>Strategy Decision Systems (Side-by-Side)</h2>
+          <p>What each method protects, what it uses, and what it gives up.</p>
+        </div>
+        <div id="system-cards" class="systems-grid"></div>
+      </section>
+
+      <section class="panel compare-panel">
+        <div class="panel-head">
+          <h2>Live Production Scorecard</h2>
+          <p>Run the shared-path test and compare systems under identical conditions.</p>
+        </div>
+
+        <div class="compare-controls">
+          <div class="preset-row">
+            <button id="compare-quick" class="btn-ghost">Quick</button>
+            <button id="compare-default" class="btn-ghost">Default</button>
+            <button id="compare-stress" class="btn-ghost">Stress+</button>
+          </div>
+
+          <div class="compare-knobs">
+            <label>Seed <input id="compare-seed" type="number" step="1" /></label>
+            <label>Steps <input id="compare-steps" type="number" step="1" /></label>
+            <label>Anchor weight <input id="compare-anchor-beta" type="number" step="0.01" /></label>
+            <label>Stress frequency <input id="compare-p-stress" type="number" step="0.01" /></label>
+          </div>
+        </div>
+
+        <div class="run-status">
+          <p id="compare-status">Ready.</p>
+          <div class="progress-track"><div id="compare-progress-fill"></div></div>
+        </div>
+
+        <div id="overall-ranking" class="overall-ranking"></div>
+        <div id="decision-matrix" class="decision-matrix"></div>
+
+        <div class="chart-grid compare-charts">
+          <article>
+            <h3>Regime Frontier (Shared Path)</h3>
+            <canvas id="regime-frontier" class="chart-canvas"></canvas>
+          </article>
+          <article>
+            <h3>Equity Curve Comparison</h3>
+            <canvas id="compare-equity" class="chart-canvas"></canvas>
+          </article>
+        </div>
+
+        <article id="deployment-call" class="takeaway"></article>
+      </section>
+
+      <section class="panel compare-panel">
+        <div class="panel-head">
+          <h2>Pipeline Symbols</h2>
+          <p>Every symbol appears in the system diagrams above.</p>
+        </div>
+        <div class="symbol-grid">
+          <article><code>D_t</code><span>Current drift minibatch.</span></article>
+          <article><code>A_t</code><span>Anchor stress set sampled from preserved regime behavior.</span></article>
+          <article><code>g_new</code><span>Gradient from current drift objective.</span></article>
+          <article><code>g_anc</code><span>Gradient from anchor retention objective.</span></article>
+          <article><code>Pi(g_new|g_anc)</code><span>Projected update that avoids first-order anchor interference.</span></article>
+          <article><code>O(mu_t)</code><span>Portfolio optimizer converting forecasts into constrained weights.</span></article>
+        </div>
+      </section>
+
+      <section class="panel compare-panel">
+        <div class="panel-head">
+          <h2>Practitioner Calibration References</h2>
+          <p>Used to align the scorecard with production strategy evaluation norms.</p>
+        </div>
+        <ul id="practitioner-refs" class="refs-list wide-refs"></ul>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Decision principle: prefer the method that survives bad regimes with controlled implementation cost.</p>
+    </footer>
+
+    <script type="module" src="./src/compare-main.js"></script>
+  </body>
+</html>

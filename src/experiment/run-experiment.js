@@ -2,7 +2,11 @@ import { METHOD_SPECS } from "../config.js";
 import { generateRegimeBatch, generateReturns, linearPredict, makeTrueWeights } from "./data.js";
 import { createRng, zeros } from "./math.js";
 import { evalMse } from "./model.js";
-import { buildSharedStream, runEquityOnSharedStream, simulateStream } from "./simulate.js";
+import {
+  buildSharedStream,
+  evaluateOnSharedStream,
+  simulateStream,
+} from "./simulate.js";
 import { trainLora } from "./train.js";
 
 function scaleWeights(W, scale) {
@@ -116,9 +120,12 @@ export function runExperiment(cfg, onProgress) {
   const shared = buildSharedStream({ cfg, WBase, WDrift, rng: sharedRng });
 
   const equityCurves = {};
+  const sharedDiagnostics = {};
   for (let m = 0; m < METHOD_SPECS.length; m += 1) {
     const method = METHOD_SPECS[m].id;
-    equityCurves[method] = runEquityOnSharedStream({ cfg, model: models[method], shared });
+    const diag = evaluateOnSharedStream({ cfg, model: models[method], shared });
+    equityCurves[method] = diag.equity;
+    sharedDiagnostics[method] = diag;
   }
 
   const keyResult = summarizeTakeaway(metrics);
@@ -129,6 +136,8 @@ export function runExperiment(cfg, onProgress) {
     metrics,
     trainLogs,
     equityCurves,
+    sharedDiagnostics,
+    streamRegimes: shared.streamRegimes,
     stressMarkers: shared.streamRegimes.map((regime, idx) => (regime === "stress" ? idx : -1)).filter((idx) => idx >= 0),
     keyResult,
   };

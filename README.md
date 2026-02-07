@@ -4,6 +4,7 @@ This repository is a submission-ready project proposal package for quant/AI inte
 
 It is built from a single existing mechanism and provides:
 - an interactive research website (live demo + math + evidence + deployment pathway),
+- a dedicated strategy-comparison page for production-style deployment decisions,
 - an authored proposal memo,
 - an operational deployment playbook,
 - and the original runnable validation script.
@@ -27,12 +28,13 @@ python3 -m pip install -r requirements.txt
 
 ## What reviewers can do immediately
 1. Run the live demo and adjust update/risk knobs.
-2. Compare naive, anchor, and projected PEFT outcomes.
+2. Open the strategy-systems comparison page and evaluate methods under production lenses.
 3. Export run metrics as JSON for internal discussion.
 4. Read deployment assumptions and internship execution plan.
 
 ## Submission package
 - `index.html` - primary interactive proposal artifact
+- `strategy-comparison.html` - side-by-side strategy systems + production scorecard
 - `docs/INTERNSHIP_PROPOSAL_MEMO.md` - concise authored narrative
 - `docs/DEPLOYMENT_PLAYBOOK.md` - concrete integration and monitoring pathway
 - `validation_experiment.py` - original executable proof-of-concept
@@ -42,7 +44,9 @@ python3 -m pip install -r requirements.txt
 ## Project structure
 - `styles.css` - visual system and responsive layout
 - `src/main.js` - app bootstrap
+- `src/compare-main.js` - strategy comparison page bootstrap
 - `src/ui/render.js` - controls, rendering, report export, decision card
+- `src/ui/compare.js` - production-style strategy scorecard and decision matrix
 - `src/ui/charts.js` - canvas chart rendering
 - `src/workers/experiment-worker.js` - background compute worker
 - `src/experiment/data.js` - synthetic regime generation
@@ -51,6 +55,15 @@ python3 -m pip install -r requirements.txt
 - `src/experiment/simulate.js` - portfolio simulation diagnostics
 - `src/experiment/run-experiment.js` - experiment orchestration
 - `src/content/references.js` - curated references list
+- `src/content/strategy-systems.js` - strategy-system semantics and practitioner lens content
+
+## Version checkpoints
+- `signal-gate-v1` - locked baseline for the prior deployed iteration.
+- Revert command:
+
+```bash
+git checkout signal-gate-v1
+```
 
 ## Continuous publishing to GitHub Pages
 The workflow is already configured in:

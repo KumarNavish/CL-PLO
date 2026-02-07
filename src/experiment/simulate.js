@@ -157,17 +157,45 @@ export function buildSharedStream({ cfg, WBase, WDrift, rng }) {
   return { streamRegimes, Xs, Ys };
 }
 
-export function runEquityOnSharedStream({ cfg, model, shared }) {
+function sumAbsDiff(a, b) {
+  let s = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    s += Math.abs(a[i] - b[i]);
+  }
+  return s;
+}
+
+export function evaluateOnSharedStream({ cfg, model, shared }) {
   const nAssets = cfg.nAssetsCash + cfg.nAssetsRisky;
-  let w = new Array(nAssets).fill(0);
-  w[0] = 1;
+  let wPrev = new Array(nAssets).fill(0);
+  wPrev[0] = 1;
 
   const eq = [1];
+  const returns = [];
+  const turnovers = [];
+  const riskyWeights = [];
+
   for (let t = 0; t < shared.streamRegimes.length; t += 1) {
     const mu = model.forwardSingle(shared.Xs[t]).y;
-    w = portfolioPolicy(mu, w, cfg);
-    eq.push(eq[eq.length - 1] * (1 + dot(w, shared.Ys[t])));
+    const w = portfolioPolicy(mu, wPrev, cfg);
+    const ret = dot(w, shared.Ys[t]);
+
+    returns.push(ret);
+    turnovers.push(sumAbsDiff(w, wPrev));
+    riskyWeights.push(riskyWeightSum(w));
+    eq.push(eq[eq.length - 1] * (1 + ret));
+
+    wPrev = w;
   }
 
-  return eq;
+  return {
+    equity: eq,
+    returns,
+    turnovers,
+    riskyWeights,
+  };
+}
+
+export function runEquityOnSharedStream({ cfg, model, shared }) {
+  return evaluateOnSharedStream({ cfg, model, shared }).equity;
 }
