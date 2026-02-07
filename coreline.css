@@ -146,7 +146,6 @@ main {
 .section p + p,
 .section p + ul,
 .section p + ol,
-.section pre + p,
 .section ul + p,
 .section ol + p,
 .section article + article {
@@ -154,7 +153,8 @@ main {
 }
 
 .section p,
-.section li {
+.section li,
+.section dd {
   font-size: 1.02rem;
 }
 
@@ -163,15 +163,46 @@ main {
   padding-left: 1.25rem;
 }
 
-pre {
+.math-group {
+  margin-top: 1.25rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line);
+}
+
+.math-group:first-of-type {
+  margin-top: 0.9rem;
+}
+
+.origin-label {
+  margin-bottom: 0.35rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.math-intuition,
+.math-implication {
+  color: #222;
+}
+
+.math-block {
   margin-top: 0.7rem;
-  margin-bottom: 0.75rem;
-  padding: 0.75rem 0.8rem;
+  padding: 0.65rem 0.7rem;
   border: 1px solid var(--line);
-  background: #fff;
-  font-size: 0.82rem;
-  line-height: 1.45;
   overflow-x: auto;
+}
+
+.math-block + .math-block {
+  margin-top: 0.45rem;
+}
+
+.math-block mjx-container {
+  margin: 0 !important;
+}
+
+mjx-container[jax="SVG"] {
+  font-size: 102% !important;
 }
 
 .method {

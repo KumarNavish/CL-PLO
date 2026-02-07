@@ -11,145 +11,259 @@
       <div class="shell">
         <nav class="topbar">
           <a class="toplink" href="./strategy-comparison.html">Strategy Comparison</a>
-          <span class="version">Coreline V5 · theory section rewrite</span>
+          <span class="version">Coreline V6 · math cleanup</span>
         </nav>
 
         <h1>Constraint-aligned PEFT for continual portfolio learning</h1>
         <p class="lead">
-          The central question is simple: can we keep adapting to regime drift without erasing the behavior that
-          protects the portfolio in stress periods? This page answers that question in two stages. First, it explains
-          the mechanisms. Then it shows the validation runs.
+          The question is whether continual adaptation can remain useful in drift regimes without erasing behavior that
+          protects the portfolio in stress regimes. The exposition below is intentionally linear: first the mathematics,
+          then the validation evidence.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#foundations">Start With Theory</a>
-          <a class="btn btn-ghost" href="#validation">Jump To Validation</a>
+          <a class="btn btn-primary" href="#foundations">Start with mathematics</a>
+          <a class="btn btn-ghost" href="#validation">Jump to validation</a>
         </div>
       </div>
     </header>
 
     <main class="shell">
       <section id="foundations" class="section" aria-label="Foundations">
-        <h2>1. Problem setup</h2>
+        <h2>1. Mathematical setup</h2>
         <p>
-          Portfolio construction is held fixed. At each step, weights are obtained from the same constrained optimizer.
-          What changes across methods is only the update rule for the adapter parameters that feed forecast inputs into
-          that optimizer.
-        </p>
-        <pre>w_t = arg min_w -mu_hat_t^T w + gamma * w^T Sigma_hat_t w + lambda_tc * TC(w, w_{t-1})
-subject to risk and drawdown constraints</pre>
-        <p>
-          This separation matters. It lets us compare update mechanisms cleanly, without conflating learning behavior
-          with a different optimizer.
+          We fix the portfolio optimizer and vary only the adapter update rule. This isolates the learning mechanism.
+          The optimizer itself is standard and established.
         </p>
 
-        <h3>Assumptions used in the comparison</h3>
-        <ul>
-          <li>Regime drift is persistent, but stress periods appear intermittently.</li>
-          <li>Adapters should absorb new information while the backbone remains frozen.</li>
-          <li>A stress-anchor buffer approximates behavior that should not regress.</li>
-          <li>Deployment quality is judged by retention, drawdown, and adaptation cost together.</li>
-        </ul>
+        <article class="math-group">
+          <p class="origin-label">Established in literature</p>
+          <h3>Portfolio objective and feasible set</h3>
+          <p class="math-intuition">
+            Intuition: choose weights that trade off expected return, risk, and transaction cost while staying inside a
+            risk-constrained feasible set.
+          </p>
+          <div class="math-block">
+\[
+\mathbf{w}_t^\star
+=
+\arg\min_{\mathbf{w}\in\mathcal{W}}
+\left(
+-\hat{\boldsymbol{\mu}}_t^\top\mathbf{w}
++\frac{\gamma}{2}\mathbf{w}^\top\hat{\boldsymbol{\Sigma}}_t\mathbf{w}
++\lambda_{\mathrm{tc}}\lVert\mathbf{w}-\mathbf{w}_{t-1}\rVert_1
+\right)
+\tag{E1}
+\]
+          </div>
+          <div class="math-block">
+\[
+\mathcal{W}
+=
+\left\{
+\mathbf{w}\in\mathbb{R}^{N}:
+\mathbf{1}^\top\mathbf{w}=1,
+\mathbf{w}\succeq\mathbf{0},
+\operatorname{DD}_{\alpha}(\mathbf{w})\le\tau_{\mathrm{dd}}
+\right\}
+\tag{E2}
+\]
+          </div>
+          <p class="math-implication">
+            Operationally, every method in this page uses (E1)-(E2). Performance differences therefore come from the
+            learning rule, not from changing the optimizer.
+          </p>
+          <p class="refs">
+            References:
+            <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">Boyd et al. (2017)</a>,
+            <a href="https://www.sciencedirect.com/science/article/pii/S0927539899000525" target="_blank" rel="noreferrer">Rockafellar and Uryasev (2000)</a>.
+          </p>
+        </article>
 
-        <p>
-          Before running any experiment, the expected ordering is: naive should adapt fastest; anchor should be more
-          stable; projection should preserve stress behavior most strongly, at the cost of some drift-fit flexibility.
-        </p>
+        <article class="math-group">
+          <p class="origin-label">Established building blocks</p>
+          <h3>Naive and anchor-regularized adapter updates</h3>
+          <p class="math-intuition">
+            Intuition: naive updates chase drift only; anchor regularization adds a soft retention penalty from a stress
+            buffer.
+          </p>
+          <div class="math-block">
+\[
+\boldsymbol{\theta}_{t+1}
+=
+\boldsymbol{\theta}_{t}
+-\eta\nabla_{\boldsymbol{\theta}}
+\mathcal{L}_{\mathrm{drift}}\!\left(\boldsymbol{\theta}_{t};\mathcal{D}^{\mathrm{drift}}_{t}\right)
+\tag{E3}
+\]
+          </div>
+          <div class="math-block">
+\[
+\boldsymbol{\theta}_{t+1}
+=
+\boldsymbol{\theta}_{t}
+-\eta\nabla_{\boldsymbol{\theta}}
+\Big[
+\mathcal{L}_{\mathrm{drift}}\!\left(\boldsymbol{\theta}_{t};\mathcal{D}^{\mathrm{drift}}_{t}\right)
++\beta\,\mathcal{L}_{\mathrm{anchor}}\!\left(\boldsymbol{\theta}_{t};\mathcal{D}^{\mathrm{anchor}}_{t}\right)
+\Big]
+\tag{E4}
+\]
+          </div>
+          <p class="math-implication">
+            Equation (E3) is typically fastest under drift. Equation (E4) improves retention pressure but still permits
+            harmful moves when drift gradients dominate anchor gradients.
+          </p>
+          <p class="refs">
+            References:
+            <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">Hu et al. (LoRA, 2022)</a>,
+            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">Chaudhry et al. (A-GEM, 2019)</a>.
+          </p>
+        </article>
+
+        <article class="math-group">
+          <p class="origin-label">Proposed in this work</p>
+          <h3>Projected retention-constrained update (CL-PLO)</h3>
+          <p class="math-intuition">
+            Intuition: retention should be enforced as a hard geometric condition in gradient space, not only as a soft
+            penalty in the loss.
+          </p>
+          <div class="math-block">
+\[
+\mathbf{g}_{\mathrm{d}}
+=\nabla_{\boldsymbol{\theta}}\mathcal{L}_{\mathrm{drift}},
+\qquad
+\mathbf{g}_{\mathrm{a}}
+=\nabla_{\boldsymbol{\theta}}\mathcal{L}_{\mathrm{anchor}}
+\tag{P1}
+\]
+          </div>
+          <div class="math-block">
+\[
+\tilde{\mathbf{g}}
+=
+\arg\min_{\mathbf{g}}
+\frac{1}{2}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2
+\quad\text{s.t.}\quad
+\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon
+\tag{P2}
+\]
+          </div>
+          <div class="math-block">
+\[
+\tilde{\mathbf{g}}
+=
+\mathbf{g}_{\mathrm{d}}
++
+\max\!\left(
+0,
+\frac{-\varepsilon-\langle\mathbf{g}_{\mathrm{d}},\mathbf{g}_{\mathrm{a}}\rangle}{\lVert\mathbf{g}_{\mathrm{a}}\rVert_2^2}
+\right)\mathbf{g}_{\mathrm{a}},
+\qquad
+\boldsymbol{\theta}_{t+1}=\boldsymbol{\theta}_{t}-\eta\tilde{\mathbf{g}}
+\tag{P3}
+\]
+          </div>
+          <p class="math-implication">
+            The novel boundary is (P2): the update is corrected before application whenever drift motion would violate
+            the anchor safety condition.
+          </p>
+          <p class="refs">
+            Related foundations:
+            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM projection constraint</a>,
+            <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">continual PEFT projection methods</a>.
+          </p>
+        </article>
+
+        <article class="math-group">
+          <p class="origin-label">Proposed in this work</p>
+          <h3>Deployment gate for this artifact</h3>
+          <p class="math-intuition">
+            Intuition: promotion requires simultaneous retention gain, drawdown improvement, and bounded drift-fit cost.
+          </p>
+          <div class="math-block">
+\[
+\Delta_{\mathrm{stress}}
+=
+\frac{\operatorname{MSE}^{\mathrm{naive}}_{\mathrm{stress}}-\operatorname{MSE}^{\mathrm{proj}}_{\mathrm{stress}}}
+{\operatorname{MSE}^{\mathrm{naive}}_{\mathrm{stress}}},
+\quad
+\Delta_{\mathrm{dd}}
+=
+\operatorname{DD}^{\mathrm{proj}}-\operatorname{DD}^{\mathrm{naive}},
+\quad
+\rho_{\mathrm{drift}}
+=
+\frac{\operatorname{MSE}^{\mathrm{proj}}_{\mathrm{drift}}}{\operatorname{MSE}^{\mathrm{naive}}_{\mathrm{drift}}}-1
+\tag{P4}
+\]
+          </div>
+          <div class="math-block">
+\[
+\text{Promote}
+\iff
+\Delta_{\mathrm{stress}}>\tau_{s},\;
+\Delta_{\mathrm{dd}}>\tau_{d},\;
+\rho_{\mathrm{drift}}<\tau_{\rho}
+\tag{P5}
+\]
+          </div>
+          <p class="math-implication">These conditions define the decision card shown in the validation section.</p>
+        </article>
       </section>
 
       <section id="methods" class="section" aria-label="Method mechanics">
-        <h2>2. Method mechanics</h2>
+        <h2>2. Mechanism diagrams</h2>
         <p>
-          The three methods below differ only in how they update adapter gradients. Each method description is
-          deliberately explicit: objective, constraint, what is preserved, and what is allowed to move.
+          The diagrams below are intentionally sparse. Each one answers one question: which signals are used, what is
+          constrained, and how the update reaches the portfolio decision.
         </p>
 
         <article class="method">
-          <h3>Method A: Naive continual update</h3>
-          <p>
-            This baseline follows the current drift objective directly. It is usually the most responsive method, but it
-            has no explicit memory of stress behavior.
-          </p>
+          <h3>Method A: Naive update</h3>
           <dl>
-            <div><dt>Objective</dt><dd>Minimize current drift loss.</dd></div>
-            <div><dt>Constraint</dt><dd>No retention constraint in gradient space.</dd></div>
-            <div><dt>Preserves</dt><dd>Short-horizon fit to the present regime.</dd></div>
-            <div><dt>Allows to change</dt><dd>All adapter directions, including stress-sensitive directions.</dd></div>
+            <div><dt>Formal rule</dt><dd>Equation (E3).</dd></div>
+            <div><dt>Memory</dt><dd>No anchor memory in the update.</dd></div>
+            <div><dt>Risk</dt><dd>Forgetting risk is unmanaged at gradient level.</dd></div>
           </dl>
-          <pre>g = grad L_drift
-theta_{t+1} = theta_t - eta * g</pre>
           <figure class="mechanism">
-            <figcaption>Update path</figcaption>
-            <div class="flow">Drift batch -> Gradient -> Adapter update -> Forecasts -> Optimizer -> Weights</div>
+            <figcaption>Pipeline</figcaption>
+            <div class="flow">drift data -> \(\mathbf{g}_{\mathrm{d}}\) -> update -> forecasts -> optimizer -> weights</div>
           </figure>
-          <p class="refs">
-            References:
-            <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">LoRA (Hu et al., 2022)</a>,
-            <a href="https://dl.acm.org/doi/10.1145/2638548" target="_blank" rel="noreferrer">Online Portfolio Selection survey</a>.
-          </p>
         </article>
 
         <article class="method">
-          <h3>Method B: Anchor-regularized update</h3>
-          <p>
-            This variant adds a soft memory term from stress anchors. It usually reduces forgetting, but still permits
-            destructive updates when drift pressure is strong enough.
-          </p>
+          <h3>Method B: Anchor regularization</h3>
           <dl>
-            <div><dt>Objective</dt><dd>Fit drift while penalizing anchor regression.</dd></div>
-            <div><dt>Constraint</dt><dd>Soft retention through the anchor weight beta.</dd></div>
-            <div><dt>Preserves</dt><dd>Part of stress behavior through replay pressure.</dd></div>
-            <div><dt>Allows to change</dt><dd>Any direction if compensated by loss tradeoff.</dd></div>
+            <div><dt>Formal rule</dt><dd>Equation (E4).</dd></div>
+            <div><dt>Memory</dt><dd>Anchor buffer enters through a weighted penalty.</dd></div>
+            <div><dt>Risk</dt><dd>Retention is encouraged but not guaranteed.</dd></div>
           </dl>
-          <pre>L = L_drift + beta * L_anchor
-g = grad L
-theta_{t+1} = theta_t - eta * g</pre>
           <figure class="mechanism">
-            <figcaption>Update path</figcaption>
-            <div class="flow">Drift batch + Anchor buffer -> Weighted loss -> Gradient -> Adapter update -> Optimizer</div>
+            <figcaption>Pipeline</figcaption>
+            <div class="flow">drift + anchor data -> weighted loss -> gradient -> update -> forecasts -> optimizer</div>
           </figure>
-          <p class="refs">
-            References:
-            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM (Chaudhry et al., 2019)</a>,
-            <a href="https://proceedings.neurips.cc/paper/2012/hash/5d44ee6f2c3f71b73125876103c8f6c4-Abstract.html" target="_blank" rel="noreferrer">Online optimization with constraints</a>.
-          </p>
         </article>
 
         <article class="method">
-          <h3>Method C: Anchor + gradient projection</h3>
-          <p>
-            This is the proposed mechanism. Instead of only penalizing harmful movement, it projects the drift gradient
-            onto a feasible region defined by the anchor direction. In practice, that makes retention a geometric
-            condition rather than a soft preference.
-          </p>
+          <h3>Method C: Anchor + projection</h3>
           <dl>
-            <div><dt>Objective</dt><dd>Stay close to drift gradient while satisfying anchor safety.</dd></div>
-            <div><dt>Constraint</dt><dd>Hard inequality in gradient space.</dd></div>
-            <div><dt>Preserves</dt><dd>Anchor-consistent stress response by construction.</dd></div>
-            <div><dt>Allows to change</dt><dd>Directions compatible with the projection constraint.</dd></div>
+            <div><dt>Formal rule</dt><dd>Equations (P1)-(P3).</dd></div>
+            <div><dt>Memory</dt><dd>Anchor gradient participates directly in feasibility check.</dd></div>
+            <div><dt>Risk</dt><dd>Conflicting drift directions are corrected before update.</dd></div>
           </dl>
-          <pre>g_tilde = arg min_g 0.5 * ||g - g_drift||^2
-subject to &lt;g, g_anchor&gt; >= -eps
-
-theta_{t+1} = theta_t - eta * g_tilde</pre>
           <figure class="mechanism">
-            <figcaption>Update path</figcaption>
-            <div class="flow">Drift gradient + Anchor gradient -> Projection step -> Safe update -> Optimizer</div>
+            <figcaption>Pipeline</figcaption>
+            <div class="flow">\(\mathbf{g}_{\mathrm{d}}\) + \(\mathbf{g}_{\mathrm{a}}\) -> projection step -> safe update -> optimizer</div>
           </figure>
-          <p class="refs">
-            References:
-            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM</a>,
-            <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">Gradient projection for continual PEFT</a>,
-            <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">Convex portfolio control</a>.
-          </p>
         </article>
       </section>
 
       <section id="validation" class="section" aria-label="Validation">
         <h2>3. Validation</h2>
         <p>
-          These runs are evidence checks, not discovery. They test whether measured ordering agrees with the mechanism
-          claims above.
+          These runs are evidence checks. They test whether observed ordering agrees with the mathematical expectations
+          above.
         </p>
 
         <article id="expectation-check" class="expectation-check"></article>
@@ -170,7 +284,7 @@ theta_{t+1} = theta_t - eta * g_tilde</pre>
           </form>
 
           <div class="action-row">
-            <button id="run-demo" class="btn btn-primary" type="button">Run Validation</button>
+            <button id="run-demo" class="btn btn-primary" type="button">Run validation</button>
             <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
             <button id="export-run" class="btn btn-ghost" type="button">Export JSON</button>
           </div>
@@ -209,6 +323,18 @@ theta_{t+1} = theta_t - eta * g_tilde</pre>
       <p>Theory first. Validation second.</p>
     </footer>
 
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]],
+        },
+        svg: {
+          fontCache: "global",
+        },
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
