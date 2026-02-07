@@ -163,7 +163,7 @@ function renderProgress(payload) {
 
 function renderAll(result) {
   setProgress(100);
-  setStatus("Validation complete.");
+  setStatus("Validation complete. Compare observed ordering with the pipeline expectations.");
 
   renderExpectationCheck(result);
   renderDecisionCard(result);
@@ -187,16 +187,17 @@ function renderExpectationCheck(result) {
   const driftOrder = n.driftMse <= a.driftMse && a.driftMse <= p.driftMse;
 
   host.innerHTML = `
-    <h3>Expectation check</h3>
+    <h3>What this run checks</h3>
     <ul>
       <li>
-        Stress retention expected: naive &gt; anchor &gt; projection (MSE).
+        Stress retention should improve from naive to anchor to projection (lower stress MSE).
         <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Observed" : "Not fully observed"}</span>
       </li>
       <li>
-        Drift-fit cost expected: naive &lt;= anchor &lt;= projection (MSE).
+        Drift-fit error is expected to rise as constraints become stricter.
         <span class="${driftOrder ? "pass" : "warn"}">${driftOrder ? "Observed" : "Not fully observed"}</span>
       </li>
+      <li>Use these checks before reading the decision card and score table.</li>
     </ul>
   `;
 }

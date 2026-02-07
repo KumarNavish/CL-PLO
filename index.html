@@ -9,42 +9,68 @@
   <body>
     <header class="hero">
       <div class="shell">
-        <h1>Strategy pipelines for continual portfolio learning</h1>
+        <h1>How each continual-learning strategy actually works</h1>
         <p class="lead">
-          This page is visual-first. It shows exactly where data enters, where memory is stored, where constraints are
-          applied, what is frozen, what is updated, and how each strategy produces portfolio weights.
+          If you are deciding whether to trust this mechanism, this page is designed to answer one question quickly:
+          where do memory and constraints enter the update, and how does that change the portfolio decision path?
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#pipelines">View Strategy Pipelines</a>
+          <a class="btn btn-primary" href="#pipelines">Read Pipelines</a>
           <a class="btn btn-ghost" href="#validation">Run Validation</a>
         </div>
       </div>
     </header>
 
     <main class="shell">
+      <section id="map" class="section">
+        <h2>Reading map</h2>
+        <div class="reading-map">
+          <article>
+            <h3>1. Shared system</h3>
+            <p>See what stays fixed across all methods.</p>
+          </article>
+          <article>
+            <h3>2. Three strategy pipelines</h3>
+            <p>See exactly what each strategy adds or constrains.</p>
+          </article>
+          <article>
+            <h3>3. Validation run</h3>
+            <p>Check if results follow what the pipelines predict.</p>
+          </article>
+        </div>
+      </section>
+
       <section id="shared" class="section">
-        <h2>Shared backbone (used by all strategies)</h2>
-        <div class="shared-pipeline">
-          <div class="flow-node">
-            <h3>Input streams</h3>
-            <p>Market features, news text, macro events</p>
+        <h2>Shared system (constant for all strategies)</h2>
+        <p class="section-intro">
+          Only the adapter update rule changes. The data streams, frozen backbone, and portfolio optimizer are shared.
+        </p>
+
+        <div class="system-board">
+          <div class="system-step">
+            <span class="step-id">1</span>
+            <h3>Inputs</h3>
+            <p>Market features, macro context, text signals</p>
             <p class="math">\(x_t\)</p>
           </div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node frozen">
-            <h3>Model backbone</h3>
-            <p><strong>Frozen:</strong> base model weights</p>
+          <div class="system-link">&rarr;</div>
+          <div class="system-step frozen">
+            <span class="step-id">2</span>
+            <h3>Backbone</h3>
+            <p>Base model parameters are frozen</p>
             <p class="math">\(\phi\)</p>
           </div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node updated">
-            <h3>Adapter block</h3>
-            <p><strong>Updated:</strong> LoRA parameters</p>
+          <div class="system-link">&rarr;</div>
+          <div class="system-step updated">
+            <span class="step-id">3</span>
+            <h3>Adapter</h3>
+            <p>Only LoRA parameters are updated</p>
             <p class="math">\(\theta_t\)</p>
           </div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node">
-            <h3>Portfolio decision</h3>
+          <div class="system-link">&rarr;</div>
+          <div class="system-step">
+            <span class="step-id">4</span>
+            <h3>Portfolio optimizer</h3>
             <p class="math">
               \(\displaystyle
               \mathbf{w}_t^\star=
@@ -57,103 +83,101 @@
       </section>
 
       <section id="pipelines" class="section">
-        <h2>Strategy-specific pipelines</h2>
+        <h2>Strategy pipelines</h2>
+        <p class="section-intro">
+          All three strategies use the same five pipeline columns below. This makes differences explicit and
+          comparable.
+        </p>
 
-        <article class="strategy-block">
-          <h3>Strategy A: Naive continual update</h3>
-          <div class="strategy-visual">
-            <div class="flow-track">
-              <div class="flow-node">Drift batch \(\mathcal{D}_t^{\mathrm{drift}}\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node">Gradient \(\mathbf{g}_{\mathrm{d}}=\nabla\mathcal{L}_{\mathrm{drift}}\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node updated">Update adapter \(\theta_{t+1}=\theta_t-\eta\mathbf{g}_{\mathrm{d}}\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node">Forecasts \(\hat{\mu}_t,\hat{\Sigma}_t\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node">Weights \(\mathbf{w}_t^\star\)</div>
-            </div>
-            <aside class="math-panel">
-              <p class="math-label">Objective</p>
-              <p class="math">\(\min_{\theta}\;\mathcal{L}_{\mathrm{drift}}\)</p>
-              <p class="math-label">Constraint</p>
-              <p class="math">None at gradient level</p>
-              <p class="math-label">Implication</p>
-              <p>Fast adaptation, highest forgetting risk.</p>
-            </aside>
+        <div class="pipeline-legend">
+          <span class="legend-item frozen">Frozen component</span>
+          <span class="legend-item memory">Memory / anchor store</span>
+          <span class="legend-item constraint">Constraint operator</span>
+          <span class="legend-item updated">Updated component</span>
+        </div>
+
+        <article class="strategy-card">
+          <header class="strategy-head">
+            <h3>Strategy A: Naive continual update</h3>
+            <p>Plain language: adapt immediately to current drift; no explicit memory protection.</p>
+          </header>
+          <div class="pipeline-grid">
+            <div class="col-head">Inputs</div>
+            <div class="col-head">Memory</div>
+            <div class="col-head">Constraint</div>
+            <div class="col-head">Update</div>
+            <div class="col-head">Output</div>
+
+            <div class="cell">Drift stream \(\mathcal{D}^{\mathrm{drift}}_t\)</div>
+            <div class="cell">None</div>
+            <div class="cell">None</div>
+            <div class="cell updated">\(\mathbf{g}_{\mathrm{d}}=\nabla\mathcal{L}_{\mathrm{drift}}\), \(\theta_{t+1}=\theta_t-\eta\mathbf{g}_{\mathrm{d}}\)</div>
+            <div class="cell">Forecasts \(\hat{\mu}_t,\hat{\Sigma}_t\) \(\rightarrow\) weights \(\mathbf{w}_t^\star\)</div>
           </div>
         </article>
 
-        <article class="strategy-block">
-          <h3>Strategy B: Anchor-regularized update</h3>
-          <div class="strategy-visual">
-            <div class="flow-track">
-              <div class="flow-node">Drift batch \(\mathcal{D}_t^{\mathrm{drift}}\)</div>
-              <div class="flow-arrow">+</div>
-              <div class="flow-node memory">
-                Anchor memory \(\mathcal{D}_t^{\mathrm{anchor}}\)
-                <ul class="examples">
-                  <li>"2008 credit spread dislocation"</li>
-                  <li>"2020 limit-down shock"</li>
-                  <li>"2022 inflation surprise regime"</li>
-                </ul>
-              </div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node">Weighted loss \(\mathcal{L}_{\mathrm{drift}}+\beta\mathcal{L}_{\mathrm{anchor}}\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node updated">Update adapter \(\theta_{t+1}=\theta_t-\eta\nabla\mathcal{L}\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node">Weights \(\mathbf{w}_t^\star\)</div>
+        <article class="strategy-card">
+          <header class="strategy-head">
+            <h3>Strategy B: Anchor-regularized update</h3>
+            <p>Plain language: reuse stress memory as a soft penalty so updates are less forgetful.</p>
+          </header>
+          <div class="pipeline-grid">
+            <div class="col-head">Inputs</div>
+            <div class="col-head">Memory</div>
+            <div class="col-head">Constraint</div>
+            <div class="col-head">Update</div>
+            <div class="col-head">Output</div>
+
+            <div class="cell">\(\mathcal{D}^{\mathrm{drift}}_t\)</div>
+            <div class="cell memory">
+              Anchor set \(\mathcal{D}^{\mathrm{anchor}}_t\)
+              <ul class="examples">
+                <li>"2008 credit spread dislocation"</li>
+                <li>"2020 limit-down shock"</li>
+                <li>"2022 inflation surprise"</li>
+              </ul>
             </div>
-            <aside class="math-panel">
-              <p class="math-label">Objective</p>
-              <p class="math">\(\min_{\theta}\;\mathcal{L}_{\mathrm{drift}}+\beta\mathcal{L}_{\mathrm{anchor}}\)</p>
-              <p class="math-label">Constraint</p>
-              <p class="math">Soft, via \(\beta\)</p>
-              <p class="math-label">Implication</p>
-              <p>Better retention than naive, but conflict is not explicitly clipped.</p>
-            </aside>
+            <div class="cell">Soft via \(\beta\)</div>
+            <div class="cell updated">\(\min_{\theta}\,\mathcal{L}_{\mathrm{drift}}+\beta\mathcal{L}_{\mathrm{anchor}}\), \(\theta_{t+1}=\theta_t-\eta\nabla\mathcal{L}\)</div>
+            <div class="cell">\(\hat{\mu}_t,\hat{\Sigma}_t\rightarrow\mathbf{w}_t^\star\)</div>
           </div>
         </article>
 
-        <article class="strategy-block">
-          <h3>Strategy C: Anchor + projection (proposed)</h3>
-          <div class="strategy-visual">
-            <div class="flow-track">
-              <div class="flow-node">Drift gradient \(\mathbf{g}_{\mathrm{d}}\)</div>
-              <div class="flow-arrow">+</div>
-              <div class="flow-node memory">
-                Anchor gradient \(\mathbf{g}_{\mathrm{a}}\)
-                <ul class="examples">
-                  <li>Stress-memory snapshots from anchor set</li>
-                  <li>Regime history: calm, inflation, liquidity shock</li>
-                </ul>
-              </div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node constraint">
-                Projection gate
-                <p class="math">\(\tilde{\mathbf{g}}=\Pi_{\mathcal{C}_{\varepsilon}}(\mathbf{g}_{\mathrm{d}})\)</p>
-                <p class="math">\(\mathcal{C}_{\varepsilon}=\{\mathbf{g}:\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\}\)</p>
-              </div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node updated">Safe update \(\theta_{t+1}=\theta_t-\eta\tilde{\mathbf{g}}\)</div>
-              <div class="flow-arrow">&rarr;</div>
-              <div class="flow-node">Weights \(\mathbf{w}_t^\star\)</div>
+        <article class="strategy-card">
+          <header class="strategy-head">
+            <h3>Strategy C: Anchor + projection (proposed)</h3>
+            <p>Plain language: enforce memory protection directly in gradient geometry before the update is applied.</p>
+          </header>
+          <div class="pipeline-grid">
+            <div class="col-head">Inputs</div>
+            <div class="col-head">Memory</div>
+            <div class="col-head">Constraint</div>
+            <div class="col-head">Update</div>
+            <div class="col-head">Output</div>
+
+            <div class="cell">Drift gradient \(\mathbf{g}_{\mathrm{d}}\)</div>
+            <div class="cell memory">
+              Anchor gradient \(\mathbf{g}_{\mathrm{a}}\)
+              <ul class="examples">
+                <li>Stress-memory snapshots</li>
+                <li>Regime archive: calm, inflation, liquidity shock</li>
+              </ul>
             </div>
-            <aside class="math-panel">
-              <p class="math-label">Objective</p>
-              <p class="math">\(\min_{\mathbf{g}}\tfrac{1}{2}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2\)</p>
-              <p class="math-label">Constraint</p>
-              <p class="math">\(\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\)</p>
-              <p class="math-label">Implication</p>
-              <p>Retention is enforced as geometry, not only as penalty weight.</p>
-            </aside>
+            <div class="cell constraint">
+              \(\tilde{\mathbf{g}}=\Pi_{\mathcal{C}_{\varepsilon}}(\mathbf{g}_{\mathrm{d}})\)
+              <p class="math-small">\(\mathcal{C}_{\varepsilon}=\{\mathbf{g}:\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\}\)</p>
+            </div>
+            <div class="cell updated">\(\theta_{t+1}=\theta_t-\eta\tilde{\mathbf{g}}\)</div>
+            <div class="cell">\(\hat{\mu}_t,\hat{\Sigma}_t\rightarrow\mathbf{w}_t^\star\)</div>
           </div>
         </article>
       </section>
 
       <section id="validation" class="section" aria-label="Validation">
         <h2>Validation run</h2>
+        <p class="section-intro">
+          This section checks whether observed behavior matches the pipeline logic above.
+        </p>
         <article id="expectation-check" class="expectation-check"></article>
 
         <div class="control-stack">
