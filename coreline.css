@@ -1,8 +1,8 @@
 :root {
-  --text: #111111;
-  --muted: #555555;
+  --text: #111;
+  --muted: #555;
   --line: #d9d9d9;
-  --bg: #ffffff;
+  --bg: #fff;
 }
 
 * {
@@ -26,9 +26,7 @@ h1,
 h2,
 h3,
 h4,
-.topbar,
 .btn,
-.version,
 .method-table {
   font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
 }
@@ -41,7 +39,6 @@ p,
 ul,
 ol,
 dl,
-pre,
 figure {
   margin: 0;
 }
@@ -52,49 +49,29 @@ a {
 }
 
 .shell {
-  width: min(840px, calc(100% - 3rem));
+  width: min(980px, calc(100% - 3rem));
   margin: 0 auto;
 }
 
 .hero {
-  padding: 3.4rem 0 2.4rem;
-}
-
-.topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.86rem;
-  margin-bottom: 2.4rem;
-}
-
-.toplink {
-  text-decoration: none;
-  border-bottom: 1px solid #111;
-  padding-bottom: 1px;
-}
-
-.version {
-  color: var(--muted);
-  font-size: 0.8rem;
+  padding: 3.2rem 0 2.3rem;
 }
 
 h1 {
   font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 600;
   line-height: 1.18;
   max-width: 24ch;
+  font-weight: 600;
 }
 
 .lead {
-  margin-top: 1.1rem;
-  max-width: 70ch;
-  color: #222;
-  font-size: 1.04rem;
+  margin-top: 1.05rem;
+  max-width: 72ch;
+  font-size: 1.03rem;
 }
 
 .hero-actions {
-  margin-top: 1.3rem;
+  margin-top: 1.25rem;
   display: flex;
   gap: 0.55rem;
   flex-wrap: wrap;
@@ -121,144 +98,131 @@ h1 {
   cursor: wait;
 }
 
-main {
-  padding-bottom: 3rem;
-}
-
 .section {
-  padding: 2.3rem 0;
   border-top: 1px solid var(--line);
+  padding: 2.2rem 0;
 }
 
 .section h2 {
-  font-size: 1.4rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+  font-size: 1.35rem;
+  margin-bottom: 0.8rem;
 }
 
 .section h3 {
-  margin-top: 1.35rem;
-  margin-bottom: 0.5rem;
+  font-size: 0.98rem;
+  margin-bottom: 0.35rem;
+}
+
+.section p {
   font-size: 1rem;
-  font-weight: 600;
 }
 
-.section p + p,
-.section p + ul,
-.section p + ol,
-.section ul + p,
-.section ol + p,
-.section article + article {
-  margin-top: 0.85rem;
+.shared-pipeline,
+.flow-track {
+  margin-top: 0.9rem;
+  border: 1px solid var(--line);
+  padding: 0.72rem;
+  display: flex;
+  gap: 0.45rem;
+  align-items: stretch;
+  flex-wrap: wrap;
 }
 
-.section p,
-.section li,
-.section dd {
-  font-size: 1.02rem;
+.flow-node {
+  min-width: 165px;
+  flex: 1 1 165px;
+  border: 1px solid var(--line);
+  padding: 0.46rem;
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
 }
 
-.section ul,
-.section ol {
-  padding-left: 1.25rem;
+.flow-node h3 {
+  font-size: 0.82rem;
 }
 
-.math-group {
-  margin-top: 1.25rem;
+.flow-node p,
+.flow-node li,
+.flow-node .math {
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.flow-node.frozen {
+  border-style: dashed;
+}
+
+.flow-node.updated {
+  border-width: 2px;
+}
+
+.flow-node.memory {
+  border-style: dashed;
+}
+
+.flow-node.constraint {
+  border-width: 2px;
+}
+
+.flow-arrow {
+  display: grid;
+  place-items: center;
+  font-size: 1.08rem;
+  min-width: 18px;
+  color: #333;
+}
+
+.strategy-block {
+  margin-top: 1.2rem;
   padding-top: 0.95rem;
   border-top: 1px solid var(--line);
 }
 
-.math-group:first-of-type {
-  margin-top: 0.9rem;
-}
-
-.origin-label {
-  margin-bottom: 0.35rem;
-  font-size: 0.76rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.math-intuition,
-.math-implication {
-  color: #222;
-}
-
-.math-block {
-  margin-top: 0.7rem;
-  padding: 0.65rem 0.7rem;
-  border: 1px solid var(--line);
-  overflow-x: auto;
-}
-
-.math-block + .math-block {
-  margin-top: 0.45rem;
-}
-
-.math-block mjx-container {
-  margin: 0 !important;
-}
-
-mjx-container[jax="SVG"] {
-  font-size: 102% !important;
-}
-
-.method {
-  margin-top: 1.35rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--line);
-}
-
-.method:first-of-type {
-  margin-top: 1rem;
-}
-
-dl {
-  margin-top: 0.7rem;
-}
-
-dl div {
+.strategy-visual {
+  margin-top: 0.55rem;
   display: grid;
-  grid-template-columns: 170px 1fr;
-  gap: 0.7rem;
-  padding: 0.16rem 0;
+  grid-template-columns: 1.9fr 1fr;
+  gap: 0.55rem;
 }
 
-dt {
+.math-panel {
+  border: 1px solid var(--line);
+  padding: 0.6rem;
+  display: grid;
+  align-content: start;
+  gap: 0.26rem;
+}
+
+.math-label {
+  margin-top: 0.2rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
 }
 
-dd {
-  margin: 0;
+.math-panel p,
+.math-panel .math {
+  font-size: 0.82rem;
+}
+
+.examples {
+  margin: 0.2rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.1rem;
 }
 
 .mechanism {
-  margin-top: 0.8rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid var(--line);
-}
-
-.mechanism figcaption {
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-bottom: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  margin-top: 0.6rem;
 }
 
 .flow {
   font-family: "SFMono-Regular", Menlo, Consolas, monospace;
-  font-size: 0.84rem;
+  font-size: 0.83rem;
   line-height: 1.5;
-}
-
-.refs {
-  margin-top: 0.55rem;
-  font-size: 0.9rem;
-  color: #222;
 }
 
 .expectation-check,
@@ -274,15 +238,15 @@ dd {
 
 .expectation-check {
   padding: 0.8rem;
-  margin-top: 1rem;
+  margin-top: 0.8rem;
 }
 
 .expectation-check h3 {
-  margin: 0 0 0.3rem;
+  margin: 0 0 0.35rem;
 }
 
 .expectation-check ul {
-  padding-left: 1.1rem;
+  padding-left: 1.15rem;
 }
 
 .expectation-check .pass,
@@ -319,15 +283,14 @@ label {
   display: grid;
   gap: 0.18rem;
   font-size: 0.78rem;
-  color: #333;
 }
 
 input {
   border: 1px solid var(--line);
-  background: #fff;
-  color: #111;
-  font-family: inherit;
   padding: 0.4rem 0.45rem;
+  font-family: inherit;
+  color: #111;
+  background: #fff;
 }
 
 .run-status {
@@ -370,12 +333,6 @@ input {
   font-size: 0.95rem;
 }
 
-.decision-card.good,
-.decision-card.caution,
-.decision-card.bad {
-  border-left-color: #111;
-}
-
 .kpi-row {
   margin-top: 0.8rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -390,6 +347,7 @@ input {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #444;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
 }
 
 .kpi-row .value {
@@ -448,7 +406,6 @@ input {
 
 .method-table th {
   font-weight: 600;
-  color: #222;
 }
 
 .method-name {
@@ -474,17 +431,15 @@ input {
   font-size: 0.95rem;
 }
 
-.footer {
-  border-top: 1px solid var(--line);
-  padding: 1.1rem 0 2rem;
+mjx-container[jax="SVG"] {
+  font-size: 102% !important;
 }
 
-.footer p {
-  font-size: 0.84rem;
-  color: #444;
-}
+@media (max-width: 980px) {
+  .strategy-visual {
+    grid-template-columns: 1fr;
+  }
 
-@media (max-width: 880px) {
   .knob-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -492,11 +447,6 @@ input {
   .kpi-row,
   .chart-grid {
     grid-template-columns: 1fr;
-  }
-
-  dl div {
-    grid-template-columns: 1fr;
-    gap: 0.2rem;
   }
 }
 
@@ -506,13 +456,7 @@ input {
   }
 
   .hero {
-    padding-top: 2.3rem;
-  }
-
-  .topbar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
+    padding-top: 2.4rem;
   }
 
   .preset-row,

@@ -3,269 +3,157 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CL-PLO | Theory and Validation</title>
+    <title>CL-PLO | Strategy Pipelines and Validation</title>
     <link rel="stylesheet" href="./coreline.css" />
   </head>
   <body>
     <header class="hero">
       <div class="shell">
-        <nav class="topbar">
-          <a class="toplink" href="./strategy-comparison.html">Strategy Comparison</a>
-          <span class="version">Coreline V6 · math cleanup</span>
-        </nav>
-
-        <h1>Constraint-aligned PEFT for continual portfolio learning</h1>
+        <h1>Strategy pipelines for continual portfolio learning</h1>
         <p class="lead">
-          The question is whether continual adaptation can remain useful in drift regimes without erasing behavior that
-          protects the portfolio in stress regimes. The exposition below is intentionally linear: first the mathematics,
-          then the validation evidence.
+          This page is visual-first. It shows exactly where data enters, where memory is stored, where constraints are
+          applied, what is frozen, what is updated, and how each strategy produces portfolio weights.
         </p>
-
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#foundations">Start with mathematics</a>
-          <a class="btn btn-ghost" href="#validation">Jump to validation</a>
+          <a class="btn btn-primary" href="#pipelines">View Strategy Pipelines</a>
+          <a class="btn btn-ghost" href="#validation">Run Validation</a>
         </div>
       </div>
     </header>
 
     <main class="shell">
-      <section id="foundations" class="section" aria-label="Foundations">
-        <h2>1. Mathematical setup</h2>
-        <p>
-          We fix the portfolio optimizer and vary only the adapter update rule. This isolates the learning mechanism.
-          The optimizer itself is standard and established.
-        </p>
-
-        <article class="math-group">
-          <p class="origin-label">Established in literature</p>
-          <h3>Portfolio objective and feasible set</h3>
-          <p class="math-intuition">
-            Intuition: choose weights that trade off expected return, risk, and transaction cost while staying inside a
-            risk-constrained feasible set.
-          </p>
-          <div class="math-block">
-\[
-\mathbf{w}_t^\star
-=
-\arg\min_{\mathbf{w}\in\mathcal{W}}
-\left(
--\hat{\boldsymbol{\mu}}_t^\top\mathbf{w}
-+\frac{\gamma}{2}\mathbf{w}^\top\hat{\boldsymbol{\Sigma}}_t\mathbf{w}
-+\lambda_{\mathrm{tc}}\lVert\mathbf{w}-\mathbf{w}_{t-1}\rVert_1
-\right)
-\tag{E1}
-\]
+      <section id="shared" class="section">
+        <h2>Shared backbone (used by all strategies)</h2>
+        <div class="shared-pipeline">
+          <div class="flow-node">
+            <h3>Input streams</h3>
+            <p>Market features, news text, macro events</p>
+            <p class="math">\(x_t\)</p>
           </div>
-          <div class="math-block">
-\[
-\mathcal{W}
-=
-\left\{
-\mathbf{w}\in\mathbb{R}^{N}:
-\mathbf{1}^\top\mathbf{w}=1,
-\mathbf{w}\succeq\mathbf{0},
-\operatorname{DD}_{\alpha}(\mathbf{w})\le\tau_{\mathrm{dd}}
-\right\}
-\tag{E2}
-\]
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node frozen">
+            <h3>Model backbone</h3>
+            <p><strong>Frozen:</strong> base model weights</p>
+            <p class="math">\(\phi\)</p>
           </div>
-          <p class="math-implication">
-            Operationally, every method in this page uses (E1)-(E2). Performance differences therefore come from the
-            learning rule, not from changing the optimizer.
-          </p>
-          <p class="refs">
-            References:
-            <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">Boyd et al. (2017)</a>,
-            <a href="https://www.sciencedirect.com/science/article/pii/S0927539899000525" target="_blank" rel="noreferrer">Rockafellar and Uryasev (2000)</a>.
-          </p>
-        </article>
-
-        <article class="math-group">
-          <p class="origin-label">Established building blocks</p>
-          <h3>Naive and anchor-regularized adapter updates</h3>
-          <p class="math-intuition">
-            Intuition: naive updates chase drift only; anchor regularization adds a soft retention penalty from a stress
-            buffer.
-          </p>
-          <div class="math-block">
-\[
-\boldsymbol{\theta}_{t+1}
-=
-\boldsymbol{\theta}_{t}
--\eta\nabla_{\boldsymbol{\theta}}
-\mathcal{L}_{\mathrm{drift}}\!\left(\boldsymbol{\theta}_{t};\mathcal{D}^{\mathrm{drift}}_{t}\right)
-\tag{E3}
-\]
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node updated">
+            <h3>Adapter block</h3>
+            <p><strong>Updated:</strong> LoRA parameters</p>
+            <p class="math">\(\theta_t\)</p>
           </div>
-          <div class="math-block">
-\[
-\boldsymbol{\theta}_{t+1}
-=
-\boldsymbol{\theta}_{t}
--\eta\nabla_{\boldsymbol{\theta}}
-\Big[
-\mathcal{L}_{\mathrm{drift}}\!\left(\boldsymbol{\theta}_{t};\mathcal{D}^{\mathrm{drift}}_{t}\right)
-+\beta\,\mathcal{L}_{\mathrm{anchor}}\!\left(\boldsymbol{\theta}_{t};\mathcal{D}^{\mathrm{anchor}}_{t}\right)
-\Big]
-\tag{E4}
-\]
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-node">
+            <h3>Portfolio decision</h3>
+            <p class="math">
+              \(\displaystyle
+              \mathbf{w}_t^\star=
+              \arg\min_{\mathbf{w}\in\mathcal{W}}
+              \left(-\hat{\mu}_t^\top\mathbf{w}+\frac{\gamma}{2}\mathbf{w}^\top\hat{\Sigma}_t\mathbf{w}+\lambda_{\mathrm{tc}}\lVert\mathbf{w}-\mathbf{w}_{t-1}\rVert_1\right)
+              \)
+            </p>
           </div>
-          <p class="math-implication">
-            Equation (E3) is typically fastest under drift. Equation (E4) improves retention pressure but still permits
-            harmful moves when drift gradients dominate anchor gradients.
-          </p>
-          <p class="refs">
-            References:
-            <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">Hu et al. (LoRA, 2022)</a>,
-            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">Chaudhry et al. (A-GEM, 2019)</a>.
-          </p>
-        </article>
-
-        <article class="math-group">
-          <p class="origin-label">Proposed in this work</p>
-          <h3>Projected retention-constrained update (CL-PLO)</h3>
-          <p class="math-intuition">
-            Intuition: retention should be enforced as a hard geometric condition in gradient space, not only as a soft
-            penalty in the loss.
-          </p>
-          <div class="math-block">
-\[
-\mathbf{g}_{\mathrm{d}}
-=\nabla_{\boldsymbol{\theta}}\mathcal{L}_{\mathrm{drift}},
-\qquad
-\mathbf{g}_{\mathrm{a}}
-=\nabla_{\boldsymbol{\theta}}\mathcal{L}_{\mathrm{anchor}}
-\tag{P1}
-\]
-          </div>
-          <div class="math-block">
-\[
-\tilde{\mathbf{g}}
-=
-\arg\min_{\mathbf{g}}
-\frac{1}{2}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2
-\quad\text{s.t.}\quad
-\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon
-\tag{P2}
-\]
-          </div>
-          <div class="math-block">
-\[
-\tilde{\mathbf{g}}
-=
-\mathbf{g}_{\mathrm{d}}
-+
-\max\!\left(
-0,
-\frac{-\varepsilon-\langle\mathbf{g}_{\mathrm{d}},\mathbf{g}_{\mathrm{a}}\rangle}{\lVert\mathbf{g}_{\mathrm{a}}\rVert_2^2}
-\right)\mathbf{g}_{\mathrm{a}},
-\qquad
-\boldsymbol{\theta}_{t+1}=\boldsymbol{\theta}_{t}-\eta\tilde{\mathbf{g}}
-\tag{P3}
-\]
-          </div>
-          <p class="math-implication">
-            The novel boundary is (P2): the update is corrected before application whenever drift motion would violate
-            the anchor safety condition.
-          </p>
-          <p class="refs">
-            Related foundations:
-            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM projection constraint</a>,
-            <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">continual PEFT projection methods</a>.
-          </p>
-        </article>
-
-        <article class="math-group">
-          <p class="origin-label">Proposed in this work</p>
-          <h3>Deployment gate for this artifact</h3>
-          <p class="math-intuition">
-            Intuition: promotion requires simultaneous retention gain, drawdown improvement, and bounded drift-fit cost.
-          </p>
-          <div class="math-block">
-\[
-\Delta_{\mathrm{stress}}
-=
-\frac{\operatorname{MSE}^{\mathrm{naive}}_{\mathrm{stress}}-\operatorname{MSE}^{\mathrm{proj}}_{\mathrm{stress}}}
-{\operatorname{MSE}^{\mathrm{naive}}_{\mathrm{stress}}},
-\quad
-\Delta_{\mathrm{dd}}
-=
-\operatorname{DD}^{\mathrm{proj}}-\operatorname{DD}^{\mathrm{naive}},
-\quad
-\rho_{\mathrm{drift}}
-=
-\frac{\operatorname{MSE}^{\mathrm{proj}}_{\mathrm{drift}}}{\operatorname{MSE}^{\mathrm{naive}}_{\mathrm{drift}}}-1
-\tag{P4}
-\]
-          </div>
-          <div class="math-block">
-\[
-\text{Promote}
-\iff
-\Delta_{\mathrm{stress}}>\tau_{s},\;
-\Delta_{\mathrm{dd}}>\tau_{d},\;
-\rho_{\mathrm{drift}}<\tau_{\rho}
-\tag{P5}
-\]
-          </div>
-          <p class="math-implication">These conditions define the decision card shown in the validation section.</p>
-        </article>
+        </div>
       </section>
 
-      <section id="methods" class="section" aria-label="Method mechanics">
-        <h2>2. Mechanism diagrams</h2>
-        <p>
-          The diagrams below are intentionally sparse. Each one answers one question: which signals are used, what is
-          constrained, and how the update reaches the portfolio decision.
-        </p>
+      <section id="pipelines" class="section">
+        <h2>Strategy-specific pipelines</h2>
 
-        <article class="method">
-          <h3>Method A: Naive update</h3>
-          <dl>
-            <div><dt>Formal rule</dt><dd>Equation (E3).</dd></div>
-            <div><dt>Memory</dt><dd>No anchor memory in the update.</dd></div>
-            <div><dt>Risk</dt><dd>Forgetting risk is unmanaged at gradient level.</dd></div>
-          </dl>
-          <figure class="mechanism">
-            <figcaption>Pipeline</figcaption>
-            <div class="flow">drift data -> \(\mathbf{g}_{\mathrm{d}}\) -> update -> forecasts -> optimizer -> weights</div>
-          </figure>
+        <article class="strategy-block">
+          <h3>Strategy A: Naive continual update</h3>
+          <div class="strategy-visual">
+            <div class="flow-track">
+              <div class="flow-node">Drift batch \(\mathcal{D}_t^{\mathrm{drift}}\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node">Gradient \(\mathbf{g}_{\mathrm{d}}=\nabla\mathcal{L}_{\mathrm{drift}}\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node updated">Update adapter \(\theta_{t+1}=\theta_t-\eta\mathbf{g}_{\mathrm{d}}\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node">Forecasts \(\hat{\mu}_t,\hat{\Sigma}_t\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node">Weights \(\mathbf{w}_t^\star\)</div>
+            </div>
+            <aside class="math-panel">
+              <p class="math-label">Objective</p>
+              <p class="math">\(\min_{\theta}\;\mathcal{L}_{\mathrm{drift}}\)</p>
+              <p class="math-label">Constraint</p>
+              <p class="math">None at gradient level</p>
+              <p class="math-label">Implication</p>
+              <p>Fast adaptation, highest forgetting risk.</p>
+            </aside>
+          </div>
         </article>
 
-        <article class="method">
-          <h3>Method B: Anchor regularization</h3>
-          <dl>
-            <div><dt>Formal rule</dt><dd>Equation (E4).</dd></div>
-            <div><dt>Memory</dt><dd>Anchor buffer enters through a weighted penalty.</dd></div>
-            <div><dt>Risk</dt><dd>Retention is encouraged but not guaranteed.</dd></div>
-          </dl>
-          <figure class="mechanism">
-            <figcaption>Pipeline</figcaption>
-            <div class="flow">drift + anchor data -> weighted loss -> gradient -> update -> forecasts -> optimizer</div>
-          </figure>
+        <article class="strategy-block">
+          <h3>Strategy B: Anchor-regularized update</h3>
+          <div class="strategy-visual">
+            <div class="flow-track">
+              <div class="flow-node">Drift batch \(\mathcal{D}_t^{\mathrm{drift}}\)</div>
+              <div class="flow-arrow">+</div>
+              <div class="flow-node memory">
+                Anchor memory \(\mathcal{D}_t^{\mathrm{anchor}}\)
+                <ul class="examples">
+                  <li>"2008 credit spread dislocation"</li>
+                  <li>"2020 limit-down shock"</li>
+                  <li>"2022 inflation surprise regime"</li>
+                </ul>
+              </div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node">Weighted loss \(\mathcal{L}_{\mathrm{drift}}+\beta\mathcal{L}_{\mathrm{anchor}}\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node updated">Update adapter \(\theta_{t+1}=\theta_t-\eta\nabla\mathcal{L}\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node">Weights \(\mathbf{w}_t^\star\)</div>
+            </div>
+            <aside class="math-panel">
+              <p class="math-label">Objective</p>
+              <p class="math">\(\min_{\theta}\;\mathcal{L}_{\mathrm{drift}}+\beta\mathcal{L}_{\mathrm{anchor}}\)</p>
+              <p class="math-label">Constraint</p>
+              <p class="math">Soft, via \(\beta\)</p>
+              <p class="math-label">Implication</p>
+              <p>Better retention than naive, but conflict is not explicitly clipped.</p>
+            </aside>
+          </div>
         </article>
 
-        <article class="method">
-          <h3>Method C: Anchor + projection</h3>
-          <dl>
-            <div><dt>Formal rule</dt><dd>Equations (P1)-(P3).</dd></div>
-            <div><dt>Memory</dt><dd>Anchor gradient participates directly in feasibility check.</dd></div>
-            <div><dt>Risk</dt><dd>Conflicting drift directions are corrected before update.</dd></div>
-          </dl>
-          <figure class="mechanism">
-            <figcaption>Pipeline</figcaption>
-            <div class="flow">\(\mathbf{g}_{\mathrm{d}}\) + \(\mathbf{g}_{\mathrm{a}}\) -> projection step -> safe update -> optimizer</div>
-          </figure>
+        <article class="strategy-block">
+          <h3>Strategy C: Anchor + projection (proposed)</h3>
+          <div class="strategy-visual">
+            <div class="flow-track">
+              <div class="flow-node">Drift gradient \(\mathbf{g}_{\mathrm{d}}\)</div>
+              <div class="flow-arrow">+</div>
+              <div class="flow-node memory">
+                Anchor gradient \(\mathbf{g}_{\mathrm{a}}\)
+                <ul class="examples">
+                  <li>Stress-memory snapshots from anchor set</li>
+                  <li>Regime history: calm, inflation, liquidity shock</li>
+                </ul>
+              </div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node constraint">
+                Projection gate
+                <p class="math">\(\tilde{\mathbf{g}}=\Pi_{\mathcal{C}_{\varepsilon}}(\mathbf{g}_{\mathrm{d}})\)</p>
+                <p class="math">\(\mathcal{C}_{\varepsilon}=\{\mathbf{g}:\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\}\)</p>
+              </div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node updated">Safe update \(\theta_{t+1}=\theta_t-\eta\tilde{\mathbf{g}}\)</div>
+              <div class="flow-arrow">&rarr;</div>
+              <div class="flow-node">Weights \(\mathbf{w}_t^\star\)</div>
+            </div>
+            <aside class="math-panel">
+              <p class="math-label">Objective</p>
+              <p class="math">\(\min_{\mathbf{g}}\tfrac{1}{2}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2\)</p>
+              <p class="math-label">Constraint</p>
+              <p class="math">\(\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\)</p>
+              <p class="math-label">Implication</p>
+              <p>Retention is enforced as geometry, not only as penalty weight.</p>
+            </aside>
+          </div>
         </article>
       </section>
 
       <section id="validation" class="section" aria-label="Validation">
-        <h2>3. Validation</h2>
-        <p>
-          These runs are evidence checks. They test whether observed ordering agrees with the mathematical expectations
-          above.
-        </p>
-
+        <h2>Validation run</h2>
         <article id="expectation-check" class="expectation-check"></article>
 
         <div class="control-stack">
@@ -296,7 +184,6 @@
         </div>
 
         <article id="decision-card" class="decision-card"></article>
-
         <div id="impact-kpis" class="kpi-row"></div>
 
         <div class="chart-grid">
@@ -318,10 +205,6 @@
         <article id="takeaway" class="takeaway"></article>
       </section>
     </main>
-
-    <footer class="footer">
-      <p>Theory first. Validation second.</p>
-    </footer>
 
     <script>
       window.MathJax = {
