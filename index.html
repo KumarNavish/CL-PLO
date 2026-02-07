@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Constraint-Aligned PEFT | Internship Proposal Artifact</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <p class="eyebrow">Internship Proposal Artifact</p>
+        <h1>Constraint-Aligned Continual PEFT for Portfolio Signal Models</h1>
+        <p class="hero-subtitle">
+          My objective is narrow: adapt to drift without breaking stress behavior. This artifact packages
+          the mechanism, evidence, and deployment path in a form a desk can evaluate quickly.
+        </p>
+
+        <div class="hero-actions">
+          <button id="hero-run" class="btn-primary">Run Mechanism Now</button>
+          <a class="btn-ghost" href="#deployment">Inspect Deployment Path</a>
+          <a class="btn-ghost" href="#internship">View Internship Plan</a>
+        </div>
+
+        <div class="hero-proof">
+          <article>
+            <h3>Working Thesis</h3>
+            <p>
+              Restrict updates to PEFT parameters and enforce gradient compatibility with stress anchors.
+              This keeps adaptation while reducing catastrophic regression risk.
+            </p>
+          </article>
+          <article>
+            <h3>Why It Matters</h3>
+            <p>
+              Unconstrained online tuning can improve near-term fit while degrading behavior in the exact
+              regimes that dominate realized risk.
+            </p>
+          </article>
+          <article>
+            <h3>Why It Is Buildable</h3>
+            <p>
+              No stack rewrite required: frozen backbone, small adapter deltas, existing optimizer
+              constraints, and explicit promotion/rollback checks.
+            </p>
+          </article>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="section-head">
+          <h2>Decision Mode (5 Minutes)</h2>
+          <p>Fast review path for a quant/AI team.</p>
+        </div>
+
+        <ol class="decision-steps">
+          <li>Run the live experiment and compare naive vs anchor vs projection.</li>
+          <li>Check whether stress regression falls while drift-fit stays acceptable.</li>
+          <li>Inspect drawdown and stress-day risk-allocation behavior.</li>
+          <li>Review deployment assumptions and failure controls.</li>
+          <li>Make a pilot/no-pilot decision.</li>
+        </ol>
+      </section>
+
+      <section id="demo" class="panel">
+        <div class="section-head">
+          <h2>1) Interactive Mechanism Demo</h2>
+          <p>Change assumptions, rerun, and export a report for internal review.</p>
+        </div>
+
+        <div class="demo-layout">
+          <aside class="controls-card">
+            <h3>Run Controls</h3>
+            <p class="small-muted">Start with a preset. Then change one parameter at a time.</p>
+
+            <div class="preset-row">
+              <button id="apply-quick" class="btn-ghost">Quick Check</button>
+              <button id="apply-proposal" class="btn-ghost">Proposal-like</button>
+              <button id="apply-stress" class="btn-ghost">Stress Heavy</button>
+            </div>
+
+            <form id="config-form">
+              <fieldset>
+                <legend>Update Setup</legend>
+                <label>Seed <input name="seed" type="number" step="1" /></label>
+                <label>Steps <input name="steps" type="number" step="1" /></label>
+                <label>Learning rate <input name="lr" type="number" step="0.001" /></label>
+                <label>LoRA rank <input name="loraRank" type="number" step="1" /></label>
+                <label>Anchor beta <input name="anchorBeta" type="number" step="0.01" /></label>
+              </fieldset>
+
+              <fieldset>
+                <legend>Data Volumes</legend>
+                <label>Train drift samples <input name="nTrainDrift" type="number" step="1" /></label>
+                <label>Anchor stress samples <input name="nAnchorStress" type="number" step="1" /></label>
+                <label>Test drift samples <input name="nTestDrift" type="number" step="1" /></label>
+                <label>Test stress samples <input name="nTestStress" type="number" step="1" /></label>
+                <label>Batch size <input name="batchSize" type="number" step="1" /></label>
+                <label>Anchor batch size <input name="anchorBatchSize" type="number" step="1" /></label>
+              </fieldset>
+
+              <fieldset>
+                <legend>Portfolio Stream</legend>
+                <label>Simulation horizon <input name="simT" type="number" step="1" /></label>
+                <label>Stress probability <input name="pStress" type="number" step="0.01" /></label>
+                <label>Max risky weight <input name="wMaxRisky" type="number" step="0.01" /></label>
+                <label>Turnover smoothing <input name="turnoverEta" type="number" step="0.01" /></label>
+              </fieldset>
+
+              <fieldset>
+                <legend>Noise / Scaling</legend>
+                <label>Noise std <input name="noiseStd" type="number" step="0.01" /></label>
+                <label>Return scale <input name="returnScale" type="number" step="0.001" /></label>
+              </fieldset>
+            </form>
+
+            <div class="control-actions">
+              <button id="run-demo" class="btn-primary">Run Experiment</button>
+              <button id="reset-form" class="btn-ghost">Reset Defaults</button>
+            </div>
+          </aside>
+
+          <section class="outputs-card">
+            <div class="run-status">
+              <p id="status-line">Ready.</p>
+              <div class="progress-track"><div id="progress-fill"></div></div>
+            </div>
+
+            <article id="decision-card" class="decision-card"></article>
+
+            <div class="report-actions">
+              <button id="export-run" class="btn-ghost">Export Run Report (JSON)</button>
+            </div>
+
+            <div id="metrics-grid" class="metrics-grid"></div>
+
+            <div class="chart-grid">
+              <article>
+                <h3>Drift Fit vs Stress Retention</h3>
+                <canvas id="scatter-chart" class="chart-canvas"></canvas>
+                <p class="small-muted">Lower-left dominates: lower drift error and lower stress regression.</p>
+              </article>
+
+              <article>
+                <h3>Portfolio Equity on Shared Drift+Stress Stream</h3>
+                <canvas id="equity-chart" class="chart-canvas"></canvas>
+                <p class="small-muted">Red marks are stress points on the shared stream.</p>
+              </article>
+            </div>
+
+            <article id="takeaway" class="takeaway"></article>
+          </section>
+        </div>
+      </section>
+
+      <section id="math" class="panel">
+        <div class="section-head">
+          <h2>2) Math and Definitions</h2>
+          <p>Each symbol maps to a measured output in the demo.</p>
+        </div>
+
+        <div class="math-grid">
+          <article>
+            <h3>Portfolio Layer (Deterministic Constraints)</h3>
+            <pre class="equation">w_t = arg min_{w in W} -μ̂_t^T w + γ w^T Σ̂_t w + λ_tc TC(w, w_{t-1})
+subject to c_k(w) ≤ 0,
+           CVaR_α(w) ≤ τ_α,
+           Drawdown(w) ≤ τ_dd</pre>
+            <p>
+              Separation of concerns: model updates adapt forecasts, while the optimizer enforces hard
+              risk/compliance constraints regardless of model state.
+            </p>
+          </article>
+
+          <article>
+            <h3>Constrained PEFT Step</h3>
+            <pre class="equation">v_t = arg min_v 0.5 ||v - g_new||^2
+subject to &lt;v, g_anchor&gt; ≥ -ε</pre>
+            <p>
+              <strong>g_new</strong> fits drift, <strong>g_anchor</strong> protects invariant behavior,
+              <strong>ε</strong> is explicit regression budget.
+            </p>
+          </article>
+
+          <article>
+            <h3>Anchor Contract</h3>
+            <p>
+              Anchor set <code>M_t</code> is a bounded stress suite with cached outputs from the deployed
+              checkpoint. A candidate update is accepted only if anchor regression stays within policy.
+            </p>
+            <p>Metric mapping: Stress MSE is the anchor-regression proxy (lower is better).</p>
+          </article>
+
+          <article>
+            <h3>Notation Map</h3>
+            <ul class="notation-list">
+              <li><code>f_θ</code>: frozen backbone + LoRA adapters.</li>
+              <li><code>φ</code>: trainable PEFT parameters.</li>
+              <li><code>D_t</code>: current drift regime batch.</li>
+              <li><code>M_t</code>: stress/invariant anchor suite.</li>
+              <li><code>w_t</code>: deterministic portfolio weights.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="deployment" class="panel">
+        <div class="section-head">
+          <h2>3) Deployment Pathway</h2>
+          <p>Path from this artifact to a controlled research-stack pilot.</p>
+        </div>
+
+        <div class="deployment-grid">
+          <article>
+            <h3>Data Contract (Minimum Inputs)</h3>
+            <ul class="bullet-list">
+              <li><strong>Market features:</strong> rolling return/volatility, factor exposures, microstructure summaries.</li>
+              <li><strong>Optional text features:</strong> filing/news embeddings aligned by asset-date.</li>
+              <li><strong>Stress anchors:</strong> predefined volatility, liquidity, and event-driven slices.</li>
+              <li><strong>Reference outputs:</strong> cached deployed-model predictions on anchors.</li>
+            </ul>
+          </article>
+
+          <article>
+            <h3>Stack Integration</h3>
+            <ol class="number-list">
+              <li>Ingest latest batch into existing feature store.</li>
+              <li>Run PEFT-only update job (backbone frozen).</li>
+              <li>Compute drift-fit, anchor regression, and risk proxy metrics.</li>
+              <li>Apply promotion gate; only publish LoRA delta if pass.</li>
+              <li>Route forecasts into existing deterministic optimizer.</li>
+            </ol>
+          </article>
+
+          <article>
+            <h3>Monitoring and Guardrails</h3>
+            <ul class="bullet-list">
+              <li>Anchor-regression alarms (stress MSE threshold breaches).</li>
+              <li>Constraint breach alarms from optimizer outputs.</li>
+              <li>Output-distribution drift monitor versus previous checkpoint.</li>
+              <li>Rollback triggers for tail-risk or attribution anomalies.</li>
+            </ul>
+          </article>
+
+          <article>
+            <h3>Failure Modes + Controls</h3>
+            <ul class="bullet-list">
+              <li><strong>Drift overfit:</strong> projection plus bounded anchor suite.</li>
+              <li><strong>Anchor blind spots:</strong> periodic anchor refresh and taxonomy review.</li>
+              <li><strong>Silent risk creep:</strong> optimizer hard limits plus drawdown/CVaR gates.</li>
+              <li><strong>Pipeline mismatch:</strong> canary update in shadow mode before promotion.</li>
+            </ul>
+          </article>
+
+          <article>
+            <h3>Success Metrics (Internship-Ready)</h3>
+            <ul class="bullet-list">
+              <li>Stress MSE reduction versus naive adaptation.</li>
+              <li>Drift-fit error within agreed non-degradation tolerance.</li>
+              <li>Drawdown improvement on stress-augmented replay windows.</li>
+              <li>No increase in optimizer constraint violations.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="evidence" class="panel">
+        <div class="section-head">
+          <h2>4) Experimental Evidence</h2>
+          <p>Each claim is tied to a specific observable from the latest run.</p>
+        </div>
+
+        <div class="evidence-layout">
+          <article class="figure-card">
+            <h3>Reference Figure from Attached Implementation</h3>
+            <img
+              src="./assets/validation_wide.png"
+              alt="Validation figure showing adaptation-retention tradeoff and equity curves"
+            />
+            <p>
+              This static figure comes from the original provided experiment. The live demo above executes
+              the same mechanism with adjustable assumptions and immediate diagnostics.
+            </p>
+          </article>
+
+          <div id="claim-checks" class="claim-checks"></div>
+        </div>
+      </section>
+
+      <section id="internship" class="panel">
+        <div class="section-head">
+          <h2>5) Internship Execution Plan</h2>
+          <p>Feasible extensions with measurable outcomes in one internship cycle.</p>
+        </div>
+
+        <div class="internship-grid">
+          <article>
+            <h3>Weeks 1-3: Stack Fit + Baseline</h3>
+            <ul class="bullet-list">
+              <li>Connect to internal feature pipeline and replay harness.</li>
+              <li>Define anchor suite with PM/QR input on stress taxonomy.</li>
+              <li>Establish naive versus constrained baseline dashboard.</li>
+            </ul>
+          </article>
+
+          <article>
+            <h3>Weeks 4-7: Gating + Risk Validation</h3>
+            <ul class="bullet-list">
+              <li>Implement promotion gate combining fit, anchor, and risk checks.</li>
+              <li>Run historical regime slices and named stress windows.</li>
+              <li>Quantify failure-mode reduction and retention lift.</li>
+            </ul>
+          </article>
+
+          <article>
+            <h3>Weeks 8-10: Shadow Deployment</h3>
+            <ul class="bullet-list">
+              <li>Deploy canary PEFT updates in shadow mode.</li>
+              <li>Track monitoring alerts and rollback triggers.</li>
+              <li>Deliver rollout recommendation with explicit production criteria.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="extensions-grid">
+          <article>
+            <h3>Extension A: Dynamic Anchor Refresh</h3>
+            <p>Value: protects retention against newly emerging stress patterns.</p>
+            <p>Success test: lower stress MSE variance across rolling windows.</p>
+          </article>
+          <article>
+            <h3>Extension B: Asset-Bucket-Specific Anchors</h3>
+            <p>Value: tighter protection for strategy-critical sub-universes.</p>
+            <p>Success test: reduced tail events in targeted buckets.</p>
+          </article>
+          <article>
+            <h3>Extension C: Promotion Gate Calibration</h3>
+            <p>Value: fewer false promotions and fewer unnecessary rollbacks.</p>
+            <p>Success test: improved pass/fail precision on retrospective windows.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="references" class="panel">
+        <div class="section-head">
+          <h2>6) References and Inputs</h2>
+          <p>Direct links for theory, data sources, and implementation baselines.</p>
+        </div>
+
+        <div class="refs-grid">
+          <article>
+            <h3>Papers</h3>
+            <ul id="paper-refs" class="refs-list"></ul>
+          </article>
+          <article>
+            <h3>Datasets / Feeds</h3>
+            <ul id="dataset-refs" class="refs-list"></ul>
+          </article>
+          <article>
+            <h3>Repositories</h3>
+            <ul id="repo-refs" class="refs-list"></ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel artifact-panel">
+        <div class="section-head">
+          <h2>Submission Package</h2>
+          <p>Everything needed to review, run, and score this proposal quickly.</p>
+        </div>
+
+        <div class="artifact-links">
+          <a href="./docs/INTERNSHIP_PROPOSAL_MEMO.md">Internship Proposal Memo</a>
+          <a href="./docs/DEPLOYMENT_PLAYBOOK.md">Deployment Playbook</a>
+          <a href="./validation_experiment.py">Original Executable Validation Script</a>
+          <a href="./README.md">Repository Guide</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Target review outcome: zero context -> mechanism understanding -> live validation -> deployment
+        judgment in one session.
+      </p>
+    </footer>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
