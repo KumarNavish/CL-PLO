@@ -51,7 +51,7 @@ a {
 }
 
 .shell {
-  width: min(1040px, calc(100% - 2rem));
+  width: min(1080px, calc(100% - 2rem));
   margin: 0 auto;
 }
 
@@ -94,13 +94,13 @@ a {
 
 h1 {
   margin-top: 0.55rem;
-  max-width: 20ch;
-  font-size: clamp(2rem, 4.6vw, 3.2rem);
+  max-width: 24ch;
+  font-size: clamp(1.9rem, 4.3vw, 3rem);
 }
 
 .lead {
   margin-top: 0.8rem;
-  max-width: 70ch;
+  max-width: 78ch;
   color: var(--muted);
 }
 
@@ -154,6 +154,23 @@ main {
   padding: 0.92rem;
 }
 
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin-bottom: 0.62rem;
+}
+
+.section-head h2 {
+  font-size: 1.12rem;
+}
+
+.section-head p {
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
 .thesis h2 {
   font-size: 1.1rem;
 }
@@ -172,21 +189,153 @@ main {
   font-size: 0.92rem;
 }
 
-.section-head {
+.foundation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.44rem;
+}
+
+.foundation-grid article,
+.method-theory,
+.chart-grid article,
+.table-wrap,
+.takeaway,
+.expectation-check {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.56rem;
+}
+
+.foundation-grid h3,
+.method-theory h3,
+.chart-grid h3,
+.table-wrap h3,
+.takeaway h4 {
+  font-size: 0.86rem;
+}
+
+.foundation-grid p {
+  margin-top: 0.28rem;
+  color: #344a64;
+  font-size: 0.8rem;
+}
+
+.foundation-grid ul,
+.foundation-grid ol {
+  margin-top: 0.28rem;
+  padding-left: 1.02rem;
+  display: grid;
+  gap: 0.2rem;
+  color: #344a64;
+  font-size: 0.8rem;
+}
+
+pre {
+  margin-top: 0.32rem;
+  border: 1px solid #d7e3f4;
+  border-radius: 8px;
+  background: #f4f8ff;
+  padding: 0.45rem;
+  white-space: pre-wrap;
+  font-size: 0.76rem;
+  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  color: #244668;
+}
+
+.method-theory-grid {
+  display: grid;
+  gap: 0.44rem;
+}
+
+.method-meta {
+  margin-top: 0.3rem;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.16rem;
+  font-size: 0.8rem;
+  color: #324a64;
+}
+
+.pipeline {
+  margin-top: 0.38rem;
+  border: 1px solid #d7e1ef;
+  border-radius: 8px;
+  background: #f9fbff;
+  padding: 0.42rem;
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 0.8rem;
-  margin-bottom: 0.62rem;
+  align-items: center;
+  gap: 0.26rem;
+  flex-wrap: wrap;
 }
 
-.section-head h2 {
-  font-size: 1.12rem;
+.node {
+  border: 1px solid #cdd9ea;
+  border-radius: 7px;
+  padding: 0.24rem 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #26445f;
 }
 
-.section-head p {
-  font-size: 0.84rem;
-  color: var(--muted);
+.node.input {
+  background: #f5f9ff;
+}
+
+.node.memory {
+  background: #f4fbf7;
+}
+
+.node.gate {
+  background: #fff8ee;
+}
+
+.node.update {
+  background: #f7f9ff;
+}
+
+.node.decision {
+  background: #f6f8fa;
+}
+
+.arrow {
+  color: #607897;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.method-ref {
+  margin-top: 0.34rem;
+  font-size: 0.77rem;
+  color: #3a526e;
+}
+
+.expectation-check {
+  margin-bottom: 0.52rem;
+  background: #f9fbff;
+}
+
+.expectation-check h3 {
+  font-size: 0.88rem;
+}
+
+.expectation-check ul {
+  margin-top: 0.24rem;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.16rem;
+  font-size: 0.79rem;
+  color: #334b66;
+}
+
+.expectation-check .pass {
+  color: var(--good);
+  font-weight: 700;
+}
+
+.expectation-check .warn {
+  color: var(--warn);
+  font-weight: 700;
 }
 
 .control-stack {
@@ -346,16 +495,8 @@ input {
   gap: 0.46rem;
 }
 
-.chart-grid article {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  padding: 0.52rem;
-}
-
 .chart-grid h3,
 .table-wrap h3 {
-  font-size: 0.85rem;
   margin-bottom: 0.28rem;
 }
 
@@ -369,10 +510,6 @@ input {
 
 .table-wrap {
   margin-top: 0.56rem;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  padding: 0.52rem;
 }
 
 .method-table {
@@ -410,83 +547,12 @@ input {
 
 .takeaway {
   margin-top: 0.56rem;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  padding: 0.56rem;
-}
-
-.takeaway h4 {
-  font-size: 0.88rem;
 }
 
 .takeaway p {
   margin-top: 0.22rem;
   color: #314a64;
   font-size: 0.82rem;
-}
-
-#appendix details {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #f9fbff;
-  padding: 0.52rem;
-}
-
-#appendix summary {
-  cursor: pointer;
-  font-weight: 700;
-  color: #2c4768;
-}
-
-.appendix-grid {
-  margin-top: 0.56rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.44rem;
-}
-
-.appendix-grid article {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #fff;
-  padding: 0.52rem;
-}
-
-.appendix-grid h3 {
-  font-size: 0.85rem;
-}
-
-pre {
-  margin-top: 0.32rem;
-  border: 1px solid #d7e3f4;
-  border-radius: 8px;
-  background: #f4f8ff;
-  padding: 0.45rem;
-  white-space: pre-wrap;
-  font-size: 0.76rem;
-  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
-  color: #244668;
-}
-
-ol,
-.ref-list {
-  margin-top: 0.34rem;
-  padding-left: 1.02rem;
-  display: grid;
-  gap: 0.24rem;
-}
-
-.appendix-grid li {
-  color: #344f6d;
-  font-size: 0.78rem;
-}
-
-.ref-list span {
-  display: block;
-  margin-top: 0.05rem;
-  color: var(--muted);
-  font-size: 0.72rem;
 }
 
 .footer {
@@ -500,9 +566,10 @@ ol,
 }
 
 @media (max-width: 980px) {
+  .foundation-grid,
   .knob-grid,
   .kpi-row,
-  .appendix-grid {
+  .chart-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
@@ -513,11 +580,12 @@ ol,
     align-items: flex-start;
   }
 
+  .foundation-grid,
   .knob-grid,
   .action-row,
   .kpi-row,
   .chart-grid,
-  .appendix-grid {
+  .preset-row {
     grid-template-columns: 1fr;
   }
 

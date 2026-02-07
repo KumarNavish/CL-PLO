@@ -1,5 +1,4 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
-import { REFERENCES } from "../content/references.js";
 import { drawEquity, drawImpactBars } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
@@ -9,7 +8,6 @@ let latestResult = null;
 
 export function initApp() {
   fillForm(DEFAULT_CONFIG);
-  renderReferences();
 
   document.getElementById("run-demo")?.addEventListener("click", () => runCurrentConfig());
   document.getElementById("apply-quick")?.addEventListener("click", () => applyPreset("quick_check"));
@@ -20,11 +18,6 @@ export function initApp() {
     setStatus("Controls reset to default.");
   });
   document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
-
-  document.getElementById("hero-run")?.addEventListener("click", () => {
-    document.getElementById("demo")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    runCurrentConfig();
-  });
 
   window.addEventListener("resize", () => {
     if (latestResult) {
@@ -74,7 +67,7 @@ function runCurrentConfig() {
   fillForm(safe);
 
   setRunning(true);
-  setStatus("Running shared-path comparison...");
+  setStatus("Running validation against theory...", false);
   setProgress(0);
 
   ensureWorker().postMessage({
@@ -125,7 +118,7 @@ function setRunning(isRunning) {
   }
 
   runButton.disabled = isRunning;
-  runButton.textContent = isRunning ? "Running..." : "Run";
+  runButton.textContent = isRunning ? "Running..." : "Run Validation";
 }
 
 function setStatus(msg, isError = false) {
@@ -159,19 +152,47 @@ function renderProgress(payload) {
 
   if (payload.kind === "building_charts") {
     setProgress(100);
-    setStatus("Finalizing decision outputs...");
+    setStatus("Computing evidence summary...");
   }
 }
 
 function renderAll(result) {
   setProgress(100);
-  setStatus("Run complete. Review decision, gates, then method table.");
+  setStatus("Validation complete. Check expectation alignment, then deployment call.");
 
+  renderExpectationCheck(result);
   renderDecisionCard(result);
   renderKpis(result);
   renderCharts(result);
   renderMethodTable(result);
   renderTakeaway(result);
+}
+
+function renderExpectationCheck(result) {
+  const host = document.getElementById("expectation-check");
+  if (!host) {
+    return;
+  }
+
+  const n = result.metrics.naive;
+  const a = result.metrics.anchor;
+  const p = result.metrics.anchor_proj;
+
+  const stressOrder = n.stressMse > a.stressMse && a.stressMse > p.stressMse;
+  const driftOrder = n.driftMse <= a.driftMse && a.driftMse <= p.driftMse;
+
+  host.innerHTML = `
+    <h3>Theory-to-Evidence Check</h3>
+    <ul>
+      <li><strong>Expected stress-retention order:</strong> naive &gt; anchor &gt; projection (MSE).
+        <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Matched" : "Partially matched"}</span>
+      </li>
+      <li><strong>Expected drift-fit cost:</strong> naive &lt;= anchor &lt;= projection (MSE).
+        <span class="${driftOrder ? "pass" : "warn"}">${driftOrder ? "Matched" : "Partially matched"}</span>
+      </li>
+      <li><strong>Interpretation rule:</strong> deployment preference requires stress gains that survive drawdown and adaptation penalties.</li>
+    </ul>
+  `;
 }
 
 function renderDecisionCard(result) {
@@ -188,14 +209,14 @@ function renderDecisionCard(result) {
   const driftPenalty = ratioPenalty(naive.driftMse, proj.driftMse);
 
   let level = "caution";
-  let title = "Decision: Validate in pilot before promotion";
+  let title = "Deployment call: validate in pilot before promotion";
 
   if (stressGain > 0.8 && drawdownGain > 0.06 && driftPenalty < 70) {
     level = "good";
-    title = "Decision: Projection is pilot-ready";
+    title = "Deployment call: projection is pilot-ready";
   } else if (stressGain < 0.45 || drawdownGain < 0) {
     level = "bad";
-    title = "Decision: Hold deployment";
+    title = "Deployment call: hold deployment";
   }
 
   host.className = `decision-card ${level}`;
@@ -357,42 +378,19 @@ function renderTakeaway(result) {
   const ddProj = proj.maxDrawdown - naive.maxDrawdown;
 
   host.innerHTML = `
-    <h4>Practical Read</h4>
+    <h4>Validation Read</h4>
     <p>
-      Naive is the speed baseline. Anchor improves retention, but projection is the strongest stress-preserving update
-      in this setup: stress gain <strong>${pct(stressGainProj)}</strong> vs naive (anchor: ${pct(stressGainAnchor)}),
-      with drawdown change <strong>${pp(ddProj)}</strong>. Promote only if this pattern holds under stress-heavy runs.
+      Evidence should be read as confirmation or rejection of the pre-stated theory. In this run, projection stress
+      retention gain is <strong>${pct(stressGainProj)}</strong> vs naive (anchor: ${pct(stressGainAnchor)}), with
+      drawdown change <strong>${pp(ddProj)}</strong>. Deployment is rational only if this relation persists across
+      stress-heavy settings.
     </p>
   `;
 }
 
-function renderReferences() {
-  const host = document.getElementById("ref-list");
-  if (!host) {
-    return;
-  }
-
-  const curated = [
-    ...REFERENCES.papers.slice(0, 4),
-    ...REFERENCES.repositories.slice(0, 2),
-    ...REFERENCES.datasets.slice(0, 1),
-  ];
-
-  host.innerHTML = curated
-    .map(
-      (item) => `
-        <li>
-          <a href="${item.link}" target="_blank" rel="noreferrer">${item.title}</a>
-          <span>${item.authors ? `${item.authors} · ` : ""}${item.why}</span>
-        </li>
-      `,
-    )
-    .join("");
-}
-
 function exportCurrentRun() {
   if (!latestResult) {
-    setStatus("Run the test before exporting.", true);
+    setStatus("Run validation before exporting.", true);
     return;
   }
 
