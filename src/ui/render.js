@@ -1,6 +1,6 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { REFERENCES } from "../content/references.js";
-import { drawEquity, drawScatter } from "./charts.js";
+import { drawEquity, drawImpactBars } from "./charts.js";
 
 const FIELD_MAP = [
   "seed",
@@ -89,7 +89,7 @@ function runCurrentConfig() {
   fillForm(safe);
 
   setRunning(true);
-  setStatus("Initializing experiment...");
+  setStatus("Running experiment...");
   setProgress(0);
 
   ensureWorker().postMessage({
@@ -134,7 +134,7 @@ function applyPreset(name) {
 function setRunning(isRunning) {
   const runButton = document.getElementById("run-demo");
   runButton.disabled = isRunning;
-  runButton.textContent = isRunning ? "Running..." : "Run Experiment";
+  runButton.textContent = isRunning ? "Running..." : "Run";
 }
 
 function setStatus(msg, isError = false) {
@@ -151,75 +151,107 @@ function setProgress(value) {
 
 function renderProgress(payload) {
   if (payload.kind === "training") {
-    const globalNumerator = payload.methodIndex * payload.totalSteps + payload.step;
-    const globalDenominator = payload.totalMethods * payload.totalSteps;
-    const pct = (100 * globalNumerator) / globalDenominator;
-    setProgress(pct);
+    const numerator = payload.methodIndex * payload.totalSteps + payload.step;
+    const denominator = payload.totalMethods * payload.totalSteps;
+    setProgress((100 * numerator) / denominator);
 
-    setStatus(`Training ${payload.methodLabel}: step ${payload.step}/${payload.totalSteps}`);
+    setStatus(`Training ${payload.methodLabel}: ${payload.step}/${payload.totalSteps}`);
     return;
   }
 
   if (payload.kind === "building_charts") {
     setProgress(100);
-    setStatus("Finalizing diagnostics and evidence cards...");
+    setStatus("Finalizing outputs...");
   }
 }
 
 function renderAll(result) {
-  setStatus("Run complete. Check decision signal, then decide pilot or no-pilot.");
+  setStatus("Run complete. Review deltas vs naive and make a pilot decision.");
   setProgress(100);
 
   renderDecisionCard(result);
-  renderMetrics(result);
+  renderImpactKpis(result);
+  renderMethodSummary(result);
   renderCharts(result);
-  renderQualitative(result);
+  renderTakeaway(result);
   renderClaimChecks(result);
 }
 
 function renderDecisionCard(result) {
   const host = document.getElementById("decision-card");
+
   const naive = result.metrics.naive;
   const proj = result.metrics.anchor_proj;
 
-  const stressImprovement = fracImprove(naive.stressMse, proj.stressMse);
-  const drawdownImprovement = proj.maxDrawdown - naive.maxDrawdown;
-  const driftRatio = proj.driftMse / Math.max(naive.driftMse, 1e-12);
+  const stressGain = improvement(naive.stressMse, proj.stressMse);
+  const drawdownGain = proj.maxDrawdown - naive.maxDrawdown;
+  const driftPenalty = ratioPenalty(naive.driftMse, proj.driftMse);
 
   let level = "caution";
-  let title = "Decision Signal: Candidate for Validation";
+  let title = "Decision Signal: Validate in Pilot";
 
-  if (stressImprovement > 0.75 && drawdownImprovement > 0.03) {
+  if (stressGain > 0.8 && drawdownGain > 0.08 && driftPenalty < 60) {
     level = "good";
     title = "Decision Signal: Strong Pilot Candidate";
-  } else if (stressImprovement < 0.25 || drawdownImprovement < -0.01) {
+  } else if (stressGain < 0.4 || drawdownGain < 0.0) {
     level = "bad";
-    title = "Decision Signal: Tune Before Pilot";
+    title = "Decision Signal: Not Ready for Pilot";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Projection vs naive: stress regression improvement <strong>${pct(stressImprovement)}</strong>,
-      drawdown change <strong>${pct(drawdownImprovement)}</strong>,
-      drift-fit ratio <strong>${fmt(driftRatio, 2)}x</strong>.
-      Readout: favor this method when stress retention and tail control are hard constraints.
+      Projection vs naive: stress retention gain <strong>${pct(stressGain)}</strong>,
+      drawdown improvement <strong>${pp(drawdownGain)}</strong>,
+      drift error penalty <strong>${pct(driftPenalty / 100)}</strong>.
     </p>
   `;
 }
 
-function renderMetrics(result) {
+function renderImpactKpis(result) {
+  const host = document.getElementById("impact-kpis");
+
+  const naive = result.metrics.naive;
+  const proj = result.metrics.anchor_proj;
+
+  const stressGain = improvement(naive.stressMse, proj.stressMse);
+  const drawdownGain = proj.maxDrawdown - naive.maxDrawdown;
+  const returnGain = proj.totalReturn - naive.totalReturn;
+
+  host.innerHTML = `
+    <article class="kpi ${classBySign(stressGain)}">
+      <div class="label">Stress Retention Gain</div>
+      <div class="value">${pct(stressGain)}</div>
+      <div class="note">Projection vs naive</div>
+    </article>
+    <article class="kpi ${classBySign(drawdownGain)}">
+      <div class="label">Drawdown Improvement</div>
+      <div class="value">${pp(drawdownGain)}</div>
+      <div class="note">Higher is better</div>
+    </article>
+    <article class="kpi ${classBySign(returnGain)}">
+      <div class="label">Return Uplift</div>
+      <div class="value">${pp(returnGain)}</div>
+      <div class="note">Projection vs naive</div>
+    </article>
+  `;
+}
+
+function renderMethodSummary(result) {
   const host = document.getElementById("metrics-grid");
+  const naive = result.metrics.naive;
 
   host.innerHTML = result.methods
     .map((method) => {
       const m = result.metrics[method.id];
-      const log = result.trainLogs[method.id] || {};
+      const stressGain = method.id === "naive" ? 0 : improvement(naive.stressMse, m.stressMse);
+      const ddGain = method.id === "naive" ? 0 : m.maxDrawdown - naive.maxDrawdown;
+      const retGain = method.id === "naive" ? 0 : m.totalReturn - naive.totalReturn;
 
       return `
-      <article class="metric-card">
-        <div class="metric-card-top">
+      <article class="method-card">
+        <div class="title">
           <span class="dot" style="background:${method.color}"></span>
           <h4>${method.label}</h4>
         </div>
@@ -228,12 +260,9 @@ function renderMetrics(result) {
           <div><dt>Stress MSE</dt><dd>${fmt(m.stressMse, 6)}</dd></div>
           <div><dt>Max Drawdown</dt><dd>${pct(m.maxDrawdown)}</dd></div>
           <div><dt>Total Return</dt><dd>${pct(m.totalReturn)}</dd></div>
-          <div><dt>Stress Risk Weight</dt><dd>${pct(m.avgRiskyWeightStress)}</dd></div>
-          ${
-            method.id === "anchor_proj"
-              ? `<div><dt>Interference Rate</dt><dd>${pct(log.interferenceRate || 0)}</dd></div>`
-              : ""
-          }
+          <div><dt>Stress gain vs naive</dt><dd>${method.id === "naive" ? "baseline" : pct(stressGain)}</dd></div>
+          <div><dt>Drawdown vs naive</dt><dd>${method.id === "naive" ? "baseline" : pp(ddGain)}</dd></div>
+          <div><dt>Return vs naive</dt><dd>${method.id === "naive" ? "baseline" : pp(retGain)}</dd></div>
         </dl>
       </article>
       `;
@@ -242,15 +271,25 @@ function renderMetrics(result) {
 }
 
 function renderCharts(result) {
-  const scatterCanvas = document.getElementById("scatter-chart");
+  const impactCanvas = document.getElementById("impact-chart");
   const equityCanvas = document.getElementById("equity-chart");
 
-  const scatterPoints = result.methods.map((method) => ({
-    label: method.label,
-    x: result.metrics[method.id].driftMse,
-    y: result.metrics[method.id].stressMse,
-    color: method.color,
-  }));
+  const n = result.metrics.naive;
+  const a = result.metrics.anchor;
+  const p = result.metrics.anchor_proj;
+
+  drawImpactBars(impactCanvas, [
+    {
+      label: "Stress Retention Gain",
+      anchor: 100 * improvement(n.stressMse, a.stressMse),
+      proj: 100 * improvement(n.stressMse, p.stressMse),
+    },
+    {
+      label: "Drawdown Improvement",
+      anchor: 100 * (a.maxDrawdown - n.maxDrawdown),
+      proj: 100 * (p.maxDrawdown - n.maxDrawdown),
+    },
+  ]);
 
   const lineSeries = result.methods.map((method) => ({
     label: method.label,
@@ -258,27 +297,25 @@ function renderCharts(result) {
     values: result.equityCurves[method.id],
   }));
 
-  drawScatter(scatterCanvas, scatterPoints);
   drawEquity(equityCanvas, lineSeries, result.stressMarkers);
 }
 
-function renderQualitative(result) {
+function renderTakeaway(result) {
   const host = document.getElementById("takeaway");
-  const naive = result.metrics.naive;
-  const proj = result.metrics.anchor_proj;
-  const anchor = result.metrics.anchor;
 
-  const stressDelta = fracImprove(naive.stressMse, proj.stressMse);
-  const drawdownDelta = proj.maxDrawdown - naive.maxDrawdown;
-  const riskyStressDelta = naive.avgRiskyWeightStress - proj.avgRiskyWeightStress;
+  const naive = result.metrics.naive;
+  const anchor = result.metrics.anchor;
+  const proj = result.metrics.anchor_proj;
 
   host.innerHTML = `
-    <h4>Run Takeaway</h4>
+    <h4>Interpretation</h4>
     <ul>
-      <li>Projection cuts stress regression by <strong>${pct(stressDelta)}</strong> versus naive.</li>
-      <li>Drawdown changes by <strong>${pct(drawdownDelta)}</strong> (less negative is better).</li>
-      <li>Stress-period risky exposure shifts by <strong>${pct(riskyStressDelta)}</strong>.</li>
-      <li>Anchor-only helps (${fmt(anchor.stressMse, 6)}), projection helps more (${fmt(proj.stressMse, 6)}).</li>
+      <li>Naive adapts quickly but carries the highest anchor regression risk.</li>
+      <li>Anchor-only improves retention, but projection is the strongest retention control.</li>
+      <li>Projection improves stress retention by <strong>${pct(improvement(naive.stressMse, proj.stressMse))}</strong> vs naive, with drawdown change <strong>${pp(proj.maxDrawdown - naive.maxDrawdown)}</strong>.</li>
+      <li>Tradeoff is explicit: projection usually increases drift error relative to naive (${fmt(proj.driftMse / Math.max(1e-12, naive.driftMse), 2)}x here).</li>
+      <li>Decision framing: if stress retention is a hard constraint, projection is the primary pilot candidate.</li>
+      <li>Anchor-only reference: stress gain ${pct(improvement(naive.stressMse, anchor.stressMse))}, drawdown change ${pp(anchor.maxDrawdown - naive.maxDrawdown)}.</li>
     </ul>
   `;
 }
@@ -291,16 +328,16 @@ function renderClaimChecks(result) {
 
   host.innerHTML = `
     <article>
-      <h4>Claim A: Projection protects anchors</h4>
-      <p>Observed stress MSE: ${fmt(naive.stressMse, 6)} (naive) → ${fmt(proj.stressMse, 6)} (projection).</p>
+      <h4>Claim A: projection improves stress retention</h4>
+      <p>Stress MSE: ${fmt(naive.stressMse, 6)} (naive) -> ${fmt(proj.stressMse, 6)} (projection).</p>
     </article>
     <article>
-      <h4>Claim B: Adaptation remains viable</h4>
-      <p>Observed drift MSE: ${fmt(naive.driftMse, 6)} (naive), ${fmt(anchor.driftMse, 6)} (anchor), ${fmt(proj.driftMse, 6)} (projection).</p>
+      <h4>Claim B: anchor-only is intermediate</h4>
+      <p>Stress MSE: ${fmt(anchor.stressMse, 6)} (anchor) sits between naive and projection.</p>
     </article>
     <article>
-      <h4>Claim C: Behavior change reaches portfolio layer</h4>
-      <p>Observed max drawdown: ${pct(naive.maxDrawdown)} (naive) vs ${pct(proj.maxDrawdown)} (projection), with lower stress risk-taking.</p>
+      <h4>Claim C: model behavior affects portfolio outcomes</h4>
+      <p>Max drawdown: ${pct(naive.maxDrawdown)} (naive), ${pct(anchor.maxDrawdown)} (anchor), ${pct(proj.maxDrawdown)} (projection).</p>
     </article>
   `;
 }
@@ -350,7 +387,31 @@ function exportCurrentRun() {
   a.remove();
   URL.revokeObjectURL(url);
 
-  setStatus("Run report exported for internal review.");
+  setStatus("Run report exported.");
+}
+
+function classBySign(v) {
+  if (v > 0.001) {
+    return "good";
+  }
+  if (v < -0.001) {
+    return "bad";
+  }
+  return "caution";
+}
+
+function improvement(base, current) {
+  if (Math.abs(base) < 1e-12) {
+    return 0;
+  }
+  return (base - current) / Math.abs(base);
+}
+
+function ratioPenalty(base, current) {
+  if (Math.abs(base) < 1e-12) {
+    return 0;
+  }
+  return Math.max(0, (current / base - 1) * 100);
 }
 
 function fmt(x, digits = 4) {
@@ -371,9 +432,10 @@ function pct(x) {
   return `${(x * 100).toFixed(2)}%`;
 }
 
-function fracImprove(base, current) {
-  if (Math.abs(base) < 1e-12) {
-    return 0;
+function pp(x) {
+  if (!Number.isFinite(x)) {
+    return "n/a";
   }
-  return (base - current) / Math.abs(base);
+  const v = x * 100;
+  return `${v >= 0 ? "+" : ""}${v.toFixed(2)} pp`;
 }

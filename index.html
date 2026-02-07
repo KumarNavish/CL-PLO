@@ -3,47 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Constrained PEFT Proposal | Drift Adaptation Without Stress Regression</title>
+    <title>Constraint-Aligned PEFT | Internship Proposal Artifact</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <header class="site-header">
-      <div class="shell">
+    <header class="hero">
+      <div class="container">
         <p class="eyebrow">Internship Proposal Artifact</p>
-        <h1>Adapt to Drift Without Breaking Stress Behavior</h1>
-        <p class="subtitle">
-          One message: constrain PEFT updates with stress anchors so adaptation remains useful under regime
-          change. Run the demo below and decide if it is pilot-worthy.
+        <h1>Constrained PEFT Keeps Adaptation Without Losing Stress Retention</h1>
+        <p class="lead">
+          This page has one job: help you decide if this mechanism is pilot-worthy. Run the experiment,
+          compare against naive adaptation, and evaluate the decision signal.
         </p>
 
         <div class="hero-actions">
-          <button id="hero-run" class="btn-primary">Run Demo</button>
-          <a class="btn-ghost" href="#appendix">Open Technical Appendix</a>
+          <button id="hero-run" class="btn-primary">Run Experiment</button>
+          <a class="btn-ghost" href="#appendix">Technical Appendix</a>
         </div>
-
-        <ul class="quick-points">
-          <li>What this is: constrained continual update rule for signal models.</li>
-          <li>Why it matters: prevents silent stress-regime regressions.</li>
-          <li>What to do next: run, compare methods, check decision card.</li>
-        </ul>
       </div>
     </header>
 
-    <main class="shell">
+    <main class="container">
       <section id="demo" class="panel">
-        <div class="section-head">
-          <h2>Run the Mechanism (60 Seconds)</h2>
-          <p>Start with a preset. Change one knob. Re-run.</p>
+        <div class="panel-head">
+          <h2>Live Evaluation</h2>
+          <p>Default setup is tuned for high signal. Start there before changing knobs.</p>
         </div>
 
-        <div class="layout">
-          <aside class="controls-card">
+        <div class="demo-layout">
+          <aside class="controls">
             <h3>Controls</h3>
 
             <div class="preset-row">
               <button id="apply-quick" class="btn-ghost">Quick</button>
-              <button id="apply-proposal" class="btn-ghost">Proposal</button>
-              <button id="apply-stress" class="btn-ghost">Stress</button>
+              <button id="apply-proposal" class="btn-ghost">Default</button>
+              <button id="apply-stress" class="btn-ghost">Stress+</button>
             </div>
 
             <form id="config-form">
@@ -56,7 +50,7 @@
               </fieldset>
 
               <details>
-                <summary>Advanced Knobs</summary>
+                <summary>Advanced Settings</summary>
                 <fieldset>
                   <label>Seed <input name="seed" type="number" step="1" /></label>
                   <label>Learning rate <input name="lr" type="number" step="0.001" /></label>
@@ -76,12 +70,12 @@
             </form>
 
             <div class="control-actions">
-              <button id="run-demo" class="btn-primary">Run Experiment</button>
+              <button id="run-demo" class="btn-primary">Run</button>
               <button id="reset-form" class="btn-ghost">Reset</button>
             </div>
           </aside>
 
-          <section class="outputs-card">
+          <section class="results">
             <div class="run-status">
               <p id="status-line">Ready.</p>
               <div class="progress-track"><div id="progress-fill"></div></div>
@@ -89,37 +83,38 @@
 
             <article id="decision-card" class="decision-card"></article>
 
-            <div class="report-actions">
-              <button id="export-run" class="btn-ghost">Export Run Report</button>
-            </div>
-
-            <div id="metrics-grid" class="metrics-grid"></div>
+            <div id="impact-kpis" class="impact-kpis"></div>
 
             <div class="chart-grid">
               <article>
-                <h3>Tradeoff: Drift Fit vs Stress Retention</h3>
-                <canvas id="scatter-chart" class="chart-canvas"></canvas>
+                <h3>Relative Impact vs Naive</h3>
+                <canvas id="impact-chart" class="chart-canvas"></canvas>
               </article>
-
               <article>
-                <h3>Outcome: Equity on Shared Drift+Stress Stream</h3>
+                <h3>Equity Curve Comparison</h3>
                 <canvas id="equity-chart" class="chart-canvas"></canvas>
               </article>
             </div>
 
+            <div id="metrics-grid" class="method-summary"></div>
+
             <article id="takeaway" class="takeaway"></article>
+
+            <div class="report-actions">
+              <button id="export-run" class="btn-ghost">Export Run Report</button>
+            </div>
           </section>
         </div>
       </section>
 
       <section id="appendix" class="panel">
-        <div class="section-head">
-          <h2>Technical Appendix</h2>
-          <p>Open only what you need.</p>
+        <div class="panel-head">
+          <h2>Appendix</h2>
+          <p>Detail is available, but intentionally secondary.</p>
         </div>
 
         <details>
-          <summary>Math and Notation</summary>
+          <summary>Math and Definitions</summary>
           <div class="appendix-block">
             <pre class="equation">w_t = arg min_{w in W} -μ̂_t^T w + γ w^T Σ̂_t w + λ_tc TC(w, w_{t-1})
 subject to c_k(w) ≤ 0,
@@ -128,36 +123,28 @@ subject to c_k(w) ≤ 0,
 
 v_t = arg min_v 0.5 ||v - g_new||^2
 subject to &lt;v, g_anchor&gt; ≥ -ε</pre>
-            <p>
-              <code>g_new</code> fits drift. <code>g_anchor</code> protects anchors. <code>ε</code> sets allowed
-              regression budget per update.
-            </p>
+            <p><code>g_new</code> fits drift, <code>g_anchor</code> enforces retention, <code>ε</code> sets allowed regression.</p>
           </div>
         </details>
 
         <details>
-          <summary>Deployment Path (Pilot Scope)</summary>
+          <summary>Deployment Path</summary>
           <div class="appendix-block">
             <ol class="compact-list">
-              <li>Run PEFT-only update job with frozen backbone.</li>
-              <li>Compute drift fit, anchor regression, and risk proxy metrics.</li>
-              <li>Promote only if gate thresholds pass; rollback on breach.</li>
-              <li>Keep optimizer/risk engine unchanged.</li>
+              <li>Run PEFT-only update with frozen backbone.</li>
+              <li>Evaluate drift fit, anchor regression, and risk proxies.</li>
+              <li>Promote only when gate thresholds pass.</li>
+              <li>Rollback on regression alarms.</li>
             </ol>
           </div>
         </details>
 
         <details>
-          <summary>Evidence and Claim Checks</summary>
+          <summary>Evidence and References</summary>
           <div class="appendix-block">
             <img src="./assets/validation_wide.png" alt="Validation figure" class="reference-figure" />
             <div id="claim-checks" class="claim-checks"></div>
-          </div>
-        </details>
 
-        <details>
-          <summary>References and Artifacts</summary>
-          <div class="appendix-block">
             <div class="refs-grid">
               <article>
                 <h3>Papers</h3>
@@ -184,8 +171,8 @@ subject to &lt;v, g_anchor&gt; ≥ -ε</pre>
       </section>
     </main>
 
-    <footer class="site-footer">
-      <p>Clarity rule: if it does not improve the decision, it does not belong on the page.</p>
+    <footer class="footer">
+      <p>Principle: if it does not improve the decision, remove it.</p>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

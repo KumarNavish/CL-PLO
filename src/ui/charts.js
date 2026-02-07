@@ -19,12 +19,12 @@ function extent(values, paddingRatio = 0.1) {
   const min = Math.min(...values);
   const max = Math.max(...values);
 
-  if (Number.isNaN(min) || Number.isNaN(max)) {
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
     return [0, 1];
   }
 
   if (Math.abs(max - min) < 1e-12) {
-    return [min - 0.5, max + 0.5];
+    return [min - 1, max + 1];
   }
 
   const span = max - min;
@@ -34,7 +34,7 @@ function extent(values, paddingRatio = 0.1) {
 function drawAxes(ctx, dims, xLabel, yLabel) {
   const { left, top, right, bottom } = dims;
 
-  ctx.strokeStyle = "#8d9aad";
+  ctx.strokeStyle = "#8b99af";
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(left, top);
@@ -42,27 +42,26 @@ function drawAxes(ctx, dims, xLabel, yLabel) {
   ctx.lineTo(right, bottom);
   ctx.stroke();
 
-  ctx.fillStyle = "#516178";
+  ctx.fillStyle = "#4d5f78";
   ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText(xLabel, (left + right) / 2, bottom + 32);
+  ctx.fillText(xLabel, (left + right) / 2, bottom + 30);
 
   ctx.save();
-  ctx.translate(left - 40, (top + bottom) / 2);
+  ctx.translate(left - 38, (top + bottom) / 2);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText(yLabel, 0, 0);
   ctx.restore();
 }
 
-function drawGrid(ctx, dims) {
+function drawGrid(ctx, dims, ticks = 4) {
   const { left, top, right, bottom } = dims;
-  ctx.strokeStyle = "rgba(90, 112, 141, 0.2)";
+  ctx.strokeStyle = "rgba(83, 106, 137, 0.18)";
   ctx.lineWidth = 1;
 
-  const n = 4;
-  for (let i = 1; i <= n; i += 1) {
-    const x = left + ((right - left) * i) / (n + 1);
-    const y = top + ((bottom - top) * i) / (n + 1);
+  for (let i = 1; i <= ticks; i += 1) {
+    const x = left + ((right - left) * i) / (ticks + 1);
+    const y = top + ((bottom - top) * i) / (ticks + 1);
 
     ctx.beginPath();
     ctx.moveTo(x, top);
@@ -76,55 +75,109 @@ function drawGrid(ctx, dims) {
   }
 }
 
-export function drawScatter(canvas, points) {
+function drawLegend(ctx, legendItems, width, y) {
+  let x = width - 250;
+  ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+
+  for (const item of legendItems) {
+    ctx.fillStyle = item.color;
+    ctx.fillRect(x, y, 14, 3);
+
+    ctx.fillStyle = "#24354d";
+    ctx.textAlign = "left";
+    ctx.fillText(item.label, x + 18, y + 4);
+
+    x += ctx.measureText(item.label).width + 46;
+  }
+}
+
+function pct(x) {
+  return `${x.toFixed(1)}%`;
+}
+
+export function drawImpactBars(canvas, impact) {
   const { ctx, width, height } = setupCanvas(canvas);
   ctx.clearRect(0, 0, width, height);
 
   const dims = {
-    left: 62,
-    right: width - 20,
-    top: 20,
-    bottom: height - 48,
+    left: 64,
+    right: width - 18,
+    top: 24,
+    bottom: height - 46,
   };
 
-  drawGrid(ctx, dims);
-  drawAxes(
-    ctx,
-    dims,
-    "Drift MSE (lower is better)",
-    "Stress regression MSE (lower is better)",
-  );
-
-  const xs = points.map((p) => p.x);
-  const ys = points.map((p) => p.y);
-  const [xMin, xMax] = extent(xs);
-  const [yMin, yMax] = extent(ys);
-
-  function xToPx(x) {
-    return dims.left + ((x - xMin) / (xMax - xMin)) * (dims.right - dims.left);
-  }
+  const values = impact.flatMap((g) => [g.anchor, g.proj, 0]);
+  const [rawMin, rawMax] = extent(values, 0.15);
+  const yMin = Math.min(rawMin, 0);
+  const yMax = Math.max(rawMax, 0);
 
   function yToPx(y) {
     return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
   }
 
-  ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
-  for (const p of points) {
-    const x = xToPx(p.x);
-    const y = yToPx(p.y);
+  function xCenter(i, n) {
+    return dims.left + ((i + 0.5) / n) * (dims.right - dims.left);
+  }
 
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(x, y, 6, 0, Math.PI * 2);
-    ctx.fill();
+  drawGrid(ctx, dims, 4);
+  drawAxes(ctx, dims, "Metrics", "Delta vs naive (percentage points)");
 
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+  const zeroY = yToPx(0);
+  ctx.strokeStyle = "#3d4f6b";
+  ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  ctx.moveTo(dims.left, zeroY);
+  ctx.lineTo(dims.right, zeroY);
+  ctx.stroke();
 
-    ctx.fillStyle = "#233247";
-    ctx.textAlign = "left";
-    ctx.fillText(p.label, x + 8, y - 8);
+  const groupWidth = (dims.right - dims.left) / impact.length;
+  const barWidth = Math.min(22, groupWidth * 0.22);
+
+  for (let i = 0; i < impact.length; i += 1) {
+    const group = impact[i];
+    const cx = xCenter(i, impact.length);
+
+    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, "#1f7b63");
+    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, "#2758ad");
+
+    ctx.fillStyle = "#22354d";
+    ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(group.label, cx, dims.bottom + 16);
+
+    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#1f7b63", zeroY);
+    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#2758ad", zeroY);
+  }
+
+  drawLegend(
+    ctx,
+    [
+      { label: "Anchor", color: "#1f7b63" },
+      { label: "Anchor + Projection", color: "#2758ad" },
+    ],
+    width,
+    10,
+  );
+}
+
+function drawBar(ctx, centerX, width, value, yToPx, zeroY, color) {
+  const y = yToPx(value);
+  const top = Math.min(y, zeroY);
+  const h = Math.max(1, Math.abs(y - zeroY));
+
+  ctx.fillStyle = color;
+  ctx.fillRect(centerX - width / 2, top, width, h);
+}
+
+function labelValue(ctx, x, y, value, color, zeroY) {
+  ctx.fillStyle = color;
+  ctx.font = "11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+  ctx.textAlign = "center";
+
+  if (y < zeroY) {
+    ctx.fillText(pct(value), x, y - 6);
+  } else {
+    ctx.fillText(pct(value), x, y + 14);
   }
 }
 
@@ -135,11 +188,11 @@ export function drawEquity(canvas, series, stressMarkers) {
   const dims = {
     left: 62,
     right: width - 20,
-    top: 20,
-    bottom: height - 48,
+    top: 22,
+    bottom: height - 46,
   };
 
-  drawGrid(ctx, dims);
+  drawGrid(ctx, dims, 4);
   drawAxes(ctx, dims, "Time", "Equity");
 
   const allY = series.flatMap((s) => s.values);
@@ -154,7 +207,7 @@ export function drawEquity(canvas, series, stressMarkers) {
     return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
   }
 
-  ctx.strokeStyle = "rgba(207, 79, 55, 0.12)";
+  ctx.strokeStyle = "rgba(191, 71, 55, 0.14)";
   ctx.lineWidth = 1;
   for (let i = 0; i < stressMarkers.length; i += 1) {
     const x = xToPx(stressMarkers[i]);
@@ -183,21 +236,4 @@ export function drawEquity(canvas, series, stressMarkers) {
   }
 
   drawLegend(ctx, series, width, 10);
-}
-
-function drawLegend(ctx, series, xStart, yStart) {
-  let x = xStart - 280;
-  const y = yStart;
-
-  ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
-  for (const item of series) {
-    ctx.fillStyle = item.color;
-    ctx.fillRect(x, y, 14, 3);
-
-    ctx.fillStyle = "#22344d";
-    ctx.textAlign = "left";
-    ctx.fillText(item.label, x + 18, y + 4);
-
-    x += ctx.measureText(item.label).width + 44;
-  }
 }

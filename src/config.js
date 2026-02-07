@@ -5,7 +5,7 @@ export const METHOD_SPECS = [
 ];
 
 export const DEFAULT_CONFIG = {
-  seed: 7,
+  seed: 24,
 
   dSignal: 8,
   nAssetsRisky: 4,
@@ -36,6 +36,7 @@ export const PRESETS = {
   quick_check: {
     label: "Quick Check",
     values: {
+      seed: 24,
       steps: 280,
       nTrainDrift: 900,
       nAnchorStress: 192,
@@ -45,8 +46,9 @@ export const PRESETS = {
     },
   },
   proposal_like: {
-    label: "Proposal-like",
+    label: "Default (High Signal)",
     values: {
+      seed: 24,
       steps: 1200,
       nTrainDrift: 2000,
       nAnchorStress: 512,
@@ -60,6 +62,7 @@ export const PRESETS = {
   stress_heavy: {
     label: "Stress Heavy",
     values: {
+      seed: 24,
       pStress: 0.55,
       anchorBeta: 0.08,
       steps: 900,
