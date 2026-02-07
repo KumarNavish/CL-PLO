@@ -178,6 +178,24 @@ h1 {
   color: #334a67;
 }
 
+.thesis-card {
+  border: 1px solid #cdd9ea;
+  border-left: 4px solid var(--brand);
+  border-radius: 10px;
+  background: #f6faff;
+  padding: 0.65rem;
+}
+
+.thesis-card h3 {
+  font-size: 0.92rem;
+}
+
+.thesis-card p {
+  margin-top: 0.25rem;
+  font-size: 0.82rem;
+  color: #2f4869;
+}
+
 .taxonomy {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -254,6 +272,20 @@ h1 {
   display: flex;
   gap: 0.52rem;
   flex-wrap: wrap;
+}
+
+.matrix-wrap {
+  margin-top: 0.68rem;
+}
+
+.matrix-wrap h3 {
+  font-size: 0.9rem;
+}
+
+.matrix-wrap p {
+  margin-top: 0.2rem;
+  font-size: 0.79rem;
+  color: var(--muted);
 }
 
 .demo-layout {
@@ -401,6 +433,29 @@ select {
   margin-top: 0.2rem;
   color: #3e5574;
   font-size: 0.74rem;
+}
+
+.run-interpretation {
+  border: 1px solid #d0dcec;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.58rem;
+}
+
+.run-interpretation h3 {
+  font-size: 0.86rem;
+}
+
+.run-interpretation ul {
+  margin: 0.36rem 0 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.run-interpretation li {
+  font-size: 0.78rem;
+  color: #344e6d;
 }
 
 .math-grid {
@@ -558,6 +613,23 @@ pre {
   font-size: 0.73rem;
 }
 
+.diligence-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.52rem;
+}
+
+.diligence-grid article {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.56rem;
+}
+
+.diligence-grid h3 {
+  font-size: 0.86rem;
+}
+
 .footer {
   padding: 0 0 1.8rem;
 }
@@ -576,7 +648,8 @@ pre {
   .refs-grid,
   .taxonomy,
   .metric-cards,
-  .chart-grid {
+  .chart-grid,
+  .diligence-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -592,7 +665,8 @@ pre {
   .refs-grid,
   .taxonomy,
   .metric-cards,
-  .chart-grid {
+  .chart-grid,
+  .diligence-grid {
     grid-template-columns: 1fr;
   }
 

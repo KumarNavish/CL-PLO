@@ -140,6 +140,90 @@ const ROLE_DESCRIPTIONS = {
   "Data/Execution Infrastructure": "Connector layer between LLM reasoning and market/execution tools.",
 };
 
+const IC_BRIEF = [
+  {
+    title: "Decision Use",
+    body: "Use LLM outputs as views/scenarios feeding a constrained optimizer, not as direct execution orders.",
+  },
+  {
+    title: "Expected Benefit",
+    body: "Earlier detection of narrative and regime inflections that market-only features can miss.",
+  },
+  {
+    title: "Key Constraint",
+    body: "Signal quality must be continuously stress-tested to avoid hidden turnover and false confidence.",
+  },
+];
+
+const REPO_SCORES = {
+  "youngandbin/LLM-BLM": { llmDepth: 5, optFit: 5, repro: 4, deploy: 3 },
+  "franjgs/llm-rl-finance-trader": { llmDepth: 4, optFit: 3, repro: 3, deploy: 2 },
+  "pipiku915/FinMem-LLM-StockTrading": { llmDepth: 5, optFit: 3, repro: 3, deploy: 2 },
+  "AI4Finance-Foundation/FinGPT": { llmDepth: 5, optFit: 3, repro: 4, deploy: 4 },
+  "AI4Finance-Foundation/FinRobot": { llmDepth: 4, optFit: 3, repro: 4, deploy: 3 },
+  "TradingGoose/TradingGoose.github.io": { llmDepth: 4, optFit: 4, repro: 3, deploy: 3 },
+  "OnePunchMonk/AgentQuant": { llmDepth: 4, optFit: 3, repro: 3, deploy: 3 },
+  "The-FinAI/PIXIU": { llmDepth: 4, optFit: 2, repro: 4, deploy: 2 },
+  "Finance-LLMs/FinMCP": { llmDepth: 3, optFit: 2, repro: 3, deploy: 5 },
+};
+
+const FAILURE_MODES = [
+  {
+    item: "Narrative overreaction",
+    note: "LLM overweights transient headlines, causing unstable allocations.",
+  },
+  {
+    item: "Silent turnover drift",
+    note: "Signal updates appear profitable but implementation costs erase edge.",
+  },
+  {
+    item: "Regime misclassification",
+    note: "Text tone differs from realized market state, degrading portfolio positioning.",
+  },
+  {
+    item: "Prompt/config fragility",
+    note: "Performance depends on prompt settings not robust across time windows.",
+  },
+];
+
+const VALIDATION_PROTOCOL = [
+  {
+    item: "Walk-forward backtests",
+    note: "No global tuning leaks. Refit and evaluate by realistic temporal blocks.",
+  },
+  {
+    item: "Ablation tests",
+    note: "Compare optimizer-only vs optimizer+LLM to isolate true incremental value.",
+  },
+  {
+    item: "Stress segment evaluation",
+    note: "Report drawdown and tail losses specifically during high-volatility regimes.",
+  },
+  {
+    item: "Cost-aware simulation",
+    note: "Model fees, slippage, and capacity before claiming production readiness.",
+  },
+];
+
+const MONITORING_GATES = [
+  {
+    item: "Signal-health gate",
+    note: "If directional hit rate drops below threshold, reduce LLM influence alpha.",
+  },
+  {
+    item: "Risk gate",
+    note: "If drawdown or VaR breaches policy, enforce conservative fallback weights.",
+  },
+  {
+    item: "Execution gate",
+    note: "If turnover exceeds budget, freeze rebalance frequency and recalc.",
+  },
+  {
+    item: "Rollback gate",
+    note: "Automatic reversion to baseline optimizer if two consecutive gates fail.",
+  },
+];
+
 const ASSETS = ["US Equities", "Rates", "Commodities", "Cash"];
 
 const REGIME_CONFIG = {
@@ -169,11 +253,26 @@ const REBAL_EVERY = 20;
 const STEPS = 220;
 
 function init() {
+  renderIcBrief();
   renderTaxonomy();
   renderRepositories();
+  renderRepoMatrix();
   renderReferences();
+  renderDiligence();
   wireControls();
   runDemo();
+}
+
+function renderIcBrief() {
+  const host = document.getElementById("ic-cards");
+  host.innerHTML = IC_BRIEF.map(
+    (x) => `
+      <article>
+        <h3>${x.title}</h3>
+        <p>${x.body}</p>
+      </article>
+    `,
+  ).join("");
 }
 
 function renderTaxonomy() {
@@ -217,6 +316,38 @@ function renderRepositories() {
   ).join("");
 }
 
+function renderRepoMatrix() {
+  const host = document.getElementById("repo-matrix");
+
+  host.innerHTML = `
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Repository</th>
+          <th>LLM Depth</th>
+          <th>Optimization Fit</th>
+          <th>Reproducibility</th>
+          <th>Deployment Readiness</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${REPOSITORIES.map((r) => {
+          const s = REPO_SCORES[r.name];
+          return `
+            <tr>
+              <th>${r.name}</th>
+              <td>${s.llmDepth}/5</td>
+              <td>${s.optFit}/5</td>
+              <td>${s.repro}/5</td>
+              <td>${s.deploy}/5</td>
+            </tr>
+          `;
+        }).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
 function renderReferences() {
   const paperHost = document.getElementById("paper-refs");
   const codeHost = document.getElementById("codebase-refs");
@@ -232,6 +363,22 @@ function renderReferences() {
 
   evidenceHost.innerHTML = EVIDENCE_REFS.map(
     (r) => `<li><a href="${r.link}" target="_blank" rel="noreferrer">${r.label}</a><span>${r.note}</span></li>`,
+  ).join("");
+}
+
+function renderDiligence() {
+  const failureHost = document.getElementById("failure-modes");
+  const protocolHost = document.getElementById("validation-protocol");
+  const monitoringHost = document.getElementById("monitoring-gates");
+
+  failureHost.innerHTML = FAILURE_MODES.map(
+    (x) => `<li><strong>${x.item}</strong><span>${x.note}</span></li>`,
+  ).join("");
+  protocolHost.innerHTML = VALIDATION_PROTOCOL.map(
+    (x) => `<li><strong>${x.item}</strong><span>${x.note}</span></li>`,
+  ).join("");
+  monitoringHost.innerHTML = MONITORING_GATES.map(
+    (x) => `<li><strong>${x.item}</strong><span>${x.note}</span></li>`,
   ).join("");
 }
 
@@ -259,8 +406,31 @@ function runDemo() {
 
   renderDecision(result, regime, risk, signalStrength);
   renderMetrics(result);
+  renderRunInterpretation(result);
   drawEquityChart(document.getElementById("equity-chart"), result.paths);
   drawWeightsChart(document.getElementById("weights-chart"), result.finalWeights);
+}
+
+function renderRunInterpretation(result) {
+  const host = document.getElementById("run-interpretation");
+  const b = result.metrics.baseline;
+  const l = result.metrics.llm;
+
+  const retDelta = l.annReturn - b.annReturn;
+  const sharpeDelta = l.sharpe - b.sharpe;
+  const ddDelta = l.maxDrawdown - b.maxDrawdown;
+  const turnDelta = l.turnover - b.turnover;
+
+  host.innerHTML = `
+    <h3>Run Interpretation</h3>
+    <ul>
+      <li>Return spread: <strong>${pp(retDelta)}</strong> annualized vs baseline.</li>
+      <li>Risk-adjusted spread: Sharpe <strong>${delta(sharpeDelta)}</strong>.</li>
+      <li>Tail impact: drawdown change <strong>${pp(ddDelta)}</strong> (higher is better).</li>
+      <li>Implementation burden: turnover change <strong>${delta(turnDelta)}</strong> per rebalance cycle.</li>
+      <li>Read as a system: prefer LLM variant only if return and Sharpe gains survive drawdown and turnover constraints.</li>
+    </ul>
+  `;
 }
 
 function simulateStrategies({ regime, risk, signalStrength }) {

@@ -18,6 +18,7 @@
         <div class="hero-actions">
           <a class="btn-primary" href="#demo">Run Live Demo</a>
           <a class="btn-ghost" href="#repos">Browse Repositories</a>
+          <a class="btn-ghost" href="#diligence">Open Due-Diligence Layer</a>
         </div>
       </div>
     </header>
@@ -52,6 +53,21 @@
         </div>
       </section>
 
+      <section id="brief" class="panel">
+        <div class="panel-head split">
+          <h2>Investment Committee Brief</h2>
+          <p>Designed for first-read conviction in under 2 minutes.</p>
+        </div>
+        <article class="thesis-card">
+          <h3>Core Thesis</h3>
+          <p>
+            Transformer LLM signals are most valuable when treated as a structured view layer inside a constrained
+            optimizer, not as a replacement for risk management.
+          </p>
+        </article>
+        <div id="ic-cards" class="overview-cards"></div>
+      </section>
+
       <section id="repos" class="panel">
         <div class="panel-head split">
           <h2>2. Curated Repository Map</h2>
@@ -59,6 +75,11 @@
         </div>
         <div id="taxonomy" class="taxonomy"></div>
         <div id="repo-list" class="repo-list"></div>
+        <div class="matrix-wrap">
+          <h3>Repository Conviction Matrix</h3>
+          <p>Scored for LLM integration depth, optimization relevance, reproducibility, and deployment readiness.</p>
+          <div id="repo-matrix" class="comparison-table-wrap"></div>
+        </div>
       </section>
 
       <section id="demo" class="panel">
@@ -111,6 +132,7 @@
             </div>
 
             <div id="metric-cards" class="metric-cards"></div>
+            <article id="run-interpretation" class="run-interpretation"></article>
           </div>
         </div>
       </section>
@@ -223,6 +245,27 @@ s.t.   w >= 0, 1^T w = 1</pre>
           <article>
             <h3>Evidence Summaries</h3>
             <ul id="evidence-refs" class="refs"></ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="diligence" class="panel">
+        <div class="panel-head split">
+          <h2>Production Due-Diligence Layer</h2>
+          <p>For repeated reads, implementation planning, and risk challenge sessions.</p>
+        </div>
+        <div class="diligence-grid">
+          <article>
+            <h3>Failure Mode Register</h3>
+            <ul id="failure-modes" class="refs"></ul>
+          </article>
+          <article>
+            <h3>Validation Protocol</h3>
+            <ul id="validation-protocol" class="refs"></ul>
+          </article>
+          <article>
+            <h3>Monitoring and Rollback Gates</h3>
+            <ul id="monitoring-gates" class="refs"></ul>
           </article>
         </div>
       </section>
