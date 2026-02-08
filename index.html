@@ -331,235 +331,53 @@
       </section>
 
       <section class="section" id="math">
-        <h2>4. Mathematical Spine (Discipline and Boundary)</h2>
+        <h2>4. Minimal Math Backbone</h2>
         <p class="section-intro">
-          This section separates what is established in the literature from what is proposed here. Every equation is
-          introduced by intent and followed by an operational implication.
+          First two equations are established practice. The third equation is the proposal-specific control law.
         </p>
-
-        <div class="math-boundary">
-          <article class="boundary-card">
-            <p class="math-tag literature">Established in literature</p>
-            <p>Constrained portfolio optimization, CVaR stress control, replay, and gradient projection.</p>
-          </article>
-          <article class="boundary-card">
-            <p class="math-tag proposal">Proposed in this work</p>
-            <p>One release contract that couples fixed decision constraints with stress-gated continual updates.</p>
-          </article>
-        </div>
-
-        <article class="math-cluster literature">
-          <header>
-            <p class="math-tag literature">Established in literature</p>
-            <h3>A. Decision Layer: Optimize Feasible Weights</h3>
-          </header>
-          <p class="math-intuition">
-            Intuition: model outputs should be transformed into trades by a deterministic constrained optimizer.
-          </p>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: what is optimized at decision time?</p>
-            <div class="math-block">
+        <div class="math-grid">
+          <article class="math-card">
+            <h3>Established: fixed optimizer layer</h3>
+            <p class="math-block">
               \[
-              \begin{aligned}
-              w_t^\star
-              &=
-              \arg\max_{w\in\mathcal{W}_t}
+              w_t^\star=
+              \arg\max_{w\in\mathcal{W}}
               \left(
               \mu_t^\top w
               -\frac{\gamma}{2}\,w^\top\Sigma_t w
-              -c_t^\top \lvert w-w_{t-1}\rvert
-              \right).
-              \end{aligned}
+              -\lambda_{\mathrm{tc}}\|w-w_{t-1}\|_1
+              \right)
               \]
-            </div>
-          </div>
+            </p>
+          </article>
 
-          <div class="equation-group">
-            <p class="equation-intent">Question: which constraints define feasibility?</p>
-            <div class="math-block">
-              \[
-              \begin{aligned}
-              \mathcal{W}_t
-              =
-              \Big\{w\in\mathbb{R}^{N_t}:\;&
-              \mathbf{1}^\top w=0,\;
-              \lVert w\rVert_1\le L,\;
-              \lvert w_i\rvert\le w_{\max}\;\forall i,\\
-              &
-              \lVert w-w_{t-1}\rVert_1\le\tau,\;
-              \lVert B_t^\top w\rVert_\infty\le b_{\mathrm{factor}}
-              \Big\}.
-              \end{aligned}
-              \]
-            </div>
-          </div>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: how is stress risk bounded?</p>
-            <div class="math-block">
-              \[
-              \mathrm{ES}_{\alpha}\!\left(R^{(j)}w_t^\star\right)\ge -L_j,\qquad j=1,\dots,J.
-              \]
-            </div>
-          </div>
-
-          <p class="math-implication">
-            Implication: no update policy can violate feasibility or stress budgets once \(w_t^\star\) is computed.
-          </p>
-          <p class="math-attribution">
-            Attribution:
-            <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer"
-              >Boyd et al. (2017)</a
-            >,
-            <a href="https://www.sciencedirect.com/science/article/pii/S0927539899000525" target="_blank" rel="noreferrer"
-              >Rockafellar and Uryasev (2000)</a
-            >.
-          </p>
-        </article>
-
-        <article class="math-cluster literature">
-          <header>
-            <p class="math-tag literature">Established in literature</p>
-            <h3>B. Continual Learning Stabilizers</h3>
-          </header>
-          <p class="math-intuition">
-            Intuition: update for drift, but prevent first-order interference with stress-memory gradients.
-          </p>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: what gradients are being balanced?</p>
-            <div class="math-block">
-              \[
-              g_{d,t}=\nabla_{\theta}\mathcal{L}_{\mathrm{drift},t}(\theta_t),\qquad
-              g_{a,t}=\nabla_{\theta}\mathcal{L}_{\mathrm{anchor},t}(\theta_t).
-              \]
-            </div>
-          </div>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: how is replay distillation formalized?</p>
-            <div class="math-block">
-              \[
-              \mathcal{L}^{\mathrm{replay}}_t(\theta)
-              =
-              \mathcal{L}_{\mathrm{drift},t}(\theta)
-              +
-              \lambda_t\,\mathbb{E}_{(x,z)\sim\mathcal{M}_t}
-              \!\left[
-              \left(\mu_{\theta_t}(x,z)-\mu_{\theta}(x,z)\right)^2
-              \right].
-              \]
-            </div>
-          </div>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: how is interference constrained?</p>
-            <div class="math-block">
-              \[
-              \begin{aligned}
-              \tilde g_t
-              &=
-              \arg\min_{v}\;\frac{1}{2}\lVert v-g_{d,t}\rVert_2^2\\
-              &\text{s.t.}\quad \langle v,g_{a,t}\rangle\ge-\varepsilon_t.
-              \end{aligned}
-              \]
-            </div>
-          </div>
-
-          <p class="math-implication">
-            Implication: the update remains as close as possible to drift improvement while respecting anchor safety.
-          </p>
-          <p class="math-attribution">
-            Attribution:
-            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer"
-              >Chaudhry et al. (A-GEM, 2019)</a
-            >,
-            <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">Qiao et al. (2024)</a>,
-            <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">Hu et al. (LoRA, 2022)</a>.
-          </p>
-        </article>
-
-        <article class="math-cluster proposal">
-          <header>
-            <p class="math-tag proposal">Proposed in this work</p>
-            <h3>C. Unified Release Contract (Update + Gate + Boundary)</h3>
-          </header>
-          <p class="math-intuition">
-            Intuition: only the adapter state is mutable, and every candidate update must pass stress regression before
-            promotion.
-          </p>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: what interface is allowed to move?</p>
-            <div class="math-block">
-              \[
-              \mu_t=f_{\theta_t}(x_t,z_t),\qquad
-              \theta_t=\theta_{\mathrm{frozen}}+\Delta\theta_t,\qquad
-              \Delta\theta_t\in\mathcal{S}_{\mathrm{LoRA}}.
-              \]
-            </div>
-          </div>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: what memory object is explicitly preserved?</p>
-            <div class="math-block">
-              \[
-              \mathcal{M}_t=
-              \mathcal{M}^{\mathrm{recent}}_t
-              \cup
-              \left(\bigcup_{j=1}^{J}\mathcal{M}^{\mathrm{stress}(j)}\right)
-              \cup
-              \mathcal{M}^{\mathrm{edge}}_t.
-              \]
-            </div>
-          </div>
-
-          <div class="equation-group">
-            <p class="equation-intent">Question: when is a candidate update accepted?</p>
-            <div class="math-block">
+          <article class="math-card">
+            <h3>Established: replay-regularized update</h3>
+            <p class="math-block">
               \[
               \theta_{t+1}
               =
-              \begin{cases}
-              \theta_t', &
-              \mathcal{L}_{\mathrm{stress}}(\theta_t')
-              \le
-              (1+\delta_t)\,\mathcal{L}_{\mathrm{stress}}(\theta_t),\\[2pt]
-              \theta_t, & \text{otherwise (rollback).}
-              \end{cases}
+              \theta_t-\eta_t\nabla\!\left(
+              \mathcal{L}_{\mathrm{drift},t}(\theta_t)+
+              \beta_t\mathcal{L}_{\mathrm{anchor},t}(\theta_t)
+              \right)
               \]
-            </div>
-          </div>
+            </p>
+          </article>
 
-          <p class="math-implication">
-            Implication: the proposed contribution is a single auditable contract linking model adaptation to
-            non-regression criteria while preserving a fixed decision boundary.
-          </p>
-        </article>
-
-        <article class="notation-card">
-          <h3>Notation (Defined Once, Reused Consistently)</h3>
-          <table class="notation-table">
-            <thead>
-              <tr>
-                <th>Symbol</th>
-                <th>Meaning</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>\(x_t,z_t\)</td><td>Numeric market state and text context at time \(t\)</td></tr>
-              <tr><td>\(\theta_t\)</td><td>Adapter parameter state after accepted update \(t\)</td></tr>
-              <tr><td>\(\mu_t\)</td><td>Predicted residual alpha vector</td></tr>
-              <tr><td>\(\Sigma_t\)</td><td>Risk covariance primitive</td></tr>
-              <tr><td>\(w_t^\star\)</td><td>Executed feasible portfolio weights</td></tr>
-              <tr><td>\(\mathcal{W}_t\)</td><td>Feasible weight set with risk and turnover constraints</td></tr>
-              <tr><td>\(\mathcal{M}_t\)</td><td>Replay memory fixture (recent + stress + edge)</td></tr>
-              <tr><td>\(g_{d,t},g_{a,t},\tilde g_t\)</td><td>Drift, anchor, and projected update gradients</td></tr>
-              <tr><td>\(\delta_t\)</td><td>Stress-loss tolerance used by promotion gate</td></tr>
-            </tbody>
-          </table>
-        </article>
+          <article class="math-card">
+            <h3>Proposed here: projected constrained update</h3>
+            <p class="math-block">
+              \[
+              \tilde g_t=
+              \arg\min_{v}\|v-g_{d,t}\|_2^2
+              \;\text{s.t.}\;
+              \langle v,g_{a,t}\rangle\ge-\varepsilon_t,\qquad
+              \theta_{t+1}=\theta_t-\eta_t\!\left(\tilde g_t+\beta_t g_{a,t}\right)
+              \]
+            </p>
+          </article>
+        </div>
       </section>
 
       <section class="section" id="references">
