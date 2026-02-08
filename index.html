@@ -108,35 +108,55 @@
       </section>
 
       <section id="objects" class="section">
-        <h2>2. Operational Objects</h2>
-        <p class="section-intro">Notation is introduced only for components you can point to in a production system.</p>
+        <h2>2. One-to-One Mapping (CL ↔ Portfolio)</h2>
+        <p class="section-intro">
+          This is the spine of the post. Each continual-learning object has a direct portfolio-control counterpart and
+          an implementation handle.
+        </p>
 
-        <div class="object-grid">
-          <article>
-            <h3>\(\mathcal{D}^{\mathrm{drift}}_t\)</h3>
-            <p>Current regime slice used to learn new behavior.</p>
-          </article>
-          <article>
-            <h3>\(\mathcal{D}^{\mathrm{anchor}}_t\)</h3>
-            <p>Pinned stress-memory slice (crises, liquidity breaks, macro shocks).</p>
-          </article>
-          <article>
-            <h3>\(\mathbf{g}_{\mathrm{d}},\mathbf{g}_{\mathrm{a}}\)</h3>
-            <p>Drift and anchor gradients defining adaptation and retention directions.</p>
-          </article>
-          <article>
-            <h3>\(\theta_t\)</h3>
-            <p>LoRA adapter parameters updated online.</p>
-          </article>
-          <article>
-            <h3>\(\hat{\mu}_t,\hat{\Sigma}_t\)</h3>
-            <p>Forecast moments consumed by the fixed optimizer.</p>
-          </article>
-          <article>
-            <h3>\(\mathbf{w}_t^\star\)</h3>
-            <p>Execution weights after risk and turnover controls.</p>
-          </article>
-        </div>
+        <article class="mapping-wrap">
+          <table class="mapping-table">
+            <thead>
+              <tr>
+                <th>Continual learning object</th>
+                <th>Portfolio counterpart</th>
+                <th>Implementation handle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>\(\mathcal{D}^{\mathrm{drift}}_t\): non-stationary stream</td>
+                <td>Current regime flow</td>
+                <td>rolling drift minibatches</td>
+              </tr>
+              <tr>
+                <td>\(\mathcal{D}^{\mathrm{anchor}}_t\): memory buffer</td>
+                <td>Stress scenario library</td>
+                <td>tagged crisis slices + pinned replay set</td>
+              </tr>
+              <tr>
+                <td>\(\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\): stability cone</td>
+                <td>risk budget inequality</td>
+                <td>interference threshold \(\varepsilon\)</td>
+              </tr>
+              <tr>
+                <td>\(\theta_t\): adapter state</td>
+                <td>decision engine state</td>
+                <td>LoRA adapter parameters only</td>
+              </tr>
+              <tr>
+                <td>\((\hat{\mu}_t,\hat{\Sigma}_t)\)</td>
+                <td>alpha + risk forecasts</td>
+                <td>fixed forecast-to-optimizer interface</td>
+              </tr>
+              <tr>
+                <td>\(\mathbf{w}_t^\star\)</td>
+                <td>tradable portfolio</td>
+                <td>turnover-penalized convex solve</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
       </section>
 
       <section id="stack" class="section">
@@ -360,8 +380,40 @@
         </div>
       </section>
 
+      <section id="implementation" class="section">
+        <h2>7. What To Implement Next</h2>
+        <p class="section-intro">A direct build sequence from this page to a production pilot.</p>
+
+        <div class="implementation-grid">
+          <article>
+            <h3>Step 1: Build anchor memory</h3>
+            <ul>
+              <li>Define regime tags.</li>
+              <li>Assemble pinned stress slices.</li>
+              <li>Freeze this set for all method comparisons.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Step 2: Add projection gate</h3>
+            <ul>
+              <li>Compute \(\mathbf{g}_{\mathrm{d}},\mathbf{g}_{\mathrm{a}}\) each step.</li>
+              <li>Project drift gradients into anchor-safe cone.</li>
+              <li>Log distortion and interference-rate diagnostics.</li>
+            </ul>
+          </article>
+          <article>
+            <h3>Step 3: Decide promotion</h3>
+            <ul>
+              <li>Run repeated stress-heavy seeds.</li>
+              <li>Check ordering in stress MSE, drift MSE, drawdown.</li>
+              <li>Promote only if ordering remains stable.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
       <section id="validation" class="section" aria-label="Validation">
-        <h2>7. Validation Run (Evidence Layer)</h2>
+        <h2>8. Validation Run (Evidence Layer)</h2>
         <p class="section-intro">Now test whether the empirical run matches the mechanism-level expectations.</p>
         <article id="expectation-check" class="expectation-check"></article>
 

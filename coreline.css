@@ -172,9 +172,9 @@ h1 {
 
 .bridge-frame,
 .bridge-equations,
-.object-grid,
 .mechanism-grid,
 .decision-grid,
+.implementation-grid,
 .preset-row,
 .knob-grid,
 .action-row,
@@ -192,10 +192,11 @@ h1 {
 .bridge-side,
 .bridge-core,
 .eq-card,
-.object-grid article,
 .stack-figure,
 .mech-card,
 .strategy-card,
+.mapping-wrap,
+.implementation-grid article,
 .expectation-check,
 .control-stack,
 .decision-card,
@@ -212,9 +213,10 @@ h1 {
 .bridge-side,
 .bridge-core,
 .eq-card,
-.object-grid article,
 .mech-card,
 .decision-rules,
+.mapping-wrap,
+.implementation-grid article,
 .expectation-check,
 .control-stack,
 .decision-card,
@@ -273,13 +275,28 @@ h1 {
   height: auto !important;
 }
 
-.object-grid {
-  margin-top: 0.72rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.mapping-wrap {
+  margin-top: 0.7rem;
+  overflow-x: auto;
 }
 
-.object-grid h3 {
-  font-size: 0.95rem;
+.mapping-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.mapping-table th,
+.mapping-table td {
+  border-top: 1px solid var(--line);
+  padding: 0.42rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.mapping-table th {
+  background: var(--soft);
+  font-weight: 600;
 }
 
 .stack-figure {
@@ -492,6 +509,17 @@ h1 {
   padding-left: 1rem;
   display: grid;
   gap: 0.15rem;
+}
+
+.implementation-grid {
+  margin-top: 0.72rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.implementation-grid ul {
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.12rem;
 }
 
 .expectation-check h3 {
@@ -713,7 +741,7 @@ mjx-container[jax="SVG"] {
   .mechanism-grid,
   .decision-grid,
   .hero-signal,
-  .object-grid {
+  .implementation-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -764,7 +792,7 @@ mjx-container[jax="SVG"] {
   .mechanism-grid,
   .decision-grid,
   .hero-signal,
-  .object-grid,
+  .implementation-grid,
   .preset-row,
   .action-row,
   .knob-grid {
