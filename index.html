@@ -44,6 +44,12 @@
     <main class="shell flow">
       <section class="section" id="strategies">
         <h2>1. Three Strategy Mechanisms</h2>
+        <div class="pipeline-legend" aria-label="pipeline role legend">
+          <span><i class="swatch data"></i>Data stream</span>
+          <span><i class="swatch memory"></i>Anchor memory</span>
+          <span><i class="swatch update"></i>Update operator</span>
+          <span><i class="swatch decision"></i>Decision layer</span>
+        </div>
 
         <div class="strategy-grid">
           <article class="strategy-card">
@@ -52,43 +58,47 @@
               <h3>Naive Online Update</h3>
             </header>
 
-            <svg class="pipeline-svg" viewBox="0 0 980 180" role="img" aria-label="Naive strategy pipeline">
+            <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Naive strategy pipeline">
               <defs>
                 <marker id="arrow-a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
                   <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
                 </marker>
               </defs>
+              <rect x="24" y="90" width="164" height="82" class="node data" />
+              <text x="106" y="121" text-anchor="middle">Stream</text>
+              <text x="106" y="146" text-anchor="middle">D^drift_t</text>
 
-              <rect x="20" y="56" width="164" height="68" class="node data" />
-              <text x="102" y="83" text-anchor="middle">Stream</text>
-              <text x="102" y="104" text-anchor="middle">D_drift,t</text>
+              <line x1="188" y1="132" x2="214" y2="132" marker-end="url(#arrow-a)" class="link" />
 
-              <line x1="184" y1="90" x2="212" y2="90" marker-end="url(#arrow-a)" class="link" />
+              <rect x="222" y="90" width="164" height="82" class="node frozen" />
+              <text x="304" y="121" text-anchor="middle">Frozen Backbone</text>
+              <text x="304" y="146" text-anchor="middle">phi</text>
 
-              <rect x="220" y="56" width="164" height="68" class="node frozen" />
-              <text x="302" y="83" text-anchor="middle">Frozen Backbone</text>
-              <text x="302" y="104" text-anchor="middle">phi</text>
+              <line x1="386" y1="132" x2="412" y2="132" marker-end="url(#arrow-a)" class="link" />
 
-              <line x1="384" y1="90" x2="412" y2="90" marker-end="url(#arrow-a)" class="link" />
+              <rect x="420" y="26" width="164" height="72" class="node memory off" />
+              <text x="502" y="53" text-anchor="middle">Anchor Fixture</text>
+              <text x="502" y="76" text-anchor="middle">disabled</text>
+              <line x1="502" y1="98" x2="502" y2="108" class="link link-dashed" />
+              <line x1="494" y1="102" x2="510" y2="118" class="link link-dashed" />
+              <line x1="510" y1="102" x2="494" y2="118" class="link link-dashed" />
 
-              <rect x="420" y="56" width="164" height="68" class="node memory off" />
-              <text x="502" y="83" text-anchor="middle">Anchor Fixture</text>
-              <text x="502" y="104" text-anchor="middle">not used</text>
+              <rect x="420" y="90" width="164" height="82" class="node update risk" />
+              <text x="502" y="118" text-anchor="middle">Update Operator</text>
+              <text x="502" y="141" text-anchor="middle">theta_(t+1)=theta_t-eta g_d,t</text>
 
-              <line x1="584" y1="90" x2="612" y2="90" marker-end="url(#arrow-a)" class="link" />
+              <line x1="584" y1="132" x2="610" y2="132" marker-end="url(#arrow-a)" class="link" />
 
-              <rect x="620" y="56" width="164" height="68" class="node update risk" />
-              <text x="702" y="83" text-anchor="middle">Update Operator</text>
-              <text x="702" y="104" text-anchor="middle">theta - eta g_d</text>
+              <rect x="618" y="90" width="164" height="82" class="node decision" />
+              <text x="700" y="121" text-anchor="middle">Decision Layer</text>
+              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t)->w*_t</text>
 
-              <line x1="784" y1="90" x2="812" y2="90" marker-end="url(#arrow-a)" class="link" />
+              <line x1="782" y1="132" x2="808" y2="132" marker-end="url(#arrow-a)" class="link" />
 
-              <rect x="820" y="56" width="140" height="68" class="node decision" />
-              <text x="890" y="83" text-anchor="middle">Decision Layer</text>
-              <text x="890" y="104" text-anchor="middle">(mu,Sigma)->w*</text>
+              <rect x="816" y="90" width="140" height="82" class="node rail" />
+              <text x="886" y="121" text-anchor="middle">Outcome</text>
+              <text x="886" y="146" text-anchor="middle">fast, unstable</text>
             </svg>
-
-            <p class="strategy-line">Protects: update speed. Sacrifices: stress-memory stability.</p>
           </article>
 
           <article class="strategy-card">
@@ -97,43 +107,46 @@
               <h3>Replay-Regularized</h3>
             </header>
 
-            <svg class="pipeline-svg" viewBox="0 0 980 180" role="img" aria-label="Replay strategy pipeline">
+            <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Replay strategy pipeline">
               <defs>
                 <marker id="arrow-b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
                   <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
                 </marker>
               </defs>
+              <rect x="24" y="90" width="164" height="82" class="node data" />
+              <text x="106" y="121" text-anchor="middle">Stream</text>
+              <text x="106" y="146" text-anchor="middle">D^drift_t</text>
 
-              <rect x="20" y="56" width="164" height="68" class="node data" />
-              <text x="102" y="83" text-anchor="middle">Stream</text>
-              <text x="102" y="104" text-anchor="middle">D_drift,t</text>
+              <line x1="188" y1="132" x2="214" y2="132" marker-end="url(#arrow-b)" class="link" />
 
-              <line x1="184" y1="90" x2="212" y2="90" marker-end="url(#arrow-b)" class="link" />
+              <rect x="222" y="90" width="164" height="82" class="node frozen" />
+              <text x="304" y="121" text-anchor="middle">Frozen Backbone</text>
+              <text x="304" y="146" text-anchor="middle">phi</text>
 
-              <rect x="220" y="56" width="164" height="68" class="node frozen" />
-              <text x="302" y="83" text-anchor="middle">Frozen Backbone</text>
-              <text x="302" y="104" text-anchor="middle">phi</text>
+              <line x1="386" y1="132" x2="412" y2="132" marker-end="url(#arrow-b)" class="link" />
 
-              <line x1="384" y1="90" x2="412" y2="90" marker-end="url(#arrow-b)" class="link" />
+              <rect x="420" y="26" width="164" height="72" class="node memory" />
+              <text x="502" y="53" text-anchor="middle">Anchor Fixture</text>
+              <text x="502" y="76" text-anchor="middle">D^anchor_t</text>
+              <line x1="502" y1="98" x2="502" y2="108" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="420" y="56" width="164" height="68" class="node memory" />
-              <text x="502" y="83" text-anchor="middle">Anchor Fixture</text>
-              <text x="502" y="104" text-anchor="middle">D_anchor,t</text>
+              <rect x="420" y="90" width="164" height="82" class="node update" />
+              <text x="502" y="118" text-anchor="middle">Update Operator</text>
+              <text x="502" y="138" text-anchor="middle">theta_(t+1)=theta_t-eta(</text>
+              <text x="502" y="154" text-anchor="middle">g_d,t+beta g_a,t)</text>
 
-              <line x1="584" y1="90" x2="612" y2="90" marker-end="url(#arrow-b)" class="link" />
+              <line x1="584" y1="132" x2="610" y2="132" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="620" y="56" width="164" height="68" class="node update" />
-              <text x="702" y="83" text-anchor="middle">Update Operator</text>
-              <text x="702" y="104" text-anchor="middle">theta - eta(g_d+beta g_a)</text>
+              <rect x="618" y="90" width="164" height="82" class="node decision" />
+              <text x="700" y="121" text-anchor="middle">Decision Layer</text>
+              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t)->w*_t</text>
 
-              <line x1="784" y1="90" x2="812" y2="90" marker-end="url(#arrow-b)" class="link" />
+              <line x1="782" y1="132" x2="808" y2="132" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="820" y="56" width="140" height="68" class="node decision" />
-              <text x="890" y="83" text-anchor="middle">Decision Layer</text>
-              <text x="890" y="104" text-anchor="middle">(mu,Sigma)->w*</text>
+              <rect x="816" y="90" width="140" height="82" class="node rail" />
+              <text x="886" y="121" text-anchor="middle">Outcome</text>
+              <text x="886" y="146" text-anchor="middle">memory, soft gate</text>
             </svg>
-
-            <p class="strategy-line">Protects: replayed stress behavior. Sacrifices: no hard interference control.</p>
           </article>
 
           <article class="strategy-card">
@@ -142,43 +155,49 @@
               <h3>Replay + Projection Gate</h3>
             </header>
 
-            <svg class="pipeline-svg" viewBox="0 0 980 180" role="img" aria-label="Constrained strategy pipeline">
+            <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Constrained strategy pipeline">
               <defs>
                 <marker id="arrow-c" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
                   <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
                 </marker>
               </defs>
+              <rect x="24" y="90" width="164" height="82" class="node data" />
+              <text x="106" y="121" text-anchor="middle">Stream</text>
+              <text x="106" y="146" text-anchor="middle">D^drift_t</text>
 
-              <rect x="20" y="56" width="164" height="68" class="node data" />
-              <text x="102" y="83" text-anchor="middle">Stream</text>
-              <text x="102" y="104" text-anchor="middle">D_drift,t</text>
+              <line x1="188" y1="132" x2="214" y2="132" marker-end="url(#arrow-c)" class="link" />
 
-              <line x1="184" y1="90" x2="212" y2="90" marker-end="url(#arrow-c)" class="link" />
+              <rect x="222" y="90" width="164" height="82" class="node frozen" />
+              <text x="304" y="121" text-anchor="middle">Frozen Backbone</text>
+              <text x="304" y="146" text-anchor="middle">phi</text>
 
-              <rect x="220" y="56" width="164" height="68" class="node frozen" />
-              <text x="302" y="83" text-anchor="middle">Frozen Backbone</text>
-              <text x="302" y="104" text-anchor="middle">phi</text>
+              <line x1="386" y1="132" x2="412" y2="132" marker-end="url(#arrow-c)" class="link" />
 
-              <line x1="384" y1="90" x2="412" y2="90" marker-end="url(#arrow-c)" class="link" />
+              <rect x="420" y="26" width="164" height="72" class="node memory" />
+              <text x="502" y="53" text-anchor="middle">Anchor Fixture</text>
+              <text x="502" y="76" text-anchor="middle">D^anchor_t</text>
+              <line x1="502" y1="98" x2="502" y2="108" marker-end="url(#arrow-c)" class="link" />
 
-              <rect x="420" y="56" width="164" height="68" class="node memory" />
-              <text x="502" y="83" text-anchor="middle">Anchor Fixture</text>
-              <text x="502" y="104" text-anchor="middle">D_anchor,t</text>
+              <rect x="588" y="112" width="26" height="40" class="gate" />
+              <text x="601" y="137" text-anchor="middle" class="gate-text">Pi</text>
 
-              <line x1="584" y1="90" x2="612" y2="90" marker-end="url(#arrow-c)" class="link" />
+              <rect x="420" y="90" width="164" height="82" class="node update proposed" />
+              <text x="502" y="118" text-anchor="middle">Update Operator</text>
+              <text x="502" y="138" text-anchor="middle">theta_(t+1)=theta_t-eta(</text>
+              <text x="502" y="154" text-anchor="middle">g_tilde+beta g_a,t)</text>
 
-              <rect x="620" y="56" width="164" height="68" class="node update proposed" />
-              <text x="702" y="83" text-anchor="middle">Update Operator</text>
-              <text x="702" y="104" text-anchor="middle">theta - eta(g_tilde+beta g_a)</text>
+              <line x1="614" y1="132" x2="640" y2="132" marker-end="url(#arrow-c)" class="link" />
 
-              <line x1="784" y1="90" x2="812" y2="90" marker-end="url(#arrow-c)" class="link" />
+              <rect x="648" y="90" width="164" height="82" class="node decision" />
+              <text x="730" y="121" text-anchor="middle">Decision Layer</text>
+              <text x="730" y="146" text-anchor="middle">(mu_t,Sigma_t)->w*_t</text>
 
-              <rect x="820" y="56" width="140" height="68" class="node decision" />
-              <text x="890" y="83" text-anchor="middle">Decision Layer</text>
-              <text x="890" y="104" text-anchor="middle">(mu,Sigma)->w*</text>
+              <line x1="812" y1="132" x2="838" y2="132" marker-end="url(#arrow-c)" class="link" />
+
+              <rect x="846" y="90" width="110" height="82" class="node rail proposed" />
+              <text x="901" y="121" text-anchor="middle">Outcome</text>
+              <text x="901" y="146" text-anchor="middle">stable + adaptive</text>
             </svg>
-
-            <p class="strategy-line">Protects: stress memory with a hard safe-update boundary.</p>
           </article>
         </div>
       </section>
@@ -236,9 +255,15 @@
             <h3>Constrained portfolio decision</h3>
             <p class="math-block">
               \[
-              w_t^*=\arg\max_{w\in\mathcal{W}}\left(
-              \mu_t^\top w-\frac{\gamma}{2}w^\top\Sigma_t w-\lambda_{tc}\|w-w_{t-1}\|_1
-              \right)
+              \begin{aligned}
+              w_t^\star
+              &=\arg\max_{w\in\mathcal{W}}
+              \Big(
+              \mu_t^\top w
+              -\frac{\gamma}{2}w^\top\Sigma_t w
+              -\lambda_{\mathrm{tc}}\lVert w-w_{t-1}\rVert_1
+              \Big)
+              \end{aligned}
               \]
             </p>
             <p class="math-meaning"><strong>Operational meaning:</strong> convert forecasts to tradable weights under fixed risk and turnover limits.</p>
@@ -249,7 +274,14 @@
             <h3>Replay-regularized adapter update</h3>
             <p class="math-block">
               \[
-              \theta_{t+1}=\theta_t-\eta_t\nabla\Big(\mathcal{L}_{drift,t}(\theta_t)+\beta_t\mathcal{L}_{anchor,t}(\theta_t)\Big)
+              \begin{aligned}
+              \theta_{t+1}
+              &=\theta_t-\eta_t\nabla_\theta
+              \Big(
+              \mathcal{L}_{\mathrm{drift},t}(\theta_t)
+              +\beta_t\,\mathcal{L}_{\mathrm{anchor},t}(\theta_t)
+              \Big)
+              \end{aligned}
               \]
             </p>
             <p class="math-meaning"><strong>Operational meaning:</strong> adapt to current drift while continuously replaying stress anchors.</p>
@@ -260,9 +292,14 @@
             <h3>Projected safe adapter update</h3>
             <p class="math-block">
               \[
-              \tilde g_t=\arg\min_v\|v-g_{d,t}\|_2^2\;\text{s.t.}\;\langle v,g_{a,t}\rangle\ge -\varepsilon_t,
-              \quad
-              \theta_{t+1}=\theta_t-\eta_t(\tilde g_t+\beta_t g_{a,t})
+              \begin{aligned}
+              \tilde g_t
+              &=\arg\min_v\lVert v-g_{d,t}\rVert_2^2\\
+              \text{s.t.}\quad
+              \langle v,g_{a,t}\rangle &\ge -\varepsilon_t\\
+              \theta_{t+1}
+              &=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
+              \end{aligned}
               \]
             </p>
             <p class="math-meaning"><strong>Operational meaning:</strong> execute the closest drift step that does not violate anchor-memory safety.</p>
@@ -396,11 +433,18 @@
     <script>
       window.MathJax = {
         tex: {
+          packages: { "[+]": ["ams"] },
           inlineMath: [["\\(", "\\)"]],
           displayMath: [["\\[", "\\]"]],
         },
+        options: {
+          renderActions: {
+            addMenu: [],
+          },
+        },
         svg: {
           fontCache: "global",
+          scale: 0.96,
         },
       };
     </script>

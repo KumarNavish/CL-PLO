@@ -1,4 +1,5 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
+import { DEMO_RESULTS } from "../content/demo-results.js";
 import { drawEquity, drawImpactBars, drawRegimeBars } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
@@ -29,12 +30,6 @@ const MODE_META = {
 
 let latestResult = null;
 let activePreset = "proposal_like";
-const demoCache = new Map();
-const DEMO_DATASET_URLS = {
-  quick_check: new URL("../../data/demo/quick_check.json", import.meta.url),
-  proposal_like: new URL("../../data/demo/proposal_like.json", import.meta.url),
-  stress_heavy: new URL("../../data/demo/stress_heavy.json", import.meta.url),
-};
 
 export function initApp() {
   const defaultPreset = PRESETS.proposal_like?.values || {};
@@ -42,8 +37,7 @@ export function initApp() {
   setActiveMode("proposal_like");
 
   bindControls();
-  primeDemoCache();
-  void runCurrentConfig();
+  runCurrentConfig();
 
   window.addEventListener("resize", () => {
     if (latestResult) {
@@ -75,61 +69,32 @@ function bindControls() {
   document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
 }
 
-function primeDemoCache() {
-  for (const mode of Object.keys(DEMO_DATASET_URLS)) {
-    void getDemoResult(mode).catch(() => {});
-  }
-}
-
-async function getDemoResult(modeName) {
-  if (demoCache.has(modeName)) {
-    return cloneResult(demoCache.get(modeName));
-  }
-
-  const url = DEMO_DATASET_URLS[modeName];
-  if (!url) {
-    throw new Error(`unknown mode: ${modeName}`);
-  }
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`dataset request failed (${response.status})`);
-  }
-
-  const data = await response.json();
-  demoCache.set(modeName, data);
-  return cloneResult(data);
-}
-
-function cloneResult(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
-
-async function runCurrentConfig() {
+function runCurrentConfig() {
   const userCfg = readConfigFromForm();
   const safe = clampConfig({ ...DEFAULT_CONFIG, ...userCfg });
   fillForm(safe);
 
   const mode = MODE_META[activePreset] || MODE_META.proposal_like;
+  const payload = DEMO_RESULTS[activePreset];
 
   setRunning(true);
-  setProgress(12);
+  setProgress(18);
   setStatus(`Loading ${mode.runLabel} dataset...`);
 
-  try {
-    const payload = await getDemoResult(activePreset);
-    setProgress(82);
-    latestResult = {
-      ...payload,
-      config: safe,
-    };
-    renderAll(latestResult);
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : "unable to load demo dataset";
-    setStatus(`Run failed: ${msg}`, true);
-  } finally {
+  if (!payload) {
+    setStatus(`Run failed: missing dataset for ${mode.label}.`, true);
     setRunning(false);
+    return;
   }
+
+  latestResult = {
+    ...JSON.parse(JSON.stringify(payload)),
+    config: safe,
+  };
+
+  setProgress(86);
+  renderAll(latestResult);
+  setRunning(false);
 }
 
 function readConfigFromForm() {
