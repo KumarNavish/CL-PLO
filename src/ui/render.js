@@ -1,6 +1,6 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { DEMO_RESULTS } from "../content/demo-results.js";
-import { drawAllocationProfiles, drawDrawdown, drawEquity, drawRegimeRisk } from "./charts.js";
+import { drawAllocationProfiles, drawDrawdown, drawEquity, drawPortfolioState, drawRegimeRisk } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
 
@@ -623,9 +623,9 @@ function renderModeScorecard(rows) {
         <article class="method-${row.id}">
           <span class="tag">${row.style.short}</span>
           <h4>${row.label}</h4>
-          <p>Return ${pct(row.totalReturn)} · Max DD ${pct(row.maxDrawdown)}</p>
-          <p>Stress retention ${pct(row.stressRetention)} · Stress Sharpe ${signed(stressSharpe, 2)}</p>
-          <p>Turnover ${pct(row.turnover)} · Recovery ${formatRecovery(row.recoveryDays)}</p>
+          <p>Calm risky ${pct(row.calmWeight)} · Stress risky ${pct(row.stressWeight)}</p>
+          <p>PnL ${pct(row.totalReturn)} · Max DD ${pct(row.maxDrawdown)} · Recovery ${formatRecovery(row.recoveryDays)}</p>
+          <p>Stress retention ${pct(row.stressRetention)} · Stress Sharpe ${signed(stressSharpe, 2)} · Turnover ${pct(row.turnover)}</p>
         </article>
       `;
     })
@@ -638,8 +638,9 @@ function renderCharts(rows, regimeInfo) {
   const drawdownCanvas = document.getElementById("drawdown-chart");
   const allocationCanvas = document.getElementById("allocation-chart");
   const regimeRiskCanvas = document.getElementById("regime-risk-chart");
+  const portfolioStateCanvas = document.getElementById("portfolio-state-chart");
 
-  if (!pnlCanvas || !drawdownCanvas || !allocationCanvas || !regimeRiskCanvas) {
+  if (!pnlCanvas || !drawdownCanvas || !allocationCanvas || !regimeRiskCanvas || !portfolioStateCanvas) {
     return;
   }
 
@@ -682,6 +683,21 @@ function renderCharts(rows, regimeInfo) {
       sharpe: row.sharpeByRegime,
     })),
   );
+
+  drawPortfolioState(
+    portfolioStateCanvas,
+    rows.map((row) => ({
+      id: row.id,
+      label: row.label,
+      color: row.style.color,
+      alpha: lineAlpha(row.id, visible),
+      calmWeight: row.calmWeight,
+      stressWeight: row.stressWeight,
+      turnover: row.turnover,
+      maxDrawdown: row.maxDrawdown,
+      recoveryDays: row.recoveryDays,
+    })),
+  );
 }
 
 function renderChartReadouts(rows) {
@@ -689,7 +705,8 @@ function renderChartReadouts(rows) {
   const drawdownHost = document.getElementById("drawdown-reading");
   const allocationHost = document.getElementById("allocation-reading");
   const regimeHost = document.getElementById("regime-risk-reading");
-  if (!pnlHost || !drawdownHost || !allocationHost || !regimeHost) {
+  const portfolioHost = document.getElementById("portfolio-state-reading");
+  if (!pnlHost || !drawdownHost || !allocationHost || !regimeHost || !portfolioHost) {
     return;
   }
 
@@ -722,6 +739,12 @@ function renderChartReadouts(rows) {
   regimeHost.textContent =
     `${selectedLabel} minus naive Sharpe: ` +
     `stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
+
+  const calmGap = selected.calmWeight - naive.calmWeight;
+  const stressGap = selected.stressWeight - naive.stressWeight;
+  portfolioHost.textContent =
+    `${selectedLabel} shifts risky allocation by ${pp(calmGap)} in calm and ${pp(stressGap)} in stress versus naive, ` +
+    `while controlling drawdown and recovery.`;
 }
 
 function renderMethodTable(rows) {
@@ -888,6 +911,9 @@ function buildMethodRows(result, regimeInfo) {
         metrics.avgRiskyWeightStress ??
         meanByIndices(diag.riskyWeights, regimeInfo.indexByRegime.stress) ??
         0,
+      calmWeight:
+        meanByIndices(diag.riskyWeights, regimeInfo.indexByRegime.calm) ??
+        0,
       driftWeight:
         metrics.avgRiskyWeightDrift ??
         meanByIndices(diag.riskyWeights, regimeInfo.indexByRegime.calm.concat(regimeInfo.indexByRegime.volatile)) ??
@@ -951,6 +977,7 @@ function applyModeShaping(rows, modeName, regimeInfo) {
       recoveryDays: computeRecoveryDays(equity),
       turnover: mean(turnovers),
       stressWeight: meanByIndices(riskyWeights, regimeInfo.indexByRegime.stress),
+      calmWeight: meanByIndices(riskyWeights, regimeInfo.indexByRegime.calm),
       driftWeight: meanByIndices(riskyWeights, regimeInfo.indexByRegime.calm.concat(regimeInfo.indexByRegime.volatile)),
       sharpeByRegime: computeRegimeSharpe(shapedReturns, regimeInfo.indexByRegime),
     };

@@ -794,6 +794,14 @@ input {
   background: #ffffff;
 }
 
+.chart-canvas.chart-canvas-short {
+  height: 232px;
+}
+
+.chart-card-wide {
+  grid-column: 1 / -1;
+}
+
 .chart-reading {
   margin-top: 0.34rem;
   min-height: 2.4em;

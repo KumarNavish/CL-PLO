@@ -624,3 +624,119 @@ export function drawRegimeRisk(canvas, regimes, rows) {
     10,
   );
 }
+
+export function drawPortfolioState(canvas, rows) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!rows || rows.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 24,
+    right: width - 18,
+    top: 28,
+    bottom: height - 22,
+  };
+
+  const compact = width < 760;
+  const labelBand = compact ? 84 : 182;
+  const interGap = compact ? 20 : 76;
+  const metricsBand = compact ? 0 : 210;
+  const available = dims.right - dims.left - labelBand - interGap - metricsBand;
+  const barWidth = Math.max(76, Math.min(190, available / 2));
+  const calmX = dims.left + labelBand;
+  const stressX = calmX + barWidth + interGap;
+  const metricsX = stressX + barWidth + 40;
+  const lanes = rows.length;
+  const laneGap = 16;
+  const laneHeight = (dims.bottom - dims.top - laneGap * (lanes - 1)) / lanes;
+  const stackHeight = Math.max(18, laneHeight - 18);
+
+  ctx.fillStyle = "#1e2836";
+  ctx.font = "600 12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+  ctx.fillText("Calm", calmX, dims.top - 10);
+  ctx.fillText("Stress", stressX, dims.top - 10);
+  if (!compact) {
+    ctx.fillText("Decision metrics", metricsX, dims.top - 10);
+  }
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const y = dims.top + i * (laneHeight + laneGap);
+    const alpha = row.alpha === undefined ? 1 : row.alpha;
+    const calm = Math.max(0, Math.min(1, row.calmWeight || 0));
+    const stress = Math.max(0, Math.min(1, row.stressWeight || 0));
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#111827";
+    ctx.font = "600 12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.fillText(shortMethod(row.label), dims.left, y + stackHeight * 0.58);
+    ctx.restore();
+
+    drawStackBar(ctx, calmX, y, barWidth, stackHeight, calm, row.color, methodPattern(row.id), alpha);
+    drawStackBar(ctx, stressX, y, barWidth, stackHeight, stress, row.color, methodPattern(row.id), alpha);
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#364152";
+    ctx.font = "500 11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.fillText(`risky ${Math.round(calm * 100)}%`, calmX, y + stackHeight + 13);
+    ctx.fillText(`risky ${Math.round(stress * 100)}%`, stressX, y + stackHeight + 13);
+    ctx.restore();
+
+    const dd = Number.isFinite(row.maxDrawdown) ? `${(row.maxDrawdown * 100).toFixed(1)}%` : "n/a";
+    const rec = Number.isFinite(row.recoveryDays) && row.recoveryDays < 999 ? `${row.recoveryDays}d` : "not rec.";
+    const to = Number.isFinite(row.turnover) ? `${(row.turnover * 100).toFixed(1)}%` : "n/a";
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#1f2a37";
+    ctx.font = "500 11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    if (compact) {
+      ctx.fillText(`DD ${dd} | Rec ${rec} | TO ${to}`, calmX, y + stackHeight + 26);
+    } else {
+      ctx.fillText(`DD ${dd} | Recovery ${rec} | Turnover ${to}`, metricsX, y + stackHeight * 0.6);
+    }
+    ctx.restore();
+  }
+
+  ctx.fillStyle = "#4a5565";
+  ctx.font = "500 11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+  ctx.fillText("pattern fill = risky sleeve, white segment = cash sleeve", Math.max(dims.left + 120, dims.right - 282), 16);
+}
+
+function drawStackBar(ctx, x, y, width, height, riskyWeight, color, pattern, alpha) {
+  const riskyWidth = Math.max(0, Math.min(width, width * riskyWeight));
+  const cashWidth = width - riskyWidth;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = "#9da8b6";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x, y, width, height);
+  ctx.restore();
+
+  if (riskyWidth > 0) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    drawPatternFill(ctx, x, y, riskyWidth, height, pattern, color);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x, y, riskyWidth, height);
+    ctx.restore();
+  }
+
+  if (cashWidth > 0) {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x + riskyWidth, y, cashWidth, height);
+    ctx.strokeStyle = "#c7cfdb";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(x + riskyWidth, y, cashWidth, height);
+    ctx.restore();
+  }
+}

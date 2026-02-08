@@ -234,7 +234,7 @@
       </section>
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
-        <h2>4. Deployment Experiment Dashboard</h2>
+        <h2>4. Deployment Decision Dashboard</h2>
 
         <div class="experiment-layout">
           <aside class="control-panel">
@@ -330,31 +330,38 @@
 
             <div class="plot-stack">
               <article class="chart-card">
-                <h3>Portfolio Value With Regime Context</h3>
-                <p class="plot-caption"><strong>Shows:</strong> realized portfolio value under identical market path and costs.<br /><strong>Read:</strong> deployable behavior avoids stress-phase capital fracture.</p>
+                <h3>Q1. Which updater survives regime stress while compounding?</h3>
+                <p class="plot-caption"><strong>Shows:</strong> realized portfolio value on the same path with the same friction model.<br /><strong>Read:</strong> the deploy candidate preserves capital through stress blocks and still compounds in calm intervals.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Drawdown and Recovery</h3>
-                <p class="plot-caption"><strong>Shows:</strong> depth and duration of capital impairment.<br /><strong>Read:</strong> release-safe updaters show shallower troughs and faster repair.</p>
+                <h3>Q2. How much damage is taken, and how fast is recovery?</h3>
+                <p class="plot-caption"><strong>Shows:</strong> drawdown depth and recovery horizon under identical shocks.<br /><strong>Read:</strong> release-safe behavior means shallower drawdowns with faster repair after stress.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Allocation Stability vs Responsiveness</h3>
-                <p class="plot-caption"><strong>Shows:</strong> risky allocation (solid) with turnover pressure (dashed).<br /><strong>Read:</strong> better control de-risks in stress without churn in calm flow.</p>
+                <h3>Q3. Stability vs responsiveness: does allocation adapt without churn?</h3>
+                <p class="plot-caption"><strong>Shows:</strong> risky allocation path (solid) and turnover pressure (dashed).<br /><strong>Read:</strong> strong policies de-risk when stress rises while avoiding unnecessary calm-regime trading.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Risk-Adjusted Return by Regime</h3>
-                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe in calm, volatile, stress, and shift buckets.<br /><strong>Read:</strong> robust strategy quality holds where regime structure breaks.</p>
+                <h3>Q4. Do risk-adjusted returns hold across regime buckets?</h3>
+                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe in calm, volatile, stress, and transition buckets.<br /><strong>Read:</strong> production-grade robustness must persist in stress and shifts, not only in aggregate.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
+              </article>
+
+              <article class="chart-card chart-card-wide">
+                <h3>Q5. What portfolios do these updaters actually hold?</h3>
+                <p class="plot-caption"><strong>Shows:</strong> representative risky/cash allocations in calm vs stress, with drawdown and recovery context.<br /><strong>Read:</strong> compare each strategy as a live decision-maker, not just as a loss minimizer.</p>
+                <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
+                <p class="chart-reading" id="portfolio-state-reading"></p>
               </article>
             </div>
 
