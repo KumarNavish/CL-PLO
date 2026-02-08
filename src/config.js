@@ -1,7 +1,7 @@
 export const METHOD_SPECS = [
-  { id: "naive", label: "Naive online update", color: "#6e6e6e" },
-  { id: "anchor", label: "Anchor-regularized update", color: "#0f5fbf" },
-  { id: "anchor_proj", label: "Anchor + projection update", color: "#111111" },
+  { id: "naive", label: "Naive online SGD", color: "#6e6e6e" },
+  { id: "anchor", label: "Replay distill only", color: "#0f5fbf" },
+  { id: "anchor_proj", label: "Constrained CL (distill + projection + gate)", color: "#b55400" },
 ];
 
 export const DEFAULT_CONFIG = {
@@ -22,6 +22,8 @@ export const DEFAULT_CONFIG = {
   batchSize: 96,
   anchorBatchSize: 96,
   anchorBeta: 0.05,
+  stressLossTolerance: 0.02,
+  stressLossFloor: 1e-3,
 
   simT: 280,
   pStress: 0.35,
@@ -98,6 +100,8 @@ export function clampConfig(input) {
   cfg.batchSize = Math.max(16, Math.floor(cfg.batchSize));
   cfg.anchorBatchSize = Math.max(16, Math.floor(cfg.anchorBatchSize));
   cfg.anchorBeta = Math.min(0.5, Math.max(0.0, Number(cfg.anchorBeta)));
+  cfg.stressLossTolerance = Math.min(0.5, Math.max(0.0, Number(cfg.stressLossTolerance)));
+  cfg.stressLossFloor = Math.min(0.1, Math.max(0.0, Number(cfg.stressLossFloor)));
 
   cfg.simT = Math.max(40, Math.floor(cfg.simT));
   cfg.pStress = Math.min(0.9, Math.max(0.05, Number(cfg.pStress)));

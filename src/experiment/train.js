@@ -1,11 +1,12 @@
 import {
+  cloneMatrix,
   flattenGradients,
   l2Norm,
   projectAgem,
   unflattenGradients,
   zeros,
 } from "./math.js";
-import { LoRALinear } from "./model.js";
+import { evalMse, LoRALinear } from "./model.js";
 
 class Adam {
   constructor(model, lr) {
@@ -148,6 +149,12 @@ export function trainLora({
 
   let interferenceCount = 0;
   let distortionSum = 0;
+  let rollbackCount = 0;
+
+  let bestStressLoss = Number.POSITIVE_INFINITY;
+  if (method === "anchor_proj") {
+    bestStressLoss = evalMse(model, XAnchor, YAnchorTeacher);
+  }
 
   for (let step = 0; step < cfg.steps; step += 1) {
     const driftIdx = randomIndices(XDrift.length, cfg.batchSize, rng);
@@ -192,7 +199,24 @@ export function trainLora({
       }
     }
 
+    const snapshotA = method === "anchor_proj" ? cloneMatrix(model.A) : null;
+    const snapshotB = method === "anchor_proj" ? cloneMatrix(model.B) : null;
+
     optimizer.step(finalGradA, finalGradB);
+
+    if (method === "anchor_proj") {
+      const stressLoss = evalMse(model, XAnchor, YAnchorTeacher);
+      const tolerance = Number(cfg.stressLossTolerance ?? 0.02);
+      const floor = Number(cfg.stressLossFloor ?? 1e-4);
+      const allowed = Math.max(bestStressLoss * (1 + tolerance), bestStressLoss + floor);
+      if (stressLoss > allowed) {
+        model.A = snapshotA;
+        model.B = snapshotB;
+        rollbackCount += 1;
+      } else {
+        bestStressLoss = Math.min(bestStressLoss, stressLoss);
+      }
+    }
 
     if (onProgress && (step % Math.max(1, Math.floor(cfg.steps / 30)) === 0 || step === cfg.steps - 1)) {
       onProgress({ step: step + 1, totalSteps: cfg.steps, method });
@@ -203,6 +227,8 @@ export function trainLora({
   if (method === "anchor_proj") {
     logs.interferenceRate = interferenceCount / Math.max(1, cfg.steps);
     logs.updateDistortion = distortionSum / Math.max(1, cfg.steps);
+    logs.nRollbacks = rollbackCount;
+    logs.bestStressLoss = bestStressLoss;
   }
 
   return { model, logs };

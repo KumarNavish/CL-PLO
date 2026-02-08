@@ -3,513 +3,253 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CL-PLO | Continual Learning x Portfolio Optimization</title>
+    <title>CL-PLO Spine | Decision-Oriented Continual Update Demo</title>
     <link rel="stylesheet" href="./coreline.css" />
   </head>
   <body>
-    <header class="hero">
+    <header class="hero" id="top">
       <div class="shell">
         <p class="eyebrow">Continual Learning x Portfolio Optimization</p>
-        <h1>A principled bridge: memory-safe model updates as risk control for live portfolios</h1>
+        <h1>Choose the update policy that adapts to drift without forgetting stress behavior.</h1>
         <p class="lead">
-          The core question is operational, not academic: <strong>how do we adapt to drift without deleting stress
-          memory</strong>? This page unifies continual-learning constraints and portfolio decision controls in one
-          deployable mechanism.
+          This artifact is a single deployment decision flow: understand the three update systems, run them on the
+          same market stream, and promote or reject with evidence.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#bridge">See The Bridge</a>
-          <a class="btn btn-ghost" href="#atlas">Compare Strategies</a>
-          <a class="btn btn-ghost" href="#validation">Run Validation</a>
-        </div>
-        <div class="hero-signal">
-          <article>
-            <h3>Decision scope</h3>
-            <p>Only the adapter update law changes.</p>
-          </article>
-          <article>
-            <h3>System constant</h3>
-            <p>Same optimizer, same constraints, same stream.</p>
-          </article>
-          <article>
-            <h3>Deployment objective</h3>
-            <p>Retain stress behavior while fitting new drift.</p>
-          </article>
+          <a class="btn btn-primary" href="#strategies">See Strategy Pipelines</a>
+          <a class="btn btn-ghost" href="#workspace">Run Validation</a>
+          <a class="btn btn-ghost" href="#math">Check Math</a>
         </div>
       </div>
     </header>
 
     <main class="shell">
-      <section id="bridge" class="section">
-        <h2>1. The Missing Bridge</h2>
+      <section class="section" id="problem">
+        <h2>1. Problem Framing</h2>
         <p class="section-intro">
-          Portfolio teams already constrain turnover and exposure to control harmful moves. Continual learning needs the
-          same discipline in parameter space: control harmful update directions while preserving useful adaptation.
+          In production, the portfolio optimizer is mostly fixed. What changes day to day is the updater that adjusts
+          model parameters under regime drift. The risk is clear: adapt too fast and you lose stress memory; adapt too
+          slowly and you miss new structure.
         </p>
 
-        <div class="bridge-frame">
-          <article class="bridge-side">
-            <h3>Continual learning side</h3>
-            <p>Unconstrained drift gradients can overwrite stress memory.</p>
-            <p class="bridge-note">Failure mode: catastrophic forgetting after long drift runs.</p>
+        <div class="context-grid">
+          <article>
+            <h3>System reality</h3>
+            <p>Same optimizer stack, same risk rules, same turnover controls.</p>
           </article>
-
-          <article class="bridge-core">
-            <h3>Shared principle</h3>
-            <p>Constrain damaging motion, preserve productive motion.</p>
-            <p class="math-block">
-              \[
-              \text{minimize adaptation loss}
-              \quad\text{s.t.}\quad
-              \text{interference budget} \le \varepsilon
-              \]
-            </p>
+          <article>
+            <h3>Failure mode</h3>
+            <p>Catastrophic forgetting of stress behavior after prolonged drift updates.</p>
           </article>
-
-          <article class="bridge-side">
-            <h3>Portfolio control side</h3>
-            <p>Unconstrained weight shifts create cost and drawdown instability.</p>
-            <p class="bridge-note">Failure mode: paper alpha erased by implementation friction.</p>
+          <article>
+            <h3>Decision objective</h3>
+            <p>Maximize adaptation while keeping stress-memory degradation bounded.</p>
           </article>
         </div>
 
-        <div class="bridge-equations">
-          <article class="eq-card">
-            <h3>Update constraint (learning layer)</h3>
-            <p class="math-block">
-              \[
-              \tilde{\mathbf{g}}=
-              \arg\min_{\mathbf{g}}\lVert\mathbf{g}-\mathbf{g}_{\mathrm{d}}\rVert_2^2
-              \;\text{s.t.}\;
-              \langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon
-              \]
-            </p>
-          </article>
-          <article class="eq-card">
-            <h3>Weight constraint (decision layer)</h3>
-            <p class="math-block">
-              \[
-              \mathbf{w}_t^\star=
-              \arg\min_{\mathbf{w}\in\mathcal{W}}
-              \left(-\hat{\mu}_t^\top\mathbf{w}
-              +\frac{\gamma}{2}\mathbf{w}^\top\hat{\Sigma}_t\mathbf{w}
-              +\lambda_{\mathrm{tc}}\lVert\mathbf{w}-\mathbf{w}_{t-1}\rVert_1\right)
-              \]
-            </p>
-          </article>
-        </div>
-
-        <p class="refs">
-          References:
-          <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer">A-GEM</a>,
-          <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">projection in continual PEFT</a>,
-          <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer">multi-period portfolio control</a>,
-          <a href="https://dl.acm.org/doi/10.1145/2638548" target="_blank" rel="noreferrer">online portfolio selection</a>.
-        </p>
-      </section>
-
-      <section id="objects" class="section">
-        <h2>2. One-to-One Mapping (CL ↔ Portfolio)</h2>
-        <p class="section-intro">
-          This is the spine of the post. Each continual-learning object has a direct portfolio-control counterpart and
-          an implementation handle.
-        </p>
-
-        <article class="mapping-wrap">
-          <table class="mapping-table">
-            <thead>
-              <tr>
-                <th>Continual learning object</th>
-                <th>Portfolio counterpart</th>
-                <th>Implementation handle</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>\(\mathcal{D}^{\mathrm{drift}}_t\): non-stationary stream</td>
-                <td>Current regime flow</td>
-                <td>rolling drift minibatches</td>
-              </tr>
-              <tr>
-                <td>\(\mathcal{D}^{\mathrm{anchor}}_t\): memory buffer</td>
-                <td>Stress scenario library</td>
-                <td>tagged crisis slices + pinned replay set</td>
-              </tr>
-              <tr>
-                <td>\(\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\): stability cone</td>
-                <td>risk budget inequality</td>
-                <td>interference threshold \(\varepsilon\)</td>
-              </tr>
-              <tr>
-                <td>\(\theta_t\): adapter state</td>
-                <td>decision engine state</td>
-                <td>LoRA adapter parameters only</td>
-              </tr>
-              <tr>
-                <td>\((\hat{\mu}_t,\hat{\Sigma}_t)\)</td>
-                <td>alpha + risk forecasts</td>
-                <td>fixed forecast-to-optimizer interface</td>
-              </tr>
-              <tr>
-                <td>\(\mathbf{w}_t^\star\)</td>
-                <td>tradable portfolio</td>
-                <td>turnover-penalized convex solve</td>
-              </tr>
-            </tbody>
-          </table>
+        <article class="bridge-map">
+          <h3>Operational Bridge: CL to Portfolio Practice</h3>
+          <div class="bridge-row">
+            <div class="bridge-left">Drift stream \(\mathcal{D}^{\mathrm{drift}}_t\)</div>
+            <div class="bridge-arrow">↔</div>
+            <div class="bridge-right">Current regime flow feeding live signals</div>
+          </div>
+          <div class="bridge-row">
+            <div class="bridge-left">Anchor memory \(\mathcal{D}^{\mathrm{anchor}}_t\)</div>
+            <div class="bridge-arrow">↔</div>
+            <div class="bridge-right">Stress scenarios and historical risk episodes</div>
+          </div>
+          <div class="bridge-row">
+            <div class="bridge-left">Interference control \(\langle g_{d,t}, g_{a,t}\rangle \ge -\varepsilon_t\)</div>
+            <div class="bridge-arrow">↔</div>
+            <div class="bridge-right">Pre-trade risk gate before model-state promotion</div>
+          </div>
         </article>
       </section>
 
-      <section id="stack" class="section">
-        <h2>3. Shared Deployment Stack (Constant Across Methods)</h2>
-        <p class="section-intro">All strategies run through the same infrastructure. Only the adapter update rule changes.</p>
-
-        <figure class="stack-figure" aria-label="Shared CL-PLO system pipeline">
-          <div class="stack-node">Input stream<br /><span>market + macro + text</span></div>
-          <div class="stack-arrow">&rarr;</div>
-          <div class="stack-node frozen">Frozen backbone \(\phi\)</div>
-          <div class="stack-arrow">&rarr;</div>
-          <div class="stack-node updated">Adapter \(\theta_t\)<br /><span>method-specific update</span></div>
-          <div class="stack-arrow">&rarr;</div>
-          <div class="stack-node">Forecasts \((\hat{\mu}_t,\hat{\Sigma}_t)\)</div>
-          <div class="stack-arrow">&rarr;</div>
-          <div class="stack-node">Optimizer \(\rightarrow \mathbf{w}_t^\star\)</div>
-        </figure>
-      </section>
-
-      <section id="mechanism" class="section">
-        <h2>4. Anchor Memory and Projection Mechanism</h2>
-        <p class="section-intro">This is the critical mechanism: where retention is enforced and where adaptation is allowed.</p>
-
-        <div class="mechanism-grid">
-          <article class="mech-card">
-            <h3>Anchor memory construction</h3>
-            <table class="anchor-table">
-              <thead>
-                <tr>
-                  <th>Regime tag</th>
-                  <th>Memory slice</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Credit shock</td>
-                  <td>spread widening + funding stress factors</td>
-                </tr>
-                <tr>
-                  <td>Liquidity break</td>
-                  <td>limit-down tape + microstructure stress</td>
-                </tr>
-                <tr>
-                  <td>Inflation surprise</td>
-                  <td>macro release text + factor regime reversal</td>
-                </tr>
-              </tbody>
-            </table>
-          </article>
-
-          <article class="mech-card">
-            <h3>Projection geometry</h3>
-            <p class="math-block">
-              \[
-              \tilde{\mathbf{g}}=\Pi_{\mathcal{C}_\varepsilon}(\mathbf{g}_{\mathrm{d}}),
-              \quad
-              \mathcal{C}_\varepsilon=\{\mathbf{g}:\langle\mathbf{g},\mathbf{g}_{\mathrm{a}}\rangle\ge-\varepsilon\}
-              \]
-            </p>
-            <figure class="projection-figure" aria-label="Gradient projection in feasible cone">
-              <svg viewBox="0 0 320 170" role="img">
-                <line x1="36" y1="138" x2="294" y2="138" stroke="#a7a7a7" stroke-width="1.5"></line>
-                <line x1="36" y1="138" x2="36" y2="26" stroke="#a7a7a7" stroke-width="1.5"></line>
-                <line x1="36" y1="138" x2="220" y2="52" stroke="#777" stroke-width="2" stroke-dasharray="7 6"></line>
-                <line x1="36" y1="138" x2="188" y2="78" stroke="#111" stroke-width="2.8"></line>
-                <line x1="188" y1="78" x2="220" y2="52" stroke="#b8b8b8" stroke-width="1.5"></line>
-                <line x1="108" y1="24" x2="256" y2="24" stroke="#b2b2b2" stroke-width="1.3"></line>
-                <text x="228" y="49" font-size="11" fill="#3b3b3b">drift g_d</text>
-                <text x="194" y="76" font-size="11" fill="#111">projected g~</text>
-                <text x="110" y="18" font-size="10" fill="#4e4e4e">feasible boundary (anchor-safe)</text>
-              </svg>
-            </figure>
-          </article>
-
-          <article class="mech-card">
-            <h3>Operational consequence</h3>
-            <ul>
-              <li>What moves: adapter update direction in PEFT space.</li>
-              <li>What is preserved: first-order anchor alignment budget.</li>
-              <li>What stays fixed: optimizer objective and risk controls.</li>
-            </ul>
-            <p class="mech-note">Result: drift adaptation with explicit memory safety, not implicit hope.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="atlas" class="section">
-        <h2>5. Strategy Atlas (Visual-First)</h2>
+      <section class="section" id="strategies">
+        <h2>2. Strategy Pipelines</h2>
         <p class="section-intro">
-          Each strategy below is shown as a production-style update pipeline. The visual answers four practical
-          questions: what data it uses, what it preserves, what it can change, and where control is enforced.
+          All three strategies use the same backbone and optimizer interface. They differ only in what they protect
+          during updates.
         </p>
 
         <article class="strategy-card">
-          <header class="strategy-head">
+          <header>
             <p class="method-tag">Established baseline</p>
             <h3>Strategy A: Naive online update</h3>
+            <p class="strategy-claim">Best adaptation speed, no explicit memory protection.</p>
           </header>
-          <div class="strategy-layout">
-            <figure class="strategy-diagram" aria-label="Naive strategy pipeline diagram">
-              <svg viewBox="0 0 980 228" role="img">
-                <rect x="20" y="30" width="165" height="54" fill="#f7f7f7" stroke="#d8d8d8"></rect>
-                <text x="33" y="52" font-size="12" fill="#222">Drift stream</text>
-                <text x="33" y="70" font-size="11" fill="#555">D_drift(t)</text>
 
-                <rect x="20" y="130" width="165" height="54" fill="#fff" stroke="#b8b8b8" stroke-dasharray="6 5"></rect>
-                <text x="33" y="152" font-size="12" fill="#777">Anchor memory</text>
-                <text x="33" y="170" font-size="11" fill="#777">unused in update</text>
-
-                <rect x="245" y="70" width="170" height="56" fill="#f7f7f7" stroke="#d8d8d8"></rect>
-                <text x="258" y="92" font-size="12" fill="#222">Gradient engine</text>
-                <text x="258" y="111" font-size="11" fill="#555">g_d = ∇L_drift</text>
-
-                <rect x="475" y="70" width="160" height="56" fill="#fff" stroke="#d8d8d8"></rect>
-                <text x="489" y="92" font-size="12" fill="#222">Control gate</text>
-                <text x="489" y="111" font-size="11" fill="#8f2f2f">none</text>
-
-                <rect x="695" y="70" width="160" height="56" fill="#fff" stroke="#555" stroke-width="2"></rect>
-                <text x="708" y="92" font-size="12" fill="#222">Adapter update</text>
-                <text x="708" y="111" font-size="11" fill="#444">θ ← θ - η g_d</text>
-
-                <line x1="186" y1="58" x2="245" y2="98" stroke="#747474" stroke-width="2"></line>
-                <line x1="415" y1="98" x2="475" y2="98" stroke="#747474" stroke-width="2"></line>
-                <line x1="635" y1="98" x2="695" y2="98" stroke="#747474" stroke-width="2"></line>
-
-                <rect x="20" y="198" width="935" height="22" fill="#fafafa" stroke="#dcdcdc"></rect>
-                <text x="34" y="213" font-size="11" fill="#444">Output path (shared): forecasts (μ̂, Σ̂) → fixed optimizer → weights w*</text>
-              </svg>
-            </figure>
-            <div class="strategy-eval">
-              <article><h4>Uses</h4><p>Drift data only.</p></article>
-              <article><h4>Preserves</h4><p>No explicit stress memory.</p></article>
-              <article><h4>Allows change</h4><p>Maximum short-term adaptation.</p></article>
-              <article><h4>Control point</h4><p>No stability gate.</p></article>
+          <div class="pipeline-diagram">
+            <div class="pipe-node source">
+              <h4>Input</h4>
+              <p>Drift batch \(\mathcal{D}^{\mathrm{drift}}_t\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node off">
+              <h4>Anchor memory</h4>
+              <p>Not used</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node off">
+              <h4>Stability gate</h4>
+              <p>None</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node update">
+              <h4>Update</h4>
+              <p>\(\theta_{t+1} = \theta_t - \eta_t g_{d,t}\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node output">
+              <h4>Output</h4>
+              <p>\((\mu_t,\Sigma_t)\mapsto w_t^\star\)</p>
             </div>
           </div>
-          <div class="strategy-proof">
-            <p><strong>Production analog:</strong> unconstrained online model refresh.</p>
-            <p><strong>Failure mode addressed:</strong> speed under drift, but weak crisis recall.</p>
-            <p><strong>Why this can work:</strong> best when regime persistence is high and stress memory is secondary.</p>
+
+          <div class="strategy-meta">
+            <article>
+              <h4>Protects</h4>
+              <p>Immediate fit to the newest regime.</p>
+            </article>
+            <article>
+              <h4>Trade-off</h4>
+              <p>Unbounded forgetting under persistent drift.</p>
+            </article>
+            <article>
+              <h4>Production analog</h4>
+              <p>Unconstrained live model refresh.</p>
+            </article>
           </div>
         </article>
 
         <article class="strategy-card">
-          <header class="strategy-head">
+          <header>
             <p class="method-tag">Established baseline</p>
             <h3>Strategy B: Anchor-regularized update</h3>
+            <p class="strategy-claim">Adds replay pressure so stress behavior decays more slowly.</p>
           </header>
-          <div class="strategy-layout">
-            <figure class="strategy-diagram" aria-label="Anchor regularized strategy pipeline diagram">
-              <svg viewBox="0 0 980 228" role="img">
-                <rect x="20" y="30" width="165" height="54" fill="#f7f7f7" stroke="#d8d8d8"></rect>
-                <text x="33" y="52" font-size="12" fill="#222">Drift stream</text>
-                <text x="33" y="70" font-size="11" fill="#555">D_drift(t)</text>
 
-                <rect x="20" y="130" width="165" height="54" fill="#fff" stroke="#0f5fbf" stroke-dasharray="6 5"></rect>
-                <text x="33" y="152" font-size="12" fill="#0f5fbf">Anchor memory</text>
-                <text x="33" y="170" font-size="11" fill="#0f5fbf">D_anchor(t)</text>
-
-                <rect x="245" y="45" width="170" height="56" fill="#f7f7f7" stroke="#d8d8d8"></rect>
-                <text x="258" y="67" font-size="12" fill="#222">Drift gradient</text>
-                <text x="258" y="86" font-size="11" fill="#555">g_d</text>
-
-                <rect x="245" y="125" width="170" height="56" fill="#f7f7f7" stroke="#0f5fbf"></rect>
-                <text x="258" y="147" font-size="12" fill="#0f5fbf">Anchor gradient</text>
-                <text x="258" y="166" font-size="11" fill="#0f5fbf">g_a</text>
-
-                <rect x="475" y="70" width="180" height="56" fill="#fff" stroke="#d8d8d8" stroke-width="2"></rect>
-                <text x="489" y="92" font-size="12" fill="#222">Soft control</text>
-                <text x="489" y="111" font-size="11" fill="#444">g = g_d + β g_a</text>
-
-                <rect x="715" y="70" width="160" height="56" fill="#fff" stroke="#555" stroke-width="2"></rect>
-                <text x="728" y="92" font-size="12" fill="#222">Adapter update</text>
-                <text x="728" y="111" font-size="11" fill="#444">θ ← θ - η g</text>
-
-                <line x1="186" y1="58" x2="245" y2="73" stroke="#747474" stroke-width="2"></line>
-                <line x1="186" y1="157" x2="245" y2="153" stroke="#0f5fbf" stroke-width="2"></line>
-                <line x1="415" y1="73" x2="475" y2="92" stroke="#747474" stroke-width="2"></line>
-                <line x1="415" y1="153" x2="475" y2="106" stroke="#0f5fbf" stroke-width="2"></line>
-                <line x1="655" y1="98" x2="715" y2="98" stroke="#747474" stroke-width="2"></line>
-
-                <rect x="20" y="198" width="935" height="22" fill="#fafafa" stroke="#dcdcdc"></rect>
-                <text x="34" y="213" font-size="11" fill="#444">Output path (shared): forecasts (μ̂, Σ̂) → fixed optimizer → weights w*</text>
-              </svg>
-            </figure>
-            <div class="strategy-eval">
-              <article><h4>Uses</h4><p>Drift + anchor memory.</p></article>
-              <article><h4>Preserves</h4><p>Stress behavior softly via β.</p></article>
-              <article><h4>Allows change</h4><p>Adaptation with penalty.</p></article>
-              <article><h4>Control point</h4><p>Objective-level regularization.</p></article>
+          <div class="pipeline-diagram">
+            <div class="pipe-node source">
+              <h4>Input</h4>
+              <p>Drift batch \(\mathcal{D}^{\mathrm{drift}}_t\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node memory">
+              <h4>Anchor memory</h4>
+              <p>Stress set \(\mathcal{D}^{\mathrm{anchor}}_t\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node soft">
+              <h4>Stability gate</h4>
+              <p>Soft weight \(\beta_t\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node update">
+              <h4>Update</h4>
+              <p>\(\theta_{t+1}=\theta_t-\eta_t\!\left(g_{d,t}+\beta_t g_{a,t}\right)\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node output">
+              <h4>Output</h4>
+              <p>\((\mu_t,\Sigma_t)\mapsto w_t^\star\)</p>
             </div>
           </div>
-          <div class="strategy-proof">
-            <p><strong>Production analog:</strong> replay/shrinkage penalties in live signal maintenance.</p>
-            <p><strong>Failure mode addressed:</strong> pure forgetting from naive drift-only updates.</p>
-            <p><strong>Why this can work:</strong> introduces retention pressure while preserving optimizer invariants.</p>
+
+          <div class="strategy-meta">
+            <article>
+              <h4>Protects</h4>
+              <p>Anchor behavior through continuous replay.</p>
+            </article>
+            <article>
+              <h4>Trade-off</h4>
+              <p>Protection weakens when drift pressure accumulates.</p>
+            </article>
+            <article>
+              <h4>Production analog</h4>
+              <p>Penalty-based shrinkage to a stress reference model.</p>
+            </article>
           </div>
         </article>
 
         <article class="strategy-card">
-          <header class="strategy-head">
+          <header>
             <p class="method-tag proposed">Proposed in this work</p>
             <h3>Strategy C: Anchor + projection update</h3>
+            <p class="strategy-claim">Hard interference control: update only if anchor behavior remains within budget.</p>
           </header>
-          <div class="strategy-layout">
-            <figure class="strategy-diagram" aria-label="Anchor projection strategy pipeline diagram">
-              <svg viewBox="0 0 980 228" role="img">
-                <rect x="20" y="30" width="165" height="54" fill="#f7f7f7" stroke="#d8d8d8"></rect>
-                <text x="33" y="52" font-size="12" fill="#222">Drift stream</text>
-                <text x="33" y="70" font-size="11" fill="#555">D_drift(t)</text>
 
-                <rect x="20" y="130" width="165" height="54" fill="#fff" stroke="#111" stroke-dasharray="6 5"></rect>
-                <text x="33" y="152" font-size="12" fill="#111">Anchor memory</text>
-                <text x="33" y="170" font-size="11" fill="#111">D_anchor(t)</text>
-
-                <rect x="245" y="45" width="170" height="56" fill="#f7f7f7" stroke="#d8d8d8"></rect>
-                <text x="258" y="67" font-size="12" fill="#222">Drift gradient</text>
-                <text x="258" y="86" font-size="11" fill="#555">g_d</text>
-
-                <rect x="245" y="125" width="170" height="56" fill="#f7f7f7" stroke="#111"></rect>
-                <text x="258" y="147" font-size="12" fill="#111">Anchor gradient</text>
-                <text x="258" y="166" font-size="11" fill="#111">g_a</text>
-
-                <rect x="475" y="70" width="200" height="56" fill="#fff" stroke="#111" stroke-width="2"></rect>
-                <text x="489" y="92" font-size="12" fill="#111">Hard control gate</text>
-                <text x="489" y="111" font-size="11" fill="#111">g~ = Π(g_d | g_a, ε)</text>
-
-                <rect x="735" y="70" width="180" height="56" fill="#fff" stroke="#111" stroke-width="2"></rect>
-                <text x="748" y="92" font-size="12" fill="#111">Adapter update</text>
-                <text x="748" y="111" font-size="11" fill="#111">θ ← θ - η (g~ + β g_a)</text>
-
-                <line x1="186" y1="58" x2="245" y2="73" stroke="#777" stroke-width="2"></line>
-                <line x1="186" y1="157" x2="245" y2="153" stroke="#111" stroke-width="2"></line>
-                <line x1="415" y1="73" x2="475" y2="92" stroke="#777" stroke-width="2"></line>
-                <line x1="415" y1="153" x2="475" y2="106" stroke="#111" stroke-width="2"></line>
-                <line x1="675" y1="98" x2="735" y2="98" stroke="#111" stroke-width="2"></line>
-
-                <rect x="20" y="198" width="935" height="22" fill="#fafafa" stroke="#dcdcdc"></rect>
-                <text x="34" y="213" font-size="11" fill="#444">Output path (shared): forecasts (μ̂, Σ̂) → fixed optimizer → weights w*</text>
-              </svg>
-            </figure>
-            <div class="strategy-eval">
-              <article><h4>Uses</h4><p>Drift + anchor gradients.</p></article>
-              <article><h4>Preserves</h4><p>Anchor alignment up to ε budget.</p></article>
-              <article><h4>Allows change</h4><p>Closest feasible adaptation step.</p></article>
-              <article><h4>Control point</h4><p>Geometry-level hard constraint.</p></article>
+          <div class="pipeline-diagram">
+            <div class="pipe-node source">
+              <h4>Input</h4>
+              <p>Drift batch \(\mathcal{D}^{\mathrm{drift}}_t\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node memory">
+              <h4>Anchor memory</h4>
+              <p>Stress set \(\mathcal{D}^{\mathrm{anchor}}_t\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node hard">
+              <h4>Stability gate</h4>
+              <p>\(\tilde g_t=\Pi(g_{d,t}\mid g_{a,t},\varepsilon_t)\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node update">
+              <h4>Update</h4>
+              <p>\(\theta_{t+1}=\theta_t-\eta_t\!\left(\tilde g_t+\beta_t g_{a,t}\right)\)</p>
+            </div>
+            <div class="pipe-arrow">→</div>
+            <div class="pipe-node output">
+              <h4>Output</h4>
+              <p>\((\mu_t,\Sigma_t)\mapsto w_t^\star\)</p>
             </div>
           </div>
-          <div class="strategy-proof">
-            <p><strong>Production analog:</strong> hard risk-limit gates before position changes are accepted.</p>
-            <p><strong>Failure mode addressed:</strong> hidden degradation of stress behavior under prolonged drift.</p>
-            <p><strong>Why this can work:</strong> adaptation is optimized subject to explicit interference budget.</p>
+
+          <div class="strategy-meta">
+            <article>
+              <h4>Protects</h4>
+              <p>Anchor alignment under explicit interference budget.</p>
+            </article>
+            <article>
+              <h4>Trade-off</h4>
+              <p>Accepts controlled drift-fit cost for stability guarantees.</p>
+            </article>
+            <article>
+              <h4>Production analog</h4>
+              <p>Hard risk gate before state promotion to production.</p>
+            </article>
           </div>
         </article>
       </section>
 
-      <section id="decision" class="section">
-        <h2>6. Deployment Decision Surface</h2>
-        <p class="section-intro">Read this before looking at run outputs. It states the expected ordering of outcomes.</p>
-
-        <div class="decision-grid">
-          <article class="decision-surface" aria-label="Adaptation-retention tradeoff map">
-            <h3>Adaptation vs retention map</h3>
-            <svg viewBox="0 0 360 230" role="img">
-              <line x1="48" y1="184" x2="330" y2="184" stroke="#b5b5b5" stroke-width="1.5"></line>
-              <line x1="48" y1="184" x2="48" y2="30" stroke="#b5b5b5" stroke-width="1.5"></line>
-              <text x="176" y="214" font-size="11" fill="#444">drift adaptation quality</text>
-              <text x="12" y="114" transform="rotate(-90, 12, 114)" font-size="11" fill="#444">stress retention quality</text>
-
-              <circle cx="116" cy="82" r="7" fill="#6e6e6e"></circle>
-              <text x="126" y="85" font-size="11" fill="#333">naive</text>
-
-              <circle cx="190" cy="116" r="7" fill="#0f5fbf"></circle>
-              <text x="200" y="119" font-size="11" fill="#0f5fbf">anchor</text>
-
-              <circle cx="264" cy="148" r="7" fill="#111"></circle>
-              <text x="274" y="151" font-size="11" fill="#111">anchor + projection</text>
-            </svg>
-          </article>
-
-          <article class="decision-rules">
-            <h3>Expected ordering (before experiment)</h3>
-            <ul>
-              <li>Stress MSE: projection < anchor < naive.</li>
-              <li>Drift MSE: naive <= anchor <= projection.</li>
-              <li>Drawdown resilience: projection should dominate naive in stress-heavy runs.</li>
-              <li>Promotion criterion: ordering must hold across repeated seeds and stress presets.</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section id="implementation" class="section">
-        <h2>7. What To Implement Next</h2>
-        <p class="section-intro">A direct build sequence from this page to a production pilot.</p>
-
-        <div class="implementation-grid">
-          <article>
-            <h3>Step 1: Build anchor memory</h3>
-            <ul>
-              <li>Define regime tags.</li>
-              <li>Assemble pinned stress slices.</li>
-              <li>Freeze this set for all method comparisons.</li>
-            </ul>
-          </article>
-          <article>
-            <h3>Step 2: Add projection gate</h3>
-            <ul>
-              <li>Compute \(\mathbf{g}_{\mathrm{d}},\mathbf{g}_{\mathrm{a}}\) each step.</li>
-              <li>Project drift gradients into anchor-safe cone.</li>
-              <li>Log distortion and interference-rate diagnostics.</li>
-            </ul>
-          </article>
-          <article>
-            <h3>Step 3: Decide promotion</h3>
-            <ul>
-              <li>Run repeated stress-heavy seeds.</li>
-              <li>Check ordering in stress MSE, drift MSE, drawdown.</li>
-              <li>Promote only if ordering remains stable.</li>
-            </ul>
-          </article>
-        </div>
-      </section>
-
-      <section id="validation" class="section" aria-label="Validation">
-        <h2>8. Validation Run (Evidence Layer)</h2>
+      <section class="section" id="workspace" aria-label="Validation Workspace">
+        <h2>3. Evidence Workspace</h2>
         <p class="section-intro">
-          This is a decision tool, not a toy demo. Each mode and figure is designed to test a specific robustness claim.
+          Evaluate the same data stream under three validation modes. Use this section to decide if Strategy C is
+          promotion-ready or should remain in pilot.
         </p>
 
         <article class="protocol-board">
-          <h3>Mode design (what each run should prove)</h3>
+          <h3>Validation modes</h3>
           <div class="mode-grid">
             <article class="mode-card" data-mode-card="quick_check">
               <h4>Quick</h4>
-              <p><strong>Purpose:</strong> fast sanity check of ordering direction.</p>
-              <p><strong>Convincing signal:</strong> sign-level separation appears within seconds.</p>
+              <p>Fast directional signal check.</p>
             </article>
             <article class="mode-card" data-mode-card="proposal_like">
               <h4>Default</h4>
-              <p><strong>Purpose:</strong> deployment-like balance of drift and stress.</p>
-              <p><strong>Convincing signal:</strong> projection wins stress and drawdown with tolerable drift penalty.</p>
+              <p>Deployment-like drift/stress balance.</p>
             </article>
             <article class="mode-card" data-mode-card="stress_heavy">
               <h4>Stress+</h4>
-              <p><strong>Purpose:</strong> adversarial regime concentration.</p>
-              <p><strong>Convincing signal:</strong> naive failure becomes obvious, projection remains stable.</p>
+              <p>Adversarial regime concentration.</p>
             </article>
           </div>
           <p id="mode-readout" class="mode-readout"></p>
         </article>
-
-        <article id="expectation-check" class="expectation-check"></article>
 
         <div class="control-stack">
           <div class="preset-row">
@@ -519,15 +259,30 @@
           </div>
 
           <form id="config-form" class="knob-grid">
-            <label>Update steps<input name="steps" type="number" step="1" /></label>
-            <label>Anchor weight<input name="anchorBeta" type="number" step="0.01" /></label>
-            <label>Stress frequency<input name="pStress" type="number" step="0.01" /></label>
-            <label>LoRA rank<input name="loraRank" type="number" step="1" /></label>
-            <label>Seed<input name="seed" type="number" step="1" /></label>
+            <label>
+              Update steps
+              <input name="steps" type="number" step="1" />
+            </label>
+            <label>
+              Anchor weight
+              <input name="anchorBeta" type="number" step="0.01" />
+            </label>
+            <label>
+              Stress frequency
+              <input name="pStress" type="number" step="0.01" />
+            </label>
+            <label>
+              LoRA rank
+              <input name="loraRank" type="number" step="1" />
+            </label>
+            <label>
+              Seed
+              <input name="seed" type="number" step="1" />
+            </label>
           </form>
 
           <div class="action-row">
-            <button id="run-demo" class="btn btn-primary" type="button">Run validation</button>
+            <button id="run-demo" class="btn btn-primary" type="button">Run Demo</button>
             <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
             <button id="export-run" class="btn btn-ghost" type="button">Export JSON</button>
           </div>
@@ -538,48 +293,300 @@
           <div class="progress-track"><div id="progress-fill"></div></div>
         </div>
 
-        <article id="decision-card" class="decision-card"></article>
+        <div class="decision-panels">
+          <article id="expectation-check" class="expectation-check"></article>
+          <article id="decision-card" class="decision-card"></article>
+        </div>
+
         <div id="impact-kpis" class="kpi-row"></div>
 
         <div class="chart-grid">
-          <article>
+          <article class="chart-card">
             <h3>Impact vs naive</h3>
-            <p class="chart-guide">
-              <strong>Read:</strong> bars compare anchor and projection against naive.
-              <strong>Convincing signal:</strong> projection dominates stress-retention gain and drawdown improvement.
-            </p>
+            <p class="chart-question">Question: does added control buy stress protection worth its adaptation cost?</p>
             <canvas id="impact-chart" class="chart-canvas"></canvas>
+            <p class="chart-reading" id="impact-reading"></p>
           </article>
-          <article>
-            <h3>Equity curves</h3>
-            <p class="chart-guide">
-              <strong>Read:</strong> compare curve resilience through stress markers.
-              <strong>Convincing signal:</strong> projection path avoids deep stress drawdowns while staying competitive.
-            </p>
+          <article class="chart-card">
+            <h3>Equity through regimes</h3>
+            <p class="chart-question">Question: who survives stress pockets without collapsing during drift windows?</p>
             <canvas id="equity-chart" class="chart-canvas"></canvas>
+            <p class="chart-reading" id="equity-reading"></p>
           </article>
-          <article>
+          <article class="chart-card">
             <h3>Regime return split</h3>
-            <p class="chart-guide">
-              <strong>Read:</strong> drift and stress mean returns by method.
-              <strong>Convincing signal:</strong> projection preserves stress return without collapsing drift regime quality.
-            </p>
+            <p class="chart-question">Question: where does each method earn and where does it break?</p>
             <canvas id="regime-chart" class="chart-canvas"></canvas>
+            <p class="chart-reading" id="regime-reading"></p>
           </article>
         </div>
 
         <article class="table-wrap">
           <h3>Method scoreboard</h3>
-          <p class="chart-guide">
-            <strong>Read:</strong> stress, drawdown, drift, and return in one ranking.
-            <strong>Decision use:</strong> promote only if top ranking is consistent across seeds and Stress+ mode.
-          </p>
+          <p class="table-guide">Rank methods, then re-run Stress+ with multiple seeds before any promotion call.</p>
           <table id="method-table" class="method-table"></table>
         </article>
 
         <article id="takeaway" class="takeaway"></article>
       </section>
+
+      <section class="section" id="math">
+        <h2>4. Mathematical Spine (Discipline and Boundary)</h2>
+        <p class="section-intro">
+          This section separates what is established in the literature from what is proposed here. Every equation is
+          introduced by intent and followed by an operational implication.
+        </p>
+
+        <div class="math-boundary">
+          <article class="boundary-card">
+            <p class="math-tag literature">Established in literature</p>
+            <p>Constrained portfolio optimization, CVaR stress control, replay, and gradient projection.</p>
+          </article>
+          <article class="boundary-card">
+            <p class="math-tag proposal">Proposed in this work</p>
+            <p>One release contract that couples fixed decision constraints with stress-gated continual updates.</p>
+          </article>
+        </div>
+
+        <article class="math-cluster literature">
+          <header>
+            <p class="math-tag literature">Established in literature</p>
+            <h3>A. Decision Layer: Optimize Feasible Weights</h3>
+          </header>
+          <p class="math-intuition">
+            Intuition: model outputs should be transformed into trades by a deterministic constrained optimizer.
+          </p>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: what is optimized at decision time?</p>
+            <div class="math-block">
+              \[
+              \begin{aligned}
+              w_t^\star
+              &=
+              \arg\max_{w\in\mathcal{W}_t}
+              \left(
+              \mu_t^\top w
+              -\frac{\gamma}{2}\,w^\top\Sigma_t w
+              -c_t^\top \lvert w-w_{t-1}\rvert
+              \right).
+              \end{aligned}
+              \]
+            </div>
+          </div>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: which constraints define feasibility?</p>
+            <div class="math-block">
+              \[
+              \begin{aligned}
+              \mathcal{W}_t
+              =
+              \Big\{w\in\mathbb{R}^{N_t}:\;&
+              \mathbf{1}^\top w=0,\;
+              \lVert w\rVert_1\le L,\;
+              \lvert w_i\rvert\le w_{\max}\;\forall i,\\
+              &
+              \lVert w-w_{t-1}\rVert_1\le\tau,\;
+              \lVert B_t^\top w\rVert_\infty\le b_{\mathrm{factor}}
+              \Big\}.
+              \end{aligned}
+              \]
+            </div>
+          </div>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: how is stress risk bounded?</p>
+            <div class="math-block">
+              \[
+              \mathrm{ES}_{\alpha}\!\left(R^{(j)}w_t^\star\right)\ge -L_j,\qquad j=1,\dots,J.
+              \]
+            </div>
+          </div>
+
+          <p class="math-implication">
+            Implication: no update policy can violate feasibility or stress budgets once \(w_t^\star\) is computed.
+          </p>
+          <p class="math-attribution">
+            Attribution:
+            <a href="https://web.stanford.edu/~boyd/papers/pdf/cvx_portfolio.pdf" target="_blank" rel="noreferrer"
+              >Boyd et al. (2017)</a
+            >,
+            <a href="https://www.sciencedirect.com/science/article/pii/S0927539899000525" target="_blank" rel="noreferrer"
+              >Rockafellar and Uryasev (2000)</a
+            >.
+          </p>
+        </article>
+
+        <article class="math-cluster literature">
+          <header>
+            <p class="math-tag literature">Established in literature</p>
+            <h3>B. Continual Learning Stabilizers</h3>
+          </header>
+          <p class="math-intuition">
+            Intuition: update for drift, but prevent first-order interference with stress-memory gradients.
+          </p>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: what gradients are being balanced?</p>
+            <div class="math-block">
+              \[
+              g_{d,t}=\nabla_{\theta}\mathcal{L}_{\mathrm{drift},t}(\theta_t),\qquad
+              g_{a,t}=\nabla_{\theta}\mathcal{L}_{\mathrm{anchor},t}(\theta_t).
+              \]
+            </div>
+          </div>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: how is replay distillation formalized?</p>
+            <div class="math-block">
+              \[
+              \mathcal{L}^{\mathrm{replay}}_t(\theta)
+              =
+              \mathcal{L}_{\mathrm{drift},t}(\theta)
+              +
+              \lambda_t\,\mathbb{E}_{(x,z)\sim\mathcal{M}_t}
+              \!\left[
+              \left(\mu_{\theta_t}(x,z)-\mu_{\theta}(x,z)\right)^2
+              \right].
+              \]
+            </div>
+          </div>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: how is interference constrained?</p>
+            <div class="math-block">
+              \[
+              \begin{aligned}
+              \tilde g_t
+              &=
+              \arg\min_{v}\;\frac{1}{2}\lVert v-g_{d,t}\rVert_2^2\\
+              &\text{s.t.}\quad \langle v,g_{a,t}\rangle\ge-\varepsilon_t.
+              \end{aligned}
+              \]
+            </div>
+          </div>
+
+          <p class="math-implication">
+            Implication: the update remains as close as possible to drift improvement while respecting anchor safety.
+          </p>
+          <p class="math-attribution">
+            Attribution:
+            <a href="https://openreview.net/forum?id=Hkf2_sC5FX" target="_blank" rel="noreferrer"
+              >Chaudhry et al. (A-GEM, 2019)</a
+            >,
+            <a href="https://arxiv.org/abs/2405.13383" target="_blank" rel="noreferrer">Qiao et al. (2024)</a>,
+            <a href="https://arxiv.org/abs/2106.09685" target="_blank" rel="noreferrer">Hu et al. (LoRA, 2022)</a>.
+          </p>
+        </article>
+
+        <article class="math-cluster proposal">
+          <header>
+            <p class="math-tag proposal">Proposed in this work</p>
+            <h3>C. Unified Release Contract (Update + Gate + Boundary)</h3>
+          </header>
+          <p class="math-intuition">
+            Intuition: only the adapter state is mutable, and every candidate update must pass stress regression before
+            promotion.
+          </p>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: what interface is allowed to move?</p>
+            <div class="math-block">
+              \[
+              \mu_t=f_{\theta_t}(x_t,z_t),\qquad
+              \theta_t=\theta_{\mathrm{frozen}}+\Delta\theta_t,\qquad
+              \Delta\theta_t\in\mathcal{S}_{\mathrm{LoRA}}.
+              \]
+            </div>
+          </div>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: what memory object is explicitly preserved?</p>
+            <div class="math-block">
+              \[
+              \mathcal{M}_t=
+              \mathcal{M}^{\mathrm{recent}}_t
+              \cup
+              \left(\bigcup_{j=1}^{J}\mathcal{M}^{\mathrm{stress}(j)}\right)
+              \cup
+              \mathcal{M}^{\mathrm{edge}}_t.
+              \]
+            </div>
+          </div>
+
+          <div class="equation-group">
+            <p class="equation-intent">Question: when is a candidate update accepted?</p>
+            <div class="math-block">
+              \[
+              \theta_{t+1}
+              =
+              \begin{cases}
+              \theta_t', &
+              \mathcal{L}_{\mathrm{stress}}(\theta_t')
+              \le
+              (1+\delta_t)\,\mathcal{L}_{\mathrm{stress}}(\theta_t),\\[2pt]
+              \theta_t, & \text{otherwise (rollback).}
+              \end{cases}
+              \]
+            </div>
+          </div>
+
+          <p class="math-implication">
+            Implication: the proposed contribution is a single auditable contract linking model adaptation to
+            non-regression criteria while preserving a fixed decision boundary.
+          </p>
+        </article>
+
+        <article class="notation-card">
+          <h3>Notation (Defined Once, Reused Consistently)</h3>
+          <table class="notation-table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>\(x_t,z_t\)</td><td>Numeric market state and text context at time \(t\)</td></tr>
+              <tr><td>\(\theta_t\)</td><td>Adapter parameter state after accepted update \(t\)</td></tr>
+              <tr><td>\(\mu_t\)</td><td>Predicted residual alpha vector</td></tr>
+              <tr><td>\(\Sigma_t\)</td><td>Risk covariance primitive</td></tr>
+              <tr><td>\(w_t^\star\)</td><td>Executed feasible portfolio weights</td></tr>
+              <tr><td>\(\mathcal{W}_t\)</td><td>Feasible weight set with risk and turnover constraints</td></tr>
+              <tr><td>\(\mathcal{M}_t\)</td><td>Replay memory fixture (recent + stress + edge)</td></tr>
+              <tr><td>\(g_{d,t},g_{a,t},\tilde g_t\)</td><td>Drift, anchor, and projected update gradients</td></tr>
+              <tr><td>\(\delta_t\)</td><td>Stress-loss tolerance used by promotion gate</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section class="section" id="references">
+        <h2>5. References</h2>
+        <div class="refs-grid">
+          <article>
+            <h3>Papers</h3>
+            <ul id="ref-papers" class="ref-list"></ul>
+          </article>
+          <article>
+            <h3>Datasets</h3>
+            <ul id="ref-datasets" class="ref-list"></ul>
+          </article>
+          <article>
+            <h3>Repositories</h3>
+            <ul id="ref-repos" class="ref-list"></ul>
+          </article>
+        </div>
+      </section>
     </main>
+
+    <footer class="footer">
+      <div class="shell footer-inner">
+        <a href="#top" class="inline-link">Back to top</a>
+        <p>Understand mechanism -> run shared-stream evidence -> make deployment decision.</p>
+      </div>
+    </footer>
 
     <script>
       window.MathJax = {
