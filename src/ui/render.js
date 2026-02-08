@@ -1,47 +1,80 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { DEMO_RESULTS } from "../content/demo-results.js";
-import { drawEquity, drawImpactBars, drawRegimeBars } from "./charts.js";
+import { drawAllocationProfiles, drawDrawdown, drawEquity, drawRegimeRisk } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
 
 const METHOD_STYLES = {
-  naive: { color: "#5f6774", dash: [10, 6] },
-  anchor: { color: "#2f557f", dash: [2, 6] },
-  anchor_proj: { color: "#7f4a1e", dash: [] },
+  naive: {
+    color: "#5f6774",
+    dash: [10, 6],
+    short: "Naive",
+    mechanism: "Raw drift step only",
+    protect: "Nothing except frozen backbone",
+    tradeoff: "Fastest fit, brittle under stress",
+  },
+  anchor: {
+    color: "#2f557f",
+    dash: [2, 6],
+    short: "Replay",
+    mechanism: "Drift + anchor replay",
+    protect: "Stored stress anchors",
+    tradeoff: "Better memory, no hard feasibility gate",
+  },
+  anchor_proj: {
+    color: "#7f4a1e",
+    dash: [],
+    short: "Hybrid",
+    mechanism: "Replay + projected step",
+    protect: "Anchors + update geometry",
+    tradeoff: "Slight drift-cost increase for release safety",
+  },
 };
 
 const MODE_META = {
   quick_check: {
     label: "Quick",
     runLabel: "quick diagnostic",
-    readout: "Quick mode checks directional ordering only. If signs fail here, stop before heavier runs.",
+    readout: "Directional ordering check. Use this to catch obvious failures in minutes.",
+    lens: "Look for clean separation, not final deploy score.",
   },
   proposal_like: {
     label: "Default",
     runLabel: "deployment-like validation",
-    readout: "Default mode is the baseline deployment test: balance drift fit with stress retention.",
+    readout: "Primary portfolio validation with realistic stress frequency and horizon.",
+    lens: "Promotion decision should be made on this mode first.",
   },
   stress_heavy: {
     label: "Stress+",
     runLabel: "stress-adversarial validation",
-    readout: "Stress+ mode is the release gate. Promotion requires stability under this regime concentration.",
+    readout: "Release gate under concentrated stress/regime-shift behavior.",
+    lens: "Reject configs that lose drawdown control or recovery discipline here.",
   },
+};
+
+const FOCUS_META = {
+  all: "Viewing all strategies side by side for direct deployment comparison.",
+  naive: "Naive lens: unconstrained drift adaptation benchmark.",
+  anchor: "Replay lens: anchor memory without hard projection control.",
+  anchor_proj: "Hybrid lens: anchor memory plus projection gate for release safety.",
 };
 
 let latestResult = null;
 let activePreset = "proposal_like";
+let activeFocus = "all";
 
 export function initApp() {
   const defaultPreset = PRESETS.proposal_like?.values || {};
   fillForm(clampConfig({ ...DEFAULT_CONFIG, ...defaultPreset }));
-  setActiveMode("proposal_like");
 
   bindControls();
+  setActiveMode("proposal_like");
+  setActiveFocus("all", false);
   runCurrentConfig();
 
   window.addEventListener("resize", () => {
     if (latestResult) {
-      renderCharts(latestResult);
+      renderAll(latestResult);
     }
   });
 }
@@ -61,8 +94,22 @@ function bindControls() {
     });
   });
 
+  document.querySelectorAll("[data-focus]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const focus = btn.getAttribute("data-focus");
+      if (!focus) {
+        return;
+      }
+      setActiveFocus(focus);
+      if (latestResult) {
+        renderAll(latestResult);
+      }
+    });
+  });
+
   document.getElementById("reset-form")?.addEventListener("click", () => {
     applyPreset("proposal_like", false);
+    setActiveFocus("all", false);
     setStatus("Controls reset to Default mode. Click Run Demo.");
   });
 
@@ -78,7 +125,7 @@ function runCurrentConfig() {
   const payload = DEMO_RESULTS[activePreset];
 
   setRunning(true);
-  setProgress(18);
+  setProgress(16);
   setStatus(`Loading ${mode.runLabel} dataset...`);
 
   if (!payload) {
@@ -92,13 +139,14 @@ function runCurrentConfig() {
     config: safe,
   };
 
-  setProgress(86);
+  setProgress(84);
   renderAll(latestResult);
   setRunning(false);
 }
 
 function readConfigFromForm() {
   const cfg = {};
+
   for (const key of FIELD_MAP) {
     const input = document.querySelector(`[name="${key}"]`);
     if (!input) {
@@ -106,6 +154,7 @@ function readConfigFromForm() {
     }
     cfg[key] = Number(input.value);
   }
+
   return cfg;
 }
 
@@ -132,6 +181,54 @@ function applyPreset(name, announce = true) {
   if (announce) {
     setStatus(`Mode set: ${preset.label}. Click "Run Demo" to execute.`);
   }
+}
+
+function setActiveMode(modeName) {
+  activePreset = modeName;
+
+  document.querySelectorAll("[data-preset]").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-preset") === modeName);
+  });
+
+  document.querySelectorAll("[data-mode-card]").forEach((card) => {
+    card.classList.toggle("active", card.getAttribute("data-mode-card") === modeName);
+  });
+
+  const readout = document.getElementById("mode-readout");
+  if (readout) {
+    const mode = MODE_META[modeName] || MODE_META.proposal_like;
+    readout.textContent = `Active mode: ${mode.label}. ${mode.readout}`;
+  }
+}
+
+function setActiveFocus(focusName, announce = true) {
+  activeFocus = FOCUS_META[focusName] ? focusName : "all";
+
+  document.querySelectorAll("[data-focus]").forEach((btn) => {
+    btn.classList.toggle("active", btn.getAttribute("data-focus") === activeFocus);
+  });
+
+  const readout = document.getElementById("focus-readout");
+  if (readout) {
+    readout.textContent = FOCUS_META[activeFocus] || FOCUS_META.all;
+  }
+
+  if (announce) {
+    setStatus(`Strategy lens switched to ${prettyFocus(activeFocus)}.`);
+  }
+}
+
+function prettyFocus(id) {
+  if (id === "anchor_proj") {
+    return "Hybrid";
+  }
+  if (id === "anchor") {
+    return "Replay";
+  }
+  if (id === "naive") {
+    return "Naive";
+  }
+  return "All";
 }
 
 function setRunning(isRunning) {
@@ -165,273 +262,328 @@ function setProgress(value) {
 
 function renderAll(result) {
   setProgress(100);
-  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
-  setStatus(`Validation complete (${mode.label}). Read decision guidance before changing settings.`);
 
-  renderExpectationCheck(result);
-  renderDecisionCard(result);
-  renderKpis(result);
-  renderCharts(result);
-  renderChartReadouts(result);
-  renderMethodTable(result);
-  renderTakeaway(result);
+  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
+  const regimeInfo = buildRegimeInfo(result);
+  const methodRows = buildMethodRows(result, regimeInfo);
+  attachDeployScores(methodRows);
+
+  setStatus(`Validation complete (${mode.label}). ${mode.lens}`);
+
+  renderExpectationCheck(result, methodRows, regimeInfo);
+  renderDecisionCard(result, methodRows, regimeInfo);
+  renderKpis(methodRows);
+  renderStrategySnapshots(methodRows);
+  renderCharts(methodRows, regimeInfo);
+  renderChartReadouts(methodRows, regimeInfo);
+  renderMethodTable(methodRows);
+  renderTakeaway(methodRows, regimeInfo);
 }
 
-function renderExpectationCheck(result) {
+function renderExpectationCheck(result, rows, regimeInfo) {
   const host = document.getElementById("expectation-check");
   if (!host) {
     return;
   }
 
-  const n = result.metrics.naive;
-  const a = result.metrics.anchor;
-  const p = result.metrics.anchor_proj;
+  const naive = findRow(rows, "naive");
+  const replay = findRow(rows, "anchor");
+  const hybrid = findRow(rows, "anchor_proj");
+  if (!naive || !replay || !hybrid) {
+    return;
+  }
 
-  const stressOrder = n.stressMse > a.stressMse && a.stressMse > p.stressMse;
-  const drawdownOrder = p.maxDrawdown > a.maxDrawdown && a.maxDrawdown > n.maxDrawdown;
-  const driftCostControlled = relativeIncrease(n.driftMse, p.driftMse, 1e-4) < 2.0;
+  const stressOrder = naive.stressMse > replay.stressMse && replay.stressMse > hybrid.stressMse;
+  const ddOrder = hybrid.maxDrawdown > replay.maxDrawdown && replay.maxDrawdown > naive.maxDrawdown;
+  const stressSharpeOrder =
+    (hybrid.sharpeByRegime.stress || 0) > (replay.sharpeByRegime.stress || 0) &&
+    (replay.sharpeByRegime.stress || 0) > (naive.sharpeByRegime.stress || 0);
 
   const mode = MODE_META[activePreset] || MODE_META.proposal_like;
 
-  const modeSpecific =
-    activePreset === "quick_check"
-      ? `Quick pass condition: stress ordering should hold (naive > anchor > constrained). ${stressOrder ? "It holds." : "It fails."}`
-      : activePreset === "stress_heavy"
-        ? `Stress+ pass condition: constrained method should show better drawdown control than naive. ${p.maxDrawdown > n.maxDrawdown ? "It holds." : "It fails."}`
-        : `Default pass condition: stress protection improves while stabilized drift penalty stays bounded. ${stressOrder && driftCostControlled ? "It holds." : "It fails."}`;
-
   host.innerHTML = `
-    <h3>Bridge Checks</h3>
+    <h3>Decision Checks (${mode.label})</h3>
     <ul>
-      <li>Stress retention should improve from naive -> replay -> constrained.
-        <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Observed" : "Not observed"}</span>
+      <li>Stress retention ordering (naive > replay > hybrid loss)
+        <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Pass" : "Fail"}</span>
       </li>
-      <li>Drawdown resilience should follow the same ordering.
-        <span class="${drawdownOrder ? "pass" : "warn"}">${drawdownOrder ? "Observed" : "Not observed"}</span>
+      <li>Drawdown ordering (hybrid should be shallowest)
+        <span class="${ddOrder ? "pass" : "warn"}">${ddOrder ? "Pass" : "Review"}</span>
       </li>
-      <li>Drift-fit penalty should remain bounded while protection improves.
-        <span class="${driftCostControlled ? "pass" : "warn"}">${driftCostControlled ? "Bounded" : "High"}</span>
+      <li>Stress risk-adjusted return ordering
+        <span class="${stressSharpeOrder ? "pass" : "warn"}">${stressSharpeOrder ? "Pass" : "Mixed"}</span>
       </li>
-      <li>${modeSpecific}</li>
+      <li>Regime mix: stress ${pct(regimeInfo.stressShare)} | shift events ${regimeInfo.shiftCount}</li>
       <li>${mode.readout}</li>
     </ul>
   `;
 }
 
-function renderDecisionCard(result) {
+function renderDecisionCard(result, rows) {
   const host = document.getElementById("decision-card");
   if (!host) {
     return;
   }
 
-  const n = result.metrics.naive;
-  const p = result.metrics.anchor_proj;
+  const sorted = [...rows].sort((a, b) => b.deployScore - a.deployScore);
+  const winner = sorted[0];
+  const runnerUp = sorted[1];
 
-  const stressGain = improvement(n.stressMse, p.stressMse);
-  const drawdownLift = p.maxDrawdown - n.maxDrawdown;
-  const driftPenalty = relativeIncrease(n.driftMse, p.driftMse, 1e-4);
-  const driftShift = p.driftMse - n.driftMse;
+  if (!winner || !runnerUp) {
+    return;
+  }
+
+  const naive = findRow(rows, "naive");
+  const hybrid = findRow(rows, "anchor_proj");
+
+  const lead = winner.deployScore - runnerUp.deployScore;
+  const stressGain = naive && hybrid ? improvement(naive.stressMse, hybrid.stressMse) : 0;
+  const drawLift = naive && hybrid ? hybrid.maxDrawdown - naive.maxDrawdown : 0;
 
   let level = "caution";
-  let title = "Decision gate: keep in pilot review";
-  let next = "Run Stress+ with 3-5 seeds before promotion.";
+  let title = `Decision gate: keep in extended pilot (${winner.style.short} leads)`;
+  let next = "Run additional seeds before promotion.";
 
-  if (stressGain > 0.7 && drawdownLift > 0.02 && driftPenalty < 2.0) {
+  if (winner.id === "anchor_proj" && lead >= 4) {
     level = "good";
-    title = "Decision gate: eligible for promotion";
-    next = "Confirm with repeated stress-heavy seeds, then ship as default updater.";
-  } else if (stressGain < 0.35 || drawdownLift < -0.01) {
+    title = "Decision gate: hybrid strategy is promotion-ready";
+    next = "Freeze this updater for release candidate validation and monitor weekly drift diagnostics.";
+  } else if (winner.id === "naive") {
     level = "bad";
-    title = "Decision gate: reject this configuration";
-    next = "Increase replay/projection strength or reduce update aggressiveness.";
+    title = "Decision gate: reject naive updater for deployment";
+    next = "Restore anchor and projection controls before any promotion review.";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Constrained CL vs naive: stress retention <strong>${pct(stressGain)}</strong>, drawdown lift
-      <strong>${pp(drawdownLift)}</strong>, drift MSE shift <strong>${fmt(driftShift, 6)}</strong>
-      (stabilized increase <strong>${pct(driftPenalty)}</strong>).
+      Deployability score lead: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>
+      (${pp(lead / 100)}).
+      Hybrid vs naive stress retention: <strong>${pct(stressGain)}</strong>.
+      Drawdown lift: <strong>${pp(drawLift)}</strong>.
       Next action: ${next}
     </p>
   `;
 }
 
-function renderKpis(result) {
+function renderKpis(rows) {
   const host = document.getElementById("impact-kpis");
   if (!host) {
     return;
   }
 
-  const n = result.metrics.naive;
-  const p = result.metrics.anchor_proj;
-  const logs = result.trainLogs?.anchor_proj || {};
+  const naive = findRow(rows, "naive");
+  const replay = findRow(rows, "anchor");
+  const hybrid = findRow(rows, "anchor_proj");
 
-  const stressGain = improvement(n.stressMse, p.stressMse);
-  const drawdownLift = p.maxDrawdown - n.maxDrawdown;
-  const interference = logs.interferenceRate || 0;
-  const rollbacks = logs.nRollbacks || 0;
+  if (!naive || !replay || !hybrid) {
+    return;
+  }
+
+  const stressGain = improvement(naive.stressMse, hybrid.stressMse);
+  const ddLift = hybrid.maxDrawdown - naive.maxDrawdown;
+  const stressSharpeLift = (hybrid.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
+  const turnoverDelta = replay.turnover - hybrid.turnover;
 
   host.innerHTML = `
     <article class="${classBySign(stressGain)}">
       <div class="label">Stress Retention Gain</div>
       <div class="value">${pct(stressGain)}</div>
-      <div class="note">constrained vs naive</div>
+      <div class="note">hybrid vs naive</div>
     </article>
-    <article class="${classBySign(drawdownLift)}">
+    <article class="${classBySign(ddLift)}">
       <div class="label">Drawdown Lift</div>
-      <div class="value">${pp(drawdownLift)}</div>
-      <div class="note">constrained vs naive</div>
+      <div class="value">${pp(ddLift)}</div>
+      <div class="note">hybrid vs naive</div>
     </article>
-    <article class="${classByRollbacks(rollbacks)}">
-      <div class="label">Gate Rollbacks</div>
-      <div class="value">${rollbacks}</div>
-      <div class="note">projection trigger rate: ${pct(interference)}</div>
+    <article class="${classBySign(stressSharpeLift)}">
+      <div class="label">Stress Sharpe Lift</div>
+      <div class="value">${signed(stressSharpeLift, 2)}</div>
+      <div class="note">annualized, stress bucket</div>
+    </article>
+    <article class="${classBySign(turnoverDelta)}">
+      <div class="label">Turnover Discipline</div>
+      <div class="value">${pp(turnoverDelta)}</div>
+      <div class="note">replay minus hybrid turnover</div>
     </article>
   `;
 }
 
-function renderCharts(result) {
-  const impactCanvas = document.getElementById("impact-chart");
-  const equityCanvas = document.getElementById("equity-chart");
-  const regimeCanvas = document.getElementById("regime-chart");
-
-  if (!impactCanvas || !equityCanvas || !regimeCanvas) {
+function renderStrategySnapshots(rows) {
+  const host = document.getElementById("strategy-snapshots");
+  if (!host) {
     return;
   }
 
-  const n = result.metrics.naive;
-  const a = result.metrics.anchor;
-  const p = result.metrics.anchor_proj;
+  host.innerHTML = rows
+    .map((row) => {
+      const focused = activeFocus === "all" || activeFocus === row.id;
+      return `
+        <article class="snapshot-card ${focused ? "focused" : "muted"}">
+          <div class="snapshot-header">
+            <div class="snapshot-title"><span class="dot" style="background:${row.style.color}"></span>${row.style.short}</div>
+            <div class="snapshot-score">Deploy score ${row.deployScore.toFixed(1)}</div>
+          </div>
 
-  drawImpactBars(impactCanvas, [
-    {
-      label: "Stress retention gain",
-      anchor: 100 * improvement(n.stressMse, a.stressMse),
-      proj: 100 * improvement(n.stressMse, p.stressMse),
-    },
-    {
-      label: "Drawdown lift",
-      anchor: 100 * (a.maxDrawdown - n.maxDrawdown),
-      proj: 100 * (p.maxDrawdown - n.maxDrawdown),
-    },
-  ]);
+          <div class="snapshot-grid">
+            <div class="snapshot-metric">
+              <div class="label">Mechanism</div>
+              <div class="value">${row.style.mechanism}</div>
+            </div>
+            <div class="snapshot-metric">
+              <div class="label">Protects</div>
+              <div class="value">${row.style.protect}</div>
+            </div>
+            <div class="snapshot-metric">
+              <div class="label">Stress MSE</div>
+              <div class="value">${fmt(row.stressMse, 6)}</div>
+            </div>
+            <div class="snapshot-metric">
+              <div class="label">Max Drawdown</div>
+              <div class="value">${pct(row.maxDrawdown)}</div>
+            </div>
+            <div class="snapshot-metric">
+              <div class="label">Stress Sharpe</div>
+              <div class="value">${signed(row.sharpeByRegime.stress || 0, 2)}</div>
+            </div>
+            <div class="snapshot-metric">
+              <div class="label">Trade-off</div>
+              <div class="value">${row.style.tradeoff}</div>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
 
-  const lineSeries = result.methods.map((method) => ({
-    label: method.label,
-    color: METHOD_STYLES[method.id]?.color || "#111111",
-    dash: METHOD_STYLES[method.id]?.dash || [],
-    values: result.equityCurves[method.id],
+function renderCharts(rows, regimeInfo) {
+  const pnlCanvas = document.getElementById("pnl-chart");
+  const drawdownCanvas = document.getElementById("drawdown-chart");
+  const allocationCanvas = document.getElementById("allocation-chart");
+  const regimeRiskCanvas = document.getElementById("regime-risk-chart");
+
+  if (!pnlCanvas || !drawdownCanvas || !allocationCanvas || !regimeRiskCanvas) {
+    return;
+  }
+
+  const lineSeries = rows.map((row) => ({
+    id: row.id,
+    label: row.label,
+    color: row.style.color,
+    dash: row.style.dash,
+    values: row.equity,
+    alpha: focusAlpha(row.id),
+    lineWidth: focusLineWidth(row.id),
   }));
-  drawEquity(equityCanvas, lineSeries, result.stressMarkers || []);
 
-  drawRegimeBars(regimeCanvas, buildRegimeReturnRows(result));
+  const allocationSeries = rows.map((row) => ({
+    id: row.id,
+    label: row.label,
+    color: row.style.color,
+    dash: row.style.dash,
+    values: row.riskyWeights,
+    alpha: focusAlpha(row.id),
+    lineWidth: focusLineWidth(row.id),
+  }));
+
+  drawEquity(pnlCanvas, lineSeries, regimeInfo.timelineStates);
+  drawDrawdown(drawdownCanvas, lineSeries, regimeInfo.timelineStates);
+  drawAllocationProfiles(allocationCanvas, allocationSeries, regimeInfo.timelineStates);
+
+  drawRegimeRisk(
+    regimeRiskCanvas,
+    regimeInfo.regimes,
+    rows.map((row) => ({
+      id: row.id,
+      label: row.label,
+      color: row.style.color,
+      alpha: focusAlpha(row.id),
+      sharpe: row.sharpeByRegime,
+    })),
+  );
 }
 
-function renderChartReadouts(result) {
-  const impactHost = document.getElementById("impact-reading");
-  const equityHost = document.getElementById("equity-reading");
-  const regimeHost = document.getElementById("regime-reading");
-  if (!impactHost || !equityHost || !regimeHost) {
+function renderChartReadouts(rows) {
+  const pnlHost = document.getElementById("pnl-reading");
+  const drawdownHost = document.getElementById("drawdown-reading");
+  const allocationHost = document.getElementById("allocation-reading");
+  const regimeHost = document.getElementById("regime-risk-reading");
+  if (!pnlHost || !drawdownHost || !allocationHost || !regimeHost) {
     return;
   }
 
-  const n = result.metrics.naive;
-  const a = result.metrics.anchor;
-  const p = result.metrics.anchor_proj;
+  const naive = findRow(rows, "naive");
+  const replay = findRow(rows, "anchor");
+  const hybrid = findRow(rows, "anchor_proj");
+  if (!naive || !replay || !hybrid) {
+    return;
+  }
 
-  const stressA = improvement(n.stressMse, a.stressMse);
-  const stressP = improvement(n.stressMse, p.stressMse);
-  const ddA = a.maxDrawdown - n.maxDrawdown;
-  const ddP = p.maxDrawdown - n.maxDrawdown;
-  const retGap = p.totalReturn - n.totalReturn;
+  const hybridVsNaiveRet = hybrid.totalReturn - naive.totalReturn;
+  const hybridVsReplayRet = hybrid.totalReturn - replay.totalReturn;
+  const hybridDdLift = hybrid.maxDrawdown - naive.maxDrawdown;
 
-  impactHost.textContent =
-    `Readout: replay gives ${pct(stressA)} stress retention gain; constrained update gives ${pct(stressP)}. ` +
-    `Convincing signal is constrained > replay on both stress gain and drawdown lift (${pp(ddP)} vs ${pp(ddA)}).`;
+  pnlHost.textContent =
+    `Signal: compare terminal value and stress trough depth. Hybrid vs naive return delta ${pp(hybridVsNaiveRet)}; ` +
+    `hybrid vs replay ${pp(hybridVsReplayRet)}.`;
 
-  equityHost.textContent =
-    `Readout: compare path shape, not only endpoints. Convincing signal is shallower stress troughs with no drift-phase collapse. ` +
-    `Current constrained-vs-naive return gap: ${pp(retGap)}.`;
+  drawdownHost.textContent =
+    `Signal: drawdown curve should be shallower with faster recovery. Hybrid drawdown lift vs naive is ${pp(hybridDdLift)} ` +
+    `with recovery in ${formatRecovery(hybrid.recoveryDays)}.`;
 
-  const driftRows = buildRegimeReturnRows(result);
-  const constrained = driftRows.find((r) => r.label.includes("Constrained"));
-  const naive = driftRows.find((r) => r.label.includes("Naive"));
-  const stressDelta = constrained && naive ? constrained.stressBp - naive.stressBp : 0;
-  const driftDelta = constrained && naive ? constrained.driftBp - naive.driftBp : 0;
+  const stressWeightGap = hybrid.stressWeight - naive.stressWeight;
+  const turnoverGap = naive.turnover - hybrid.turnover;
+  allocationHost.textContent =
+    `Signal: robust strategy de-risks in stress without whipsaw turnover. Hybrid stress risky-weight gap vs naive ${pp(stressWeightGap)}; ` +
+    `turnover improvement ${pp(turnoverGap)}.`;
 
+  const stressSharpeLift = (hybrid.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
+  const shiftSharpeLift = (hybrid.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
   regimeHost.textContent =
-    `Readout: drift/stress decomposition should show explicit trade-off, not hidden averaging. ` +
-    `Constrained minus naive: stress ${signedBp(stressDelta)}, drift ${signedBp(driftDelta)}.`;
+    `Signal: regime bars should prove robustness, not average it away. Hybrid minus naive Sharpe: ` +
+    `stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 }
 
-function renderMethodTable(result) {
+function renderMethodTable(rows) {
   const host = document.getElementById("method-table");
   if (!host) {
     return;
   }
 
-  const metrics = result.metrics;
-  const ids = result.methods.map((m) => m.id);
-
-  const stressVals = ids.map((id) => metrics[id].stressMse);
-  const driftVals = ids.map((id) => metrics[id].driftMse);
-  const drawVals = ids.map((id) => metrics[id].maxDrawdown);
-  const retVals = ids.map((id) => metrics[id].totalReturn);
-
-  const stressScore = normalizeLowerBetter(stressVals);
-  const driftScore = normalizeLowerBetter(driftVals);
-  const drawScore = normalizeHigherBetter(drawVals);
-  const returnScore = normalizeHigherBetter(retVals);
-
-  const rows = result.methods.map((method, idx) => {
-    const m = metrics[method.id];
-    const score = 100 * (0.5 * stressScore[idx] + 0.25 * drawScore[idx] + 0.15 * driftScore[idx] + 0.1 * returnScore[idx]);
-
-    return {
-      method,
-      stressMse: m.stressMse,
-      driftMse: m.driftMse,
-      maxDrawdown: m.maxDrawdown,
-      totalReturn: m.totalReturn,
-      stressExposure: m.avgRiskyWeightStress,
-      score,
-    };
-  });
-
-  rows.sort((a, b) => b.score - a.score);
+  const ordered = [...rows].sort((a, b) => b.deployScore - a.deployScore);
 
   host.innerHTML = `
     <thead>
       <tr>
-        <th>Method</th>
-        <th>Stress MSE</th>
-        <th>Drift MSE</th>
+        <th>Strategy</th>
+        <th>Stress Retention</th>
         <th>Max DD</th>
-        <th>Total Return</th>
-        <th>Stress Risky Wt</th>
-        <th>Score</th>
+        <th>Stress Sharpe</th>
+        <th>Recovery</th>
+        <th>Turnover</th>
+        <th>Deploy Score</th>
       </tr>
     </thead>
     <tbody>
-      ${rows
+      ${ordered
         .map(
-          (row) => `
-            <tr>
+          (row, idx) => `
+            <tr class="${idx === 0 ? "winner" : ""}">
               <td>
                 <span class="method-name">
-                  <span class="dot" style="background:${METHOD_STYLES[row.method.id]?.color || "#111111"}"></span>
-                  <span class="line-chip line-chip-${row.method.id}"></span>
-                  ${row.method.label}
+                  <span class="dot" style="background:${row.style.color}"></span>
+                  <span class="line-chip line-chip-${row.id}"></span>
+                  ${row.label}
                 </span>
               </td>
-              <td>${fmt(row.stressMse, 6)}</td>
-              <td>${fmt(row.driftMse, 6)}</td>
+              <td>${pct(row.stressRetention)}</td>
               <td>${pct(row.maxDrawdown)}</td>
-              <td>${pct(row.totalReturn)}</td>
-              <td>${pct(row.stressExposure)}</td>
-              <td><strong>${row.score.toFixed(1)}</strong></td>
+              <td>${signed(row.sharpeByRegime.stress || 0, 2)}</td>
+              <td>${formatRecovery(row.recoveryDays)}</td>
+              <td>${pct(row.turnover)}</td>
+              <td><strong>${row.deployScore.toFixed(1)}</strong></td>
             </tr>
           `,
         )
@@ -440,33 +592,262 @@ function renderMethodTable(result) {
   `;
 }
 
-function renderTakeaway(result) {
+function renderTakeaway(rows) {
   const host = document.getElementById("takeaway");
   if (!host) {
     return;
   }
 
-  const n = result.metrics.naive;
-  const a = result.metrics.anchor;
-  const p = result.metrics.anchor_proj;
-  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
+  const ordered = [...rows].sort((a, b) => b.deployScore - a.deployScore);
+  const winner = ordered[0];
+  const naive = findRow(rows, "naive");
+  const hybrid = findRow(rows, "anchor_proj");
 
-  const stressProj = improvement(n.stressMse, p.stressMse);
-  const stressAbl = improvement(n.stressMse, a.stressMse);
-  const driftPenalty = relativeIncrease(n.driftMse, p.driftMse, 1e-4);
-  const driftShift = p.driftMse - n.driftMse;
-  const rollbacks = result.trainLogs?.anchor_proj?.nRollbacks || 0;
+  if (!winner || !naive || !hybrid) {
+    return;
+  }
 
   host.innerHTML = `
-    <h4>Evidence-backed takeaway</h4>
+    <h4>Evidence-backed deployment takeaway</h4>
     <p>
-      In ${mode.label} mode, constrained CL delivers <strong>${pct(stressProj)}</strong> stress-retention gain
-      (replay-only ablation: ${pct(stressAbl)}). Drift MSE shift is <strong>${fmt(driftShift, 6)}</strong>
-      with stabilized increase <strong>${pct(driftPenalty)}</strong>.
-      Gate rollbacks this run: <strong>${rollbacks}</strong>. If ordering holds under repeated Stress+ seeds, the
-      policy is a promotion candidate.
+      In ${MODE_META[activePreset]?.label || "Default"} mode, <strong>${winner.style.short}</strong> is ranked first by
+      stress retention, drawdown behavior, regime Sharpe, and turnover discipline.
+      Hybrid vs naive stress retention is <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>,
+      with drawdown lift <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
+      Implementation next step: promote the winner into paper-trading with weekly stress-retention monitoring.
     </p>
   `;
+}
+
+function buildRegimeInfo(result) {
+  const methods = result.methods || [];
+  const priorityId = methods.find((m) => m.id === "anchor_proj")?.id || methods[0]?.id;
+  const priorityDiag = getDiagnostics(result, priorityId);
+
+  const rawRegimes = Array.isArray(result.streamRegimes) ? result.streamRegimes : [];
+  const length = Math.max(rawRegimes.length, priorityDiag.returns.length, priorityDiag.equity.length, 1);
+
+  const filledRegimes = Array.from({ length }, (_, i) => rawRegimes[i] || "drift");
+  const baseReturns = Array.from({ length }, (_, i) => priorityDiag.returns[i] || 0);
+
+  const absNonStress = [];
+  for (let i = 0; i < length; i += 1) {
+    if (filledRegimes[i] !== "stress") {
+      absNonStress.push(Math.abs(baseReturns[i]));
+    }
+  }
+  const volThreshold = quantile(absNonStress, 0.7);
+
+  const baseStates = [];
+  for (let i = 0; i < length; i += 1) {
+    if (filledRegimes[i] === "stress") {
+      baseStates.push("stress");
+    } else if (Math.abs(baseReturns[i]) >= volThreshold && volThreshold > 0) {
+      baseStates.push("volatile");
+    } else {
+      baseStates.push("calm");
+    }
+  }
+
+  const timelineStates = [...baseStates];
+  const shiftSet = new Set();
+  for (let i = 1; i < baseStates.length; i += 1) {
+    if (baseStates[i] !== baseStates[i - 1]) {
+      timelineStates[i] = "shift";
+      shiftSet.add(i);
+    }
+  }
+
+  const indexByRegime = {
+    calm: [],
+    volatile: [],
+    stress: [],
+    shift: [],
+  };
+
+  for (let i = 0; i < length; i += 1) {
+    if (shiftSet.has(i)) {
+      indexByRegime.shift.push(i);
+    } else {
+      indexByRegime[baseStates[i]].push(i);
+    }
+  }
+
+  return {
+    timelineStates,
+    indexByRegime,
+    stressShare: indexByRegime.stress.length / Math.max(1, length),
+    shiftCount: indexByRegime.shift.length,
+    regimes: ["calm", "volatile", "stress", "shift"],
+  };
+}
+
+function buildMethodRows(result, regimeInfo) {
+  const methods = result.methods || [];
+  const naiveStress = result.metrics?.naive?.stressMse || 0;
+
+  return methods.map((method) => {
+    const style = METHOD_STYLES[method.id] || {
+      color: method.color || "#222222",
+      dash: [],
+      short: method.label,
+      mechanism: "n/a",
+      protect: "n/a",
+      tradeoff: "n/a",
+    };
+
+    const metrics = result.metrics?.[method.id] || {};
+    const diag = getDiagnostics(result, method.id);
+    const sharpeByRegime = computeRegimeSharpe(diag.returns, regimeInfo.indexByRegime);
+
+    return {
+      id: method.id,
+      label: method.label,
+      style,
+      stressMse: metrics.stressMse ?? 0,
+      driftMse: metrics.driftMse ?? 0,
+      maxDrawdown: metrics.maxDrawdown ?? 0,
+      totalReturn: metrics.totalReturn ?? 0,
+      stressRetention: improvement(naiveStress, metrics.stressMse ?? naiveStress),
+      stressWeight:
+        metrics.avgRiskyWeightStress ??
+        meanByIndices(diag.riskyWeights, regimeInfo.indexByRegime.stress) ??
+        0,
+      driftWeight:
+        metrics.avgRiskyWeightDrift ??
+        meanByIndices(diag.riskyWeights, regimeInfo.indexByRegime.calm.concat(regimeInfo.indexByRegime.volatile)) ??
+        0,
+      worstStressDay: metrics.worstStressDay ?? minByIndices(diag.returns, regimeInfo.indexByRegime.stress),
+      turnover: mean(diag.turnovers),
+      recoveryDays: computeRecoveryDays(diag.equity),
+      sharpeByRegime,
+      equity: diag.equity,
+      returns: diag.returns,
+      riskyWeights: diag.riskyWeights,
+    };
+  });
+}
+
+function attachDeployScores(rows) {
+  const stressRetention = normalizeHigherBetter(rows.map((row) => row.stressRetention));
+  const drawdownControl = normalizeHigherBetter(rows.map((row) => row.maxDrawdown));
+  const stressSharpe = normalizeHigherBetter(rows.map((row) => row.sharpeByRegime.stress || 0));
+  const shiftSharpe = normalizeHigherBetter(rows.map((row) => row.sharpeByRegime.shift || 0));
+  const turnoverControl = normalizeLowerBetter(rows.map((row) => row.turnover));
+  const recoveryControl = normalizeLowerBetter(rows.map((row) => row.recoveryDays));
+
+  for (let i = 0; i < rows.length; i += 1) {
+    rows[i].deployScore =
+      100 *
+      (0.34 * stressRetention[i] +
+        0.22 * drawdownControl[i] +
+        0.18 * stressSharpe[i] +
+        0.1 * shiftSharpe[i] +
+        0.08 * turnoverControl[i] +
+        0.08 * recoveryControl[i]);
+  }
+}
+
+function getDiagnostics(result, methodId) {
+  const diag = result.sharedDiagnostics?.[methodId] || {};
+  const equity = cloneArray(diag.equity || result.equityCurves?.[methodId] || []);
+  const returns = cloneArray(diag.returns || computeReturns(equity));
+  const riskyWeights = cloneArray(diag.riskyWeights || []);
+  const turnovers = cloneArray(diag.turnovers || []);
+
+  return {
+    equity: equity.length > 0 ? equity : [1],
+    returns: returns.length > 0 ? returns : [0],
+    riskyWeights: riskyWeights.length > 0 ? riskyWeights : Array(Math.max(1, equity.length)).fill(0),
+    turnovers: turnovers.length > 0 ? turnovers : Array(Math.max(1, equity.length)).fill(0),
+  };
+}
+
+function cloneArray(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+  return values.map((v) => Number(v) || 0);
+}
+
+function computeReturns(equity) {
+  if (!Array.isArray(equity) || equity.length <= 1) {
+    return [0];
+  }
+
+  const out = [];
+  for (let i = 1; i < equity.length; i += 1) {
+    const prev = Math.abs(equity[i - 1]) > 1e-12 ? equity[i - 1] : 1;
+    out.push(equity[i] / prev - 1);
+  }
+  return out;
+}
+
+function computeRegimeSharpe(returns, indexByRegime) {
+  const out = {};
+  for (const regime of Object.keys(indexByRegime)) {
+    const vals = indexByRegime[regime]
+      .map((idx) => returns[idx])
+      .filter((v) => Number.isFinite(v));
+    out[regime] = annualizedSharpe(vals);
+  }
+  return out;
+}
+
+function annualizedSharpe(values) {
+  if (!values || values.length < 2) {
+    return 0;
+  }
+
+  const m = mean(values);
+  const variance = mean(values.map((v) => (v - m) ** 2));
+  const sigma = Math.sqrt(Math.max(variance, 1e-12));
+  const raw = (m / sigma) * Math.sqrt(252);
+  return Math.max(-5, Math.min(5, raw));
+}
+
+function computeRecoveryDays(equity) {
+  if (!Array.isArray(equity) || equity.length === 0) {
+    return 999;
+  }
+
+  let runningPeak = equity[0];
+  let runningPeakAtWorst = equity[0];
+  let worstDrawdown = 0;
+  let troughIdx = 0;
+
+  for (let i = 0; i < equity.length; i += 1) {
+    if (equity[i] > runningPeak) {
+      runningPeak = equity[i];
+    }
+
+    const dd = runningPeak > 0 ? equity[i] / runningPeak - 1 : 0;
+    if (dd < worstDrawdown) {
+      worstDrawdown = dd;
+      troughIdx = i;
+      runningPeakAtWorst = runningPeak;
+    }
+  }
+
+  for (let j = troughIdx; j < equity.length; j += 1) {
+    if (equity[j] >= runningPeakAtWorst) {
+      return j - troughIdx;
+    }
+  }
+
+  return 999;
+}
+
+function renderModeForFocus(id) {
+  return activeFocus === "all" || activeFocus === id;
+}
+
+function focusAlpha(id) {
+  return renderModeForFocus(id) ? 1 : 0.22;
+}
+
+function focusLineWidth(id) {
+  return renderModeForFocus(id) ? 2.4 : 1.4;
 }
 
 function exportCurrentRun() {
@@ -478,6 +859,7 @@ function exportCurrentRun() {
   const report = {
     exportedAt: new Date().toISOString(),
     mode: activePreset,
+    strategyLens: activeFocus,
     config: latestResult.config,
     keyResult: latestResult.keyResult,
     metrics: latestResult.metrics,
@@ -498,87 +880,94 @@ function exportCurrentRun() {
   setStatus("Run report exported.");
 }
 
-function setActiveMode(modeName) {
-  activePreset = modeName;
-
-  document.querySelectorAll("[data-preset]").forEach((btn) => {
-    const target = btn.getAttribute("data-preset");
-    btn.classList.toggle("active", target === modeName);
-  });
-
-  document.querySelectorAll("[data-mode-card]").forEach((card) => {
-    const target = card.getAttribute("data-mode-card");
-    card.classList.toggle("active", target === modeName);
-  });
-
-  const readout = document.getElementById("mode-readout");
-  if (readout) {
-    const meta = MODE_META[modeName] || MODE_META.proposal_like;
-    readout.textContent = `Active mode: ${meta.label}. ${meta.readout}`;
-  }
+function findRow(rows, id) {
+  return rows.find((row) => row.id === id) || null;
 }
 
-function buildRegimeReturnRows(result) {
-  const regimes = result.streamRegimes || [];
-  if (!Array.isArray(regimes) || regimes.length === 0) {
-    return [];
+function quantile(values, q) {
+  if (!values || values.length === 0) {
+    return 0;
   }
 
-  return result.methods.map((method) => {
-    const diag = result.sharedDiagnostics?.[method.id];
-    const returns = diag?.returns || [];
-
-    let driftSum = 0;
-    let driftCount = 0;
-    let stressSum = 0;
-    let stressCount = 0;
-
-    for (let i = 0; i < Math.min(regimes.length, returns.length); i += 1) {
-      if (regimes[i] === "stress") {
-        stressSum += returns[i];
-        stressCount += 1;
-      } else {
-        driftSum += returns[i];
-        driftCount += 1;
-      }
-    }
-
-    const driftMean = driftCount > 0 ? driftSum / driftCount : 0;
-    const stressMean = stressCount > 0 ? stressSum / stressCount : 0;
-
-    return {
-      label: method.label,
-      color: METHOD_STYLES[method.id]?.color || "#111111",
-      driftBp: driftMean * 10000,
-      stressBp: stressMean * 10000,
-    };
-  });
+  const sorted = [...values].sort((a, b) => a - b);
+  const idx = Math.max(0, Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * q)));
+  return sorted[idx];
 }
 
 function normalizeLowerBetter(values) {
   const lo = Math.min(...values);
   const hi = Math.max(...values);
-  const span = Math.max(1e-12, hi - lo);
+  const span = hi - lo;
+
+  if (!Number.isFinite(span) || span < 1e-12) {
+    return values.map(() => 0.5);
+  }
+
   return values.map((v) => (hi - v) / span);
 }
 
 function normalizeHigherBetter(values) {
   const lo = Math.min(...values);
   const hi = Math.max(...values);
-  const span = Math.max(1e-12, hi - lo);
+  const span = hi - lo;
+
+  if (!Number.isFinite(span) || span < 1e-12) {
+    return values.map(() => 0.5);
+  }
+
   return values.map((v) => (v - lo) / span);
 }
 
+function mean(values) {
+  if (!values || values.length === 0) {
+    return 0;
+  }
+  let sum = 0;
+  for (const v of values) {
+    sum += Number(v) || 0;
+  }
+  return sum / values.length;
+}
+
+function meanByIndices(values, indices) {
+  if (!values || values.length === 0 || !indices || indices.length === 0) {
+    return 0;
+  }
+
+  let sum = 0;
+  let count = 0;
+  for (const idx of indices) {
+    const v = values[idx];
+    if (Number.isFinite(v)) {
+      sum += v;
+      count += 1;
+    }
+  }
+
+  return count > 0 ? sum / count : 0;
+}
+
+function minByIndices(values, indices) {
+  if (!values || values.length === 0 || !indices || indices.length === 0) {
+    return 0;
+  }
+
+  let out = Infinity;
+  for (const idx of indices) {
+    const v = values[idx];
+    if (Number.isFinite(v) && v < out) {
+      out = v;
+    }
+  }
+
+  return Number.isFinite(out) ? out : 0;
+}
+
 function improvement(base, current) {
-  if (Math.abs(base) < 1e-12) {
+  if (!Number.isFinite(base) || Math.abs(base) < 1e-12) {
     return 0;
   }
   return (base - current) / Math.abs(base);
-}
-
-function relativeIncrease(base, current, floor = 0) {
-  const denom = Math.max(Math.abs(base), floor, 1e-12);
-  return Math.max(0, (current - base) / denom);
 }
 
 function classBySign(v) {
@@ -591,16 +980,6 @@ function classBySign(v) {
   return "caution";
 }
 
-function classByRollbacks(n) {
-  if (n === 0) {
-    return "good";
-  }
-  if (n > 0 && n <= 12) {
-    return "caution";
-  }
-  return "bad";
-}
-
 function fmt(x, digits = 4) {
   if (!Number.isFinite(x)) {
     return "n/a";
@@ -610,6 +989,7 @@ function fmt(x, digits = 4) {
   if (ax > 0 && (ax < 1e-4 || ax > 1e4)) {
     return x.toExponential(2);
   }
+
   return x.toFixed(digits);
 }
 
@@ -628,9 +1008,16 @@ function pp(x) {
   return `${v >= 0 ? "+" : ""}${v.toFixed(2)} pp`;
 }
 
-function signedBp(x) {
+function signed(x, digits = 2) {
   if (!Number.isFinite(x)) {
     return "n/a";
   }
-  return `${x >= 0 ? "+" : ""}${x.toFixed(1)} bp`;
+  return `${x >= 0 ? "+" : ""}${x.toFixed(digits)}`;
+}
+
+function formatRecovery(days) {
+  if (!Number.isFinite(days) || days >= 999) {
+    return "not recovered";
+  }
+  return `${days}d`;
 }

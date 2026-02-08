@@ -48,7 +48,7 @@ function drawAxes(ctx, dims, xLabel, yLabel) {
   ctx.fillText(xLabel, (left + right) / 2, bottom + 30);
 
   ctx.save();
-  ctx.translate(left - 38, (top + bottom) / 2);
+  ctx.translate(left - 40, (top + bottom) / 2);
   ctx.rotate(-Math.PI / 2);
   ctx.fillText(yLabel, 0, 0);
   ctx.restore();
@@ -75,27 +75,24 @@ function drawGrid(ctx, dims, ticks = 4) {
   }
 }
 
-function drawLegend(ctx, legendItems, width, y) {
+function drawLegend(ctx, legendItems, y = 10) {
   let x = 14;
   ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
 
   for (const item of legendItems) {
-    if (item.kind === "bar") {
-      ctx.fillStyle = item.color;
-      ctx.fillRect(x, y - 1, 14, 5);
-    } else if (item.kind === "bar_hatch") {
-      drawPatternFill(ctx, x, y - 2, 14, 6, "diagonal", item.color);
+    if (item.kind === "pattern") {
+      ctx.save();
+      ctx.globalAlpha = item.alpha === undefined ? 1 : item.alpha;
+      drawPatternFill(ctx, x, y - 2, 14, 6, item.pattern || "solid", item.color);
       ctx.strokeStyle = item.color;
       ctx.lineWidth = 1;
       ctx.strokeRect(x, y - 2, 14, 6);
-    } else if (item.kind === "bar_outline") {
-      ctx.strokeStyle = item.color;
-      ctx.lineWidth = 1.4;
-      ctx.strokeRect(x, y - 2, 14, 6);
+      ctx.restore();
     } else {
       ctx.save();
       ctx.strokeStyle = item.color;
       ctx.lineWidth = 2;
+      ctx.globalAlpha = item.alpha === undefined ? 1 : item.alpha;
       ctx.setLineDash(item.dash || []);
       ctx.beginPath();
       ctx.moveTo(x, y + 2);
@@ -110,10 +107,6 @@ function drawLegend(ctx, legendItems, width, y) {
 
     x += ctx.measureText(item.label).width + 46;
   }
-}
-
-function pct(x) {
-  return `${x.toFixed(1)}%`;
 }
 
 function drawPatternFill(ctx, x, y, w, h, pattern, color) {
@@ -146,6 +139,17 @@ function drawPatternFill(ctx, x, y, w, h, pattern, color) {
     return;
   }
 
+  if (pattern === "vertical") {
+    for (let xx = x - 2; xx <= x + w + 2; xx += 4) {
+      ctx.beginPath();
+      ctx.moveTo(xx, y - 1);
+      ctx.lineTo(xx, y + h + 1);
+      ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
+
   for (let k = -h; k <= w + h; k += 4) {
     ctx.beginPath();
     ctx.moveTo(x + k, y + h);
@@ -155,122 +159,108 @@ function drawPatternFill(ctx, x, y, w, h, pattern, color) {
   ctx.restore();
 }
 
-export function drawImpactBars(canvas, impact) {
-  const { ctx, width, height } = setupCanvas(canvas);
-  ctx.clearRect(0, 0, width, height);
+function drawRegimeBackdrop(ctx, dims, states, xToPx, maxT) {
+  if (!Array.isArray(states) || states.length === 0) {
+    return;
+  }
 
-  const dims = {
-    left: 64,
-    right: width - 18,
-    top: 24,
-    bottom: height - 46,
+  const stepPx = maxT > 0 ? (dims.right - dims.left) / maxT : 8;
+
+  const shadeState = (state, fill) => {
+    const idx = [];
+    for (let i = 0; i < states.length; i += 1) {
+      if (states[i] === state) {
+        idx.push(i);
+      }
+    }
+
+    if (idx.length === 0) {
+      return;
+    }
+
+    const segments = [];
+    let segStart = idx[0];
+    let segEnd = idx[0];
+
+    for (let i = 1; i < idx.length; i += 1) {
+      if (idx[i] <= segEnd + 1) {
+        segEnd = idx[i];
+      } else {
+        segments.push([segStart, segEnd]);
+        segStart = idx[i];
+        segEnd = idx[i];
+      }
+    }
+    segments.push([segStart, segEnd]);
+
+    ctx.fillStyle = fill;
+    for (const [a, b] of segments) {
+      const left = Math.max(dims.left, xToPx(a) - stepPx * 0.5);
+      const right = Math.min(dims.right, xToPx(b) + stepPx * 0.5);
+      ctx.fillRect(left, dims.top, Math.max(1, right - left), dims.bottom - dims.top);
+    }
   };
 
-  const values = impact.flatMap((g) => [g.anchor, g.proj, 0]);
-  const [rawMin, rawMax] = extent(values, 0.15);
-  const yMin = Math.min(rawMin, 0);
-  const yMax = Math.max(rawMax, 0);
+  shadeState("volatile", "rgba(17, 17, 17, 0.04)");
+  shadeState("stress", "rgba(17, 17, 17, 0.1)");
 
-  function yToPx(y) {
-    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
-  }
-
-  function xCenter(i, n) {
-    return dims.left + ((i + 0.5) / n) * (dims.right - dims.left);
-  }
-
-  drawGrid(ctx, dims, 4);
-  drawAxes(ctx, dims, "Metrics", "Delta vs naive (percentage points)");
-
-  const zeroY = yToPx(0);
-  ctx.strokeStyle = "#333333";
-  ctx.lineWidth = 1.4;
-  ctx.beginPath();
-  ctx.moveTo(dims.left, zeroY);
-  ctx.lineTo(dims.right, zeroY);
-  ctx.stroke();
-
-  const groupWidth = (dims.right - dims.left) / impact.length;
-  const barWidth = Math.min(22, groupWidth * 0.22);
-
-  for (let i = 0; i < impact.length; i += 1) {
-    const group = impact[i];
-    const cx = xCenter(i, impact.length);
-
-    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, {
-      color: "#2f557f",
-      pattern: "diagonal",
-      outlined: true,
-    });
-    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, {
-      color: "#7f4a1e",
-      pattern: "solid",
-      outlined: false,
-    });
-
-    ctx.fillStyle = "#222222";
-    ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(group.label, cx, dims.bottom + 16);
-
-    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#2f557f", zeroY);
-    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#7f4a1e", zeroY);
-  }
-
-  drawLegend(
-    ctx,
-    [
-      { label: "Anchor", color: "#2f557f", kind: "bar_hatch" },
-      { label: "Anchor + Projection", color: "#7f4a1e", kind: "bar" },
-    ],
-    width,
-    10,
-  );
-}
-
-function drawBar(ctx, centerX, width, value, yToPx, zeroY, style) {
-  const y = yToPx(value);
-  const top = Math.min(y, zeroY);
-  const h = Math.max(1, Math.abs(y - zeroY));
-  const left = centerX - width / 2;
-
-  drawPatternFill(ctx, left, top, width, h, style.pattern || "solid", style.color || "#111111");
-  if (style.outlined) {
-    ctx.strokeStyle = style.color || "#111111";
-    ctx.lineWidth = 1.1;
-    ctx.strokeRect(left, top, width, h);
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.26)";
+  ctx.lineWidth = 1;
+  for (let i = 0; i < states.length; i += 1) {
+    if (states[i] !== "shift") {
+      continue;
+    }
+    const x = xToPx(i);
+    ctx.beginPath();
+    ctx.moveTo(x, dims.top);
+    ctx.lineTo(x, dims.bottom);
+    ctx.stroke();
   }
 }
 
-function labelValue(ctx, x, y, value, color, zeroY) {
-  ctx.fillStyle = color;
-  ctx.font = "11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
-  ctx.textAlign = "center";
-
-  if (y < zeroY) {
-    ctx.fillText(pct(value), x, y - 6);
-  } else {
-    ctx.fillText(pct(value), x, y + 14);
+function methodPattern(methodId) {
+  if (methodId === "naive") {
+    return "horizontal";
   }
+  if (methodId === "anchor") {
+    return "diagonal";
+  }
+  return "vertical";
 }
 
-export function drawEquity(canvas, series, stressMarkers) {
+function shortMethod(label) {
+  if (!label) {
+    return "";
+  }
+  if (label.includes("Naive")) {
+    return "Naive";
+  }
+  if (label.includes("Constrained")) {
+    return "Hybrid";
+  }
+  if (label.includes("Replay")) {
+    return "Replay";
+  }
+  return label;
+}
+
+export function drawEquity(canvas, series, regimeStates) {
   const { ctx, width, height } = setupCanvas(canvas);
   ctx.clearRect(0, 0, width, height);
 
   const dims = {
     left: 62,
     right: width - 20,
-    top: 22,
+    top: 24,
     bottom: height - 46,
   };
 
   drawGrid(ctx, dims, 4);
-  drawAxes(ctx, dims, "Time", "Equity");
+  drawAxes(ctx, dims, "Time", "Portfolio value");
 
-  const allY = series.flatMap((s) => s.values);
+  const allY = series.flatMap((s) => s.values || []);
   const [yMin, yMax] = extent(allY, 0.08);
-  const maxT = Math.max(...series.map((s) => s.values.length - 1));
+  const maxT = Math.max(...series.map((s) => (s.values?.length || 1) - 1), 1);
 
   function xToPx(t) {
     return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
@@ -280,58 +270,20 @@ export function drawEquity(canvas, series, stressMarkers) {
     return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
   }
 
-  // Shade contiguous stress windows so regime context is visible at a glance.
-  if (Array.isArray(stressMarkers) && stressMarkers.length > 0) {
-    const sorted = [...stressMarkers].sort((a, b) => a - b);
-    const segments = [];
-    let segStart = sorted[0];
-    let segEnd = sorted[0];
-
-    for (let i = 1; i < sorted.length; i += 1) {
-      const idx = sorted[i];
-      if (idx <= segEnd + 1) {
-        segEnd = idx;
-      } else {
-        segments.push([segStart, segEnd]);
-        segStart = idx;
-        segEnd = idx;
-      }
-    }
-    segments.push([segStart, segEnd]);
-
-    const stepPx = maxT > 0 ? (dims.right - dims.left) / maxT : 8;
-    ctx.fillStyle = "rgba(17, 17, 17, 0.08)";
-    for (const [a, b] of segments) {
-      const left = Math.max(dims.left, xToPx(a) - stepPx * 0.5);
-      const right = Math.min(dims.right, xToPx(b) + stepPx * 0.5);
-      ctx.fillRect(left, dims.top, Math.max(1, right - left), dims.bottom - dims.top);
-    }
-
-    ctx.strokeStyle = "rgba(17, 17, 17, 0.18)";
-    ctx.lineWidth = 1;
-    for (const [a, b] of segments) {
-      const left = Math.max(dims.left, xToPx(a) - stepPx * 0.5);
-      const right = Math.min(dims.right, xToPx(b) + stepPx * 0.5);
-      ctx.beginPath();
-      ctx.moveTo(left, dims.top);
-      ctx.lineTo(left, dims.bottom);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(right, dims.top);
-      ctx.lineTo(right, dims.bottom);
-      ctx.stroke();
-    }
-  }
+  drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
 
   for (const s of series) {
+    ctx.save();
     ctx.strokeStyle = s.color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = s.lineWidth || 2;
+    ctx.globalAlpha = s.alpha === undefined ? 1 : s.alpha;
     ctx.setLineDash(s.dash || []);
     ctx.beginPath();
 
-    for (let t = 0; t < s.values.length; t += 1) {
+    const values = s.values || [];
+    for (let t = 0; t < values.length; t += 1) {
       const x = xToPx(t);
-      const y = yToPx(s.values[t]);
+      const y = yToPx(values[t]);
       if (t === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -340,31 +292,199 @@ export function drawEquity(canvas, series, stressMarkers) {
     }
 
     ctx.stroke();
-    ctx.setLineDash([]);
+    ctx.restore();
   }
 
-  drawLegend(ctx, series.map((s) => ({ label: s.label, color: s.color, dash: s.dash })), width, 10);
+  drawLegend(
+    ctx,
+    series.map((s) => ({ label: shortMethod(s.label), color: s.color, dash: s.dash, alpha: s.alpha })),
+    10,
+  );
 }
 
-export function drawRegimeBars(canvas, rows) {
+export function drawDrawdown(canvas, series, regimeStates) {
   const { ctx, width, height } = setupCanvas(canvas);
   ctx.clearRect(0, 0, width, height);
 
-  if (!rows || rows.length === 0) {
-    return;
-  }
-
   const dims = {
-    left: 70,
-    right: width - 16,
+    left: 62,
+    right: width - 20,
     top: 24,
     bottom: height - 46,
   };
 
-  const values = rows.flatMap((r) => [r.driftBp, r.stressBp, 0]);
-  const [rawMin, rawMax] = extent(values, 0.15);
-  const yMin = Math.min(rawMin, 0);
-  const yMax = Math.max(rawMax, 0);
+  drawGrid(ctx, dims, 4);
+  drawAxes(ctx, dims, "Time", "Drawdown (%)");
+
+  const drawdownSeries = series.map((s) => {
+    let peak = -Infinity;
+    const dd = (s.values || []).map((v) => {
+      peak = Math.max(peak, v);
+      return peak > 0 ? ((v / peak) - 1) * 100 : 0;
+    });
+    return {
+      ...s,
+      values: dd,
+    };
+  });
+
+  const allY = drawdownSeries.flatMap((s) => s.values || []);
+  const [rawMin] = extent(allY, 0.05);
+  const yMin = Math.min(rawMin, -1);
+  const yMax = 1;
+  const maxT = Math.max(...drawdownSeries.map((s) => (s.values?.length || 1) - 1), 1);
+
+  function xToPx(t) {
+    return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
+  }
+
+  function yToPx(y) {
+    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
+  }
+
+  drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
+
+  const zeroY = yToPx(0);
+  ctx.strokeStyle = "#333333";
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(dims.left, zeroY);
+  ctx.lineTo(dims.right, zeroY);
+  ctx.stroke();
+
+  for (const s of drawdownSeries) {
+    ctx.save();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = s.lineWidth || 2;
+    ctx.globalAlpha = s.alpha === undefined ? 1 : s.alpha;
+    ctx.setLineDash(s.dash || []);
+    ctx.beginPath();
+
+    const values = s.values || [];
+    for (let t = 0; t < values.length; t += 1) {
+      const x = xToPx(t);
+      const y = yToPx(values[t]);
+      if (t === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawLegend(
+    ctx,
+    drawdownSeries.map((s) => ({ label: shortMethod(s.label), color: s.color, dash: s.dash, alpha: s.alpha })),
+    10,
+  );
+}
+
+export function drawAllocationProfiles(canvas, profiles, regimeStates) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!profiles || profiles.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 92,
+    right: width - 20,
+    top: 24,
+    bottom: height - 28,
+  };
+
+  const maxT = Math.max(...profiles.map((p) => (p.values?.length || 1) - 1), 1);
+
+  function xToPx(t) {
+    return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
+  }
+
+  drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
+
+  const laneGap = 14;
+  const laneHeight = (dims.bottom - dims.top - laneGap * (profiles.length - 1)) / profiles.length;
+
+  for (let i = 0; i < profiles.length; i += 1) {
+    const p = profiles[i];
+    const laneTop = dims.top + i * (laneHeight + laneGap);
+    const laneBottom = laneTop + laneHeight;
+
+    ctx.strokeStyle = "rgba(17, 17, 17, 0.16)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(dims.left, laneTop, dims.right - dims.left, laneHeight);
+
+    ctx.fillStyle = "#2a2a2a";
+    ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(shortMethod(p.label), 14, laneTop + laneHeight * 0.45);
+
+    function yToPx(v) {
+      return laneBottom - Math.max(0, Math.min(1, v)) * laneHeight;
+    }
+
+    ctx.fillStyle = "#5a646f";
+    ctx.font = "10px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.fillText("100%", 54, laneTop + 10);
+    ctx.fillText("0%", 66, laneBottom - 2);
+
+    ctx.save();
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = p.lineWidth || 2;
+    ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
+    ctx.setLineDash(p.dash || []);
+    ctx.beginPath();
+
+    const values = p.values || [];
+    for (let t = 0; t < values.length; t += 1) {
+      const x = xToPx(t);
+      const y = yToPx(values[t]);
+      if (t === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawLegend(
+    ctx,
+    profiles.map((p) => ({ label: shortMethod(p.label), color: p.color, dash: p.dash, alpha: p.alpha })),
+    10,
+  );
+}
+
+export function drawRegimeRisk(canvas, regimes, rows) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!regimes || regimes.length === 0 || !rows || rows.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 64,
+    right: width - 16,
+    top: 24,
+    bottom: height - 50,
+  };
+
+  const allVals = [];
+  for (const r of rows) {
+    for (const regime of regimes) {
+      allVals.push(r.sharpe?.[regime] || 0);
+    }
+  }
+
+  const [rawMin, rawMax] = extent(allVals, 0.15);
+  const yMin = Math.min(rawMin, -1);
+  const yMax = Math.max(rawMax, 1);
 
   function yToPx(y) {
     return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
@@ -375,100 +495,56 @@ export function drawRegimeBars(canvas, rows) {
   }
 
   drawGrid(ctx, dims, 4);
-  drawAxes(ctx, dims, "Method", "Mean return (basis points)");
+  drawAxes(ctx, dims, "Market regime", "Annualized Sharpe");
 
   const zeroY = yToPx(0);
   ctx.strokeStyle = "#333333";
-  ctx.lineWidth = 1.3;
+  ctx.lineWidth = 1.4;
   ctx.beginPath();
   ctx.moveTo(dims.left, zeroY);
   ctx.lineTo(dims.right, zeroY);
   ctx.stroke();
 
-  const groupWidth = (dims.right - dims.left) / rows.length;
-  const barWidth = Math.min(18, groupWidth * 0.18);
+  const groupWidth = (dims.right - dims.left) / regimes.length;
+  const barWidth = Math.min(16, groupWidth * 0.2);
 
-  for (let i = 0; i < rows.length; i += 1) {
-    const row = rows[i];
-    const cx = xCenter(i, rows.length);
+  for (let g = 0; g < regimes.length; g += 1) {
+    const cx = xCenter(g, regimes.length);
+    const regime = regimes[g];
 
-    const driftY = yToPx(row.driftBp);
-    const stressY = yToPx(row.stressBp);
-    const driftTop = Math.min(driftY, zeroY);
-    const driftH = Math.max(1, Math.abs(driftY - zeroY));
-    const stressTop = Math.min(stressY, zeroY);
-    const stressH = Math.max(1, Math.abs(stressY - zeroY));
-    const driftX = cx - barWidth * 1.25;
-    const stressX = cx + barWidth * 0.25;
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = rows[i];
+      const value = row.sharpe?.[regime] || 0;
+      const y = yToPx(value);
+      const top = Math.min(y, zeroY);
+      const h = Math.max(1, Math.abs(y - zeroY));
+      const x = cx + (i - (rows.length - 1) / 2) * (barWidth * 1.25) - barWidth / 2;
+      const alpha = row.alpha === undefined ? 1 : row.alpha;
 
-    // Drift regime: outlined bar for quick contrast.
-    ctx.strokeStyle = row.color;
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash(methodDash(row.label));
-    ctx.strokeRect(driftX, driftTop, barWidth, driftH);
-    ctx.setLineDash([]);
-
-    // Stress regime: pattern-filled for grayscale readability.
-    drawPatternFill(ctx, stressX, stressTop, barWidth, stressH, methodPattern(row.label), row.color);
-    ctx.strokeStyle = row.color;
-    ctx.lineWidth = 1.1;
-    ctx.strokeRect(stressX, stressTop, barWidth, stressH);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      drawPatternFill(ctx, x, top, barWidth, h, methodPattern(row.id), row.color);
+      ctx.strokeStyle = row.color;
+      ctx.lineWidth = 1.1;
+      ctx.strokeRect(x, top, barWidth, h);
+      ctx.restore();
+    }
 
     ctx.fillStyle = "#222222";
     ctx.font = "11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(shortLabel(row.label), cx, dims.bottom + 16);
+    ctx.fillText(regime.charAt(0).toUpperCase() + regime.slice(1), cx, dims.bottom + 16);
   }
 
   drawLegend(
     ctx,
-    [
-      { label: "Drift regime", color: "#444444", kind: "bar_outline" },
-      { label: "Stress regime", color: "#444444", kind: "bar" },
-    ],
-    width,
+    rows.map((row) => ({
+      label: shortMethod(row.label),
+      color: row.color,
+      kind: "pattern",
+      pattern: methodPattern(row.id),
+      alpha: row.alpha,
+    })),
     10,
   );
-}
-
-function shortLabel(label) {
-  if (!label) {
-    return "";
-  }
-  if (label.includes("Naive")) {
-    return "Naive";
-  }
-  if (label.includes("Constrained")) {
-    return "Constrained";
-  }
-  if (label.includes("Replay")) {
-    return "Replay";
-  }
-  return label;
-}
-
-function methodPattern(label) {
-  if (!label) {
-    return "solid";
-  }
-  if (label.includes("Naive")) {
-    return "horizontal";
-  }
-  if (label.includes("Replay")) {
-    return "diagonal";
-  }
-  return "solid";
-}
-
-function methodDash(label) {
-  if (!label) {
-    return [];
-  }
-  if (label.includes("Naive")) {
-    return [5, 3];
-  }
-  if (label.includes("Replay")) {
-    return [2, 2];
-  }
-  return [];
 }

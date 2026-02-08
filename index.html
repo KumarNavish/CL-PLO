@@ -244,6 +244,17 @@
                 <button id="apply-stress" data-preset="stress_heavy" class="btn btn-ghost" type="button">Stress+</button>
               </div>
 
+              <article class="focus-panel" aria-label="Strategy focus selector">
+                <h3>Strategy Lens</h3>
+                <div class="focus-grid">
+                  <button id="focus-all" data-focus="all" class="focus-btn active" type="button">All</button>
+                  <button id="focus-naive" data-focus="naive" class="focus-btn" type="button">Naive</button>
+                  <button id="focus-anchor" data-focus="anchor" class="focus-btn" type="button">Replay</button>
+                  <button id="focus-proj" data-focus="anchor_proj" class="focus-btn" type="button">Hybrid</button>
+                </div>
+                <p id="focus-readout" class="mode-readout">Viewing all strategies for side-by-side deployability checks.</p>
+              </article>
+
               <form id="config-form" class="knob-grid">
                 <label>
                   Anchor weight
@@ -287,33 +298,41 @@
             </div>
 
             <div id="impact-kpis" class="kpi-row"></div>
+            <div id="strategy-snapshots" class="strategy-snapshots"></div>
 
             <div class="plot-stack">
               <article class="chart-card">
-                <h3>Retention vs Stress Impact</h3>
-                <p class="plot-caption"><strong>Shows:</strong> stress-retention gain and drawdown lift versus naive.<br /><strong>Read:</strong> convincing signal is constrained > replay on both bars.</p>
-                <canvas id="impact-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="impact-reading"></p>
+                <h3>Portfolio Value Across Regimes</h3>
+                <p class="plot-caption"><strong>Shows:</strong> cumulative portfolio value with calm/volatile/stress/shift context.<br /><strong>Read:</strong> deployable strategy compounds while avoiding stress path collapse.</p>
+                <canvas id="pnl-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Equity Curve with Stress Regimes</h3>
-                <p class="plot-caption"><strong>Shows:</strong> full equity path with shaded stress windows.<br /><strong>Read:</strong> look for shallower stress drawdowns without drift collapse.</p>
-                <canvas id="equity-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="equity-reading"></p>
+                <h3>Drawdown and Recovery</h3>
+                <p class="plot-caption"><strong>Shows:</strong> depth and duration of capital impairment under each regime.<br /><strong>Read:</strong> release candidate should recover faster after stress dislocations.</p>
+                <canvas id="drawdown-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Regime Split (Drift vs Stress)</h3>
-                <p class="plot-caption"><strong>Shows:</strong> mean returns split by drift and stress regimes.<br /><strong>Read:</strong> method quality is explicit trade-off, not hidden averaging.</p>
-                <canvas id="regime-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="regime-reading"></p>
+                <h3>Allocation Stability vs Responsiveness</h3>
+                <p class="plot-caption"><strong>Shows:</strong> explicit risky-allocation path per strategy under regime shifts.<br /><strong>Read:</strong> robust methods adjust decisively in stress without noisy over-trading.</p>
+                <canvas id="allocation-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="allocation-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Risk-Adjusted Return by Regime</h3>
+                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe per regime bucket (calm, volatile, stress, shift).<br /><strong>Read:</strong> hybrid dominance means stress and shift resilience without destroying calm performance.</p>
+                <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
             </div>
 
             <article class="table-wrap">
-              <h3>Method Scoreboard</h3>
-              <p class="table-guide">Use ranking for promotion decisions only after repeated Stress+ seed checks.</p>
+              <h3>Deployment Scoreboard</h3>
+              <p class="table-guide">Ranking blends stress robustness, drawdown control, regime Sharpe, and turnover discipline.</p>
               <table id="method-table" class="method-table"></table>
             </article>
           </div>
