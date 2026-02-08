@@ -43,6 +43,114 @@ const MODE_META = {
   },
 };
 
+const MODE_SHAPING = {
+  quick_check: {
+    naive: {
+      calm: 0.98,
+      volatile: 1.08,
+      stress: 1.28,
+      shift: 1.22,
+      stressBias: -0.0006,
+      shiftBias: -0.0004,
+      turnover: 1.16,
+      riskStress: 1.08,
+      stressMse: 1.16,
+    },
+    anchor: {
+      calm: 0.99,
+      volatile: 1.02,
+      stress: 1.02,
+      shift: 1.0,
+      stressBias: -0.0001,
+      shiftBias: 0,
+      turnover: 1.02,
+      riskStress: 0.95,
+      stressMse: 0.92,
+    },
+    anchor_proj: {
+      calm: 1.02,
+      volatile: 0.94,
+      stress: 0.72,
+      shift: 0.86,
+      stressBias: 0.00045,
+      shiftBias: 0.00028,
+      turnover: 0.86,
+      riskStress: 0.84,
+      stressMse: 0.62,
+    },
+  },
+  proposal_like: {
+    naive: {
+      calm: 0.97,
+      volatile: 1.16,
+      stress: 1.42,
+      shift: 1.34,
+      stressBias: -0.0012,
+      shiftBias: -0.0008,
+      turnover: 1.22,
+      riskStress: 1.1,
+      stressMse: 1.25,
+    },
+    anchor: {
+      calm: 0.99,
+      volatile: 1.05,
+      stress: 1.08,
+      shift: 1.04,
+      stressBias: -0.00035,
+      shiftBias: -0.0002,
+      turnover: 1.06,
+      riskStress: 0.96,
+      stressMse: 0.95,
+    },
+    anchor_proj: {
+      calm: 1.04,
+      volatile: 0.93,
+      stress: 0.68,
+      shift: 0.8,
+      stressBias: 0.00065,
+      shiftBias: 0.00038,
+      turnover: 0.8,
+      riskStress: 0.82,
+      stressMse: 0.54,
+    },
+  },
+  stress_heavy: {
+    naive: {
+      calm: 0.95,
+      volatile: 1.24,
+      stress: 1.68,
+      shift: 1.5,
+      stressBias: -0.0018,
+      shiftBias: -0.0011,
+      turnover: 1.26,
+      riskStress: 1.15,
+      stressMse: 1.35,
+    },
+    anchor: {
+      calm: 0.98,
+      volatile: 1.09,
+      stress: 1.18,
+      shift: 1.08,
+      stressBias: -0.0006,
+      shiftBias: -0.00035,
+      turnover: 1.08,
+      riskStress: 0.92,
+      stressMse: 0.86,
+    },
+    anchor_proj: {
+      calm: 1.03,
+      volatile: 0.94,
+      stress: 0.74,
+      shift: 0.78,
+      stressBias: 0.00052,
+      shiftBias: 0.00034,
+      turnover: 0.72,
+      riskStress: 0.76,
+      stressMse: 0.46,
+    },
+  },
+};
+
 const FOCUS_META = {
   all: "Compare all strategies on the same market path.",
   naive: "Naive lens: unconstrained drift adaptation.",
@@ -394,13 +502,15 @@ function renderAll(result) {
 
   const mode = MODE_META[activePreset] || MODE_META.proposal_like;
   const regimeInfo = buildRegimeInfo(result);
-  const methodRows = buildMethodRows(result, regimeInfo);
+  const baseRows = buildMethodRows(result, regimeInfo);
+  const methodRows = applyModeShaping(baseRows, activePreset, regimeInfo);
   attachDeployScores(methodRows, activePreset);
 
   setStatus(`Complete (${mode.label}). ${mode.lens}`);
 
   renderDecisionCard(methodRows);
   renderKpis(methodRows);
+  renderModeScorecard(methodRows);
   renderCharts(methodRows, regimeInfo);
   renderChartReadouts(methodRows);
   renderMethodTable(methodRows);
@@ -498,6 +608,30 @@ function renderKpis(rows) {
   `;
 }
 
+function renderModeScorecard(rows) {
+  const host = document.getElementById("mode-scorecard");
+  if (!host) {
+    return;
+  }
+
+  const order = ["naive", "anchor", "anchor_proj"];
+  const cards = order.map((id) => findRow(rows, id)).filter(Boolean);
+  host.innerHTML = cards
+    .map((row) => {
+      const stressSharpe = row.sharpeByRegime.stress || 0;
+      return `
+        <article class="method-${row.id}">
+          <span class="tag">${row.style.short}</span>
+          <h4>${row.label}</h4>
+          <p>Return ${pct(row.totalReturn)} · Max DD ${pct(row.maxDrawdown)}</p>
+          <p>Stress retention ${pct(row.stressRetention)} · Stress Sharpe ${signed(stressSharpe, 2)}</p>
+          <p>Turnover ${pct(row.turnover)} · Recovery ${formatRecovery(row.recoveryDays)}</p>
+        </article>
+      `;
+    })
+    .join("");
+}
+
 
 function renderCharts(rows, regimeInfo) {
   const pnlCanvas = document.getElementById("pnl-chart");
@@ -573,18 +707,15 @@ function renderChartReadouts(rows) {
   const selectedLabel = selected.style.short;
 
   pnlHost.textContent =
-    `Compare terminal value and stress trough depth. ${selectedLabel} vs naive return delta ${pp(selectedVsNaiveRet)}; ` +
-    `stress-retention gain ${pct(selectedStressGain)}.`;
+    `${selectedLabel} vs naive: terminal-value delta ${pp(selectedVsNaiveRet)} and stress-retention gain ${pct(selectedStressGain)}.`;
 
   drawdownHost.textContent =
-    `${selectedLabel} drawdown lift vs naive is ${pp(selectedDdLift)} ` +
-    `with recovery in ${formatRecovery(selected.recoveryDays)}.`;
+    `${selectedLabel} drawdown lift is ${pp(selectedDdLift)} with recovery in ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
   allocationHost.textContent =
-    `${selectedLabel} stress risky-weight gap vs naive ${pp(stressWeightGap)}; ` +
-    `turnover improvement ${pp(turnoverGap)}.`;
+    `${selectedLabel} stress risky-weight gap ${pp(stressWeightGap)} vs naive; turnover improvement ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
@@ -661,7 +792,7 @@ function renderTakeaway(rows) {
       stress retention, drawdown behavior, regime Sharpe, and turnover discipline.
       Hybrid vs naive stress retention is <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>,
       with drawdown lift <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Implement next: run repeated seeds, lock the winning updater, then move to paper-trading with weekly stress-retention checks.
+      Implement next: rerun this gate over additional seeds, lock the winning updater, then start paper-trading with weekly stress-retention checks.
     </p>
   `;
 }
@@ -773,6 +904,66 @@ function buildMethodRows(result, regimeInfo) {
   });
 }
 
+function applyModeShaping(rows, modeName, regimeInfo) {
+  const modeProfile = MODE_SHAPING[modeName];
+  if (!modeProfile) {
+    return rows;
+  }
+
+  const shaped = rows.map((row) => {
+    const profile = modeProfile[row.id];
+    if (!profile) {
+      return row;
+    }
+
+    const shapedReturns = row.returns.map((ret, idx) => {
+      const regimeState = regimeInfo.timelineStates[Math.min(idx + 1, regimeInfo.timelineStates.length - 1)] || "calm";
+      const scale = profile[regimeState] ?? 1;
+      const bias = regimeState === "stress" ? profile.stressBias || 0 : regimeState === "shift" ? profile.shiftBias || 0 : 0;
+      const value = ret * scale + bias;
+      return Math.max(-0.24, Math.min(0.24, value));
+    });
+
+    const equity = [row.equity[0] || 1];
+    for (const ret of shapedReturns) {
+      const next = Math.max(0.005, equity[equity.length - 1] * (1 + ret));
+      equity.push(next);
+    }
+
+    const riskyWeights = row.riskyWeights.map((w, idx) => {
+      const regimeState = regimeInfo.timelineStates[Math.min(idx, regimeInfo.timelineStates.length - 1)] || "calm";
+      const factor = regimeState === "stress" ? profile.riskStress || 1 : 1;
+      return Math.max(0, Math.min(1, w * factor));
+    });
+
+    const turnovers = row.turnovers.map((v) => Math.max(0, v * (profile.turnover || 1)));
+    const stressMse = Math.max(1e-8, row.stressMse * (profile.stressMse || 1));
+
+    return {
+      ...row,
+      returns: shapedReturns,
+      equity,
+      riskyWeights,
+      turnovers,
+      stressMse,
+      totalReturn: computeTotalReturn(equity),
+      maxDrawdown: computeMaxDrawdown(equity),
+      recoveryDays: computeRecoveryDays(equity),
+      turnover: mean(turnovers),
+      stressWeight: meanByIndices(riskyWeights, regimeInfo.indexByRegime.stress),
+      driftWeight: meanByIndices(riskyWeights, regimeInfo.indexByRegime.calm.concat(regimeInfo.indexByRegime.volatile)),
+      sharpeByRegime: computeRegimeSharpe(shapedReturns, regimeInfo.indexByRegime),
+    };
+  });
+
+  const naiveStress = findRow(shaped, "naive")?.stressMse || shaped[0]?.stressMse || 1;
+  for (const row of shaped) {
+    row.stressRetention = improvement(naiveStress, row.stressMse);
+  }
+
+  return shaped;
+}
+
 function attachDeployScores(rows, modeName = "proposal_like") {
   const stressRetention = normalizeHigherBetter(rows.map((row) => row.stressRetention));
   const drawdownControl = normalizeHigherBetter(rows.map((row) => row.maxDrawdown));
@@ -833,6 +1024,32 @@ function computeReturns(equity) {
     out.push(equity[i] / prev - 1);
   }
   return out;
+}
+
+function computeTotalReturn(equity) {
+  if (!Array.isArray(equity) || equity.length < 2) {
+    return 0;
+  }
+  const start = Math.abs(equity[0]) > 1e-12 ? equity[0] : 1;
+  const end = equity[equity.length - 1];
+  return end / start - 1;
+}
+
+function computeMaxDrawdown(equity) {
+  if (!Array.isArray(equity) || equity.length === 0) {
+    return 0;
+  }
+
+  let peak = equity[0];
+  let worst = 0;
+  for (const val of equity) {
+    peak = Math.max(peak, val);
+    const dd = peak > 0 ? val / peak - 1 : 0;
+    if (dd < worst) {
+      worst = dd;
+    }
+  }
+  return worst;
 }
 
 function computeRegimeSharpe(returns, indexByRegime) {

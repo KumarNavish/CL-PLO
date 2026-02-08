@@ -1,24 +1,24 @@
 :root {
   --bg: #ffffff;
-  --ink: #121212;
-  --muted: #4f5660;
-  --line: #d8dde5;
-  --line-strong: #c2cad6;
-  --panel: #f7f9fb;
+  --ink: #171a1d;
+  --muted: #4b5360;
+  --line: #d4dbe4;
+  --line-strong: #b8c2d0;
+  --panel: #f8fafc;
 
-  --role-data-bg: #edf2f8;
-  --role-data-stroke: #50627a;
-  --role-memory-bg: #f7f0e7;
-  --role-memory-stroke: #775f44;
-  --role-update-bg: #eef3ef;
-  --role-update-stroke: #4d6656;
-  --role-decision-bg: #edf4ef;
-  --role-decision-stroke: #415f4f;
+  --role-data-bg: #eef3f8;
+  --role-data-stroke: #5a6f88;
+  --role-memory-bg: #f8f2ea;
+  --role-memory-stroke: #7a644a;
+  --role-update-bg: #f3ede7;
+  --role-update-stroke: #8c5b2f;
+  --role-decision-bg: #eef4ef;
+  --role-decision-stroke: #47644f;
 
   --naive: #5f6774;
-  --anchor: #2f557f;
-  --proposed: #7f4a1e;
-  --risk: #a33232;
+  --anchor: #355f8b;
+  --proposed: #8c5b2f;
+  --risk: #b33a35;
 
   --good: #1e6b41;
   --warn: #925327;
@@ -92,9 +92,9 @@ a {
 .hero-insight {
   border: 1px solid var(--line-strong);
   background: #ffffff;
-  padding: 1rem 1.05rem;
+  padding: 1rem 1.02rem;
   display: grid;
-  gap: 0.78rem;
+  gap: 0.74rem;
 }
 
 .hero-kicker {
@@ -115,13 +115,13 @@ a {
 .hero-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.56rem;
+  gap: 0.48rem;
 }
 
 .hero-mini {
   border: 1px solid var(--line);
   background: var(--panel);
-  padding: 0.58rem 0.62rem;
+  padding: 0.54rem 0.58rem;
   min-height: 88px;
 }
 
@@ -135,8 +135,8 @@ a {
 }
 
 .hero-mini p:last-child {
-  font-size: 0.82rem;
-  line-height: 1.34;
+  font-size: 0.8rem;
+  line-height: 1.33;
 }
 
 .hero-method-row {
@@ -149,7 +149,7 @@ a {
   border: 1px solid var(--line);
   padding: 0.45rem 0.5rem;
   font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
-  font-size: 0.76rem;
+  font-size: 0.75rem;
   line-height: 1.34;
   background: #ffffff;
 }
@@ -168,7 +168,7 @@ a {
 .hero-result {
   display: grid;
   grid-template-columns: 1.12fr 1fr;
-  gap: 0.56rem;
+  gap: 0.5rem;
   align-items: start;
 }
 
@@ -185,24 +185,53 @@ a {
   color: var(--proposed);
 }
 
-.hero-figure {
+.hero-proof {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  padding: 0.52rem 0.56rem;
+  display: grid;
+  gap: 0.34rem;
+}
+
+.hero-proof h3 {
+  font-size: 0.83rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.proof-row {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 0.38rem;
+  align-items: center;
   border: 1px solid var(--line);
   background: var(--panel);
-  margin: 0;
-  overflow: hidden;
-}
-
-.hero-figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.hero-figure figcaption {
-  border-top: 1px solid var(--line);
-  padding: 0.42rem 0.52rem;
+  padding: 0.34rem 0.4rem;
   font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
+  line-height: 1.3;
+}
+
+.proof-row.highlight {
+  border-color: #d3b392;
+  background: #fbf5ef;
+}
+
+.proof-row span:first-child {
+  font-weight: 700;
+}
+
+.proof-metric {
+  color: #242d39;
+}
+
+.proof-note {
+  margin-top: 0.12rem;
+  padding-top: 0.3rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.74rem;
+  line-height: 1.35;
   color: var(--muted);
 }
 
@@ -289,6 +318,7 @@ a {
 .protocol-board,
 .control-stack,
 .decision-card,
+.mode-scorecard article,
 .kpi-row article,
 .chart-card,
 .table-wrap,
@@ -317,7 +347,7 @@ a {
 
 .pipeline-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 304px;
+  grid-template-columns: minmax(0, 1fr) 324px;
   gap: 0.62rem;
   align-items: start;
 }
@@ -326,6 +356,8 @@ a {
   margin: 0;
   border: 1px solid #ccd5e1;
   background: #ffffff;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .pipeline-image {
@@ -336,7 +368,7 @@ a {
 
 .pipeline-equation {
   border: 1px solid var(--line);
-  background: #ffffff;
+  background: var(--panel);
   padding: 0.5rem 0.56rem;
 }
 
@@ -377,6 +409,8 @@ a {
   margin-top: 0.56rem;
   border: 1px solid var(--line);
   background: #ffffff;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .projection-image {
@@ -387,7 +421,7 @@ a {
 
 .projection-math-card {
   border: 1px solid #ccd5e1;
-  background: #ffffff;
+  background: var(--panel);
   padding: 0.64rem;
 }
 
@@ -693,6 +727,51 @@ input {
   color: #474747;
 }
 
+.mode-scorecard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.72rem;
+}
+
+.mode-scorecard article {
+  padding: 0.62rem 0.64rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.mode-scorecard h4 {
+  font-size: 0.84rem;
+}
+
+.mode-scorecard p {
+  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
+  font-size: 0.77rem;
+  line-height: 1.34;
+  color: #2e3540;
+}
+
+.mode-scorecard .tag {
+  width: fit-content;
+  font-size: 0.64rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  padding: 0.1rem 0.24rem;
+  color: var(--muted);
+}
+
+.mode-scorecard .method-naive {
+  border-left: 3px solid var(--naive);
+}
+
+.mode-scorecard .method-anchor {
+  border-left: 3px solid var(--anchor);
+}
+
+.mode-scorecard .method-anchor_proj {
+  border-left: 3px solid var(--proposed);
+}
+
 .plot-stack {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -849,7 +928,7 @@ input {
 }
 
 .math-block .katex {
-  white-space: normal;
+  white-space: nowrap;
 }
 
 @media (max-width: 1180px) {
@@ -883,6 +962,10 @@ input {
 
   .kpi-row,
   .synthesis-diagram {
+    grid-template-columns: 1fr;
+  }
+
+  .mode-scorecard {
     grid-template-columns: 1fr;
   }
 

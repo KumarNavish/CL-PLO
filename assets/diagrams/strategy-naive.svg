@@ -1,73 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" role="img" aria-label="Naive strategy pipeline with no anchor protection">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 300" role="img" aria-label="Naive strategy pipeline with unconstrained drift update">
   <defs>
     <style>
-      .role { font: 600 12px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0.08em; fill: #5b6572; text-transform: uppercase; }
-      .title { font: 600 16px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2933; }
-      .sub { font: 400 12px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
-      .chip { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #293241; }
-      .chipv { font: 400 11px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
+      .title { font: 600 18px 'IBM Plex Sans', Arial, sans-serif; fill: #1c232d; }
+      .role { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; fill: #5a6474; }
+      .node { font: 600 15px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2833; }
+      .sub { font: 500 12px 'IBM Plex Sans', Arial, sans-serif; fill: #394352; }
+      .rail { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #212a36; }
+      .railv { font: 500 11px 'IBM Plex Sans', Arial, sans-serif; fill: #3b4656; }
     </style>
-    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 z" fill="#334155"/>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2f3a47"/>
     </marker>
   </defs>
 
-  <rect width="1280" height="360" fill="#ffffff"/>
-  <rect x="8" y="8" width="1264" height="344" rx="10" fill="#ffffff" stroke="#d8dde5"/>
+  <rect width="1280" height="300" fill="#ffffff"/>
+  <rect x="8" y="8" width="1264" height="284" rx="10" fill="#ffffff" stroke="#d4dbe4"/>
 
-  <text x="34" y="36" class="title">A. Naive Update: unconstrained drift adaptation</text>
+  <text x="28" y="34" class="title">A. Naive updater: raw drift step reaches the decision layer</text>
 
-  <text x="76" y="66" class="role">Data</text>
-  <text x="308" y="66" class="role">Frozen System</text>
-  <text x="540" y="66" class="role">Anchor Memory</text>
-  <text x="772" y="66" class="role">Update</text>
-  <text x="1004" y="66" class="role">Decision</text>
+  <text x="66" y="58" class="role">Data</text>
+  <text x="316" y="58" class="role">Frozen system</text>
+  <text x="566" y="58" class="role">Anchor memory</text>
+  <text x="816" y="58" class="role">Update operator</text>
+  <text x="1066" y="58" class="role">Decision layer</text>
 
-  <rect x="34" y="96" width="210" height="118" rx="10" fill="#edf2f8" stroke="#50627a" stroke-width="1.5"/>
-  <text x="139" y="138" text-anchor="middle" class="title" font-size="15">LLM signal stream</text>
-  <text x="139" y="160" text-anchor="middle" class="sub">regime-conditioned tokens</text>
+  <rect x="28" y="74" width="220" height="118" rx="10" fill="#eef3f8" stroke="#5a6f88" stroke-width="1.5"/>
+  <text x="138" y="122" text-anchor="middle" class="node">LLM stream</text>
+  <text x="138" y="144" text-anchor="middle" class="sub">tokenized market flow</text>
 
-  <line x1="244" y1="155" x2="266" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="248" y1="133" x2="278" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="266" y="96" width="210" height="118" rx="10" fill="#f3f4f6" stroke="#5f6670" stroke-width="1.5"/>
-  <text x="371" y="138" text-anchor="middle" class="title" font-size="15">Backbone frozen</text>
-  <text x="371" y="160" text-anchor="middle" class="sub">transformer + portfolio solver</text>
+  <rect x="278" y="74" width="220" height="118" rx="10" fill="#f8fafc" stroke="#6a7686" stroke-width="1.5"/>
+  <text x="388" y="122" text-anchor="middle" class="node">Backbone fixed</text>
+  <text x="388" y="144" text-anchor="middle" class="sub">transformer + optimizer</text>
 
-  <line x1="476" y1="155" x2="498" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="498" y1="133" x2="528" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="498" y="96" width="210" height="118" rx="10" fill="#fafafa" stroke="#9aa3b2" stroke-width="1.4" stroke-dasharray="7 6"/>
-  <text x="603" y="138" text-anchor="middle" class="title" font-size="15">Anchor fixture</text>
-  <text x="603" y="160" text-anchor="middle" class="sub">disabled</text>
-  <line x1="560" y1="122" x2="646" y2="188" stroke="#9aa3b2" stroke-width="2"/>
-  <line x1="646" y1="122" x2="560" y2="188" stroke="#9aa3b2" stroke-width="2"/>
+  <rect x="528" y="74" width="220" height="118" rx="10" fill="#fcfcfd" stroke="#a8b2bf" stroke-width="1.4" stroke-dasharray="7 6"/>
+  <text x="638" y="122" text-anchor="middle" class="node">Anchor fixture OFF</text>
+  <text x="638" y="144" text-anchor="middle" class="sub">no stress replay signal</text>
+  <line x1="598" y1="102" x2="678" y2="168" stroke="#a8b2bf" stroke-width="2"/>
+  <line x1="678" y1="102" x2="598" y2="168" stroke="#a8b2bf" stroke-width="2"/>
 
-  <line x1="708" y1="155" x2="730" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="748" y1="133" x2="778" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="730" y="96" width="210" height="118" rx="10" fill="#fdf1f1" stroke="#a33232" stroke-width="1.7"/>
-  <text x="835" y="138" text-anchor="middle" class="title" font-size="15">Raw update</text>
-  <text x="835" y="160" text-anchor="middle" class="sub">full drift gradient passes</text>
+  <rect x="778" y="74" width="220" height="118" rx="10" fill="#fbf1ed" stroke="#8c5b2f" stroke-width="1.7"/>
+  <text x="888" y="116" text-anchor="middle" class="node">Raw step</text>
+  <text x="888" y="136" text-anchor="middle" class="sub">g = g_d</text>
+  <text x="888" y="156" text-anchor="middle" class="sub">no feasibility gate</text>
 
-  <line x1="940" y1="155" x2="962" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="998" y1="133" x2="1028" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="962" y="96" width="284" height="118" rx="10" fill="#edf4ef" stroke="#415f4f" stroke-width="1.5"/>
-  <text x="1104" y="138" text-anchor="middle" class="title" font-size="15">Portfolio decision layer</text>
-  <text x="1104" y="160" text-anchor="middle" class="sub">weights, turnover, risk budget</text>
+  <rect x="1028" y="74" width="220" height="118" rx="10" fill="#eef4ef" stroke="#47644f" stroke-width="1.5"/>
+  <text x="1138" y="122" text-anchor="middle" class="node">Portfolio action</text>
+  <text x="1138" y="144" text-anchor="middle" class="sub">weights + turnover + risk</text>
 
-  <rect x="34" y="246" width="396" height="84" rx="8" fill="#f8fafc" stroke="#d8dde5"/>
-  <text x="52" y="272" class="chip">Preserves</text>
-  <text x="116" y="272" class="chipv">frozen backbone only</text>
-  <text x="52" y="296" class="chip">Allows change</text>
-  <text x="142" y="296" class="chipv">all drift signals</text>
+  <rect x="28" y="214" width="402" height="62" rx="8" fill="#f8fafc" stroke="#d4dbe4"/>
+  <text x="44" y="238" class="rail">Preserves</text>
+  <text x="108" y="238" class="railv">frozen backbone and optimizer contract</text>
+  <text x="44" y="258" class="rail">Allows</text>
+  <text x="94" y="258" class="railv">all drift directions, including stress-destructive steps</text>
 
-  <rect x="442" y="246" width="396" height="84" rx="8" fill="#f8fafc" stroke="#d8dde5"/>
-  <text x="460" y="272" class="chip">Control enforcement</text>
-  <text x="556" y="272" class="chipv">none before optimizer</text>
-  <text x="460" y="296" class="chip">Primary failure mode</text>
-  <text x="566" y="296" class="chipv">stress memory erosion</text>
+  <rect x="438" y="214" width="402" height="62" rx="8" fill="#f8fafc" stroke="#d4dbe4"/>
+  <text x="454" y="238" class="rail">Control</text>
+  <text x="506" y="238" class="railv">none before decision conversion</text>
+  <text x="454" y="258" class="rail">Production read</text>
+  <text x="545" y="258" class="railv">fast baseline; useful as failure reference, not release default</text>
 
-  <rect x="850" y="246" width="396" height="84" rx="8" fill="#fff7f7" stroke="#ebc8c8"/>
-  <text x="868" y="272" class="chip">Quant read</text>
-  <text x="932" y="272" class="chipv">reactive baseline, poor release safety</text>
-  <text x="868" y="296" class="chip">Deployment role</text>
-  <text x="961" y="296" class="chipv">diagnostic benchmark only</text>
+  <rect x="848" y="214" width="400" height="62" rx="8" fill="#fdf6f2" stroke="#dfc4ac"/>
+  <text x="864" y="238" class="rail">5-second takeaway</text>
+  <text x="966" y="238" class="railv">no memory fixture and no gate means no stress safety</text>
 </svg>

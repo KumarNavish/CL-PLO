@@ -1,73 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" role="img" aria-label="Replay strategy pipeline with anchor memory but no hard projection">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 300" role="img" aria-label="Replay strategy pipeline with anchor memory and soft regularization">
   <defs>
     <style>
-      .role { font: 600 12px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0.08em; fill: #5b6572; text-transform: uppercase; }
-      .title { font: 600 16px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2933; }
-      .sub { font: 400 12px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
-      .chip { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #293241; }
-      .chipv { font: 400 11px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
+      .title { font: 600 18px 'IBM Plex Sans', Arial, sans-serif; fill: #1c232d; }
+      .role { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0.08em; text-transform: uppercase; fill: #5a6474; }
+      .node { font: 600 15px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2833; }
+      .sub { font: 500 12px 'IBM Plex Sans', Arial, sans-serif; fill: #394352; }
+      .rail { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #212a36; }
+      .railv { font: 500 11px 'IBM Plex Sans', Arial, sans-serif; fill: #3b4656; }
     </style>
-    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 z" fill="#334155"/>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#2f3a47"/>
     </marker>
   </defs>
 
-  <rect width="1280" height="360" fill="#ffffff"/>
-  <rect x="8" y="8" width="1264" height="344" rx="10" fill="#ffffff" stroke="#d8dde5"/>
+  <rect width="1280" height="300" fill="#ffffff"/>
+  <rect x="8" y="8" width="1264" height="284" rx="10" fill="#ffffff" stroke="#d4dbe4"/>
 
-  <text x="34" y="36" class="title">B. Replay-Regularized: memory pullback without hard clipping</text>
+  <text x="28" y="34" class="title">B. Replay updater: stress memory adds a soft pullback to drift</text>
 
-  <text x="76" y="66" class="role">Data</text>
-  <text x="308" y="66" class="role">Frozen System</text>
-  <text x="540" y="66" class="role">Anchor Memory</text>
-  <text x="772" y="66" class="role">Update</text>
-  <text x="1004" y="66" class="role">Decision</text>
+  <text x="66" y="58" class="role">Data</text>
+  <text x="316" y="58" class="role">Frozen system</text>
+  <text x="566" y="58" class="role">Anchor memory</text>
+  <text x="816" y="58" class="role">Update operator</text>
+  <text x="1066" y="58" class="role">Decision layer</text>
 
-  <rect x="34" y="96" width="210" height="118" rx="10" fill="#edf2f8" stroke="#50627a" stroke-width="1.5"/>
-  <text x="139" y="138" text-anchor="middle" class="title" font-size="15">LLM signal stream</text>
-  <text x="139" y="160" text-anchor="middle" class="sub">regime-conditioned tokens</text>
+  <rect x="28" y="74" width="220" height="118" rx="10" fill="#eef3f8" stroke="#5a6f88" stroke-width="1.5"/>
+  <text x="138" y="122" text-anchor="middle" class="node">LLM stream</text>
+  <text x="138" y="144" text-anchor="middle" class="sub">tokenized market flow</text>
 
-  <line x1="244" y1="155" x2="266" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="248" y1="133" x2="278" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="266" y="96" width="210" height="118" rx="10" fill="#f3f4f6" stroke="#5f6670" stroke-width="1.5"/>
-  <text x="371" y="138" text-anchor="middle" class="title" font-size="15">Backbone frozen</text>
-  <text x="371" y="160" text-anchor="middle" class="sub">transformer + portfolio solver</text>
+  <rect x="278" y="74" width="220" height="118" rx="10" fill="#f8fafc" stroke="#6a7686" stroke-width="1.5"/>
+  <text x="388" y="122" text-anchor="middle" class="node">Backbone fixed</text>
+  <text x="388" y="144" text-anchor="middle" class="sub">transformer + optimizer</text>
 
-  <line x1="476" y1="155" x2="498" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="498" y1="133" x2="528" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="498" y="96" width="210" height="118" rx="10" fill="#f7f0e7" stroke="#775f44" stroke-width="1.6"/>
-  <text x="603" y="138" text-anchor="middle" class="title" font-size="15">Anchor fixture</text>
-  <text x="603" y="160" text-anchor="middle" class="sub">stress fixtures replayed</text>
-  <line x1="603" y1="214" x2="730" y2="214" stroke="#775f44" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="664" y="206" text-anchor="middle" class="sub" fill="#5e4b37">anchor gradient</text>
+  <rect x="528" y="74" width="220" height="118" rx="10" fill="#f8f2ea" stroke="#7a644a" stroke-width="1.6"/>
+  <text x="638" y="122" text-anchor="middle" class="node">Anchor fixture ON</text>
+  <text x="638" y="144" text-anchor="middle" class="sub">stress cards replayed</text>
 
-  <line x1="708" y1="155" x2="730" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="748" y1="133" x2="778" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
+  <line x1="638" y1="192" x2="868" y2="192" stroke="#7a644a" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="753" y="184" text-anchor="middle" class="sub" fill="#65503a">anchor gradient g_a</text>
 
-  <rect x="730" y="96" width="210" height="118" rx="10" fill="#eef3ef" stroke="#4d6656" stroke-width="1.7"/>
-  <text x="835" y="138" text-anchor="middle" class="title" font-size="15">Mixed update</text>
-  <text x="835" y="160" text-anchor="middle" class="sub">drift + replay penalty</text>
+  <rect x="778" y="74" width="220" height="118" rx="10" fill="#f3ede7" stroke="#8c5b2f" stroke-width="1.7"/>
+  <text x="888" y="116" text-anchor="middle" class="node">Mixed step</text>
+  <text x="888" y="136" text-anchor="middle" class="sub">g = g_d + β g_a</text>
+  <text x="888" y="156" text-anchor="middle" class="sub">soft memory penalty</text>
 
-  <line x1="940" y1="155" x2="962" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
+  <line x1="998" y1="133" x2="1028" y2="133" stroke="#2f3a47" stroke-width="2.1" marker-end="url(#arrow)"/>
 
-  <rect x="962" y="96" width="284" height="118" rx="10" fill="#edf4ef" stroke="#415f4f" stroke-width="1.5"/>
-  <text x="1104" y="138" text-anchor="middle" class="title" font-size="15">Portfolio decision layer</text>
-  <text x="1104" y="160" text-anchor="middle" class="sub">weights, turnover, risk budget</text>
+  <rect x="1028" y="74" width="220" height="118" rx="10" fill="#eef4ef" stroke="#47644f" stroke-width="1.5"/>
+  <text x="1138" y="122" text-anchor="middle" class="node">Portfolio action</text>
+  <text x="1138" y="144" text-anchor="middle" class="sub">weights + turnover + risk</text>
 
-  <rect x="34" y="246" width="396" height="84" rx="8" fill="#f8fafc" stroke="#d8dde5"/>
-  <text x="52" y="272" class="chip">Preserves</text>
-  <text x="116" y="272" class="chipv">anchor fixture behavior signatures</text>
-  <text x="52" y="296" class="chip">Allows change</text>
-  <text x="142" y="296" class="chipv">drift adaptation with memory pullback</text>
+  <rect x="28" y="214" width="402" height="62" rx="8" fill="#f8fafc" stroke="#d4dbe4"/>
+  <text x="44" y="238" class="rail">Preserves</text>
+  <text x="108" y="238" class="railv">anchor stress fixtures through replay pressure</text>
+  <text x="44" y="258" class="rail">Allows</text>
+  <text x="94" y="258" class="railv">drift adaptation with a soft memory correction</text>
 
-  <rect x="442" y="246" width="396" height="84" rx="8" fill="#f8fafc" stroke="#d8dde5"/>
-  <text x="460" y="272" class="chip">Control enforcement</text>
-  <text x="556" y="272" class="chipv">soft (beta-weighted replay)</text>
-  <text x="460" y="296" class="chip">Primary failure mode</text>
-  <text x="566" y="296" class="chipv">conflicting steps can still violate risk intent</text>
+  <rect x="438" y="214" width="402" height="62" rx="8" fill="#f8fafc" stroke="#d4dbe4"/>
+  <text x="454" y="238" class="rail">Control</text>
+  <text x="506" y="238" class="railv">regularization only; infeasible directions can still pass</text>
+  <text x="454" y="258" class="rail">Production read</text>
+  <text x="545" y="258" class="railv">improves retention but lacks hard release guard</text>
 
-  <rect x="850" y="246" width="396" height="84" rx="8" fill="#f4f8fd" stroke="#c6d3e5"/>
-  <text x="868" y="272" class="chip">Quant read</text>
-  <text x="932" y="272" class="chipv">better retention, partial stability only</text>
-  <text x="868" y="296" class="chip">Deployment role</text>
-  <text x="961" y="296" class="chipv">intermediate baseline</text>
+  <rect x="848" y="214" width="400" height="62" rx="8" fill="#f5f9fd" stroke="#c5d6e8"/>
+  <text x="864" y="238" class="rail">5-second takeaway</text>
+  <text x="966" y="238" class="railv">memory exists, but control remains soft under conflicting stress</text>
 </svg>

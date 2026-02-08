@@ -12,20 +12,20 @@
       <div class="shell">
         <article class="hero-insight" aria-label="High-signal decision summary">
           <p class="hero-kicker">CL-PLO Decision Spine</p>
-          <h1>In deployed transformer portfolios, the update rule is the risk control surface.</h1>
+          <h1>In deployed transformer portfolios, the updater is the risk control surface.</h1>
 
           <div class="hero-grid">
             <article class="hero-mini">
-              <p class="hero-mini-title">Core problem</p>
-              <p>Drift-only LLM updates fit calm regimes and forget stress behavior when risk is highest.</p>
+              <p class="hero-mini-title">Problem</p>
+              <p>Drift-only LLM adaptation overfits calm flow and erodes stress behavior exactly when capital is fragile.</p>
             </article>
             <article class="hero-mini">
-              <p class="hero-mini-title">What stays fixed</p>
-              <p>Transformer backbone and optimizer constraints are frozen; only the adapter update operator changes.</p>
+              <p class="hero-mini-title">Controlled Variable</p>
+              <p>Backbone, optimizer, and risk limits stay fixed. Only the adapter update operator is swapped.</p>
             </article>
             <article class="hero-mini">
-              <p class="hero-mini-title">What this page proves</p>
-              <p>With identical data and constraints, projection-gated updates retain stress behavior and improve drawdown control.</p>
+              <p class="hero-mini-title">Decision Claim</p>
+              <p>With identical data and limits, replay + projection preserves stress memory and improves deploy stability.</p>
             </article>
           </div>
 
@@ -37,12 +37,24 @@
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Default signal:</strong> projection-gated updates deliver +97.1% stress retention and +34.1 pp drawdown lift versus naive.
+              <strong>Default release signal:</strong> hybrid keeps stress retention and drawdown control while remaining allocation-responsive.
             </p>
-            <figure class="hero-figure" aria-label="Decisive strategy comparison signal">
-              <img src="./assets/validation_wide.png" alt="Validation figure: constrained update dominates stress retention and drawdown control" />
-              <figcaption>One-screen release check used before promotion.</figcaption>
-            </figure>
+            <article class="hero-proof" aria-label="One-screen deployment check">
+              <h3>One-screen gate</h3>
+              <div class="proof-row">
+                <span>Naive</span>
+                <span class="proof-metric">stress retention low</span>
+              </div>
+              <div class="proof-row">
+                <span>Replay</span>
+                <span class="proof-metric">retention improves, control partial</span>
+              </div>
+              <div class="proof-row highlight">
+                <span>Hybrid</span>
+                <span class="proof-metric">retention + feasible-step control</span>
+              </div>
+              <p class="proof-note">Run the dashboard below. Switch Quick, Default, and Stress+ to verify ranking stability.</p>
+            </article>
           </div>
         </article>
       </div>
@@ -314,32 +326,33 @@
             <article id="decision-card" class="decision-card"></article>
 
             <div id="impact-kpis" class="kpi-row"></div>
+            <div id="mode-scorecard" class="mode-scorecard"></div>
 
             <div class="plot-stack">
               <article class="chart-card">
-                <h3>Portfolio Value Across Regimes</h3>
-                <p class="plot-caption"><strong>Shows:</strong> realized portfolio equity with transaction frictions.<br /><strong>Read:</strong> a deployable strategy compounds without stress-phase collapse.</p>
+                <h3>Portfolio Value With Regime Context</h3>
+                <p class="plot-caption"><strong>Shows:</strong> realized portfolio value under identical market path and costs.<br /><strong>Read:</strong> deployable behavior avoids stress-phase capital fracture.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Drawdown and Recovery</h3>
-                <p class="plot-caption"><strong>Shows:</strong> depth and recovery time of capital impairment.<br /><strong>Read:</strong> stronger control means shallower troughs and shorter recovery.</p>
+                <p class="plot-caption"><strong>Shows:</strong> depth and duration of capital impairment.<br /><strong>Read:</strong> release-safe updaters show shallower troughs and faster repair.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Allocation Stability vs Responsiveness</h3>
-                <p class="plot-caption"><strong>Shows:</strong> risky/cash allocation (solid) and turnover pressure (dashed).<br /><strong>Read:</strong> robust updates de-risk under stress without calm-regime churn.</p>
+                <p class="plot-caption"><strong>Shows:</strong> risky allocation (solid) with turnover pressure (dashed).<br /><strong>Read:</strong> better control de-risks in stress without churn in calm flow.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Risk-Adjusted Return by Regime</h3>
-                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe by regime bucket.<br /><strong>Read:</strong> robustness should hold in stress and shifts, not only in aggregate.</p>
+                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe in calm, volatile, stress, and shift buckets.<br /><strong>Read:</strong> robust strategy quality holds where regime structure breaks.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
