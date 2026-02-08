@@ -5,9 +5,9 @@ import { drawEquity, drawImpactBars, drawRegimeBars } from "./charts.js";
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
 
 const METHOD_STYLES = {
-  naive: { color: "#6e6e6e", dash: [10, 6] },
-  anchor: { color: "#1f3f68", dash: [2, 6] },
-  anchor_proj: { color: "#8f4b1a", dash: [] },
+  naive: { color: "#5f6774", dash: [10, 6] },
+  anchor: { color: "#2f557f", dash: [2, 6] },
+  anchor_proj: { color: "#7f4a1e", dash: [] },
 };
 
 const MODE_META = {

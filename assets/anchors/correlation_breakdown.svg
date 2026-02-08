@@ -1,34 +1,52 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Correlation breakdown heatmap">
-  <rect width="320" height="200" fill="#ffffff"/>
-  <rect x="52" y="28" width="170" height="140" fill="#f7f9fb" stroke="#d8dde5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Anchor artifact: correlation breakdown map">
+  <rect width="480" height="300" fill="#ffffff"/>
+  <rect x="18" y="16" width="444" height="268" rx="6" fill="#ffffff" stroke="#cfd6e0"/>
+  <rect x="18" y="16" width="444" height="34" rx="6" fill="#f6f8fb" stroke="#cfd6e0"/>
+  <text x="32" y="38" font-family="IBM Plex Sans, Arial" font-size="12" font-weight="600" fill="#1d2733">Anchor A4 | Correlation Breakdown Snapshot</text>
+
+  <rect x="32" y="66" width="204" height="170" fill="#fbfcfe" stroke="#d8dde5"/>
+  <rect x="246" y="66" width="80" height="170" fill="#f6f8fb" stroke="#d8dde5"/>
+
   <g stroke="#ffffff" stroke-width="1">
-    <rect x="52" y="28" width="34" height="28" fill="#c8def7"/>
-    <rect x="86" y="28" width="34" height="28" fill="#f2d2d2"/>
-    <rect x="120" y="28" width="34" height="28" fill="#f3d9d9"/>
-    <rect x="154" y="28" width="34" height="28" fill="#d4e6f9"/>
-    <rect x="188" y="28" width="34" height="28" fill="#dceaf8"/>
-    <rect x="52" y="56" width="34" height="28" fill="#f2d2d2"/>
-    <rect x="86" y="56" width="34" height="28" fill="#b8d6f4"/>
-    <rect x="120" y="56" width="34" height="28" fill="#a7cbef"/>
-    <rect x="154" y="56" width="34" height="28" fill="#9fc6ec"/>
-    <rect x="188" y="56" width="34" height="28" fill="#a8ccef"/>
-    <rect x="52" y="84" width="34" height="28" fill="#f3d9d9"/>
-    <rect x="86" y="84" width="34" height="28" fill="#a7cbef"/>
-    <rect x="120" y="84" width="34" height="28" fill="#b8d6f4"/>
-    <rect x="154" y="84" width="34" height="28" fill="#9bc3ea"/>
-    <rect x="188" y="84" width="34" height="28" fill="#a2c8ed"/>
-    <rect x="52" y="112" width="34" height="28" fill="#d4e6f9"/>
-    <rect x="86" y="112" width="34" height="28" fill="#9fc6ec"/>
-    <rect x="120" y="112" width="34" height="28" fill="#9bc3ea"/>
-    <rect x="154" y="112" width="34" height="28" fill="#b8d6f4"/>
-    <rect x="188" y="112" width="34" height="28" fill="#99c2e9"/>
-    <rect x="52" y="140" width="34" height="28" fill="#dceaf8"/>
-    <rect x="86" y="140" width="34" height="28" fill="#a8ccef"/>
-    <rect x="120" y="140" width="34" height="28" fill="#a2c8ed"/>
-    <rect x="154" y="140" width="34" height="28" fill="#99c2e9"/>
-    <rect x="188" y="140" width="34" height="28" fill="#b8d6f4"/>
+    <rect x="40" y="74" width="36" height="30" fill="#c7d9ee"/>
+    <rect x="76" y="74" width="36" height="30" fill="#f0d2ce"/>
+    <rect x="112" y="74" width="36" height="30" fill="#f2d8d3"/>
+    <rect x="148" y="74" width="36" height="30" fill="#d4e1f2"/>
+    <rect x="184" y="74" width="36" height="30" fill="#dae6f4"/>
+
+    <rect x="40" y="104" width="36" height="30" fill="#f0d2ce"/>
+    <rect x="76" y="104" width="36" height="30" fill="#b5cee8"/>
+    <rect x="112" y="104" width="36" height="30" fill="#a3c2e1"/>
+    <rect x="148" y="104" width="36" height="30" fill="#9cbde0"/>
+    <rect x="184" y="104" width="36" height="30" fill="#a9c7e5"/>
+
+    <rect x="40" y="134" width="36" height="30" fill="#f2d8d3"/>
+    <rect x="76" y="134" width="36" height="30" fill="#a3c2e1"/>
+    <rect x="112" y="134" width="36" height="30" fill="#b5cee8"/>
+    <rect x="148" y="134" width="36" height="30" fill="#98badc"/>
+    <rect x="184" y="134" width="36" height="30" fill="#a0c0df"/>
+
+    <rect x="40" y="164" width="36" height="30" fill="#d4e1f2"/>
+    <rect x="76" y="164" width="36" height="30" fill="#9cbde0"/>
+    <rect x="112" y="164" width="36" height="30" fill="#98badc"/>
+    <rect x="148" y="164" width="36" height="30" fill="#b5cee8"/>
+    <rect x="184" y="164" width="36" height="30" fill="#98b9dc"/>
+
+    <rect x="40" y="194" width="36" height="30" fill="#dae6f4"/>
+    <rect x="76" y="194" width="36" height="30" fill="#a9c7e5"/>
+    <rect x="112" y="194" width="36" height="30" fill="#a0c0df"/>
+    <rect x="148" y="194" width="36" height="30" fill="#98b9dc"/>
+    <rect x="184" y="194" width="36" height="30" fill="#b5cee8"/>
   </g>
-  <text x="36" y="16" font-family="IBM Plex Sans,Arial" font-size="11" fill="#263242">Correlation Breakdown Map</text>
-  <text x="230" y="84" font-family="IBM Plex Sans,Arial" font-size="10" fill="#4f5a69">Eq/Cr/Rates</text>
-  <text x="230" y="99" font-family="IBM Plex Sans,Arial" font-size="10" fill="#4f5a69">Com/FX block</text>
+
+  <text x="256" y="94" font-family="IBM Plex Sans, Arial" font-size="10" font-weight="600" fill="#2a3644">Source Slice</text>
+  <text x="256" y="112" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">Eq / Cr / Rates</text>
+  <text x="256" y="138" font-family="IBM Plex Sans, Arial" font-size="10" font-weight="600" fill="#2a3644">Stored Fields</text>
+  <text x="256" y="156" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">corr matrix delta</text>
+  <text x="256" y="172" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">copula stress code</text>
+  <text x="256" y="198" font-family="IBM Plex Sans, Arial" font-size="10" font-weight="600" fill="#2a3644">Anchor Rule</text>
+  <text x="256" y="216" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">block sign reversal</text>
+
+  <rect x="32" y="246" width="414" height="24" fill="#f9fafc" stroke="#d8dde5"/>
+  <text x="40" y="262" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">Replay payload: preserves cross-asset dependence shocks so allocator stays hedged under correlation breaks.</text>
 </svg>

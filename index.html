@@ -11,31 +11,39 @@
     <header class="executive" id="top">
       <div class="shell">
         <article class="hero-insight" aria-label="High-signal decision summary">
-          <div class="hero-copy">
-            <p class="hero-kicker">CL-PLO Decision Spine</p>
-            <h1>The adapter update law is the risk policy.</h1>
-            <p class="hero-summary">
-              In regime-shifting markets, naive continual updates fit recent drift and erase stress behavior.
-              CL-PLO treats the update operator as a constrained control decision, not a training detail.
-            </p>
-            <ul class="hero-bullets">
-              <li><strong>Failure mode:</strong> calm-period overfitting, then stress-time misallocation.</li>
-              <li><strong>Frozen system:</strong> Transformer backbone and portfolio optimizer constraints.</li>
-              <li><strong>Decision variable:</strong> naive update, replay update, or replay plus projection gate.</li>
-            </ul>
-            <p class="hero-signal">
-              <span>Default validation signal:</span>
-              <strong>+97.1% stress retention</strong>
-              <span>and</span>
-              <strong>+34.1 pp drawdown lift</strong>
-              <span>for the projection-gated strategy.</span>
-            </p>
+          <p class="hero-kicker">CL-PLO Decision Spine</p>
+          <h1>In live portfolios, the update rule is the risk control surface.</h1>
+
+          <div class="hero-grid">
+            <article class="hero-mini">
+              <p class="hero-mini-title">Core problem</p>
+              <p>Drift-only LLM updates fit calm tape and forget stress behavior exactly when allocation risk is highest.</p>
+            </article>
+            <article class="hero-mini">
+              <p class="hero-mini-title">What stays fixed</p>
+              <p>Transformer backbone and optimizer constraints are frozen; only the adapter update operator changes.</p>
+            </article>
+            <article class="hero-mini">
+              <p class="hero-mini-title">What this page proves</p>
+              <p>Under identical data and optimizer settings, projection-gated updates keep stress retention and drawdown control.</p>
+            </article>
           </div>
 
-          <figure class="hero-figure" aria-label="Decisive strategy comparison signal">
-            <img src="./assets/validation_wide.png" alt="Validation figure: constrained update dominates stress retention and drawdown control" />
-            <figcaption>Single-run diagnostic used for release-gate triage.</figcaption>
-          </figure>
+          <div class="hero-method-row" aria-label="Three strategy one-line summaries">
+            <p><span>A</span>Naive step: fastest fit, zero memory protection.</p>
+            <p><span>B</span>Replay mix: adds memory pressure, no hard safety boundary.</p>
+            <p><span>C</span>Replay + projection: keeps adaptation inside an anchor-safe update region.</p>
+          </div>
+
+          <div class="hero-result">
+            <p class="hero-signal">
+              <strong>Default release signal:</strong> projection-gated updates deliver +97.1% stress retention and +34.1 pp drawdown lift versus naive.
+            </p>
+            <figure class="hero-figure" aria-label="Decisive strategy comparison signal">
+              <img src="./assets/validation_wide.png" alt="Validation figure: constrained update dominates stress retention and drawdown control" />
+              <figcaption>One-screen release check used before promotion.</figcaption>
+            </figure>
+          </div>
         </article>
       </div>
     </header>
@@ -56,57 +64,59 @@
               <p class="method-tag">A · Baseline</p>
               <h3>Naive Online Update</h3>
             </header>
+            <div class="pipeline-layout">
+              <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Naive strategy pipeline">
+                <defs>
+                  <marker id="arrow-a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
+                  </marker>
+                </defs>
 
-            <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Naive strategy pipeline">
-              <defs>
-                <marker id="arrow-a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
-                </marker>
-              </defs>
-              <rect x="24" y="90" width="164" height="82" class="node data" />
-              <text x="106" y="121" text-anchor="middle">Stream</text>
-              <text x="106" y="146" text-anchor="middle">D^drift_t</text>
+                <rect x="22" y="88" width="152" height="76" class="node data" />
+                <text x="98" y="116" text-anchor="middle">Stream</text>
+                <text x="98" y="138" text-anchor="middle">drift batch</text>
 
-              <line x1="188" y1="132" x2="214" y2="132" marker-end="url(#arrow-a)" class="link" />
+                <line x1="174" y1="126" x2="202" y2="126" marker-end="url(#arrow-a)" class="link" />
 
-              <rect x="222" y="90" width="164" height="82" class="node frozen" />
-              <text x="304" y="121" text-anchor="middle">Frozen Backbone</text>
-              <text x="304" y="146" text-anchor="middle">phi</text>
+                <rect x="210" y="88" width="164" height="76" class="node frozen" />
+                <text x="292" y="116" text-anchor="middle">Frozen Backbone</text>
+                <text x="292" y="138" text-anchor="middle">backbone + optimizer</text>
 
-              <line x1="386" y1="132" x2="412" y2="132" marker-end="url(#arrow-a)" class="link" />
+                <line x1="374" y1="126" x2="402" y2="126" marker-end="url(#arrow-a)" class="link" />
 
-              <rect x="420" y="26" width="164" height="72" class="node memory off" />
-              <text x="502" y="53" text-anchor="middle">Anchor Fixture</text>
-              <text x="502" y="76" text-anchor="middle">disabled</text>
-              <line x1="502" y1="98" x2="502" y2="108" class="link link-dashed" />
-              <line x1="494" y1="102" x2="510" y2="118" class="link link-dashed" />
-              <line x1="510" y1="102" x2="494" y2="118" class="link link-dashed" />
+                <rect x="410" y="24" width="154" height="64" class="node memory off" />
+                <text x="487" y="50" text-anchor="middle">Anchor Fixture</text>
+                <text x="487" y="70" text-anchor="middle">disabled</text>
+                <line x1="487" y1="88" x2="487" y2="100" class="link link-dashed" />
+                <line x1="479" y1="93" x2="495" y2="108" class="link link-dashed" />
+                <line x1="495" y1="93" x2="479" y2="108" class="link link-dashed" />
 
-              <rect x="420" y="90" width="164" height="82" class="node update risk" />
-              <text x="502" y="118" text-anchor="middle">Update Operator</text>
-              <text x="502" y="142" text-anchor="middle">raw drift step g_d,t</text>
+                <rect x="410" y="88" width="154" height="76" class="node update risk" />
+                <text x="487" y="116" text-anchor="middle">Update Operator</text>
+                <text x="487" y="138" text-anchor="middle">raw drift step (Eq A)</text>
 
-              <line x1="584" y1="132" x2="610" y2="132" marker-end="url(#arrow-a)" class="link" />
+                <line x1="564" y1="126" x2="592" y2="126" marker-end="url(#arrow-a)" class="link" />
 
-              <rect x="618" y="90" width="164" height="82" class="node decision" />
-              <text x="700" y="121" text-anchor="middle">Decision Layer</text>
-              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t) to w*_t</text>
+                <rect x="600" y="88" width="172" height="76" class="node decision" />
+                <text x="686" y="116" text-anchor="middle">Decision Layer</text>
+                <text x="686" y="138" text-anchor="middle">forecast to weights</text>
 
-              <line x1="782" y1="132" x2="808" y2="132" marker-end="url(#arrow-a)" class="link" />
+                <line x1="772" y1="126" x2="800" y2="126" marker-end="url(#arrow-a)" class="link" />
 
-              <rect x="816" y="90" width="140" height="82" class="node rail" />
-              <text x="886" y="121" text-anchor="middle">Outcome</text>
-              <text x="886" y="146" text-anchor="middle">fast, unstable</text>
-            </svg>
+                <rect x="808" y="88" width="150" height="76" class="node rail" />
+                <text x="883" y="116" text-anchor="middle">Output</text>
+                <text x="883" y="138" text-anchor="middle">high drift fit, weak stress</text>
+              </svg>
 
-            <div class="pipeline-equation">
-              <p class="math-tag prior">Prior work</p>
-              <div class="math-block compact">
-                \[
-                \theta_{t+1}=\theta_t-\eta_t g_{d,t}
-                \]
-              </div>
-              <p class="math-meaning"><strong>Operational meaning:</strong> fastest adaptation path with no explicit memory protection.</p>
+              <aside class="pipeline-equation">
+                <p class="math-tag prior">Prior work · Eq A</p>
+                <div class="math-block compact">
+                  \[
+                  \theta_{t+1}=\theta_t-\eta_t g_{d,t}
+                  \]
+                </div>
+                <p class="math-meaning"><strong>Operational meaning:</strong> fastest adaptation path, no memory safeguard against stress forgetting.</p>
+              </aside>
             </div>
           </article>
 
@@ -115,55 +125,57 @@
               <p class="method-tag">B · Baseline</p>
               <h3>Replay-Regularized</h3>
             </header>
+            <div class="pipeline-layout">
+              <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Replay strategy pipeline">
+                <defs>
+                  <marker id="arrow-b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
+                  </marker>
+                </defs>
 
-            <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Replay strategy pipeline">
-              <defs>
-                <marker id="arrow-b" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
-                </marker>
-              </defs>
-              <rect x="24" y="90" width="164" height="82" class="node data" />
-              <text x="106" y="121" text-anchor="middle">Stream</text>
-              <text x="106" y="146" text-anchor="middle">D^drift_t</text>
+                <rect x="22" y="88" width="152" height="76" class="node data" />
+                <text x="98" y="116" text-anchor="middle">Stream</text>
+                <text x="98" y="138" text-anchor="middle">drift batch</text>
 
-              <line x1="188" y1="132" x2="214" y2="132" marker-end="url(#arrow-b)" class="link" />
+                <line x1="174" y1="126" x2="202" y2="126" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="222" y="90" width="164" height="82" class="node frozen" />
-              <text x="304" y="121" text-anchor="middle">Frozen Backbone</text>
-              <text x="304" y="146" text-anchor="middle">phi</text>
+                <rect x="210" y="88" width="164" height="76" class="node frozen" />
+                <text x="292" y="116" text-anchor="middle">Frozen Backbone</text>
+                <text x="292" y="138" text-anchor="middle">backbone + optimizer</text>
 
-              <line x1="386" y1="132" x2="412" y2="132" marker-end="url(#arrow-b)" class="link" />
+                <line x1="374" y1="126" x2="402" y2="126" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="420" y="26" width="164" height="72" class="node memory" />
-              <text x="502" y="53" text-anchor="middle">Anchor Fixture</text>
-              <text x="502" y="76" text-anchor="middle">D^anchor_t</text>
-              <line x1="502" y1="98" x2="502" y2="108" marker-end="url(#arrow-b)" class="link" />
+                <rect x="410" y="24" width="154" height="64" class="node memory" />
+                <text x="487" y="50" text-anchor="middle">Anchor Fixture</text>
+                <text x="487" y="70" text-anchor="middle">stress memory replay</text>
+                <line x1="487" y1="88" x2="487" y2="100" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="420" y="90" width="164" height="82" class="node update" />
-              <text x="502" y="118" text-anchor="middle">Update Operator</text>
-              <text x="502" y="142" text-anchor="middle">replay-mix step (g_d,t + beta g_a,t)</text>
+                <rect x="410" y="88" width="154" height="76" class="node update" />
+                <text x="487" y="116" text-anchor="middle">Update Operator</text>
+                <text x="487" y="138" text-anchor="middle">drift + replay mix (Eq B)</text>
 
-              <line x1="584" y1="132" x2="610" y2="132" marker-end="url(#arrow-b)" class="link" />
+                <line x1="564" y1="126" x2="592" y2="126" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="618" y="90" width="164" height="82" class="node decision" />
-              <text x="700" y="121" text-anchor="middle">Decision Layer</text>
-              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t) to w*_t</text>
+                <rect x="600" y="88" width="172" height="76" class="node decision" />
+                <text x="686" y="116" text-anchor="middle">Decision Layer</text>
+                <text x="686" y="138" text-anchor="middle">forecast to weights</text>
 
-              <line x1="782" y1="132" x2="808" y2="132" marker-end="url(#arrow-b)" class="link" />
+                <line x1="772" y1="126" x2="800" y2="126" marker-end="url(#arrow-b)" class="link" />
 
-              <rect x="816" y="90" width="140" height="82" class="node rail" />
-              <text x="886" y="121" text-anchor="middle">Outcome</text>
-              <text x="886" y="146" text-anchor="middle">memory, soft gate</text>
-            </svg>
+                <rect x="808" y="88" width="150" height="76" class="node rail" />
+                <text x="883" y="116" text-anchor="middle">Output</text>
+                <text x="883" y="138" text-anchor="middle">memory helps, no hard gate</text>
+              </svg>
 
-            <div class="pipeline-equation">
-              <p class="math-tag prior">Prior work</p>
-              <div class="math-block compact">
-                \[
-                \theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)
-                \]
-              </div>
-              <p class="math-meaning"><strong>Operational meaning:</strong> keeps replay pressure active, but still allows harmful drift-anchor interference.</p>
+              <aside class="pipeline-equation">
+                <p class="math-tag prior">Prior work · Eq B</p>
+                <div class="math-block compact">
+                  \[
+                  \theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)
+                  \]
+                </div>
+                <p class="math-meaning"><strong>Operational meaning:</strong> replay resists forgetting, but conflicting gradients can still pass through.</p>
+              </aside>
             </div>
           </article>
 
@@ -172,60 +184,63 @@
               <p class="method-tag proposed">C · Proposed</p>
               <h3>Replay + Projection Gate</h3>
             </header>
+            <div class="pipeline-layout">
+              <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Constrained strategy pipeline">
+                <defs>
+                  <marker id="arrow-c" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                    <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
+                  </marker>
+                </defs>
 
-            <svg class="pipeline-svg" viewBox="0 0 980 236" role="img" aria-label="Constrained strategy pipeline">
-              <defs>
-                <marker id="arrow-c" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" fill="#1f1f1f" />
-                </marker>
-              </defs>
-              <rect x="24" y="90" width="164" height="82" class="node data" />
-              <text x="106" y="121" text-anchor="middle">Stream</text>
-              <text x="106" y="146" text-anchor="middle">D^drift_t</text>
+                <rect x="22" y="88" width="152" height="76" class="node data" />
+                <text x="98" y="116" text-anchor="middle">Stream</text>
+                <text x="98" y="138" text-anchor="middle">drift batch</text>
 
-              <line x1="188" y1="132" x2="214" y2="132" marker-end="url(#arrow-c)" class="link" />
+                <line x1="174" y1="126" x2="202" y2="126" marker-end="url(#arrow-c)" class="link" />
 
-              <rect x="222" y="90" width="164" height="82" class="node frozen" />
-              <text x="304" y="121" text-anchor="middle">Frozen Backbone</text>
-              <text x="304" y="146" text-anchor="middle">phi</text>
+                <rect x="210" y="88" width="164" height="76" class="node frozen" />
+                <text x="292" y="116" text-anchor="middle">Frozen Backbone</text>
+                <text x="292" y="138" text-anchor="middle">backbone + optimizer</text>
 
-              <line x1="386" y1="132" x2="412" y2="132" marker-end="url(#arrow-c)" class="link" />
+                <line x1="374" y1="126" x2="402" y2="126" marker-end="url(#arrow-c)" class="link" />
 
-              <rect x="420" y="26" width="164" height="72" class="node memory" />
-              <text x="502" y="53" text-anchor="middle">Anchor Fixture</text>
-              <text x="502" y="76" text-anchor="middle">D^anchor_t</text>
-              <line x1="502" y1="98" x2="502" y2="108" marker-end="url(#arrow-c)" class="link" />
+                <rect x="410" y="24" width="154" height="64" class="node memory" />
+                <text x="487" y="50" text-anchor="middle">Anchor Fixture</text>
+                <text x="487" y="70" text-anchor="middle">stress memory replay</text>
+                <line x1="487" y1="88" x2="487" y2="100" marker-end="url(#arrow-c)" class="link" />
 
-              <rect x="588" y="112" width="26" height="40" class="gate" />
-              <text x="601" y="137" text-anchor="middle" class="gate-text">Pi</text>
+                <rect x="410" y="88" width="154" height="76" class="node update proposed" />
+                <text x="487" y="116" text-anchor="middle">Update Operator</text>
+                <text x="487" y="138" text-anchor="middle">projected replay step (Eq C)</text>
 
-              <rect x="420" y="90" width="164" height="82" class="node update proposed" />
-              <text x="502" y="118" text-anchor="middle">Update Operator</text>
-              <text x="502" y="142" text-anchor="middle">projected step (g_tilde + beta g_a,t)</text>
+                <rect x="574" y="106" width="44" height="40" class="gate" />
+                <text x="596" y="122" text-anchor="middle" class="gate-text">Projection</text>
+                <text x="596" y="138" text-anchor="middle" class="gate-text">Gate</text>
 
-              <line x1="614" y1="132" x2="640" y2="132" marker-end="url(#arrow-c)" class="link" />
+                <line x1="618" y1="126" x2="646" y2="126" marker-end="url(#arrow-c)" class="link" />
 
-              <rect x="648" y="90" width="164" height="82" class="node decision" />
-              <text x="730" y="121" text-anchor="middle">Decision Layer</text>
-              <text x="730" y="146" text-anchor="middle">(mu_t,Sigma_t) to w*_t</text>
+                <rect x="654" y="88" width="168" height="76" class="node decision" />
+                <text x="738" y="116" text-anchor="middle">Decision Layer</text>
+                <text x="738" y="138" text-anchor="middle">forecast to weights</text>
 
-              <line x1="812" y1="132" x2="838" y2="132" marker-end="url(#arrow-c)" class="link" />
+                <line x1="822" y1="126" x2="850" y2="126" marker-end="url(#arrow-c)" class="link" />
 
-              <rect x="846" y="90" width="110" height="82" class="node rail proposed" />
-              <text x="901" y="121" text-anchor="middle">Outcome</text>
-              <text x="901" y="146" text-anchor="middle">stable + adaptive</text>
-            </svg>
+                <rect x="858" y="88" width="100" height="76" class="node rail proposed" />
+                <text x="908" y="116" text-anchor="middle">Output</text>
+                <text x="908" y="138" text-anchor="middle">stable + adaptive</text>
+              </svg>
 
-            <div class="pipeline-equation">
-              <p class="math-tag proposed">Proposed here</p>
-              <div class="math-block compact">
-                \[
-                \tilde g_t=\Pi_{\mathcal{H}_t}(g_{d,t}),
-                \qquad
-                \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
-                \]
-              </div>
-              <p class="math-meaning"><strong>Operational meaning:</strong> projects drift updates into the safe half-space before the model state is changed.</p>
+              <aside class="pipeline-equation">
+                <p class="math-tag proposed">Proposed here · Eq C</p>
+                <div class="math-block compact">
+                  \[
+                  \tilde g_t=\Pi_{\mathcal{H}_t}(g_{d,t}),
+                  \qquad
+                  \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
+                  \]
+                </div>
+                <p class="math-meaning"><strong>Operational meaning:</strong> the gate keeps every drift step inside anchor-safe geometry before allocation updates.</p>
+              </aside>
             </div>
           </article>
         </div>
@@ -269,20 +284,20 @@
                   <path d="M0,0 L8,4 L0,8 z" fill="#1d1d1d" />
                 </marker>
                 <marker id="raw-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                  <path d="M0,0 L8,4 L0,8 z" fill="#8f2f2f" />
+                  <path d="M0,0 L8,4 L0,8 z" fill="#a33232" />
                 </marker>
               </defs>
 
               <rect x="0" y="0" width="760" height="292" fill="#ffffff" />
-              <polygon points="360,26 734,26 734,268 532,268" class="halfspace" />
-              <line x1="360" y1="26" x2="532" y2="268" class="constraint-line" />
-              <text x="542" y="250" class="proj-label">constraint half-space H_t</text>
+              <polygon points="368,28 732,28 732,264 532,264" class="halfspace" />
+              <line x1="368" y1="28" x2="532" y2="264" class="constraint-line" />
+              <text x="548" y="250" class="proj-label">safe half-space H_t</text>
 
-              <line x1="110" y1="236" x2="666" y2="112" class="raw-vector" marker-end="url(#raw-arrow)" />
-              <text x="602" y="96" class="proj-label raw-label">raw update g_d,t</text>
+              <line x1="112" y1="236" x2="674" y2="104" class="raw-vector" marker-end="url(#raw-arrow)" />
+              <text x="596" y="90" class="proj-label raw-label">raw update g_d,t</text>
 
-              <line x1="110" y1="236" x2="478" y2="160" class="proj-vector" marker-end="url(#proj-arrow)" />
-              <text x="494" y="151" class="proj-label">projected update g_tilde,t</text>
+              <line x1="112" y1="236" x2="486" y2="160" class="proj-vector" marker-end="url(#proj-arrow)" />
+              <text x="494" y="147" class="proj-label">projected update g_tilde,t</text>
             </svg>
           </figure>
 
@@ -302,7 +317,7 @@
           </aside>
         </div>
 
-        <p class="object-note">Anchor fixture: concrete stress artifacts replayed at every update step.</p>
+        <p class="object-note">Anchor fixture = stored stress artifacts replayed at every update. Projection = closest feasible update that respects anchor-memory safety.</p>
       </section>
 
       <section class="section" id="math">
@@ -490,11 +505,22 @@
     </footer>
 
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
-      onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false,strict:'ignore'});"
-    ></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <script>
+      window.addEventListener("load", () => {
+        if (!window.renderMathInElement) {
+          return;
+        }
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false },
+          ],
+          throwOnError: false,
+          strict: "ignore",
+        });
+      });
+    </script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

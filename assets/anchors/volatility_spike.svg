@@ -1,9 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Volatility spike chart">
-  <rect width="320" height="200" fill="#ffffff"/>
-  <rect x="32" y="22" width="270" height="148" fill="#f7f9fb" stroke="#d8dde5"/>
-  <polyline fill="none" stroke="#6a3a1d" stroke-width="3" points="36,148 58,146 80,144 102,145 124,143 146,144 168,140 190,136 212,118 234,88 256,66 278,74 300,94"/>
-  <line x1="32" y1="100" x2="302" y2="100" stroke="#6a3a1d" stroke-width="1.2" stroke-dasharray="5 4"/>
-  <line x1="32" y1="170" x2="302" y2="170" stroke="#7a8493" stroke-width="1"/>
-  <text x="36" y="16" font-family="IBM Plex Sans,Arial" font-size="11" fill="#263242">Volatility Spike Regime</text>
-  <text x="36" y="186" font-family="IBM Plex Sans,Arial" font-size="10" fill="#4f5a69">Stress-memory anchor artifact</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Anchor artifact: volatility spike regime">
+  <rect width="480" height="300" fill="#ffffff"/>
+  <rect x="18" y="16" width="444" height="268" rx="6" fill="#ffffff" stroke="#cfd6e0"/>
+  <rect x="18" y="16" width="444" height="34" rx="6" fill="#f6f8fb" stroke="#cfd6e0"/>
+  <text x="32" y="38" font-family="IBM Plex Sans, Arial" font-size="12" font-weight="600" fill="#1d2733">Anchor A3 | Volatility Spike Regime</text>
+
+  <rect x="32" y="66" width="294" height="170" fill="#fbfcfe" stroke="#d8dde5"/>
+  <g stroke="#e3e8ef" stroke-width="1">
+    <line x1="32" y1="100" x2="326" y2="100"/>
+    <line x1="32" y1="134" x2="326" y2="134"/>
+    <line x1="32" y1="168" x2="326" y2="168"/>
+    <line x1="32" y1="202" x2="326" y2="202"/>
+  </g>
+
+  <polyline fill="none" stroke="#5f6774" stroke-width="2.5" points="36,206 58,202 80,198 102,197 124,194 146,192 168,186 190,174 212,150 234,122 256,94 278,104 300,126 322,142"/>
+  <line x1="32" y1="126" x2="326" y2="126" stroke="#a33232" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text x="36" y="118" font-family="IBM Plex Sans, Arial" font-size="10" fill="#a33232">stress volatility threshold</text>
+
+  <rect x="340" y="66" width="106" height="170" fill="#f6f8fb" stroke="#d8dde5"/>
+  <text x="350" y="92" font-family="IBM Plex Sans, Arial" font-size="10" font-weight="600" fill="#2a3644">Source Slice</text>
+  <text x="350" y="110" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">cross-asset returns</text>
+  <text x="350" y="136" font-family="IBM Plex Sans, Arial" font-size="10" font-weight="600" fill="#2a3644">Stored Fields</text>
+  <text x="350" y="154" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">realized vol</text>
+  <text x="350" y="170" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">tail covariance</text>
+  <text x="350" y="196" font-family="IBM Plex Sans, Arial" font-size="10" font-weight="600" fill="#2a3644">Anchor Rule</text>
+  <text x="350" y="214" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">vol regime state = stress</text>
+
+  <rect x="32" y="246" width="414" height="24" fill="#f9fafc" stroke="#d8dde5"/>
+  <text x="40" y="262" font-family="IBM Plex Sans, Arial" font-size="10" fill="#4f5b6a">Replay payload: volatility-transition slices constrain updates that would underprice tail regimes.</text>
 </svg>
