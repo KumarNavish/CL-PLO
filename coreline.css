@@ -1,9 +1,11 @@
 :root {
-  --text: #111;
-  --muted: #525252;
-  --line: #d8d8d8;
-  --soft: #f8f8f8;
-  --bg: #fff;
+  --ink: #101010;
+  --muted: #5a5a5a;
+  --line: #dddddd;
+  --soft: #f6f7f8;
+  --accent: #0f5fbf;
+  --accent-soft: #edf4fd;
+  --bg: #ffffff;
 }
 
 * {
@@ -15,12 +17,13 @@ body {
   margin: 0;
   padding: 0;
   background: var(--bg);
-  color: var(--text);
+  color: var(--ink);
 }
 
 body {
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
-  line-height: 1.68;
+  line-height: 1.7;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -31,8 +34,8 @@ h4,
 .method-table,
 .legend-item,
 .col-head,
-.step-id,
-.math-title {
+.method-tag,
+.eyebrow {
   font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
 }
 
@@ -43,41 +46,49 @@ h4,
 p,
 ul,
 ol,
-dl,
 figure {
   margin: 0;
 }
 
 a {
-  color: #111;
+  color: var(--ink);
   text-underline-offset: 2px;
 }
 
 .shell {
-  width: min(980px, calc(100% - 3rem));
+  width: min(1040px, calc(100% - 3.2rem));
   margin: 0 auto;
 }
 
 .hero {
-  padding: 3.4rem 0 2.5rem;
+  padding: 3.7rem 0 2.8rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 h1 {
-  font-size: clamp(2rem, 4.9vw, 3rem);
-  line-height: 1.18;
-  max-width: 24ch;
-  font-weight: 600;
+  margin-top: 0.4rem;
+  font-size: clamp(2rem, 4.8vw, 3.3rem);
+  line-height: 1.14;
+  max-width: 22ch;
+  font-weight: 620;
 }
 
 .lead {
-  margin-top: 1.02rem;
-  max-width: 74ch;
-  font-size: 1.03rem;
-  color: #1f1f1f;
+  margin-top: 1rem;
+  max-width: 76ch;
+  font-size: 1.05rem;
+  color: #1c1c1c;
 }
 
 .hero-actions {
-  margin-top: 1.25rem;
+  margin-top: 1.3rem;
   display: flex;
   gap: 0.55rem;
   flex-wrap: wrap;
@@ -87,236 +98,286 @@ h1 {
   font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
-  padding: 0.48rem 0.72rem;
-  border: 1px solid #111;
+  padding: 0.5rem 0.78rem;
+  border: 1px solid var(--ink);
   background: #fff;
-  color: #111;
+  color: var(--ink);
   cursor: pointer;
 }
 
 .btn-primary {
-  background: #111;
+  background: var(--ink);
   color: #fff;
 }
 
 .btn-primary:disabled {
-  opacity: 0.55;
+  opacity: 0.58;
   cursor: wait;
 }
 
+.hero-signal {
+  margin-top: 1.05rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.hero-signal article {
+  border: 1px solid var(--line);
+  padding: 0.6rem;
+}
+
+.hero-signal h3 {
+  font-size: 0.8rem;
+  margin-bottom: 0.1rem;
+  letter-spacing: 0.02em;
+}
+
+.hero-signal p {
+  font-size: 0.86rem;
+  color: #242424;
+}
+
 .section {
+  padding: 2.35rem 0;
   border-top: 1px solid var(--line);
-  padding: 2.2rem 0;
 }
 
 .section h2 {
-  font-size: 1.34rem;
-  margin-bottom: 0.7rem;
+  font-size: 1.42rem;
+  margin-bottom: 0.62rem;
 }
 
 .section h3 {
   font-size: 1rem;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.25rem;
 }
 
 .section p,
 .section li,
-.section dd {
-  font-size: 1rem;
+.section th,
+.section td {
+  font-size: 0.95rem;
 }
 
 .section-intro {
-  max-width: 72ch;
-}
-
-.decision-strip {
-  margin-top: 0.78rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.decision-strip article {
-  border: 1px solid var(--line);
-  padding: 0.58rem;
-}
-
-.problem-grid,
-.symbol-grid,
-.concrete-grid,
-.reading-map {
-  margin-top: 0.75rem;
-  display: grid;
-  gap: 0.55rem;
-}
-
-.problem-grid,
-.concrete-grid,
-.reading-map {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.symbol-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.problem-grid article,
-.symbol-grid article,
-.concrete-grid article,
-.reading-map article {
-  border: 1px solid var(--line);
-  padding: 0.58rem;
-}
-
-.problem-grid ul,
-.concrete-grid ul {
-  margin-top: 0.2rem;
-  padding-left: 1rem;
-}
-
-.problem-grid li,
-.concrete-grid li {
-  margin-top: 0.08rem;
+  max-width: 74ch;
 }
 
 .refs {
+  margin-top: 0.75rem;
+  font-size: 0.86rem;
+  color: #242424;
+}
+
+.bridge-frame,
+.bridge-equations,
+.object-grid,
+.mechanism-grid,
+.decision-grid,
+.preset-row,
+.knob-grid,
+.action-row,
+.kpi-row,
+.chart-grid {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.bridge-frame {
   margin-top: 0.8rem;
-  font-size: 0.9rem;
-  color: #222;
+  grid-template-columns: 1fr 1.1fr 1fr;
 }
 
-.baseline-wrap {
-  margin-top: 0.85rem;
+.bridge-side,
+.bridge-core,
+.eq-card,
+.object-grid article,
+.stack-figure,
+.mech-card,
+.strategy-card,
+.expectation-check,
+.control-stack,
+.decision-card,
+.kpi-row article,
+.chart-grid article,
+.table-wrap,
+.takeaway,
+.decision-surface,
+.decision-rules {
   border: 1px solid var(--line);
-  padding: 0.58rem;
-  overflow-x: auto;
-}
-
-.baseline-wrap h3 {
-  margin-bottom: 0.45rem;
-}
-
-.baseline-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.83rem;
-}
-
-.baseline-table th,
-.baseline-table td {
-  border-top: 1px solid var(--line);
-  padding: 0.42rem;
-  text-align: left;
-  vertical-align: top;
-}
-
-.baseline-table th {
-  font-weight: 600;
-  background: var(--soft);
-}
-
-.system-board {
-  margin-top: 0.85rem;
-  border: 1px solid var(--line);
-  padding: 0.68rem;
-  display: flex;
-  gap: 0.45rem;
-  align-items: stretch;
-  flex-wrap: wrap;
-}
-
-.system-step {
-  min-width: 145px;
-  flex: 1 1 145px;
-  border: 1px solid var(--line);
-  padding: 0.5rem;
-  display: grid;
-  gap: 0.18rem;
-  align-content: start;
-}
-
-.system-step h3 {
-  font-size: 0.84rem;
-}
-
-.system-step p,
-.system-step .math {
-  font-size: 0.8rem;
-  line-height: 1.45;
-}
-
-.system-step.frozen {
-  border-style: dashed;
-}
-
-.system-step.updated {
-  border-width: 2px;
-}
-
-.step-id {
-  width: 1.3rem;
-  height: 1.3rem;
-  border: 1px solid var(--line);
-  display: grid;
-  place-items: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #303030;
-}
-
-.system-link {
-  min-width: 18px;
-  display: grid;
-  place-items: center;
-  font-size: 1.08rem;
-  color: #444;
-}
-
-.math-frame {
-  margin-top: 0.6rem;
-  border: 1px solid var(--line);
-  padding: 0.58rem;
   background: #fff;
 }
 
-.math-title {
-  font-size: 0.76rem;
+.bridge-side,
+.bridge-core,
+.eq-card,
+.object-grid article,
+.mech-card,
+.decision-rules,
+.expectation-check,
+.control-stack,
+.decision-card,
+.chart-grid article,
+.table-wrap,
+.takeaway,
+.decision-surface,
+.kpi-row article {
+  padding: 0.66rem;
+}
+
+.bridge-note {
+  margin-top: 0.25rem;
+  color: #2e2e2e;
+  font-size: 0.88rem;
+}
+
+.bridge-core {
+  background: var(--soft);
+}
+
+.bridge-core .math-block {
+  margin-top: 0.42rem;
+}
+
+.bridge-equations {
+  margin-top: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.eq-card h3 {
+  font-size: 0.88rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
+  letter-spacing: 0.05em;
+  color: #404040;
 }
 
 .math-block {
-  margin-top: 0.35rem;
+  margin-top: 0.3rem;
   overflow-x: auto;
 }
 
 .math-block mjx-container,
-.math-frame mjx-container {
+.cell mjx-container,
+.eq-card mjx-container {
   display: block;
+  max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  max-width: 100%;
 }
 
 .math-block mjx-container[jax="SVG"] > svg,
-.math-frame mjx-container[jax="SVG"] > svg,
-.cell mjx-container[jax="SVG"] > svg {
+.cell mjx-container[jax="SVG"] > svg,
+.eq-card mjx-container[jax="SVG"] > svg {
   max-width: 100%;
   height: auto !important;
 }
 
-.pipeline-legend {
-  margin-top: 0.75rem;
+.object-grid {
+  margin-top: 0.72rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.object-grid h3 {
+  font-size: 0.95rem;
+}
+
+.stack-figure {
+  margin-top: 0.7rem;
+  padding: 0.64rem;
   display: flex;
-  gap: 0.4rem;
+  align-items: stretch;
+  gap: 0.44rem;
+  flex-wrap: wrap;
+}
+
+.stack-node {
+  min-width: 150px;
+  flex: 1 1 150px;
+  border: 1px solid var(--line);
+  padding: 0.52rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.stack-node span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.stack-node.frozen {
+  border-style: dashed;
+}
+
+.stack-node.updated {
+  border-width: 2px;
+  border-color: #2a2a2a;
+}
+
+.stack-arrow {
+  min-width: 18px;
+  display: grid;
+  place-items: center;
+  color: #505050;
+}
+
+.mechanism-grid {
+  margin-top: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.anchor-table {
+  width: 100%;
+  margin-top: 0.32rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.anchor-table th,
+.anchor-table td {
+  border-top: 1px solid var(--line);
+  padding: 0.34rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.anchor-table th {
+  background: var(--soft);
+  font-weight: 600;
+}
+
+.projection-figure {
+  margin-top: 0.35rem;
+  border: 1px solid var(--line);
+  padding: 0.32rem;
+  background: #fff;
+}
+
+.projection-figure svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mech-note {
+  margin-top: 0.36rem;
+  font-size: 0.86rem;
+  color: #252525;
+}
+
+.pipeline-legend {
+  margin-top: 0.72rem;
+  display: flex;
+  gap: 0.42rem;
   flex-wrap: wrap;
 }
 
 .legend-item {
   border: 1px solid var(--line);
-  padding: 0.22rem 0.44rem;
-  font-size: 0.72rem;
+  padding: 0.22rem 0.45rem;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .legend-item.frozen,
@@ -330,35 +391,37 @@ h1 {
 }
 
 .strategy-card {
-  margin-top: 1.05rem;
-  padding-top: 0.95rem;
-  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+  padding: 0.72rem;
+}
+
+.strategy-head {
+  margin-bottom: 0.48rem;
 }
 
 .strategy-head p {
-  margin-top: 0.18rem;
+  color: #232323;
 }
 
 .method-tag {
   display: inline-block;
-  margin-top: 0 !important;
-  margin-bottom: 0.16rem;
+  margin-bottom: 0.2rem;
   border: 1px solid var(--line);
-  padding: 0.12rem 0.34rem;
-  font-size: 0.68rem;
-  letter-spacing: 0.04em;
+  padding: 0.12rem 0.35rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #444;
+  color: #4a4a4a;
 }
 
 .method-tag.proposed {
-  border-color: #111;
-  color: #111;
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
   font-weight: 600;
 }
 
 .pipeline-grid {
-  margin-top: 0.58rem;
   border: 1px solid var(--line);
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -367,12 +430,12 @@ h1 {
 .col-head {
   border-bottom: 1px solid var(--line);
   border-right: 1px solid var(--line);
-  padding: 0.44rem;
-  font-size: 0.74rem;
+  background: var(--soft);
+  color: #3f3f3f;
+  padding: 0.42rem;
+  font-size: 0.73rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #414141;
-  background: var(--soft);
 }
 
 .col-head:nth-child(5) {
@@ -381,10 +444,10 @@ h1 {
 
 .cell {
   border-right: 1px solid var(--line);
-  padding: 0.5rem;
-  font-size: 0.82rem;
+  padding: 0.48rem;
+  font-size: 0.84rem;
   line-height: 1.45;
-  min-height: 126px;
+  min-height: 120px;
   overflow-wrap: anywhere;
 }
 
@@ -403,77 +466,36 @@ h1 {
   border-width: 2px;
 }
 
-.math-small {
-  margin-top: 0.22rem;
-  font-size: 0.76rem;
-}
-
 .strategy-math {
-  margin-top: 0.5rem;
+  margin-top: 0.44rem;
   border: 1px solid var(--line);
-  padding: 0.52rem;
-  background: #fff;
+  padding: 0.5rem;
 }
 
-.strategy-math p + p {
-  margin-top: 0.28rem;
+.decision-grid {
+  margin-top: 0.7rem;
+  grid-template-columns: 1.2fr 1fr;
 }
 
-.method-ref {
-  font-size: 0.86rem;
-  color: #333;
+.decision-surface h3,
+.decision-rules h3 {
+  margin-bottom: 0.35rem;
 }
 
-.anchor-table {
-  margin-top: 0.35rem;
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8rem;
-}
-
-.anchor-table th,
-.anchor-table td {
-  border-top: 1px solid var(--line);
-  padding: 0.34rem;
-  text-align: left;
-  vertical-align: top;
-}
-
-.anchor-table th {
-  background: var(--soft);
-  font-weight: 600;
-}
-
-.projection-figure {
-  margin-top: 0.4rem;
-  border: 1px solid var(--line);
-  padding: 0.32rem;
-}
-
-.projection-figure svg {
+.decision-surface svg {
   width: 100%;
   height: auto;
   display: block;
 }
 
-.expectation-check,
-.control-stack,
-.decision-card,
-.kpi-row article,
-.chart-grid article,
-.table-wrap,
-.takeaway {
-  border: 1px solid var(--line);
-  background: #fff;
-}
-
-.expectation-check {
-  padding: 0.8rem;
-  margin-top: 0.8rem;
+.decision-rules ul {
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.15rem;
 }
 
 .expectation-check h3 {
-  margin: 0 0 0.35rem;
+  margin-bottom: 0.35rem;
 }
 
 .expectation-check ul {
@@ -483,21 +505,23 @@ h1 {
 .expectation-check .pass,
 .expectation-check .warn {
   font-weight: 600;
-  color: #111;
+  color: var(--ink);
 }
 
 .control-stack {
-  margin-top: 1rem;
-  padding: 0.8rem;
+  margin-top: 0.95rem;
 }
 
-.preset-row,
-.knob-grid,
-.action-row,
-.kpi-row,
-.chart-grid {
-  display: grid;
-  gap: 0.5rem;
+.good {
+  border-left: 3px solid #0f5fbf !important;
+}
+
+.bad {
+  border-left: 3px solid #8f2f2f !important;
+}
+
+.caution {
+  border-left: 3px solid #5f5f5f !important;
 }
 
 .preset-row,
@@ -506,7 +530,7 @@ h1 {
 }
 
 .knob-grid {
-  margin-top: 0.6rem;
+  margin-top: 0.58rem;
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
@@ -518,14 +542,14 @@ label {
 
 input {
   border: 1px solid var(--line);
-  padding: 0.4rem 0.45rem;
+  padding: 0.42rem 0.46rem;
   font-family: inherit;
-  color: #111;
+  color: var(--ink);
   background: #fff;
 }
 
 .run-status {
-  margin-top: 0.8rem;
+  margin-top: 0.75rem;
 }
 
 .run-status p {
@@ -533,7 +557,6 @@ input {
 }
 
 .run-status p.error {
-  color: #111;
   font-weight: 600;
 }
 
@@ -546,13 +569,20 @@ input {
 #progress-fill {
   width: 0;
   height: 100%;
-  background: #111;
+  background: var(--ink);
 }
 
 .decision-card {
-  margin-top: 0.9rem;
-  padding: 0.8rem;
-  border-left: 3px solid #111;
+  margin-top: 0.86rem;
+  border-left: 3px solid var(--ink);
+}
+
+.decision-card.good {
+  border-left-color: #0f5fbf;
+}
+
+.decision-card.bad {
+  border-left-color: #8f2f2f;
 }
 
 .decision-card h4 {
@@ -560,53 +590,43 @@ input {
 }
 
 .decision-card p {
-  margin-top: 0.35rem;
-  font-size: 0.95rem;
+  margin-top: 0.3rem;
+  font-size: 0.94rem;
 }
 
 .kpi-row {
-  margin-top: 0.8rem;
+  margin-top: 0.75rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.kpi-row article {
-  padding: 0.62rem;
-}
-
 .kpi-row .label {
-  font-size: 0.72rem;
+  font-size: 0.71rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #444;
 }
 
 .kpi-row .value {
-  margin-top: 0.2rem;
+  margin-top: 0.18rem;
   font-size: 1rem;
   font-weight: 700;
 }
 
 .kpi-row .note {
-  margin-top: 0.14rem;
+  margin-top: 0.12rem;
   font-size: 0.76rem;
   color: #444;
 }
 
 .chart-grid {
   margin-top: 0.8rem;
-  grid-template-columns: 1fr 1fr;
-}
-
-.chart-grid article,
-.table-wrap,
-.takeaway {
-  padding: 0.7rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .chart-grid h3,
 .table-wrap h3,
 .takeaway h4 {
-  margin-bottom: 0.38rem;
+  margin-bottom: 0.35rem;
   font-size: 0.92rem;
 }
 
@@ -617,8 +637,13 @@ input {
   background: #fff;
 }
 
-.table-wrap {
+.table-wrap,
+.takeaway {
   margin-top: 0.8rem;
+}
+
+.takeaway p {
+  font-size: 0.93rem;
 }
 
 .method-table {
@@ -676,14 +701,6 @@ input {
   border-top-style: solid;
 }
 
-.takeaway {
-  margin-top: 0.8rem;
-}
-
-.takeaway p {
-  font-size: 0.95rem;
-}
-
 mjx-container[jax="SVG"] {
   max-width: 100%;
   overflow-x: auto;
@@ -691,13 +708,17 @@ mjx-container[jax="SVG"] {
   font-size: 101% !important;
 }
 
-@media (max-width: 980px) {
-  .decision-strip,
-  .reading-map,
-  .problem-grid,
-  .symbol-grid,
-  .concrete-grid {
+@media (max-width: 1020px) {
+  .bridge-frame,
+  .mechanism-grid,
+  .decision-grid,
+  .hero-signal,
+  .object-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .bridge-core {
+    grid-column: 1 / -1;
   }
 
   .pipeline-grid {
@@ -718,30 +739,49 @@ mjx-container[jax="SVG"] {
     grid-template-columns: 1fr 1fr;
   }
 
-  .kpi-row,
-  .chart-grid {
+  .chart-grid,
+  .kpi-row {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 720px) {
   .shell {
     width: calc(100% - 2rem);
   }
 
   .hero {
-    padding-top: 2.4rem;
+    padding-top: 2.6rem;
   }
 
-  .decision-strip,
-  .reading-map,
-  .problem-grid,
-  .symbol-grid,
-  .concrete-grid,
+  .hero-actions,
+  .pipeline-legend {
+    gap: 0.4rem;
+  }
+
+  .bridge-frame,
+  .bridge-equations,
+  .mechanism-grid,
+  .decision-grid,
+  .hero-signal,
+  .object-grid,
   .preset-row,
   .action-row,
   .knob-grid {
     grid-template-columns: 1fr;
+  }
+
+  .stack-figure {
+    padding: 0.55rem;
+  }
+
+  .stack-node {
+    min-width: 100%;
+  }
+
+  .stack-arrow {
+    width: 100%;
+    min-height: 18px;
   }
 
   .chart-canvas {

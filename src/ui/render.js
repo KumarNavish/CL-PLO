@@ -163,7 +163,7 @@ function renderProgress(payload) {
 
 function renderAll(result) {
   setProgress(100);
-  setStatus("Validation complete. Compare observed ordering with the pipeline expectations.");
+  setStatus("Validation complete. Compare observed ordering to the decision surface.");
 
   renderExpectationCheck(result);
   renderDecisionCard(result);
@@ -187,7 +187,7 @@ function renderExpectationCheck(result) {
   const driftOrder = n.driftMse <= a.driftMse && a.driftMse <= p.driftMse;
 
   host.innerHTML = `
-    <h3>What this run checks</h3>
+    <h3>Bridge checks</h3>
     <ul>
       <li>
         Stress retention should improve from naive to anchor to projection (lower stress MSE).
@@ -197,7 +197,7 @@ function renderExpectationCheck(result) {
         Drift-fit error is expected to rise as constraints become stricter.
         <span class="${driftOrder ? "pass" : "warn"}">${driftOrder ? "Observed" : "Not fully observed"}</span>
       </li>
-      <li>Use these checks before reading the decision card and score table.</li>
+      <li>If both hold repeatedly under stress-heavy presets, the projection method is promotion-ready.</li>
     </ul>
   `;
 }
@@ -216,14 +216,14 @@ function renderDecisionCard(result) {
   const driftPenalty = ratioPenalty(naive.driftMse, proj.driftMse);
 
   let level = "caution";
-  let title = "Provisional decision: keep in pilot review";
+  let title = "Decision gate: keep in pilot review";
 
   if (stressGain > 0.8 && drawdownGain > 0.06 && driftPenalty < 70) {
     level = "good";
-    title = "Provisional decision: promote to pilot";
+    title = "Decision gate: promote to pilot";
   } else if (stressGain < 0.45 || drawdownGain < 0) {
     level = "bad";
-    title = "Provisional decision: do not promote";
+    title = "Decision gate: do not promote";
   }
 
   host.className = `decision-card ${level}`;
@@ -387,11 +387,11 @@ function renderTakeaway(result) {
   const ddProj = proj.maxDrawdown - naive.maxDrawdown;
 
   host.innerHTML = `
-    <h4>Reading this run</h4>
+    <h4>Run interpretation</h4>
     <p>
       In this sample path, projection improves stress retention by <strong>${pct(stressGainProj)}</strong> relative to
       naive (anchor: ${pct(stressGainAnchor)}), with drawdown change <strong>${pp(ddProj)}</strong>. Treat this as
-      one piece of evidence; promotion requires the same ordering to hold across repeated stress-heavy configurations.
+      one evidence point; promotion requires the same ordering across repeated stress-heavy runs.
     </p>
   `;
 }
