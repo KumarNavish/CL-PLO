@@ -42,6 +42,12 @@ export const REFERENCES = {
       link: "https://arxiv.org/abs/2405.13383",
       why: "Projection in PEFT subspace for retention under streaming updates.",
     },
+    {
+      title: "Qlib: An AI-oriented Quantitative Investment Platform",
+      authors: "Yang et al. (2020)",
+      link: "https://arxiv.org/abs/2009.11189",
+      why: "Modern quant research-stack baseline for model lifecycle and backtesting.",
+    },
   ],
   datasets: [
     {
@@ -75,6 +81,21 @@ export const REFERENCES = {
       title: "cvxgrp/cvxportfolio",
       link: "https://github.com/cvxgrp/cvxportfolio",
       why: "Constraint-aware portfolio optimization framework.",
+    },
+    {
+      title: "microsoft/qlib",
+      link: "https://github.com/microsoft/qlib",
+      why: "Production-oriented quant research framework and experiment stack.",
+    },
+    {
+      title: "quantopian/zipline",
+      link: "https://github.com/quantopian/zipline",
+      why: "Classical event-driven portfolio backtest and execution baseline.",
+    },
+    {
+      title: "polakowo/vectorbt",
+      link: "https://github.com/polakowo/vectorbt",
+      why: "Fast vectorized strategy research baseline for cross-checks and ablations.",
     },
   ],
 };
