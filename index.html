@@ -10,33 +10,31 @@
   <body>
     <header class="executive" id="top">
       <div class="shell">
-        <h1>CL-PLO: Stable Transformer Updates for LLM Portfolio Systems</h1>
-
-        <article class="exec-card" aria-label="30 second executive card">
-          <div class="exec-problem">
-            <span class="exec-label">Problem</span>
-            <span class="exec-line">Fast adapter updates track drift, then fail stress behavior when risk posture matters most.</span>
+        <article class="hero-insight" aria-label="High-signal decision summary">
+          <div class="hero-copy">
+            <p class="hero-kicker">CL-PLO Decision Spine</p>
+            <h1>The adapter update law is the risk policy.</h1>
+            <p class="hero-summary">
+              In regime-shifting markets, naive continual updates fit recent drift and erase stress behavior.
+              CL-PLO treats the update operator as a constrained control decision, not a training detail.
+            </p>
+            <ul class="hero-bullets">
+              <li><strong>Failure mode:</strong> calm-period overfitting, then stress-time misallocation.</li>
+              <li><strong>Frozen system:</strong> Transformer backbone and portfolio optimizer constraints.</li>
+              <li><strong>Decision variable:</strong> naive update, replay update, or replay plus projection gate.</li>
+            </ul>
+            <p class="hero-signal">
+              <span>Default validation signal:</span>
+              <strong>+97.1% stress retention</strong>
+              <span>and</span>
+              <strong>+34.1 pp drawdown lift</strong>
+              <span>for the projection-gated strategy.</span>
+            </p>
           </div>
 
-          <div class="exec-state">
-            <div>
-              <span class="exec-label">Frozen</span>
-              <span class="exec-line">Transformer backbone, optimizer constraints</span>
-            </div>
-            <div>
-              <span class="exec-label">Updated</span>
-              <span class="exec-line">LoRA adapter update operator</span>
-            </div>
-          </div>
-
-          <div class="exec-strategies" aria-label="three update strategies">
-            <div><span class="icon">A</span><span>Naive online: fastest adaptation, no stability gate.</span></div>
-            <div><span class="icon">B</span><span>Replay only: keeps stress memory via anchor replay.</span></div>
-            <div><span class="icon proposed">C</span><span>Replay + projection: enforces a hard safe-update boundary.</span></div>
-          </div>
-
-          <figure class="exec-figure" aria-label="decisive figure thumbnail">
-            <img src="./assets/validation_wide.png" alt="Validation figure thumbnail: constrained update dominates stress retention and drawdown" />
+          <figure class="hero-figure" aria-label="Decisive strategy comparison signal">
+            <img src="./assets/validation_wide.png" alt="Validation figure: constrained update dominates stress retention and drawdown control" />
+            <figcaption>Single-run diagnostic used for release-gate triage.</figcaption>
           </figure>
         </article>
       </div>
@@ -100,6 +98,16 @@
               <text x="886" y="121" text-anchor="middle">Outcome</text>
               <text x="886" y="146" text-anchor="middle">fast, unstable</text>
             </svg>
+
+            <div class="pipeline-equation">
+              <p class="math-tag prior">Prior work</p>
+              <div class="math-block compact">
+                \[
+                \theta_{t+1}=\theta_t-\eta_t g_{d,t}
+                \]
+              </div>
+              <p class="math-meaning"><strong>Operational meaning:</strong> fastest adaptation path with no explicit memory protection.</p>
+            </div>
           </article>
 
           <article class="strategy-card">
@@ -147,6 +155,16 @@
               <text x="886" y="121" text-anchor="middle">Outcome</text>
               <text x="886" y="146" text-anchor="middle">memory, soft gate</text>
             </svg>
+
+            <div class="pipeline-equation">
+              <p class="math-tag prior">Prior work</p>
+              <div class="math-block compact">
+                \[
+                \theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)
+                \]
+              </div>
+              <p class="math-meaning"><strong>Operational meaning:</strong> keeps replay pressure active, but still allows harmful drift-anchor interference.</p>
+            </div>
           </article>
 
           <article class="strategy-card">
@@ -197,6 +215,18 @@
               <text x="901" y="121" text-anchor="middle">Outcome</text>
               <text x="901" y="146" text-anchor="middle">stable + adaptive</text>
             </svg>
+
+            <div class="pipeline-equation">
+              <p class="math-tag proposed">Proposed here</p>
+              <div class="math-block compact">
+                \[
+                \tilde g_t=\Pi_{\mathcal{H}_t}(g_{d,t}),
+                \qquad
+                \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
+                \]
+              </div>
+              <p class="math-meaning"><strong>Operational meaning:</strong> projects drift updates into the safe half-space before the model state is changed.</p>
+            </div>
           </article>
         </div>
       </section>
@@ -204,15 +234,31 @@
       <section class="section" id="objects">
         <h2>2. Concrete Anchors and Projection</h2>
 
-        <div class="anchor-grid" aria-label="Concrete anchor fixtures">
-          <article>March 2020 liquidity freeze (bid-ask blowout)</article>
-          <article>Gap-open day after overnight macro shock</article>
-          <article>Emergency rate decision with risk-off reversal</article>
-          <article>Single-sector cascade drawdown (energy/financials)</article>
-          <article>Volatility spike week (VIX regime jump)</article>
-          <article>Funding stress window (cross-asset deleveraging)</article>
-          <article>Policy surprise + correlation breakdown session</article>
-          <article>Earnings miss cluster with crowded-factor unwind</article>
+        <div class="anchor-gallery" aria-label="Concrete anchor fixtures as real artifacts">
+          <figure class="anchor-item">
+            <img src="./assets/anchors/liquidity_spread.svg" alt="Bid-ask spread shock artifact" loading="lazy" />
+            <figcaption>Liquidity freeze spread shock.</figcaption>
+          </figure>
+          <figure class="anchor-item">
+            <img src="./assets/anchors/gap_open_session.svg" alt="Gap-open session artifact" loading="lazy" />
+            <figcaption>Gap-open tape after overnight shock.</figcaption>
+          </figure>
+          <figure class="anchor-item">
+            <img src="./assets/anchors/volatility_spike.svg" alt="Volatility spike artifact" loading="lazy" />
+            <figcaption>Volatility regime jump window.</figcaption>
+          </figure>
+          <figure class="anchor-item">
+            <img src="./assets/anchors/correlation_breakdown.svg" alt="Correlation breakdown heatmap artifact" loading="lazy" />
+            <figcaption>Correlation breakdown map snapshot.</figcaption>
+          </figure>
+          <figure class="anchor-item">
+            <img src="./assets/anchors/sector_cascade.svg" alt="Sector cascade drawdown artifact" loading="lazy" />
+            <figcaption>Sector cascade drawdown trajectory.</figcaption>
+          </figure>
+          <figure class="anchor-item">
+            <img src="./assets/anchors/funding_stress.svg" alt="Funding stress spread artifact" loading="lazy" />
+            <figcaption>Funding stress spread proxy.</figcaption>
+          </figure>
         </div>
 
         <div class="projection-wrap">
@@ -256,7 +302,7 @@
           </aside>
         </div>
 
-        <p class="object-note">Anchor fixture: persistent stress slices replayed on every update step.</p>
+        <p class="object-note">Anchor fixture: concrete stress artifacts replayed at every update step.</p>
       </section>
 
       <section class="section" id="math">

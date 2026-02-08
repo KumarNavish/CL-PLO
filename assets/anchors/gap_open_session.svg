@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Gap-open tape chart">
+  <rect width="320" height="200" fill="#ffffff"/>
+  <rect x="32" y="22" width="270" height="148" fill="#f7f9fb" stroke="#d8dde5"/>
+  <polyline fill="none" stroke="#1f3f68" stroke-width="3" points="36,112 58,108 80,106 102,98 124,94 146,90 168,88 190,126 212,122 234,120 256,118 278,116 300,110"/>
+  <rect x="182" y="24" width="42" height="144" fill="#1f3f68" opacity="0.10"/>
+  <line x1="32" y1="170" x2="302" y2="170" stroke="#7a8493" stroke-width="1"/>
+  <text x="36" y="16" font-family="IBM Plex Sans,Arial" font-size="11" fill="#263242">Gap-Open Session Snapshot</text>
+  <text x="36" y="186" font-family="IBM Plex Sans,Arial" font-size="10" fill="#4f5a69">Overnight regime break artifact</text>
+</svg>

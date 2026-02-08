@@ -6,8 +6,8 @@ const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
 
 const METHOD_STYLES = {
   naive: { color: "#6e6e6e", dash: [10, 6] },
-  anchor: { color: "#0f5fbf", dash: [2, 6] },
-  anchor_proj: { color: "#111111", dash: [] },
+  anchor: { color: "#1f3f68", dash: [2, 6] },
+  anchor_proj: { color: "#8f4b1a", dash: [] },
 };
 
 const MODE_META = {

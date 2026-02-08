@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" role="img" aria-label="Correlation breakdown heatmap">
+  <rect width="320" height="200" fill="#ffffff"/>
+  <rect x="52" y="28" width="170" height="140" fill="#f7f9fb" stroke="#d8dde5"/>
+  <g stroke="#ffffff" stroke-width="1">
+    <rect x="52" y="28" width="34" height="28" fill="#c8def7"/>
+    <rect x="86" y="28" width="34" height="28" fill="#f2d2d2"/>
+    <rect x="120" y="28" width="34" height="28" fill="#f3d9d9"/>
+    <rect x="154" y="28" width="34" height="28" fill="#d4e6f9"/>
+    <rect x="188" y="28" width="34" height="28" fill="#dceaf8"/>
+    <rect x="52" y="56" width="34" height="28" fill="#f2d2d2"/>
+    <rect x="86" y="56" width="34" height="28" fill="#b8d6f4"/>
+    <rect x="120" y="56" width="34" height="28" fill="#a7cbef"/>
+    <rect x="154" y="56" width="34" height="28" fill="#9fc6ec"/>
+    <rect x="188" y="56" width="34" height="28" fill="#a8ccef"/>
+    <rect x="52" y="84" width="34" height="28" fill="#f3d9d9"/>
+    <rect x="86" y="84" width="34" height="28" fill="#a7cbef"/>
+    <rect x="120" y="84" width="34" height="28" fill="#b8d6f4"/>
+    <rect x="154" y="84" width="34" height="28" fill="#9bc3ea"/>
+    <rect x="188" y="84" width="34" height="28" fill="#a2c8ed"/>
+    <rect x="52" y="112" width="34" height="28" fill="#d4e6f9"/>
+    <rect x="86" y="112" width="34" height="28" fill="#9fc6ec"/>
+    <rect x="120" y="112" width="34" height="28" fill="#9bc3ea"/>
+    <rect x="154" y="112" width="34" height="28" fill="#b8d6f4"/>
+    <rect x="188" y="112" width="34" height="28" fill="#99c2e9"/>
+    <rect x="52" y="140" width="34" height="28" fill="#dceaf8"/>
+    <rect x="86" y="140" width="34" height="28" fill="#a8ccef"/>
+    <rect x="120" y="140" width="34" height="28" fill="#a2c8ed"/>
+    <rect x="154" y="140" width="34" height="28" fill="#99c2e9"/>
+    <rect x="188" y="140" width="34" height="28" fill="#b8d6f4"/>
+  </g>
+  <text x="36" y="16" font-family="IBM Plex Sans,Arial" font-size="11" fill="#263242">Correlation Breakdown Map</text>
+  <text x="230" y="84" font-family="IBM Plex Sans,Arial" font-size="10" fill="#4f5a69">Eq/Cr/Rates</text>
+  <text x="230" y="99" font-family="IBM Plex Sans,Arial" font-size="10" fill="#4f5a69">Com/FX block</text>
+</svg>

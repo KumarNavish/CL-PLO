@@ -198,12 +198,12 @@ export function drawImpactBars(canvas, impact) {
     const cx = xCenter(i, impact.length);
 
     drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, {
-      color: "#0f5fbf",
+      color: "#1f3f68",
       pattern: "diagonal",
       outlined: true,
     });
     drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, {
-      color: "#111111",
+      color: "#8f4b1a",
       pattern: "solid",
       outlined: false,
     });
@@ -213,15 +213,15 @@ export function drawImpactBars(canvas, impact) {
     ctx.textAlign = "center";
     ctx.fillText(group.label, cx, dims.bottom + 16);
 
-    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#0f5fbf", zeroY);
-    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#111111", zeroY);
+    labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#1f3f68", zeroY);
+    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#8f4b1a", zeroY);
   }
 
   drawLegend(
     ctx,
     [
-      { label: "Anchor", color: "#0f5fbf", kind: "bar_hatch" },
-      { label: "Anchor + Projection", color: "#111111", kind: "bar" },
+      { label: "Anchor", color: "#1f3f68", kind: "bar_hatch" },
+      { label: "Anchor + Projection", color: "#8f4b1a", kind: "bar" },
     ],
     width,
     10,

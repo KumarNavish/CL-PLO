@@ -1,19 +1,19 @@
 :root {
   --bg: #ffffff;
-  --ink: #111111;
-  --muted: #535353;
-  --line: #d9d9d9;
-  --panel: #fcfcfc;
+  --ink: #101828;
+  --muted: #475467;
+  --line: #d0d5dd;
+  --panel: #f8fafc;
 
-  --data: #eaf2ff;
-  --memory: #fff4dc;
-  --update: #f4f4f4;
-  --decision: #eef8ef;
-  --proposed: #b55400;
+  --data: #e8f1ff;
+  --memory: #fff2e7;
+  --update: #eef2f6;
+  --decision: #eaf7ef;
+  --proposed: #8f4b1a;
 
-  --good: #0a6b2d;
-  --warn: #7c5a00;
-  --bad: #8f2f2f;
+  --good: #087443;
+  --warn: #9a3412;
+  --bad: #b42318;
 }
 
 * {
@@ -38,7 +38,6 @@ h2,
 h3,
 h4,
 .btn,
-.exec-label,
 .method-tag,
 .mode-card,
 input,
@@ -78,89 +77,87 @@ a {
 
 .executive {
   border-bottom: 1px solid var(--line);
-  padding: 1.8rem 0 2rem;
+  padding: 2rem 0 2.2rem;
 }
 
-.executive h1 {
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  line-height: 1.12;
-  letter-spacing: -0.01em;
-  max-width: 28ch;
-  margin-bottom: 0.82rem;
-}
-
-.exec-card {
+.hero-insight {
   border: 1px solid var(--line);
   background: #ffffff;
-  padding: 0.96rem;
+  padding: 1rem;
   display: grid;
-  gap: 0.8rem;
-  grid-template-columns: 1.3fr 1fr 1.45fr 1fr;
-  align-items: stretch;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 1rem;
+  align-items: start;
 }
 
-.exec-label {
-  display: block;
-  font-size: 0.66rem;
+.hero-kicker {
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   color: var(--muted);
-  margin-bottom: 0.14rem;
 }
 
-.exec-line {
-  display: block;
-  font-size: 0.84rem;
-  line-height: 1.33;
+.hero-insight h1 {
+  margin-top: 0.16rem;
+  font-size: clamp(1.85rem, 3vw, 2.55rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  max-width: 24ch;
 }
 
-.exec-state {
-  display: grid;
-  gap: 0.48rem;
+.hero-summary {
+  margin-top: 0.6rem;
+  font-size: 0.93rem;
+  line-height: 1.45;
+  color: #1f2937;
+  max-width: 64ch;
 }
 
-.exec-strategies {
+.hero-bullets {
+  margin: 0.72rem 0 0;
+  padding-left: 1rem;
   display: grid;
   gap: 0.28rem;
 }
 
-.exec-strategies div {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.42rem;
-  align-items: start;
+.hero-bullets li {
+  font-size: 0.86rem;
+  line-height: 1.38;
 }
 
-.icon {
-  width: 18px;
-  height: 18px;
-  border: 1px solid #707070;
-  border-radius: 999px;
-  display: inline-grid;
-  place-items: center;
-  font-size: 0.66rem;
-  font-weight: 600;
-  color: #333333;
+.hero-signal {
+  margin-top: 0.72rem;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 0.52rem 0.58rem;
+  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
+  font-size: 0.84rem;
+  line-height: 1.34;
 }
 
-.icon.proposed {
-  border-color: var(--proposed);
+.hero-signal strong {
   color: var(--proposed);
 }
 
-.exec-figure {
+.hero-figure {
   border: 1px solid var(--line);
   background: var(--panel);
-  display: grid;
-  place-items: center;
+  margin: 0;
   overflow: hidden;
 }
 
-.exec-figure img {
+.hero-figure img {
   display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+}
+
+.hero-figure figcaption {
+  border-top: 1px solid var(--line);
+  padding: 0.42rem 0.52rem;
+  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 
 .section {
@@ -234,7 +231,7 @@ a {
 .preset-row,
 .action-row,
 .knob-grid,
-.anchor-grid {
+.anchor-gallery {
   display: grid;
   gap: 0.72rem;
 }
@@ -362,18 +359,40 @@ a {
   stroke-dasharray: 4 4;
 }
 
-.anchor-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+.pipeline-equation {
+  margin-top: 0.58rem;
+}
+
+.math-block.compact {
+  margin-top: 0.22rem;
+  padding: 0.42rem 0.52rem;
+}
+
+.anchor-gallery {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   margin-top: 0.46rem;
 }
 
-.anchor-grid article {
+.anchor-item {
+  margin: 0;
   border: 1px solid var(--line);
-  background: var(--panel);
-  padding: 0.54rem;
-  font-size: 0.8rem;
-  line-height: 1.35;
+  background: #ffffff;
+}
+
+.anchor-item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.anchor-item figcaption {
+  border-top: 1px solid var(--line);
+  padding: 0.4rem 0.48rem;
   font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: var(--muted);
 }
 
 .projection-figure {
@@ -400,36 +419,33 @@ a {
 }
 
 .projection-svg .halfspace {
-  fill: #f3f3f3;
+  fill: #f4f6f8;
 }
 
 .projection-svg .constraint-line {
-  stroke: #4a4a4a;
-  stroke-width: 2.2;
-  stroke-dasharray: 7 5;
-}
-
-.projection-svg .origin-dot {
-  fill: #222222;
+  stroke: #475467;
+  stroke-width: 2.4;
+  stroke-dasharray: 8 5;
 }
 
 .projection-svg .raw-vector {
-  stroke: #8f2f2f;
-  stroke-width: 3;
+  stroke: #b42318;
+  stroke-width: 3.2;
 }
 
 .projection-svg .proj-vector {
-  stroke: #111111;
-  stroke-width: 3;
+  stroke: #101828;
+  stroke-width: 3.2;
 }
 
 .projection-svg .proj-label {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 520;
+  letter-spacing: 0.01em;
 }
 
 .projection-svg .proj-label.raw-label {
-  fill: #8f2f2f;
+  fill: #b42318;
 }
 
 .projection-math-card {
@@ -759,12 +775,12 @@ input {
 }
 
 .line-chip-anchor {
-  border-top-color: #0f5fbf;
+  border-top-color: #1f3f68;
   border-top-style: dotted;
 }
 
 .line-chip-anchor_proj {
-  border-top-color: #111111;
+  border-top-color: #8f4b1a;
   border-top-style: solid;
 }
 
@@ -833,11 +849,11 @@ input {
 }
 
 @media (max-width: 1180px) {
-  .exec-card {
+  .hero-insight {
     grid-template-columns: 1fr 1fr;
   }
 
-  .exec-figure {
+  .hero-figure {
     min-height: 110px;
   }
 
@@ -859,7 +875,7 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .anchor-grid {
+  .anchor-gallery {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -881,7 +897,7 @@ input {
     padding-top: 1.1rem;
   }
 
-  .exec-card {
+  .hero-insight {
     grid-template-columns: 1fr;
   }
 
@@ -890,7 +906,7 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .anchor-grid {
+  .anchor-gallery {
     grid-template-columns: 1fr;
   }
 
