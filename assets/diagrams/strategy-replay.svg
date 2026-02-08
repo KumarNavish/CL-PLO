@@ -1,68 +1,73 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" role="img" aria-label="Replay strategy pipeline diagram">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" role="img" aria-label="Replay strategy pipeline with anchor memory but no hard projection">
   <defs>
     <style>
-      .label { font: 600 12px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0.06em; fill: #5b6572; text-transform: uppercase; }
-      .node-title { font: 600 14px 'IBM Plex Sans', Arial, sans-serif; fill: #1d2733; }
-      .node-sub { font: 400 12px 'IBM Plex Sans', Arial, sans-serif; fill: #3e4855; }
-      .tag { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2937; }
-      .tag-val { font: 400 11px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
+      .role { font: 600 12px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: 0.08em; fill: #5b6572; text-transform: uppercase; }
+      .title { font: 600 16px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2933; }
+      .sub { font: 400 12px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
+      .chip { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #293241; }
+      .chipv { font: 400 11px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
     </style>
-    <marker id="arr-replay" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 z" fill="#374151"/>
+    <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#334155"/>
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="330" fill="#ffffff"/>
-  <rect x="12" y="12" width="1176" height="306" rx="8" fill="#ffffff" stroke="#d8dde5"/>
+  <rect width="1280" height="360" fill="#ffffff"/>
+  <rect x="8" y="8" width="1264" height="344" rx="10" fill="#ffffff" stroke="#d8dde5"/>
 
-  <text x="72" y="48" class="label">Input</text>
-  <text x="294" y="48" class="label">Frozen System</text>
-  <text x="514" y="48" class="label">Memory</text>
-  <text x="734" y="48" class="label">Update</text>
-  <text x="954" y="48" class="label">Decision</text>
+  <text x="34" y="36" class="title">B. Replay-Regularized: memory pullback without hard clipping</text>
 
-  <rect x="40" y="120" width="180" height="88" rx="8" fill="#edf2f8" stroke="#50627a" stroke-width="1.4"/>
-  <text x="130" y="154" text-anchor="middle" class="node-title">LLM Drift Stream</text>
-  <text x="130" y="174" text-anchor="middle" class="node-sub">new regime batches</text>
+  <text x="76" y="66" class="role">Data</text>
+  <text x="308" y="66" class="role">Frozen System</text>
+  <text x="540" y="66" class="role">Anchor Memory</text>
+  <text x="772" y="66" class="role">Update</text>
+  <text x="1004" y="66" class="role">Decision</text>
 
-  <line x1="220" y1="164" x2="260" y2="164" stroke="#374151" stroke-width="2" marker-end="url(#arr-replay)"/>
+  <rect x="34" y="96" width="210" height="118" rx="10" fill="#edf2f8" stroke="#50627a" stroke-width="1.5"/>
+  <text x="139" y="138" text-anchor="middle" class="title" font-size="15">LLM signal stream</text>
+  <text x="139" y="160" text-anchor="middle" class="sub">regime-conditioned tokens</text>
 
-  <rect x="260" y="120" width="180" height="88" rx="8" fill="#f3f4f6" stroke="#5e636b" stroke-width="1.4"/>
-  <text x="350" y="154" text-anchor="middle" class="node-title">Frozen Backbone</text>
-  <text x="350" y="174" text-anchor="middle" class="node-sub">transformer + optimizer</text>
+  <line x1="244" y1="155" x2="266" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
 
-  <line x1="440" y1="164" x2="700" y2="164" stroke="#374151" stroke-width="2" marker-end="url(#arr-replay)"/>
+  <rect x="266" y="96" width="210" height="118" rx="10" fill="#f3f4f6" stroke="#5f6670" stroke-width="1.5"/>
+  <text x="371" y="138" text-anchor="middle" class="title" font-size="15">Backbone frozen</text>
+  <text x="371" y="160" text-anchor="middle" class="sub">transformer + portfolio solver</text>
 
-  <rect x="480" y="70" width="180" height="64" rx="8" fill="#f7f0e7" stroke="#775f44" stroke-width="1.4"/>
-  <text x="570" y="96" text-anchor="middle" class="node-title">Anchor Fixture</text>
-  <text x="570" y="114" text-anchor="middle" class="node-sub">stress-memory replay</text>
-  <line x1="570" y1="134" x2="570" y2="154" stroke="#374151" stroke-width="2" marker-end="url(#arr-replay)"/>
+  <line x1="476" y1="155" x2="498" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
 
-  <rect x="700" y="120" width="180" height="88" rx="8" fill="#eef3ef" stroke="#4d6656" stroke-width="1.6"/>
-  <text x="790" y="154" text-anchor="middle" class="node-title">Update Operator</text>
-  <text x="790" y="174" text-anchor="middle" class="node-sub">drift + replay mix</text>
+  <rect x="498" y="96" width="210" height="118" rx="10" fill="#f7f0e7" stroke="#775f44" stroke-width="1.6"/>
+  <text x="603" y="138" text-anchor="middle" class="title" font-size="15">Anchor fixture</text>
+  <text x="603" y="160" text-anchor="middle" class="sub">stress fixtures replayed</text>
+  <line x1="603" y1="214" x2="730" y2="214" stroke="#775f44" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="664" y="206" text-anchor="middle" class="sub" fill="#5e4b37">anchor gradient</text>
 
-  <line x1="880" y1="164" x2="920" y2="164" stroke="#374151" stroke-width="2" marker-end="url(#arr-replay)"/>
+  <line x1="708" y1="155" x2="730" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
 
-  <rect x="920" y="120" width="180" height="88" rx="8" fill="#edf4ef" stroke="#415f4f" stroke-width="1.4"/>
-  <text x="1010" y="154" text-anchor="middle" class="node-title">Decision Layer</text>
-  <text x="1010" y="174" text-anchor="middle" class="node-sub">weights and risk budget</text>
+  <rect x="730" y="96" width="210" height="118" rx="10" fill="#eef3ef" stroke="#4d6656" stroke-width="1.7"/>
+  <text x="835" y="138" text-anchor="middle" class="title" font-size="15">Mixed update</text>
+  <text x="835" y="160" text-anchor="middle" class="sub">drift + replay penalty</text>
 
-  <rect x="40" y="242" width="360" height="54" rx="6" fill="#f8fafc" stroke="#d8dde5"/>
-  <text x="58" y="264" class="tag">Preserves</text>
-  <text x="120" y="264" class="tag-val">stress exemplars through replay</text>
-  <text x="58" y="284" class="tag">Control</text>
-  <text x="108" y="284" class="tag-val">soft via replay coefficient beta</text>
+  <line x1="940" y1="155" x2="962" y2="155" stroke="#334155" stroke-width="2.2" marker-end="url(#arr)"/>
 
-  <rect x="420" y="242" width="360" height="54" rx="6" fill="#f8fafc" stroke="#d8dde5"/>
-  <text x="438" y="264" class="tag">Allows change</text>
-  <text x="526" y="264" class="tag-val">adaptation with memory pullback</text>
-  <text x="438" y="284" class="tag">Failure mode</text>
-  <text x="508" y="284" class="tag-val">conflicting gradients still pass</text>
+  <rect x="962" y="96" width="284" height="118" rx="10" fill="#edf4ef" stroke="#415f4f" stroke-width="1.5"/>
+  <text x="1104" y="138" text-anchor="middle" class="title" font-size="15">Portfolio decision layer</text>
+  <text x="1104" y="160" text-anchor="middle" class="sub">weights, turnover, risk budget</text>
 
-  <rect x="800" y="242" width="300" height="54" rx="6" fill="#f4f8fd" stroke="#c6d3e5"/>
-  <text x="818" y="264" class="tag">Deployment read</text>
-  <text x="905" y="264" class="tag-val">better memory, partial stability</text>
-  <text x="818" y="284" class="tag">Use case</text>
-  <text x="868" y="284" class="tag-val">moderate drift environments</text>
+  <rect x="34" y="246" width="396" height="84" rx="8" fill="#f8fafc" stroke="#d8dde5"/>
+  <text x="52" y="272" class="chip">Preserves</text>
+  <text x="116" y="272" class="chipv">anchor fixture behavior signatures</text>
+  <text x="52" y="296" class="chip">Allows change</text>
+  <text x="142" y="296" class="chipv">drift adaptation with memory pullback</text>
+
+  <rect x="442" y="246" width="396" height="84" rx="8" fill="#f8fafc" stroke="#d8dde5"/>
+  <text x="460" y="272" class="chip">Control enforcement</text>
+  <text x="556" y="272" class="chipv">soft (beta-weighted replay)</text>
+  <text x="460" y="296" class="chip">Primary failure mode</text>
+  <text x="566" y="296" class="chipv">conflicting steps can still violate risk intent</text>
+
+  <rect x="850" y="246" width="396" height="84" rx="8" fill="#f4f8fd" stroke="#c6d3e5"/>
+  <text x="868" y="272" class="chip">Quant read</text>
+  <text x="932" y="272" class="chipv">better retention, partial stability only</text>
+  <text x="868" y="296" class="chip">Deployment role</text>
+  <text x="961" y="296" class="chipv">intermediate baseline</text>
 </svg>

@@ -133,32 +133,31 @@
         <h2>2. Concrete Anchors and Projection</h2>
 
         <figure class="anchor-board" aria-label="Concrete anchor fixture board">
-          <img src="./assets/diagrams/anchor-fixture-board.svg" alt="Six concrete anchor artifacts with trigger definitions and preserved behavior signatures" loading="lazy" />
-          <figcaption>Anchor memory is a curated replay board: each artifact is a concrete stress slice with trigger metadata and preserved decision behavior.</figcaption>
+          <img src="./assets/diagrams/anchor-fixture-board.svg" alt="Financial anchor fixtures shown as regime timeline windows, stress slices on price paths, and distribution-shift signatures" loading="lazy" />
+          <figcaption>Anchor set = replayable stress fixtures: regime windows, stress price slices, and shifted return-risk signatures used at every update.</figcaption>
         </figure>
 
         <div class="projection-wrap">
-          <figure class="projection-figure" aria-label="Projection geometry">
-            <img class="projection-image" src="./assets/diagrams/projection-geometry.svg" alt="Projection geometry showing raw update, constraint half-space, and projected update" loading="lazy" />
+          <figure class="projection-figure" aria-label="Risk-budget constrained projection">
+            <img class="projection-image" src="./assets/diagrams/projection-geometry.svg" alt="Exposure-space projection: raw portfolio update, risk-budget feasible region, and projected feasible update" loading="lazy" />
           </figure>
 
           <aside class="projection-math-card" aria-label="Projection equation">
             <p class="math-tag proposed">Proposed here</p>
             <div class="math-block projection-math">
               \[
-              \begin{aligned}
-              \tilde g_t
-              &=\arg\min_{v\in\mathcal{H}_t}\lVert v-g_{d,t}\rVert_2^2\\
-              \mathcal{H}_t
-              &=\{v:\langle v,g_{a,t}\rangle\ge-\varepsilon_t\}
-              \end{aligned}
+              g_{\mathrm{proj}}
+              =
+              \arg\min_{g}\lVert g-g_{\mathrm{raw}}\rVert_2^2
+              \quad\text{s.t.}\quad
+              \langle g,a_t\rangle \ge 0
               \]
             </div>
-            <p class="math-meaning"><strong>Operational meaning:</strong> replace the raw step with the nearest feasible update inside the safety half-space.</p>
+            <p class="math-meaning"><strong>Operational meaning:</strong> do not reject learning; clip the proposed update to the closest move that still respects the risk budget.</p>
           </aside>
         </div>
 
-        <p class="object-note">Anchor fixture = stored stress artifacts replayed at every update. Projection = closest feasible update that respects anchor-memory safety.</p>
+        <p class="object-note">Anchor fixtures are the stress cases the desk refuses to forget. Projection is risk-budget clipping of the update before it can change allocations.</p>
       </section>
 
       <section class="section" id="math">

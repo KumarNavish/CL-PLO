@@ -1,100 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" role="img" aria-label="Anchor fixture board with concrete stress artifacts">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 430" role="img" aria-label="Operational anchor fixtures shown as financial stress windows">
   <defs>
     <style>
-      .title { font: 700 20px 'IBM Plex Sans', Arial, sans-serif; fill: #1b2430; }
+      .title { font: 700 21px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2933; }
       .sub { font: 400 13px 'IBM Plex Sans', Arial, sans-serif; fill: #4b5563; }
-      .card-title { font: 600 13px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2937; }
-      .meta { font: 400 11px 'IBM Plex Sans', Arial, sans-serif; fill: #4b5563; }
-      .meta-strong { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #374151; }
+      .panel { fill: #ffffff; stroke: #d8dde5; }
+      .label { font: 600 12px 'IBM Plex Sans', Arial, sans-serif; fill: #334155; }
+      .small { font: 500 11px 'IBM Plex Sans', Arial, sans-serif; fill: #475569; }
+      .tag { font: 600 10px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2933; }
     </style>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="440" fill="#ffffff"/>
-  <rect x="12" y="12" width="1176" height="416" rx="8" fill="#ffffff" stroke="#d8dde5"/>
+  <rect width="1240" height="430" fill="#ffffff"/>
+  <rect x="10" y="10" width="1220" height="410" rx="10" class="panel"/>
 
-  <text x="34" y="44" class="title">Anchor Fixture: Concrete Stress Memory Used by Every Update Step</text>
-  <text x="34" y="64" class="sub">Each card is a replayable artifact slice with trigger metadata and preserved behavior signature.</text>
+  <text x="32" y="42" class="title">Anchor Fixtures as Financial Stress Memory</text>
+  <text x="32" y="62" class="sub">Each fixture is a replayable market window: regime context, stress slice, and distribution-shift signature.</text>
 
-  <!-- Card 1 -->
-  <rect x="34" y="84" width="360" height="154" rx="8" fill="#ffffff" stroke="#d8dde5"/>
-  <text x="48" y="106" class="card-title">A1 · Liquidity Freeze</text>
-  <rect x="48" y="116" width="214" height="74" fill="#fbfcfe" stroke="#d8dde5"/>
-  <polyline fill="none" stroke="#a33232" stroke-width="2.6" points="52,180 70,178 88,176 106,175 124,172 142,166 160,152 178,136 196,126 214,138 232,158 250,168"/>
-  <line x1="48" y1="150" x2="262" y2="150" stroke="#8a94a4" stroke-width="1.2" stroke-dasharray="5 4"/>
-  <text x="272" y="133" class="meta-strong">Trigger</text>
-  <text x="272" y="147" class="meta">spread z > 4 sigma</text>
-  <text x="272" y="167" class="meta-strong">Preserves</text>
-  <text x="272" y="181" class="meta">slippage + depth collapse</text>
-  <text x="48" y="210" class="meta">Source: intraday order-book stress slice</text>
+  <!-- Panel 1: regime timeline -->
+  <rect x="32" y="86" width="380" height="306" rx="8" class="panel"/>
+  <text x="50" y="110" class="label">A. Regime Timeline (fixture selection)</text>
 
-  <!-- Card 2 -->
-  <rect x="420" y="84" width="360" height="154" rx="8" fill="#ffffff" stroke="#d8dde5"/>
-  <text x="434" y="106" class="card-title">A2 · Gap-Open Session</text>
-  <rect x="434" y="116" width="214" height="74" fill="#fbfcfe" stroke="#d8dde5"/>
-  <rect x="442" y="157" width="12" height="23" fill="#2f557f"/>
-  <rect x="460" y="154" width="12" height="26" fill="#2f557f"/>
-  <rect x="478" y="152" width="12" height="28" fill="#2f557f"/>
-  <rect x="496" y="126" width="12" height="54" fill="#7f4a1e"/>
-  <rect x="514" y="132" width="12" height="48" fill="#7f4a1e"/>
-  <rect x="532" y="136" width="12" height="44" fill="#7f4a1e"/>
-  <rect x="550" y="140" width="12" height="40" fill="#7f4a1e"/>
-  <line x1="492" y1="120" x2="492" y2="186" stroke="#a33232" stroke-width="1.2" stroke-dasharray="4 3"/>
-  <text x="658" y="133" class="meta-strong">Trigger</text>
-  <text x="658" y="147" class="meta">overnight gap > 2.5%</text>
-  <text x="658" y="167" class="meta-strong">Preserves</text>
-  <text x="658" y="181" class="meta">open-auction shock handling</text>
-  <text x="434" y="210" class="meta">Source: index + futures open tape</text>
+  <line x1="58" y1="330" x2="386" y2="330" stroke="#97a3b4" stroke-width="1.2"/>
+  <line x1="58" y1="142" x2="58" y2="330" stroke="#97a3b4" stroke-width="1.2"/>
 
-  <!-- Card 3 -->
-  <rect x="806" y="84" width="360" height="154" rx="8" fill="#ffffff" stroke="#d8dde5"/>
-  <text x="820" y="106" class="card-title">A3 · Volatility Spike</text>
-  <rect x="820" y="116" width="214" height="74" fill="#fbfcfe" stroke="#d8dde5"/>
-  <polyline fill="none" stroke="#5f6774" stroke-width="2.6" points="824,182 842,180 860,178 878,175 896,170 914,160 932,146 950,132 968,124 986,134 1004,150 1022,160"/>
-  <line x1="820" y1="138" x2="1034" y2="138" stroke="#a33232" stroke-width="1.2" stroke-dasharray="5 4"/>
-  <text x="1044" y="133" class="meta-strong">Trigger</text>
-  <text x="1044" y="147" class="meta">vol state = stress</text>
-  <text x="1044" y="167" class="meta-strong">Preserves</text>
-  <text x="1044" y="181" class="meta">tail covariance response</text>
-  <text x="820" y="210" class="meta">Source: cross-asset realized-vol window</text>
+  <rect x="68" y="154" width="56" height="162" fill="#edf2f8"/>
+  <rect x="124" y="154" width="72" height="162" fill="#f4f7fb"/>
+  <rect x="196" y="154" width="54" height="162" fill="#f7f0e7"/>
+  <rect x="250" y="154" width="64" height="162" fill="#fdf1f1"/>
+  <rect x="314" y="154" width="62" height="162" fill="#eef3ef"/>
 
-  <!-- Card 4 -->
-  <rect x="34" y="258" width="360" height="154" rx="8" fill="#ffffff" stroke="#d8dde5"/>
-  <text x="48" y="280" class="card-title">A4 · Correlation Breakdown</text>
-  <rect x="48" y="290" width="214" height="74" fill="#fbfcfe" stroke="#d8dde5"/>
-  <g stroke="#ffffff" stroke-width="1">
-    <rect x="54" y="296" width="24" height="20" fill="#c7d9ee"/><rect x="78" y="296" width="24" height="20" fill="#f0d2ce"/><rect x="102" y="296" width="24" height="20" fill="#f2d8d3"/><rect x="126" y="296" width="24" height="20" fill="#d4e1f2"/><rect x="150" y="296" width="24" height="20" fill="#dae6f4"/>
-    <rect x="54" y="316" width="24" height="20" fill="#f0d2ce"/><rect x="78" y="316" width="24" height="20" fill="#b5cee8"/><rect x="102" y="316" width="24" height="20" fill="#a3c2e1"/><rect x="126" y="316" width="24" height="20" fill="#9cbde0"/><rect x="150" y="316" width="24" height="20" fill="#a9c7e5"/>
-    <rect x="54" y="336" width="24" height="20" fill="#f2d8d3"/><rect x="78" y="336" width="24" height="20" fill="#a3c2e1"/><rect x="102" y="336" width="24" height="20" fill="#b5cee8"/><rect x="126" y="336" width="24" height="20" fill="#98badc"/><rect x="150" y="336" width="24" height="20" fill="#a0c0df"/>
-  </g>
-  <text x="272" y="307" class="meta-strong">Trigger</text>
-  <text x="272" y="321" class="meta">block sign reversal</text>
-  <text x="272" y="341" class="meta-strong">Preserves</text>
-  <text x="272" y="355" class="meta">hedge geometry under breaks</text>
-  <text x="48" y="384" class="meta">Source: rolling cross-asset dependence map</text>
+  <polyline fill="none" stroke="#2f557f" stroke-width="2.1" points="68,278 84,268 100,254 116,246 132,252 148,260 164,244 180,228 196,214 212,222 228,240 244,258 260,270 276,296 292,282 308,260 324,246 340,232 356,220 372,214"/>
+  <polyline fill="none" stroke="#a33232" stroke-width="2.1" points="68,300 84,294 100,286 116,282 132,286 148,292 164,286 180,274 196,258 212,268 228,286 244,302 260,306 276,318 292,308 308,294 324,286 340,278 356,270 372,264"/>
 
-  <!-- Card 5 -->
-  <rect x="420" y="258" width="360" height="154" rx="8" fill="#ffffff" stroke="#d8dde5"/>
-  <text x="434" y="280" class="card-title">A5 · Sector Cascade</text>
-  <rect x="434" y="290" width="214" height="74" fill="#fbfcfe" stroke="#d8dde5"/>
-  <polyline fill="none" stroke="#2f557f" stroke-width="2.2" points="438,324 456,322 474,320 492,318 510,320 528,326 546,336 564,344 582,346 600,344 618,342 636,340"/>
-  <polyline fill="none" stroke="#a33232" stroke-width="2.2" points="438,328 456,326 474,324 492,322 510,324 528,334 546,350 564,360 582,362 600,360 618,358 636,356"/>
-  <polyline fill="none" stroke="#5f6774" stroke-width="2.2" points="438,326 456,324 474,323 492,322 510,323 528,330 546,342 564,352 582,354 600,352 618,350 636,348"/>
-  <text x="658" y="307" class="meta-strong">Trigger</text>
-  <text x="658" y="321" class="meta">multi-sector drawdown wave</text>
-  <text x="658" y="341" class="meta-strong">Preserves</text>
-  <text x="658" y="355" class="meta">de-risking sequence timing</text>
-  <text x="434" y="384" class="meta">Source: sector basket stress trajectory</text>
+  <rect x="102" y="170" width="26" height="20" rx="4" fill="#ffffff" stroke="#2f557f"/>
+  <text x="115" y="184" text-anchor="middle" class="tag">F1</text>
+  <rect x="205" y="170" width="26" height="20" rx="4" fill="#ffffff" stroke="#7f4a1e"/>
+  <text x="218" y="184" text-anchor="middle" class="tag">F2</text>
+  <rect x="262" y="170" width="26" height="20" rx="4" fill="#ffffff" stroke="#a33232"/>
+  <text x="275" y="184" text-anchor="middle" class="tag">F3</text>
+  <rect x="328" y="170" width="26" height="20" rx="4" fill="#ffffff" stroke="#415f4f"/>
+  <text x="341" y="184" text-anchor="middle" class="tag">F4</text>
 
-  <!-- Card 6 -->
-  <rect x="806" y="258" width="360" height="154" rx="8" fill="#ffffff" stroke="#d8dde5"/>
-  <text x="820" y="280" class="card-title">A6 · Funding Stress Spread</text>
-  <rect x="820" y="290" width="214" height="74" fill="#fbfcfe" stroke="#d8dde5"/>
-  <polyline fill="none" stroke="#121212" stroke-width="2.4" points="824,352 842,350 860,348 878,344 896,338 914,328 932,314 950,302 968,296 986,300 1004,310 1022,318"/>
-  <polyline fill="none" stroke="#7f4a1e" stroke-width="2.1" points="824,344 842,342 860,340 878,336 896,330 914,322 932,310 950,300 968,294 986,298 1004,306 1022,314"/>
-  <line x1="820" y1="320" x2="1034" y2="320" stroke="#a33232" stroke-width="1.2" stroke-dasharray="5 4"/>
-  <text x="1044" y="307" class="meta-strong">Trigger</text>
-  <text x="1044" y="321" class="meta">basis/funding boundary</text>
-  <text x="1044" y="341" class="meta-strong">Preserves</text>
-  <text x="1044" y="355" class="meta">leverage discipline under stress</text>
-  <text x="820" y="384" class="meta">Source: funding spread dislocation window</text>
+  <text x="68" y="348" class="small">Calm</text>
+  <text x="154" y="348" class="small">Volatility rise</text>
+  <text x="222" y="348" class="small">Liquidity crunch</text>
+  <text x="276" y="348" class="small">Macro shock</text>
+  <text x="334" y="348" class="small">Recovery</text>
+
+  <!-- Panel 2: stress windows on price path -->
+  <rect x="430" y="86" width="380" height="306" rx="8" class="panel"/>
+  <text x="448" y="110" class="label">B. Stress Windows on Tradeable Price Path</text>
+
+  <line x1="456" y1="330" x2="784" y2="330" stroke="#97a3b4" stroke-width="1.2"/>
+  <line x1="456" y1="142" x2="456" y2="330" stroke="#97a3b4" stroke-width="1.2"/>
+
+  <rect x="500" y="146" width="48" height="178" fill="#fcecea"/>
+  <rect x="616" y="146" width="52" height="178" fill="#fcecea"/>
+  <rect x="716" y="146" width="44" height="178" fill="#fcecea"/>
+
+  <polyline fill="none" stroke="#111827" stroke-width="2.2" points="466,304 482,298 498,286 514,274 530,258 546,264 562,278 578,286 594,274 610,250 626,228 642,236 658,252 674,264 690,256 706,236 722,214 738,226 754,246 770,238"/>
+  <polyline fill="none" stroke="#7f4a1e" stroke-width="2" points="466,286 482,282 498,274 514,262 530,248 546,252 562,264 578,270 594,260 610,240 626,222 642,228 658,240 674,250 690,244 706,228 722,210 738,218 754,234 770,228"/>
+
+  <line x1="524" y1="146" x2="524" y2="324" stroke="#a33232" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <line x1="642" y1="146" x2="642" y2="324" stroke="#a33232" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <line x1="738" y1="146" x2="738" y2="324" stroke="#a33232" stroke-width="1.4" stroke-dasharray="5 4"/>
+
+  <text x="506" y="162" class="tag">Anchor F5</text>
+  <text x="625" y="162" class="tag">Anchor F6</text>
+  <text x="722" y="162" class="tag">Anchor F7</text>
+
+  <text x="466" y="348" class="small">Price series with highlighted replay windows used as anchors</text>
+
+  <!-- Panel 3: distribution shift -->
+  <rect x="828" y="86" width="380" height="306" rx="8" class="panel"/>
+  <text x="846" y="110" class="label">C. Distribution Shift Signature</text>
+
+  <line x1="854" y1="330" x2="1182" y2="330" stroke="#97a3b4" stroke-width="1.2"/>
+  <line x1="854" y1="142" x2="854" y2="330" stroke="#97a3b4" stroke-width="1.2"/>
+
+  <!-- calm histogram -->
+  <rect x="876" y="280" width="18" height="50" fill="#cbd7e6"/>
+  <rect x="896" y="252" width="18" height="78" fill="#cbd7e6"/>
+  <rect x="916" y="220" width="18" height="110" fill="#cbd7e6"/>
+  <rect x="936" y="196" width="18" height="134" fill="#cbd7e6"/>
+  <rect x="956" y="186" width="18" height="144" fill="#cbd7e6"/>
+  <rect x="976" y="198" width="18" height="132" fill="#cbd7e6"/>
+  <rect x="996" y="222" width="18" height="108" fill="#cbd7e6"/>
+  <rect x="1016" y="254" width="18" height="76" fill="#cbd7e6"/>
+  <rect x="1036" y="282" width="18" height="48" fill="#cbd7e6"/>
+
+  <!-- stress histogram -->
+  <rect x="1064" y="292" width="18" height="38" fill="#f1c9c5"/>
+  <rect x="1084" y="274" width="18" height="56" fill="#f1c9c5"/>
+  <rect x="1104" y="242" width="18" height="88" fill="#f1c9c5"/>
+  <rect x="1124" y="212" width="18" height="118" fill="#f1c9c5"/>
+  <rect x="1144" y="188" width="18" height="142" fill="#f1c9c5"/>
+  <rect x="1164" y="160" width="18" height="170" fill="#f1c9c5"/>
+
+  <text x="880" y="160" class="tag">Calm distribution</text>
+  <text x="1064" y="146" class="tag">Stress distribution</text>
+
+  <text x="854" y="348" class="small">Anchors store these shifted return/volatility signatures, not generic snapshots.</text>
 </svg>

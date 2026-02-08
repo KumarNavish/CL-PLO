@@ -318,14 +318,14 @@ a {
 
 .pipeline-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 0.56rem;
+  grid-template-columns: minmax(0, 1fr) 304px;
+  gap: 0.62rem;
   align-items: start;
 }
 
 .pipeline-figure {
   margin: 0;
-  border: 1px solid var(--line);
+  border: 1px solid #ccd5e1;
   background: #ffffff;
 }
 
@@ -369,8 +369,8 @@ a {
 
 .projection-wrap {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 0.58rem;
+  grid-template-columns: minmax(0, 1fr) 348px;
+  gap: 0.62rem;
   align-items: start;
 }
 
@@ -387,15 +387,16 @@ a {
 }
 
 .projection-math-card {
-  border: 1px solid var(--line);
+  border: 1px solid #ccd5e1;
   background: #ffffff;
   padding: 0.64rem;
 }
 
 .object-note {
   margin-top: 0.42rem;
-  font-size: 0.88rem;
-  max-width: 90ch;
+  font-size: 0.84rem;
+  max-width: 82ch;
+  color: #2e3742;
 }
 
 .math-grid {
