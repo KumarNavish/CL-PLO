@@ -280,14 +280,47 @@ export function drawEquity(canvas, series, stressMarkers) {
     return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
   }
 
-  ctx.strokeStyle = "rgba(17, 17, 17, 0.14)";
-  ctx.lineWidth = 1;
-  for (let i = 0; i < stressMarkers.length; i += 1) {
-    const x = xToPx(stressMarkers[i]);
-    ctx.beginPath();
-    ctx.moveTo(x, dims.top);
-    ctx.lineTo(x, dims.bottom);
-    ctx.stroke();
+  // Shade contiguous stress windows so regime context is visible at a glance.
+  if (Array.isArray(stressMarkers) && stressMarkers.length > 0) {
+    const sorted = [...stressMarkers].sort((a, b) => a - b);
+    const segments = [];
+    let segStart = sorted[0];
+    let segEnd = sorted[0];
+
+    for (let i = 1; i < sorted.length; i += 1) {
+      const idx = sorted[i];
+      if (idx <= segEnd + 1) {
+        segEnd = idx;
+      } else {
+        segments.push([segStart, segEnd]);
+        segStart = idx;
+        segEnd = idx;
+      }
+    }
+    segments.push([segStart, segEnd]);
+
+    const stepPx = maxT > 0 ? (dims.right - dims.left) / maxT : 8;
+    ctx.fillStyle = "rgba(17, 17, 17, 0.08)";
+    for (const [a, b] of segments) {
+      const left = Math.max(dims.left, xToPx(a) - stepPx * 0.5);
+      const right = Math.min(dims.right, xToPx(b) + stepPx * 0.5);
+      ctx.fillRect(left, dims.top, Math.max(1, right - left), dims.bottom - dims.top);
+    }
+
+    ctx.strokeStyle = "rgba(17, 17, 17, 0.18)";
+    ctx.lineWidth = 1;
+    for (const [a, b] of segments) {
+      const left = Math.max(dims.left, xToPx(a) - stepPx * 0.5);
+      const right = Math.min(dims.right, xToPx(b) + stepPx * 0.5);
+      ctx.beginPath();
+      ctx.moveTo(left, dims.top);
+      ctx.lineTo(left, dims.bottom);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(right, dims.top);
+      ctx.lineTo(right, dims.bottom);
+      ctx.stroke();
+    }
   }
 
   for (const s of series) {
