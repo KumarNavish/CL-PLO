@@ -12,12 +12,12 @@
       <div class="shell">
         <article class="hero-insight" aria-label="High-signal decision summary">
           <p class="hero-kicker">CL-PLO Decision Spine</p>
-          <h1>In live portfolios, the update rule is the risk control surface.</h1>
+          <h1>In deployed transformer portfolios, the update rule is the risk control surface.</h1>
 
           <div class="hero-grid">
             <article class="hero-mini">
               <p class="hero-mini-title">Core problem</p>
-              <p>Drift-only LLM updates fit calm tape and forget stress behavior exactly when allocation risk is highest.</p>
+              <p>Drift-only LLM updates fit calm regimes and forget stress behavior when risk is highest.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">What stays fixed</p>
@@ -25,19 +25,19 @@
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">What this page proves</p>
-              <p>Under identical data and optimizer settings, projection-gated updates keep stress retention and drawdown control.</p>
+              <p>With identical data and constraints, projection-gated updates retain stress behavior and improve drawdown control.</p>
             </article>
           </div>
 
           <div class="hero-method-row" aria-label="Three strategy one-line summaries">
-            <p><span>A</span>Naive step: fastest fit, zero memory protection.</p>
-            <p><span>B</span>Replay mix: adds memory pressure, no hard safety boundary.</p>
-            <p><span>C</span>Replay + projection: keeps adaptation inside an anchor-safe update region.</p>
+            <p><span>A</span>Naive: fastest fit, no memory guard.</p>
+            <p><span>B</span>Replay: memory pressure, no hard feasibility gate.</p>
+            <p><span>C</span>Hybrid: replay plus projected feasible step.</p>
           </div>
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Default release signal:</strong> projection-gated updates deliver +97.1% stress retention and +34.1 pp drawdown lift versus naive.
+              <strong>Default signal:</strong> projection-gated updates deliver +97.1% stress retention and +34.1 pp drawdown lift versus naive.
             </p>
             <figure class="hero-figure" aria-label="Decisive strategy comparison signal">
               <img src="./assets/validation_wide.png" alt="Validation figure: constrained update dominates stress retention and drawdown control" />
@@ -222,16 +222,16 @@
       </section>
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
-        <h2>4. Interactive Validation Workspace</h2>
+        <h2>4. Deployment Experiment Dashboard</h2>
 
         <div class="experiment-layout">
           <aside class="control-panel">
             <article class="protocol-board">
               <h3>Modes</h3>
               <div class="mode-grid">
-                <article class="mode-card" data-mode-card="quick_check"><h4>Quick</h4><p>Fast directional check.</p></article>
-                <article class="mode-card" data-mode-card="proposal_like"><h4>Default</h4><p>Deployment-like baseline.</p></article>
-                <article class="mode-card" data-mode-card="stress_heavy"><h4>Stress+</h4><p>Adversarial release gate.</p></article>
+              <article class="mode-card" data-mode-card="quick_check"><h4>Quick</h4><p>Fast directional check.</p></article>
+                <article class="mode-card" data-mode-card="proposal_like"><h4>Default</h4><p>Primary deployment baseline.</p></article>
+                <article class="mode-card" data-mode-card="stress_heavy"><h4>Stress+</h4><p>Release gate under stress concentration.</p></article>
               </div>
               <p id="mode-readout" class="mode-readout"></p>
             </article>
@@ -251,7 +251,7 @@
                   <button id="focus-anchor" data-focus="anchor" class="focus-btn" type="button">Replay</button>
                   <button id="focus-proj" data-focus="anchor_proj" class="focus-btn" type="button">Hybrid</button>
                 </div>
-                <p id="focus-readout" class="mode-readout">Viewing all strategies for side-by-side deployability checks.</p>
+                <p id="focus-readout" class="mode-readout">Compare all strategies on identical market paths.</p>
               </article>
 
               <article class="component-panel" aria-label="Constraint toggle interface">
@@ -271,7 +271,7 @@
                     <option value="pair">Selected vs naive</option>
                   </select>
                 </label>
-                <p id="component-readout" class="mode-readout">Anchors ON, projection ON: hybrid control path active.</p>
+                <p id="component-readout" class="mode-readout">Anchors ON, projection ON: hybrid control path.</p>
               </article>
 
               <form id="config-form" class="knob-grid">
@@ -305,7 +305,7 @@
             </div>
 
             <div class="run-status">
-              <p id="status-line">Ready.</p>
+              <p id="status-line">Ready. Run the selected mode.</p>
               <div class="progress-track"><div id="progress-fill"></div></div>
             </div>
           </aside>
@@ -322,28 +322,28 @@
             <div class="plot-stack">
               <article class="chart-card">
                 <h3>Portfolio Value Across Regimes</h3>
-                <p class="plot-caption"><strong>Shows:</strong> realized portfolio equity path with transaction frictions under regime shading.<br /><strong>Read:</strong> deployment candidate must compound without catastrophic stress-phase breaks.</p>
+                <p class="plot-caption"><strong>Shows:</strong> realized portfolio equity with transaction frictions.<br /><strong>Read:</strong> a deployable strategy compounds without stress-phase collapse.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Drawdown and Recovery</h3>
-                <p class="plot-caption"><strong>Shows:</strong> depth and time-to-recovery of capital impairment under each scenario.<br /><strong>Read:</strong> release candidate needs shallower troughs and faster recovery after shock periods.</p>
+                <p class="plot-caption"><strong>Shows:</strong> depth and recovery time of capital impairment.<br /><strong>Read:</strong> stronger control means shallower troughs and shorter recovery.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Allocation Stability vs Responsiveness</h3>
-                <p class="plot-caption"><strong>Shows:</strong> risky vs cash allocation trajectory (solid) with turnover pressure (dashed).<br /><strong>Read:</strong> robust policies de-risk in stress without churning capital in calm tape.</p>
+                <p class="plot-caption"><strong>Shows:</strong> risky/cash allocation (solid) and turnover pressure (dashed).<br /><strong>Read:</strong> robust updates de-risk under stress without calm-regime churn.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Risk-Adjusted Return by Regime</h3>
-                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe per regime bucket (calm, volatile, stress, shift).<br /><strong>Read:</strong> hybrid dominance means stress and shift resilience without destroying calm performance.</p>
+                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe by regime bucket.<br /><strong>Read:</strong> robustness should hold in stress and shifts, not only in aggregate.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
@@ -351,7 +351,7 @@
 
             <article class="table-wrap">
               <h3>Deployment Scoreboard</h3>
-              <p class="table-guide">Ranking blends stress robustness, drawdown control, regime Sharpe, and turnover discipline.</p>
+              <p class="table-guide">Score combines stress retention, drawdown control, regime Sharpe, and turnover discipline.</p>
               <table id="method-table" class="method-table"></table>
             </article>
           </div>

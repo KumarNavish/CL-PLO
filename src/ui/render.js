@@ -35,28 +35,28 @@ const MODE_META = {
   quick_check: {
     label: "Quick",
     runLabel: "quick diagnostic",
-    readout: "Directional ordering check. Use this to catch obvious failures in minutes.",
-    lens: "Look for clean separation, not final deploy score.",
+    readout: "Directional ordering check.",
+    lens: "Use for rapid sanity-checks, not final release.",
   },
   proposal_like: {
     label: "Default",
     runLabel: "deployment-like validation",
-    readout: "Primary portfolio validation with realistic stress frequency and horizon.",
-    lens: "Promotion decision should be made on this mode first.",
+    readout: "Primary portfolio validation.",
+    lens: "Primary release decision mode.",
   },
   stress_heavy: {
     label: "Stress+",
     runLabel: "stress-adversarial validation",
-    readout: "Release gate under concentrated stress/regime-shift behavior.",
-    lens: "Reject configs that lose drawdown control or recovery discipline here.",
+    readout: "Stress-concentrated release gate.",
+    lens: "Reject updates that lose drawdown or recovery control.",
   },
 };
 
 const FOCUS_META = {
-  all: "Viewing all strategies side by side for direct deployment comparison.",
-  naive: "Naive lens: unconstrained drift adaptation benchmark.",
-  anchor: "Replay lens: anchor memory without hard projection control.",
-  anchor_proj: "Hybrid lens: anchor memory plus projection gate for release safety.",
+  all: "Compare all strategies on the same market path.",
+  naive: "Naive lens: unconstrained drift adaptation.",
+  anchor: "Replay lens: anchor memory without projection.",
+  anchor_proj: "Hybrid lens: replay plus projection gate.",
 };
 
 let latestResult = null;
@@ -366,7 +366,7 @@ function updateComponentReadout(coerced = false) {
   const method = METHOD_STYLES[componentState.strategy];
   const compareLabel = activeCompare === "pair" ? "Selected vs naive view." : "All-strategy view.";
   const coercionNote = coerced ? " Projection requires anchors, so projection was disabled." : "";
-  host.textContent = `Anchors ${componentState.anchors ? "ON" : "OFF"}, projection ${componentState.projection ? "ON" : "OFF"}: ${method?.short || "Strategy"} path active. ${compareLabel}${coercionNote}`;
+  host.textContent = `Anchors ${componentState.anchors ? "ON" : "OFF"}, projection ${componentState.projection ? "ON" : "OFF"}: ${method?.short || "Strategy"} path. ${compareLabel}${coercionNote}`;
 }
 
 function setRunning(isRunning) {
@@ -406,7 +406,7 @@ function renderAll(result) {
   const methodRows = buildMethodRows(result, regimeInfo);
   attachDeployScores(methodRows, activePreset);
 
-  setStatus(`Validation complete (${mode.label}). ${mode.lens}`);
+  setStatus(`Complete (${mode.label}). ${mode.lens}`);
 
   renderExpectationCheck(result, methodRows, regimeInfo);
   renderDecisionCard(result, methodRows, regimeInfo);
@@ -442,13 +442,13 @@ function renderExpectationCheck(result, rows, regimeInfo) {
   host.innerHTML = `
     <h3>Decision Checks (${mode.label})</h3>
     <ul>
-      <li>Stress retention ordering (naive > replay > hybrid loss)
+      <li>Stress loss ordering (naive > replay > hybrid)
         <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Pass" : "Fail"}</span>
       </li>
       <li>Drawdown ordering (hybrid should be shallowest)
         <span class="${ddOrder ? "pass" : "warn"}">${ddOrder ? "Pass" : "Review"}</span>
       </li>
-      <li>Stress risk-adjusted return ordering
+      <li>Stress Sharpe ordering
         <span class="${stressSharpeOrder ? "pass" : "warn"}">${stressSharpeOrder ? "Pass" : "Mixed"}</span>
       </li>
       <li>Regime mix: stress ${pct(regimeInfo.stressShare)} | shift events ${regimeInfo.shiftCount}</li>
@@ -479,24 +479,24 @@ function renderDecisionCard(result, rows) {
   const drawLift = naive && hybrid ? hybrid.maxDrawdown - naive.maxDrawdown : 0;
 
   let level = "caution";
-  let title = `Decision gate: keep in extended pilot (${winner.style.short} leads)`;
-  let next = "Run additional seeds before promotion.";
+  let title = `Current gate: extended pilot (${winner.style.short} leads)`;
+  let next = "Run additional seeds before release.";
 
   if (winner.id === "anchor_proj" && lead >= 4) {
     level = "good";
-    title = "Decision gate: hybrid strategy is promotion-ready";
-    next = "Freeze this updater for release candidate validation and monitor weekly drift diagnostics.";
+    title = "Current gate: hybrid path clears this run";
+    next = "Keep this updater for release-candidate validation.";
   } else if (winner.id === "naive") {
     level = "bad";
-    title = "Decision gate: reject naive updater for deployment";
-    next = "Restore anchor and projection controls before any promotion review.";
+    title = "Current gate: naive path does not clear";
+    next = "Restore anchors and projection before release review.";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Deployability score lead: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>
+      Deploy score lead: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>
       (${pp(lead / 100)}).
       Hybrid vs naive stress retention: <strong>${pct(stressGain)}</strong>.
       Drawdown lift: <strong>${pp(drawLift)}</strong>.
@@ -677,23 +677,23 @@ function renderChartReadouts(rows) {
   const selectedLabel = selected.style.short;
 
   pnlHost.textContent =
-    `Signal: compare terminal value and stress trough depth. ${selectedLabel} vs naive return delta ${pp(selectedVsNaiveRet)}; ` +
+    `Compare terminal value and stress trough depth. ${selectedLabel} vs naive return delta ${pp(selectedVsNaiveRet)}; ` +
     `stress-retention gain ${pct(selectedStressGain)}.`;
 
   drawdownHost.textContent =
-    `Signal: drawdown path should be shallower with faster recovery. ${selectedLabel} drawdown lift vs naive is ${pp(selectedDdLift)} ` +
+    `${selectedLabel} drawdown lift vs naive is ${pp(selectedDdLift)} ` +
     `with recovery in ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
   allocationHost.textContent =
-    `Signal: robust strategy de-risks in stress without whipsaw turnover. ${selectedLabel} stress risky-weight gap vs naive ${pp(stressWeightGap)}; ` +
+    `${selectedLabel} stress risky-weight gap vs naive ${pp(stressWeightGap)}; ` +
     `turnover improvement ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
   regimeHost.textContent =
-    `Signal: regime bars should prove robustness, not average it away. ${selectedLabel} minus naive Sharpe: ` +
+    `${selectedLabel} minus naive Sharpe: ` +
     `stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 }
 
@@ -765,7 +765,7 @@ function renderTakeaway(rows) {
       stress retention, drawdown behavior, regime Sharpe, and turnover discipline.
       Hybrid vs naive stress retention is <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>,
       with drawdown lift <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Implementation next step: promote the winner into paper-trading with weekly stress-retention monitoring.
+      Implement next: run repeated seeds, lock the winning updater, then move to paper-trading with weekly stress-retention checks.
     </p>
   `;
 }
