@@ -25,21 +25,21 @@ const METHOD_STYLES = {
 const MODE_META = {
   quick_check: {
     label: "Quick",
-    runLabel: "quick diagnostic",
-    readout: "Directional ordering check.",
-    lens: "Use for rapid sanity-checks, not final release.",
+    runLabel: "quick check",
+    readout: "Fast directional check.",
+    lens: "Not a release gate.",
   },
   proposal_like: {
     label: "Default",
-    runLabel: "deployment-like validation",
-    readout: "Primary portfolio validation.",
-    lens: "Primary release decision mode.",
+    runLabel: "default run",
+    readout: "Primary decision mode.",
+    lens: "Main release gate.",
   },
   stress_heavy: {
     label: "Stress+",
-    runLabel: "stress-adversarial validation",
-    readout: "Stress-concentrated release gate.",
-    lens: "Reject updates that lose drawdown or recovery control.",
+    runLabel: "stress run",
+    readout: "Stress-heavy gate.",
+    lens: "Reject unstable updaters.",
   },
 };
 
@@ -152,10 +152,10 @@ const MODE_SHAPING = {
 };
 
 const FOCUS_META = {
-  all: "Compare all strategies on the same market path.",
-  naive: "Naive lens: unconstrained drift adaptation.",
-  anchor: "Replay lens: anchor memory without projection.",
-  anchor_proj: "Hybrid lens: replay plus projection gate.",
+  all: "All strategies on the same path.",
+  naive: "Naive path: unconstrained drift.",
+  anchor: "Replay path: anchors, no projection.",
+  anchor_proj: "Hybrid path: anchors + projection.",
 };
 
 let latestResult = null;
@@ -241,7 +241,7 @@ function bindControls() {
     activeCompare = "all";
     setCompareControl("all");
     updateComponentReadout();
-    setStatus("Controls reset to Default mode. Click Run Demo.");
+    setStatus("Reset to Default.");
     if (latestResult) {
       renderAll(latestResult);
     }
@@ -260,7 +260,7 @@ function runCurrentConfig() {
 
   setRunning(true);
   setProgress(16);
-  setStatus(`Loading ${mode.runLabel} dataset...`);
+  setStatus(`Loading ${mode.runLabel}...`);
 
   if (!payload) {
     setStatus(`Run failed: missing dataset for ${mode.label}.`, true);
@@ -313,7 +313,7 @@ function applyPreset(name, announce = true) {
   setActiveMode(name);
 
   if (announce) {
-    setStatus(`Mode set: ${preset.label}. Click "Run Demo" to execute.`);
+    setStatus(`Mode: ${preset.label}.`);
   }
 }
 
@@ -348,7 +348,7 @@ function setActiveFocus(focusName, announce = true) {
   }
 
   if (announce) {
-    setStatus(`Strategy lens switched to ${prettyFocus(activeFocus)}.`);
+    setStatus(`Lens: ${prettyFocus(activeFocus)}.`);
   }
 }
 
@@ -394,10 +394,8 @@ function applyComponentControls(announce = false) {
   updateComponentReadout(coerced);
 
   if (announce) {
-    const note = coerced
-      ? "Projection requires anchors. Projection was switched off."
-      : "Constraint interface updated.";
-    setStatus(`${note} Active path: ${METHOD_STYLES[componentState.strategy]?.short || "strategy"}.`);
+    const note = coerced ? "Projection requires anchors; switched off." : "Constraint updated.";
+    setStatus(`${note} Path: ${METHOD_STYLES[componentState.strategy]?.short || "strategy"}.`);
   }
 
   if (latestResult) {
@@ -445,7 +443,7 @@ function syncComponentFromStrategy(strategyId, setStatusLine = false) {
   updateComponentReadout(false);
 
   if (setStatusLine) {
-    setStatus(`Constraint interface aligned to ${METHOD_STYLES[componentState.strategy]?.short || "strategy"} path.`);
+    setStatus(`Path: ${METHOD_STYLES[componentState.strategy]?.short || "strategy"}.`);
   }
 }
 
@@ -463,9 +461,9 @@ function updateComponentReadout(coerced = false) {
   }
 
   const method = METHOD_STYLES[componentState.strategy];
-  const compareLabel = activeCompare === "pair" ? "Selected vs naive view." : "All-strategy view.";
-  const coercionNote = coerced ? " Projection requires anchors, so projection was disabled." : "";
-  host.textContent = `Anchors ${componentState.anchors ? "ON" : "OFF"}, projection ${componentState.projection ? "ON" : "OFF"}: ${method?.short || "Strategy"} path. ${compareLabel}${coercionNote}`;
+  const compareLabel = activeCompare === "pair" ? "selected vs naive" : "all strategies";
+  const coercionNote = coerced ? "; projection disabled (needs anchors)" : "";
+  host.textContent = `Anchors ${componentState.anchors ? "on" : "off"} · Projection ${componentState.projection ? "on" : "off"} · ${method?.short || "Strategy"} · ${compareLabel}${coercionNote}`;
 }
 
 function setRunning(isRunning) {
@@ -506,7 +504,7 @@ function renderAll(result) {
   const methodRows = applyModeShaping(baseRows, activePreset, regimeInfo);
   attachDeployScores(methodRows, activePreset);
 
-  setStatus(`Complete (${mode.label}). ${mode.lens}`);
+  setStatus(`${mode.label} complete. ${mode.lens}`);
 
   renderDecisionCard(methodRows);
   renderKpis(methodRows);
@@ -539,28 +537,26 @@ function renderDecisionCard(rows) {
   const drawLift = naive && hybrid ? hybrid.maxDrawdown - naive.maxDrawdown : 0;
 
   let level = "caution";
-  let title = `Current gate: extended pilot (${winner.style.short} leads)`;
-  let next = "Run additional seeds before release.";
+  let title = `Gate result: ${winner.style.short} leads`;
+  let next = "Run more seeds.";
 
   if (winner.id === "anchor_proj" && lead >= 4) {
     level = "good";
-    title = "Current gate: hybrid path clears this run";
-    next = "Keep this updater for release-candidate validation.";
+    title = "Gate result: Hybrid passes this run";
+    next = "Keep for release runs.";
   } else if (winner.id === "naive") {
     level = "bad";
-    title = "Current gate: naive path does not clear";
-    next = "Restore anchors and projection before release review.";
+    title = "Gate result: Naive fails this run";
+    next = "Re-enable anchors and projection.";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Deploy score lead: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>
-      (${pp(lead / 100)}).
-      Hybrid vs naive stress retention: <strong>${pct(stressGain)}</strong>.
-      Drawdown lift: <strong>${pp(drawLift)}</strong>.
-      Next action: ${next}
+      Score <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong> (${pp(lead / 100)}).
+      Hybrid vs naive retention <strong>${pct(stressGain)}</strong>. Drawdown lift <strong>${pp(drawLift)}</strong>.
+      Next: ${next}
     </p>
   `;
 }
@@ -724,15 +720,15 @@ function renderChartReadouts(rows) {
   const selectedLabel = selected.style.short;
 
   pnlHost.textContent =
-    `${selectedLabel} vs naive: terminal-value delta ${pp(selectedVsNaiveRet)} and stress-retention gain ${pct(selectedStressGain)}.`;
+    `${selectedLabel} vs naive: value delta ${pp(selectedVsNaiveRet)}; stress retention ${pct(selectedStressGain)}.`;
 
   drawdownHost.textContent =
-    `${selectedLabel} drawdown lift is ${pp(selectedDdLift)} with recovery in ${formatRecovery(selected.recoveryDays)}.`;
+    `${selectedLabel}: drawdown lift ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
   allocationHost.textContent =
-    `${selectedLabel} stress risky-weight gap ${pp(stressWeightGap)} vs naive; turnover improvement ${pp(turnoverGap)}.`;
+    `${selectedLabel}: stress risky gap ${pp(stressWeightGap)} vs naive; turnover lift ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
@@ -743,8 +739,7 @@ function renderChartReadouts(rows) {
   const calmGap = selected.calmWeight - naive.calmWeight;
   const stressGap = selected.stressWeight - naive.stressWeight;
   portfolioHost.textContent =
-    `${selectedLabel} shifts risky allocation by ${pp(calmGap)} in calm and ${pp(stressGap)} in stress versus naive, ` +
-    `while controlling drawdown and recovery.`;
+    `${selectedLabel}: calm risky ${pp(calmGap)} and stress risky ${pp(stressGap)} vs naive, with tighter drawdown/recovery.`;
 }
 
 function renderMethodTable(rows) {
@@ -809,13 +804,11 @@ function renderTakeaway(rows) {
   }
 
   host.innerHTML = `
-    <h4>Evidence-backed deployment takeaway</h4>
+    <h4>Decision Summary</h4>
     <p>
-      In ${MODE_META[activePreset]?.label || "Default"} mode, <strong>${winner.style.short}</strong> is ranked first by
-      stress retention, drawdown behavior, regime Sharpe, and turnover discipline.
-      Hybrid vs naive stress retention is <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>,
-      with drawdown lift <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Implement next: rerun this gate over additional seeds, lock the winning updater, then start paper-trading with weekly stress-retention checks.
+      ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first on retention, drawdown, regime Sharpe, and turnover.
+      Hybrid vs naive retention: <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>. Drawdown lift: <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
+      Next: rerun across seeds, lock updater, then move to paper trading.
     </p>
   `;
 }

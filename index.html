@@ -25,7 +25,7 @@
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Decision Claim</p>
-              <p>With identical data and limits, replay + projection preserves stress memory and improves deploy stability.</p>
+              <p>With identical data and limits, replay + projection keeps stress memory and improves release safety.</p>
             </article>
           </div>
 
@@ -37,7 +37,7 @@
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Default release signal:</strong> hybrid keeps stress retention and drawdown control while remaining allocation-responsive.
+              <strong>Default signal:</strong> hybrid keeps stress retention and drawdown control without freezing allocation response.
             </p>
             <article class="hero-proof" aria-label="One-screen deployment check">
               <h3>One-screen gate</h3>
@@ -53,7 +53,7 @@
                 <span>Hybrid</span>
                 <span class="proof-metric">retention + feasible-step control</span>
               </div>
-              <p class="proof-note">Run the dashboard below. Switch Quick, Default, and Stress+ to verify ranking stability.</p>
+              <p class="proof-note">Use Quick, Default, Stress+ below and check if this ordering stays stable.</p>
             </article>
           </div>
         </article>
@@ -88,7 +88,7 @@
                   \theta_{t+1}=\theta_t-\eta_t g_{d,t}
                   \]
                 </div>
-                <p class="math-meaning"><strong>Operational meaning:</strong> fastest adaptation path, no memory safeguard against stress forgetting.</p>
+                <p class="math-meaning"><strong>Use:</strong> fastest adaptation, no stress-memory guard.</p>
               </aside>
             </div>
           </article>
@@ -110,7 +110,7 @@
                   \theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)
                   \]
                 </div>
-                <p class="math-meaning"><strong>Operational meaning:</strong> replay resists forgetting, but conflicting gradients can still pass through.</p>
+                <p class="math-meaning"><strong>Use:</strong> replay reduces forgetting, but conflicting steps can pass.</p>
               </aside>
             </div>
           </article>
@@ -134,7 +134,7 @@
                   \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
                   \]
                 </div>
-                <p class="math-meaning"><strong>Operational meaning:</strong> the gate keeps every drift step inside anchor-safe geometry before allocation updates.</p>
+                <p class="math-meaning"><strong>Use:</strong> every drift step is clipped to anchor-safe geometry before allocation updates.</p>
               </aside>
             </div>
           </article>
@@ -146,7 +146,7 @@
 
         <figure class="anchor-board" aria-label="Concrete anchor fixture board">
           <img src="./assets/diagrams/anchor-fixture-board.svg" alt="Financial anchor fixtures shown as regime timeline windows, stress slices on price paths, and distribution-shift signatures" loading="lazy" />
-          <figcaption>Anchor set = replayable stress fixtures: regime windows, stress price slices, and shifted return-risk signatures used at every update.</figcaption>
+          <figcaption>Anchor set: replayable stress fixtures (regime windows, stress slices, shift signatures) used at each update.</figcaption>
         </figure>
 
         <div class="projection-wrap">
@@ -165,11 +165,11 @@
               \langle g,a_t\rangle \ge 0
               \]
             </div>
-            <p class="math-meaning"><strong>Operational meaning:</strong> do not reject learning; clip the proposed update to the closest move that still respects the risk budget.</p>
+            <p class="math-meaning"><strong>Use:</strong> keep learning, but clip the step to the nearest move that satisfies the risk budget.</p>
           </aside>
         </div>
 
-        <p class="object-note">Anchor fixtures are the stress cases the desk refuses to forget. Projection is risk-budget clipping of the update before it can change allocations.</p>
+        <p class="object-note">Anchors are stress cases the desk keeps. Projection clips updates before they change allocations.</p>
       </section>
 
       <section class="section" id="math">
@@ -192,7 +192,7 @@
               \end{aligned}
               \]
             </div>
-            <p class="math-meaning"><strong>Operational meaning:</strong> convert forecasts to tradable weights under fixed risk and turnover limits.</p>
+            <p class="math-meaning"><strong>Use:</strong> map forecasts to tradable weights under fixed risk and turnover limits.</p>
           </article>
 
           <article class="math-card">
@@ -210,7 +210,7 @@
               \end{aligned}
               \]
             </div>
-            <p class="math-meaning"><strong>Operational meaning:</strong> adapt to current drift while continuously replaying stress anchors.</p>
+            <p class="math-meaning"><strong>Use:</strong> adapt to current drift while replaying stress anchors.</p>
           </article>
 
           <article class="math-card">
@@ -228,7 +228,7 @@
               \end{aligned}
               \]
             </div>
-            <p class="math-meaning"><strong>Operational meaning:</strong> execute the closest drift step that does not violate anchor-memory safety.</p>
+            <p class="math-meaning"><strong>Use:</strong> apply the closest drift step that keeps anchor-memory safety.</p>
           </article>
         </div>
       </section>
@@ -331,35 +331,35 @@
             <div class="plot-stack">
               <article class="chart-card">
                 <h3>Q1. Which updater survives regime stress while compounding?</h3>
-                <p class="plot-caption"><strong>Shows:</strong> realized portfolio value on the same path with the same friction model.<br /><strong>Read:</strong> the deploy candidate preserves capital through stress blocks and still compounds in calm intervals.</p>
+                <p class="plot-caption">All strategies run on the same path with the same frictions.<br />The deploy candidate keeps capital intact in stress blocks and still compounds in calm blocks.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q2. How much damage is taken, and how fast is recovery?</h3>
-                <p class="plot-caption"><strong>Shows:</strong> drawdown depth and recovery horizon under identical shocks.<br /><strong>Read:</strong> release-safe behavior means shallower drawdowns with faster repair after stress.</p>
+                <p class="plot-caption">Drawdown depth and recovery horizon under identical shocks.<br />Better control means shallower losses and faster repair.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q3. Stability vs responsiveness: does allocation adapt without churn?</h3>
-                <p class="plot-caption"><strong>Shows:</strong> risky allocation path (solid) and turnover pressure (dashed).<br /><strong>Read:</strong> strong policies de-risk when stress rises while avoiding unnecessary calm-regime trading.</p>
+                <p class="plot-caption">Solid line: risky allocation. Dashed line: turnover pressure.<br />Strong policies de-risk in stress without churn in calm flow.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q4. Do risk-adjusted returns hold across regime buckets?</h3>
-                <p class="plot-caption"><strong>Shows:</strong> annualized Sharpe in calm, volatile, stress, and transition buckets.<br /><strong>Read:</strong> production-grade robustness must persist in stress and shifts, not only in aggregate.</p>
+                <p class="plot-caption">Annualized Sharpe by regime bucket (calm, volatile, stress, shift).<br />Robust strategies hold quality in stress and shifts, not only in aggregate.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
 
               <article class="chart-card chart-card-wide">
                 <h3>Q5. What portfolios do these updaters actually hold?</h3>
-                <p class="plot-caption"><strong>Shows:</strong> representative risky/cash allocations in calm vs stress, with drawdown and recovery context.<br /><strong>Read:</strong> compare each strategy as a live decision-maker, not just as a loss minimizer.</p>
+                <p class="plot-caption">Representative risky/cash sleeves in calm vs stress, with drawdown and recovery context.<br />This is the policy view: compare strategies as decision-makers, not as loss minimizers.</p>
                 <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
                 <p class="chart-reading" id="portfolio-state-reading"></p>
               </article>
@@ -367,7 +367,7 @@
 
             <article class="table-wrap">
               <h3>Deployment Scoreboard</h3>
-              <p class="table-guide">Score combines stress retention, drawdown control, regime Sharpe, and turnover discipline.</p>
+              <p class="table-guide">Score = stress retention + drawdown control + regime Sharpe + turnover discipline.</p>
               <table id="method-table" class="method-table"></table>
             </article>
           </div>
@@ -375,7 +375,7 @@
       </section>
 
       <section class="section" id="takeaway-section">
-        <h2>5. End-to-End Decision Path</h2>
+        <h2>5. Deploy Path</h2>
 
         <figure class="synthesis-diagram" aria-label="End to end deployment pathway">
           <div class="syn-node">LLM stream</div>
