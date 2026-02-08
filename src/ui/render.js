@@ -1,5 +1,4 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
-import { REFERENCES } from "../content/references.js";
 import { drawEquity, drawImpactBars, drawRegimeBars } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
@@ -28,9 +27,14 @@ const MODE_META = {
   },
 };
 
-let worker = null;
 let latestResult = null;
 let activePreset = "proposal_like";
+const demoCache = new Map();
+const DEMO_DATASET_URLS = {
+  quick_check: new URL("../../data/demo/quick_check.json", import.meta.url),
+  proposal_like: new URL("../../data/demo/proposal_like.json", import.meta.url),
+  stress_heavy: new URL("../../data/demo/stress_heavy.json", import.meta.url),
+};
 
 export function initApp() {
   const defaultPreset = PRESETS.proposal_like?.values || {};
@@ -38,8 +42,8 @@ export function initApp() {
   setActiveMode("proposal_like");
 
   bindControls();
-  renderReferenceLists();
-  runCurrentConfig();
+  primeDemoCache();
+  void runCurrentConfig();
 
   window.addEventListener("resize", () => {
     if (latestResult) {
@@ -65,46 +69,43 @@ function bindControls() {
 
   document.getElementById("reset-form")?.addEventListener("click", () => {
     applyPreset("proposal_like", false);
-    setStatus("Controls reset to Default mode.");
+    setStatus("Controls reset to Default mode. Click Run Demo.");
   });
 
   document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
 }
 
-function ensureWorker() {
-  if (worker) {
-    return worker;
+function primeDemoCache() {
+  for (const mode of Object.keys(DEMO_DATASET_URLS)) {
+    void getDemoResult(mode).catch(() => {});
   }
-
-  worker = new Worker(new URL("../workers/experiment-worker.js", import.meta.url), {
-    type: "module",
-  });
-
-  worker.addEventListener("message", (event) => {
-    const { type, payload } = event.data;
-
-    if (type === "progress") {
-      renderProgress(payload);
-      return;
-    }
-
-    if (type === "result") {
-      setRunning(false);
-      latestResult = payload;
-      renderAll(payload);
-      return;
-    }
-
-    if (type === "error") {
-      setRunning(false);
-      setStatus(`Run failed: ${payload.message}`, true);
-    }
-  });
-
-  return worker;
 }
 
-function runCurrentConfig() {
+async function getDemoResult(modeName) {
+  if (demoCache.has(modeName)) {
+    return cloneResult(demoCache.get(modeName));
+  }
+
+  const url = DEMO_DATASET_URLS[modeName];
+  if (!url) {
+    throw new Error(`unknown mode: ${modeName}`);
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`dataset request failed (${response.status})`);
+  }
+
+  const data = await response.json();
+  demoCache.set(modeName, data);
+  return cloneResult(data);
+}
+
+function cloneResult(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+async function runCurrentConfig() {
   const userCfg = readConfigFromForm();
   const safe = clampConfig({ ...DEFAULT_CONFIG, ...userCfg });
   fillForm(safe);
@@ -112,13 +113,23 @@ function runCurrentConfig() {
   const mode = MODE_META[activePreset] || MODE_META.proposal_like;
 
   setRunning(true);
-  setStatus(`Running ${mode.runLabel}... next: wait for decision guidance below.`);
-  setProgress(0);
+  setProgress(12);
+  setStatus(`Loading ${mode.runLabel} dataset...`);
 
-  ensureWorker().postMessage({
-    type: "run",
-    payload: { config: safe },
-  });
+  try {
+    const payload = await getDemoResult(activePreset);
+    setProgress(82);
+    latestResult = {
+      ...payload,
+      config: safe,
+    };
+    renderAll(latestResult);
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "unable to load demo dataset";
+    setStatus(`Run failed: ${msg}`, true);
+  } finally {
+    setRunning(false);
+  }
 }
 
 function readConfigFromForm() {
@@ -185,21 +196,6 @@ function setProgress(value) {
     return;
   }
   bar.style.width = `${pct.toFixed(1)}%`;
-}
-
-function renderProgress(payload) {
-  if (payload.kind === "training") {
-    const numerator = payload.methodIndex * payload.totalSteps + payload.step;
-    const denominator = payload.totalMethods * payload.totalSteps;
-    setProgress((100 * numerator) / Math.max(1, denominator));
-    setStatus(`Training ${payload.methodLabel}: ${payload.step}/${payload.totalSteps}`);
-    return;
-  }
-
-  if (payload.kind === "building_charts") {
-    setProgress(100);
-    setStatus("Compiling visual diagnostics...");
-  }
 }
 
 function renderAll(result) {
@@ -535,30 +531,6 @@ function exportCurrentRun() {
   URL.revokeObjectURL(url);
 
   setStatus("Run report exported.");
-}
-
-function renderReferenceLists() {
-  fillReferenceList("ref-papers", REFERENCES.papers || []);
-  fillReferenceList("ref-datasets", REFERENCES.datasets || []);
-  fillReferenceList("ref-repos", REFERENCES.repositories || []);
-}
-
-function fillReferenceList(targetId, items) {
-  const host = document.getElementById(targetId);
-  if (!host) {
-    return;
-  }
-
-  host.innerHTML = items
-    .map(
-      (item) => `
-        <li>
-          <a href="${item.link}" target="_blank" rel="noreferrer">${item.title}</a>
-          <span class="why">${item.authors ? `${item.authors}. ` : ""}${item.why || ""}</span>
-        </li>
-      `,
-    )
-    .join("");
 }
 
 function setActiveMode(modeName) {

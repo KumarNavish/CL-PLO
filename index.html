@@ -187,10 +187,14 @@
         <h2>2. Concrete Anchors and Projection</h2>
 
         <div class="anchor-grid" aria-label="Concrete anchor fixtures">
-          <article>Liquidity freeze</article>
-          <article>Gap-open day</article>
-          <article>Policy shock</article>
-          <article>Single-sector crash</article>
+          <article>March 2020 liquidity freeze (bid-ask blowout)</article>
+          <article>Gap-open day after overnight macro shock</article>
+          <article>Emergency rate decision with risk-off reversal</article>
+          <article>Single-sector cascade drawdown (energy/financials)</article>
+          <article>Volatility spike week (VIX regime jump)</article>
+          <article>Funding stress window (cross-asset deleveraging)</article>
+          <article>Policy surprise + correlation breakdown session</article>
+          <article>Earnings miss cluster with crowded-factor unwind</article>
         </div>
 
         <figure class="projection-figure" aria-label="Projection geometry">
@@ -237,6 +241,7 @@
               \right)
               \]
             </p>
+            <p class="math-meaning"><strong>Operational meaning:</strong> convert forecasts to tradable weights under fixed risk and turnover limits.</p>
           </article>
 
           <article class="math-card">
@@ -247,6 +252,7 @@
               \theta_{t+1}=\theta_t-\eta_t\nabla\Big(\mathcal{L}_{drift,t}(\theta_t)+\beta_t\mathcal{L}_{anchor,t}(\theta_t)\Big)
               \]
             </p>
+            <p class="math-meaning"><strong>Operational meaning:</strong> adapt to current drift while continuously replaying stress anchors.</p>
           </article>
 
           <article class="math-card">
@@ -259,6 +265,7 @@
               \theta_{t+1}=\theta_t-\eta_t(\tilde g_t+\beta_t g_{a,t})
               \]
             </p>
+            <p class="math-meaning"><strong>Operational meaning:</strong> execute the closest drift step that does not violate anchor-memory safety.</p>
           </article>
         </div>
       </section>
