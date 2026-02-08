@@ -85,13 +85,13 @@
 
               <rect x="420" y="90" width="164" height="82" class="node update risk" />
               <text x="502" y="118" text-anchor="middle">Update Operator</text>
-              <text x="502" y="141" text-anchor="middle">theta_(t+1)=theta_t-eta g_d,t</text>
+              <text x="502" y="142" text-anchor="middle">raw drift step g_d,t</text>
 
               <line x1="584" y1="132" x2="610" y2="132" marker-end="url(#arrow-a)" class="link" />
 
               <rect x="618" y="90" width="164" height="82" class="node decision" />
               <text x="700" y="121" text-anchor="middle">Decision Layer</text>
-              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t)->w*_t</text>
+              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t) to w*_t</text>
 
               <line x1="782" y1="132" x2="808" y2="132" marker-end="url(#arrow-a)" class="link" />
 
@@ -132,14 +132,13 @@
 
               <rect x="420" y="90" width="164" height="82" class="node update" />
               <text x="502" y="118" text-anchor="middle">Update Operator</text>
-              <text x="502" y="138" text-anchor="middle">theta_(t+1)=theta_t-eta(</text>
-              <text x="502" y="154" text-anchor="middle">g_d,t+beta g_a,t)</text>
+              <text x="502" y="142" text-anchor="middle">replay-mix step (g_d,t + beta g_a,t)</text>
 
               <line x1="584" y1="132" x2="610" y2="132" marker-end="url(#arrow-b)" class="link" />
 
               <rect x="618" y="90" width="164" height="82" class="node decision" />
               <text x="700" y="121" text-anchor="middle">Decision Layer</text>
-              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t)->w*_t</text>
+              <text x="700" y="146" text-anchor="middle">(mu_t,Sigma_t) to w*_t</text>
 
               <line x1="782" y1="132" x2="808" y2="132" marker-end="url(#arrow-b)" class="link" />
 
@@ -183,14 +182,13 @@
 
               <rect x="420" y="90" width="164" height="82" class="node update proposed" />
               <text x="502" y="118" text-anchor="middle">Update Operator</text>
-              <text x="502" y="138" text-anchor="middle">theta_(t+1)=theta_t-eta(</text>
-              <text x="502" y="154" text-anchor="middle">g_tilde+beta g_a,t)</text>
+              <text x="502" y="142" text-anchor="middle">projected step (g_tilde + beta g_a,t)</text>
 
               <line x1="614" y1="132" x2="640" y2="132" marker-end="url(#arrow-c)" class="link" />
 
               <rect x="648" y="90" width="164" height="82" class="node decision" />
               <text x="730" y="121" text-anchor="middle">Decision Layer</text>
-              <text x="730" y="146" text-anchor="middle">(mu_t,Sigma_t)->w*_t</text>
+              <text x="730" y="146" text-anchor="middle">(mu_t,Sigma_t) to w*_t</text>
 
               <line x1="812" y1="132" x2="838" y2="132" marker-end="url(#arrow-c)" class="link" />
 
@@ -216,34 +214,46 @@
           <article>Earnings miss cluster with crowded-factor unwind</article>
         </div>
 
-        <figure class="projection-figure" aria-label="Projection geometry">
-          <svg viewBox="0 0 720 260" class="projection-svg" role="img">
-            <rect x="0" y="0" width="720" height="260" fill="#ffffff" />
-            <line x1="90" y1="220" x2="90" y2="30" stroke="#222222" stroke-width="2" />
-            <line x1="90" y1="220" x2="640" y2="220" stroke="#222222" stroke-width="2" />
+        <div class="projection-wrap">
+          <figure class="projection-figure" aria-label="Projection geometry">
+            <svg viewBox="0 0 760 292" class="projection-svg" role="img">
+              <defs>
+                <marker id="proj-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="#1d1d1d" />
+                </marker>
+                <marker id="raw-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 z" fill="#8f2f2f" />
+                </marker>
+              </defs>
 
-            <line x1="90" y1="220" x2="620" y2="120" stroke="#8f2f2f" stroke-width="3" marker-end="url(#p-arrow)" />
-            <text x="632" y="116">raw update g_d</text>
+              <rect x="0" y="0" width="760" height="292" fill="#ffffff" />
+              <polygon points="260,26 734,26 734,268 434,268" class="halfspace" />
+              <line x1="260" y1="26" x2="434" y2="268" class="constraint-line" />
+              <text x="470" y="250" class="proj-label">constraint surface H_t</text>
 
-            <line x1="90" y1="220" x2="540" y2="72" stroke="#0f5fbf" stroke-width="3" marker-end="url(#p-arrow)" />
-            <text x="552" y="68">anchor direction g_a</text>
+              <circle cx="108" cy="238" r="4" class="origin-dot" />
+              <line x1="108" y1="238" x2="676" y2="120" class="raw-vector" marker-end="url(#raw-arrow)" />
+              <text x="612" y="104" class="proj-label raw-label">raw update g_d,t</text>
 
-            <line x1="240" y1="30" x2="470" y2="220" stroke="#555555" stroke-width="2" stroke-dasharray="6 6" />
-            <text x="472" y="210">constraint boundary</text>
+              <line x1="108" y1="238" x2="470" y2="180" class="proj-vector" marker-end="url(#proj-arrow)" />
+              <text x="486" y="172" class="proj-label">projected update g_tilde,t</text>
+            </svg>
+          </figure>
 
-            <line x1="90" y1="220" x2="470" y2="150" stroke="#111111" stroke-width="4" marker-end="url(#p-arrow)" />
-            <text x="482" y="147">projected update g_tilde</text>
-
-            <defs>
-              <marker id="p-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                <path d="M0,0 L8,4 L0,8 z" fill="#111111" />
-              </marker>
-            </defs>
-          </svg>
-        </figure>
+          <aside class="projection-math-card" aria-label="Projection equation">
+            <p class="math-tag proposed">Proposed here</p>
+            <div class="math-block projection-math">
+              \[
+              \tilde g_t=\arg\min_{v\in\mathcal{H}_t}\lVert v-g_{d,t}\rVert_2^2,
+              \quad
+              \mathcal{H}_t=\{v:\langle v,g_{a,t}\rangle\ge-\varepsilon_t\}
+              \]
+            </div>
+            <p class="math-meaning"><strong>Operational meaning:</strong> replace the raw step with the nearest feasible update inside the safety half-space.</p>
+          </aside>
+        </div>
 
         <p class="object-note">Anchor fixture: persistent stress slices replayed on every update step.</p>
-        <p class="object-note">Projection: replace the raw drift step with the nearest step that satisfies the safety boundary.</p>
       </section>
 
       <section class="section" id="math">
@@ -253,7 +263,7 @@
           <article class="math-card">
             <p class="math-tag prior">Prior work</p>
             <h3>Constrained portfolio decision</h3>
-            <p class="math-block">
+            <div class="math-block">
               \[
               \begin{aligned}
               w_t^\star
@@ -265,14 +275,14 @@
               \Big)
               \end{aligned}
               \]
-            </p>
+            </div>
             <p class="math-meaning"><strong>Operational meaning:</strong> convert forecasts to tradable weights under fixed risk and turnover limits.</p>
           </article>
 
           <article class="math-card">
             <p class="math-tag prior">Prior work</p>
             <h3>Replay-regularized adapter update</h3>
-            <p class="math-block">
+            <div class="math-block">
               \[
               \begin{aligned}
               \theta_{t+1}
@@ -283,14 +293,14 @@
               \Big)
               \end{aligned}
               \]
-            </p>
+            </div>
             <p class="math-meaning"><strong>Operational meaning:</strong> adapt to current drift while continuously replaying stress anchors.</p>
           </article>
 
           <article class="math-card">
             <p class="math-tag proposed">Proposed here</p>
             <h3>Projected safe adapter update</h3>
-            <p class="math-block">
+            <div class="math-block">
               \[
               \begin{aligned}
               \tilde g_t
@@ -301,7 +311,7 @@
               &=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
               \end{aligned}
               \]
-            </p>
+            </div>
             <p class="math-meaning"><strong>Operational meaning:</strong> execute the closest drift step that does not violate anchor-memory safety.</p>
           </article>
         </div>
@@ -442,13 +452,14 @@
             addMenu: [],
           },
         },
-        svg: {
-          fontCache: "global",
-          scale: 0.96,
+        chtml: {
+          displayAlign: "left",
+          displayIndent: "0",
+          linebreaks: { automatic: true, width: "container" },
         },
       };
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>

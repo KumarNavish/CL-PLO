@@ -284,7 +284,7 @@ a {
 
 .pipeline-svg text {
   fill: #1f1f1f;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 520;
   letter-spacing: 0.01em;
 }
@@ -392,6 +392,52 @@ a {
   fill: #1e1e1e;
 }
 
+.projection-wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 0.72rem;
+  align-items: start;
+}
+
+.projection-svg .halfspace {
+  fill: #f3f3f3;
+}
+
+.projection-svg .constraint-line {
+  stroke: #4a4a4a;
+  stroke-width: 2.2;
+  stroke-dasharray: 7 5;
+}
+
+.projection-svg .origin-dot {
+  fill: #222222;
+}
+
+.projection-svg .raw-vector {
+  stroke: #8f2f2f;
+  stroke-width: 3;
+}
+
+.projection-svg .proj-vector {
+  stroke: #111111;
+  stroke-width: 3;
+}
+
+.projection-svg .proj-label {
+  font-size: 12px;
+  font-weight: 520;
+}
+
+.projection-svg .proj-label.raw-label {
+  fill: #8f2f2f;
+}
+
+.projection-math-card {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  padding: 0.64rem;
+}
+
 .object-note {
   margin-top: 0.42rem;
   font-size: 0.88rem;
@@ -428,9 +474,10 @@ a {
   margin-top: 0.36rem;
   border: 1px solid #d6d6d6;
   background: #fcfcfc;
-  padding: 0.52rem 0.58rem;
+  padding: 0.56rem 0.62rem;
   overflow-x: auto;
   overflow-y: hidden;
+  border-radius: 2px;
 }
 
 .math-meaning {
@@ -769,22 +816,18 @@ input {
   color: #4a4a4a;
 }
 
-mjx-container[jax="SVG"] {
+mjx-container[jax="CHTML"] {
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   font-size: 104% !important;
+  display: block;
 }
 
-.math-block mjx-container[jax="SVG"] {
+.math-block mjx-container[jax="CHTML"] {
   display: block;
   max-width: 100%;
   padding-bottom: 0.08rem;
-}
-
-.math-block mjx-container[jax="SVG"] svg {
-  max-width: 100%;
-  height: auto !important;
 }
 
 @media (max-width: 1180px) {
@@ -816,6 +859,10 @@ mjx-container[jax="SVG"] {
 
   .anchor-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .projection-wrap {
+    grid-template-columns: 1fr;
   }
 
   .pipeline-svg {
