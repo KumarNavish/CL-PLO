@@ -153,8 +153,14 @@
             <figure class="projection-figure" aria-label="Gradient projection mechanism">
               <svg viewBox="0 0 520 260" role="img">
                 <defs>
-                  <marker id="arrow-head" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" class="arrow-tip" />
+                  <marker id="arrow-anchor" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f5fbf" />
+                  </marker>
+                  <marker id="arrow-drift" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#8f2f2f" />
+                  </marker>
+                  <marker id="arrow-safe" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#b55400" />
                   </marker>
                 </defs>
 
@@ -164,16 +170,16 @@
                 <line class="proj-boundary" x1="110" y1="205" x2="410" y2="85" />
                 <text class="proj-text" x="312" y="78">safe half-space boundary</text>
 
-                <line class="proj-vector-anchor" x1="70" y1="220" x2="210" y2="110" marker-end="url(#arrow-head)" />
+                <line class="proj-vector-anchor" x1="70" y1="220" x2="210" y2="110" marker-end="url(#arrow-anchor)" />
                 <text class="proj-text" x="214" y="103">anchor gradient \(g_a\)</text>
 
-                <line class="proj-vector-drift" x1="70" y1="220" x2="392" y2="206" marker-end="url(#arrow-head)" />
+                <line class="proj-vector-drift" x1="70" y1="220" x2="392" y2="206" marker-end="url(#arrow-drift)" />
                 <text class="proj-text" x="396" y="203">raw drift step \(g_d\)</text>
 
                 <line class="proj-drop" x1="392" y1="206" x2="330" y2="145" />
                 <circle class="proj-point" cx="330" cy="145" r="4" />
 
-                <line class="proj-vector-safe" x1="70" y1="220" x2="330" y2="145" marker-end="url(#arrow-head)" />
+                <line class="proj-vector-safe" x1="70" y1="220" x2="330" y2="145" marker-end="url(#arrow-safe)" />
                 <text class="proj-text" x="335" y="138">projected safe step \(\tilde g\)</text>
               </svg>
             </figure>
