@@ -83,6 +83,11 @@ function drawLegend(ctx, legendItems, width, y) {
     if (item.kind === "bar") {
       ctx.fillStyle = item.color;
       ctx.fillRect(x, y - 1, 14, 5);
+    } else if (item.kind === "bar_hatch") {
+      drawPatternFill(ctx, x, y - 2, 14, 6, "diagonal", item.color);
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y - 2, 14, 6);
     } else if (item.kind === "bar_outline") {
       ctx.strokeStyle = item.color;
       ctx.lineWidth = 1.4;
@@ -109,6 +114,45 @@ function drawLegend(ctx, legendItems, width, y) {
 
 function pct(x) {
   return `${x.toFixed(1)}%`;
+}
+
+function drawPatternFill(ctx, x, y, w, h, pattern, color) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x, y, w, h);
+  ctx.clip();
+
+  if (pattern === "solid") {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+    return;
+  }
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(x, y, w, h);
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+
+  if (pattern === "horizontal") {
+    for (let yy = y - 2; yy <= y + h + 2; yy += 4) {
+      ctx.beginPath();
+      ctx.moveTo(x - 1, yy);
+      ctx.lineTo(x + w + 1, yy);
+      ctx.stroke();
+    }
+    ctx.restore();
+    return;
+  }
+
+  for (let k = -h; k <= w + h; k += 4) {
+    ctx.beginPath();
+    ctx.moveTo(x + k, y + h);
+    ctx.lineTo(x + k + h, y);
+    ctx.stroke();
+  }
+  ctx.restore();
 }
 
 export function drawImpactBars(canvas, impact) {
@@ -153,8 +197,16 @@ export function drawImpactBars(canvas, impact) {
     const group = impact[i];
     const cx = xCenter(i, impact.length);
 
-    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, "#0f5fbf");
-    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, "#b55400");
+    drawBar(ctx, cx - barWidth * 0.7, barWidth, group.anchor, yToPx, zeroY, {
+      color: "#0f5fbf",
+      pattern: "diagonal",
+      outlined: true,
+    });
+    drawBar(ctx, cx + barWidth * 0.7, barWidth, group.proj, yToPx, zeroY, {
+      color: "#111111",
+      pattern: "solid",
+      outlined: false,
+    });
 
     ctx.fillStyle = "#222222";
     ctx.font = "12px 'IBM Plex Sans', 'Avenir Next', sans-serif";
@@ -162,27 +214,32 @@ export function drawImpactBars(canvas, impact) {
     ctx.fillText(group.label, cx, dims.bottom + 16);
 
     labelValue(ctx, cx - barWidth * 0.7, yToPx(group.anchor), group.anchor, "#0f5fbf", zeroY);
-    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#b55400", zeroY);
+    labelValue(ctx, cx + barWidth * 0.7, yToPx(group.proj), group.proj, "#111111", zeroY);
   }
 
   drawLegend(
     ctx,
     [
-      { label: "Anchor", color: "#0f5fbf", kind: "bar" },
-      { label: "Anchor + Projection", color: "#b55400", kind: "bar" },
+      { label: "Anchor", color: "#0f5fbf", kind: "bar_hatch" },
+      { label: "Anchor + Projection", color: "#111111", kind: "bar" },
     ],
     width,
     10,
   );
 }
 
-function drawBar(ctx, centerX, width, value, yToPx, zeroY, color) {
+function drawBar(ctx, centerX, width, value, yToPx, zeroY, style) {
   const y = yToPx(value);
   const top = Math.min(y, zeroY);
   const h = Math.max(1, Math.abs(y - zeroY));
+  const left = centerX - width / 2;
 
-  ctx.fillStyle = color;
-  ctx.fillRect(centerX - width / 2, top, width, h);
+  drawPatternFill(ctx, left, top, width, h, style.pattern || "solid", style.color || "#111111");
+  if (style.outlined) {
+    ctx.strokeStyle = style.color || "#111111";
+    ctx.lineWidth = 1.1;
+    ctx.strokeRect(left, top, width, h);
+  }
 }
 
 function labelValue(ctx, x, y, value, color, zeroY) {
@@ -304,25 +361,25 @@ export function drawRegimeBars(canvas, rows) {
 
     const driftY = yToPx(row.driftBp);
     const stressY = yToPx(row.stressBp);
+    const driftTop = Math.min(driftY, zeroY);
+    const driftH = Math.max(1, Math.abs(driftY - zeroY));
+    const stressTop = Math.min(stressY, zeroY);
+    const stressH = Math.max(1, Math.abs(stressY - zeroY));
+    const driftX = cx - barWidth * 1.25;
+    const stressX = cx + barWidth * 0.25;
 
     // Drift regime: outlined bar for quick contrast.
     ctx.strokeStyle = row.color;
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(
-      cx - barWidth * 1.25,
-      Math.min(driftY, zeroY),
-      barWidth,
-      Math.max(1, Math.abs(driftY - zeroY)),
-    );
+    ctx.setLineDash(methodDash(row.label));
+    ctx.strokeRect(driftX, driftTop, barWidth, driftH);
+    ctx.setLineDash([]);
 
-    // Stress regime: filled bar.
-    ctx.fillStyle = row.color;
-    ctx.fillRect(
-      cx + barWidth * 0.25,
-      Math.min(stressY, zeroY),
-      barWidth,
-      Math.max(1, Math.abs(stressY - zeroY)),
-    );
+    // Stress regime: pattern-filled for grayscale readability.
+    drawPatternFill(ctx, stressX, stressTop, barWidth, stressH, methodPattern(row.label), row.color);
+    ctx.strokeStyle = row.color;
+    ctx.lineWidth = 1.1;
+    ctx.strokeRect(stressX, stressTop, barWidth, stressH);
 
     ctx.fillStyle = "#222222";
     ctx.font = "11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
@@ -348,11 +405,37 @@ function shortLabel(label) {
   if (label.includes("Naive")) {
     return "Naive";
   }
-  if (label.includes("projection")) {
-    return "Anchor+Proj";
+  if (label.includes("Constrained")) {
+    return "Constrained";
   }
-  if (label.includes("Anchor")) {
-    return "Anchor";
+  if (label.includes("Replay")) {
+    return "Replay";
   }
   return label;
+}
+
+function methodPattern(label) {
+  if (!label) {
+    return "solid";
+  }
+  if (label.includes("Naive")) {
+    return "horizontal";
+  }
+  if (label.includes("Replay")) {
+    return "diagonal";
+  }
+  return "solid";
+}
+
+function methodDash(label) {
+  if (!label) {
+    return [];
+  }
+  if (label.includes("Naive")) {
+    return [5, 3];
+  }
+  if (label.includes("Replay")) {
+    return [2, 2];
+  }
+  return [];
 }

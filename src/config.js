@@ -1,7 +1,7 @@
 export const METHOD_SPECS = [
   { id: "naive", label: "Naive online SGD", color: "#6e6e6e" },
   { id: "anchor", label: "Replay distill only", color: "#0f5fbf" },
-  { id: "anchor_proj", label: "Constrained CL (distill + projection + gate)", color: "#b55400" },
+  { id: "anchor_proj", label: "Constrained CL (distill + projection + gate)", color: "#111111" },
 ];
 
 export const DEFAULT_CONFIG = {

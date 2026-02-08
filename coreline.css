@@ -1,11 +1,11 @@
 :root {
   --bg: #ffffff;
   --ink: #111111;
-  --muted: #545454;
+  --muted: #535353;
   --line: #dddddd;
   --surface: #fafafa;
   --accent: #0f5fbf;
-  --accent-soft: #eaf3ff;
+  --accent-soft: #edf4ff;
   --proposed: #b55400;
   --good: #0a6b2d;
   --bad: #8f2f2f;
@@ -37,8 +37,11 @@ h4,
 .method-tag,
 .mode-card,
 .method-table,
-.pipe-node,
-.math-tag {
+.math-tag,
+.stack-node,
+.syn-node,
+.timeline-stage,
+.proj-node {
   font-family: "IBM Plex Sans", "Avenir Next", "Segoe UI", sans-serif;
 }
 
@@ -59,7 +62,7 @@ a {
 }
 
 .shell {
-  width: min(1080px, calc(100% - 3rem));
+  width: min(1100px, calc(100% - 3rem));
   margin: 0 auto;
 }
 
@@ -79,13 +82,13 @@ h1 {
   margin-top: 0.44rem;
   max-width: 24ch;
   line-height: 1.12;
-  font-size: clamp(2.05rem, 4.4vw, 3.2rem);
+  font-size: clamp(2.05rem, 4.5vw, 3.2rem);
   font-weight: 620;
 }
 
 .lead {
   margin-top: 0.96rem;
-  max-width: 76ch;
+  max-width: 75ch;
   font-size: 1.03rem;
   color: #1f1f1f;
 }
@@ -105,11 +108,16 @@ h1 {
   font-size: 0.81rem;
   font-weight: 600;
   line-height: 1.1;
-  padding: 0.56rem 0.82rem;
+  padding: 0.56rem 0.84rem;
   cursor: pointer;
 }
 
 .btn-primary {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.btn.active {
   background: var(--ink);
   color: #ffffff;
 }
@@ -119,13 +127,8 @@ h1 {
   cursor: wait;
 }
 
-.btn.active {
-  background: var(--ink);
-  color: #ffffff;
-}
-
 .section {
-  padding: 2.26rem 0;
+  padding: 2.28rem 0;
   border-top: 1px solid var(--line);
 }
 
@@ -148,35 +151,34 @@ h1 {
 
 .section-intro {
   max-width: 78ch;
-  color: #222222;
+  color: #212121;
 }
 
-.scenario-strip,
+.problem-strip,
 .positioning-grid,
-.concept-grid,
-.strategy-ledger,
+.objects-grid,
+.math-grid,
+.strategy-grid,
 .mode-grid,
 .preset-row,
 .knob-grid,
 .action-row,
 .decision-panels,
 .kpi-row,
-.chart-grid,
-.math-grid,
-.refs-grid {
+.chart-grid {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.72rem;
 }
 
-.scenario-strip {
+.problem-strip {
   margin-top: 0.82rem;
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.scenario-strip article,
-.positioning-card,
-.concept-card,
-.object-map,
+.problem-strip article,
+.positioning-grid article,
+.object-card,
+.math-card,
 .strategy-card,
 .protocol-board,
 .control-stack,
@@ -186,87 +188,101 @@ h1 {
 .chart-card,
 .table-wrap,
 .takeaway,
-.math-card,
-.refs-grid article {
+.close-card {
   border: 1px solid var(--line);
   background: #ffffff;
   padding: 0.78rem;
 }
 
-.scenario-strip h3 {
-  font-size: 0.84rem;
+.problem-strip h3,
+.timeline-stage h4,
+.proj-node h4,
+.stack-node h4,
+.syn-node h4 {
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #3a3a3a;
-  margin-bottom: 0.18rem;
+  color: #3d3d3d;
 }
 
-.scenario-strip p {
-  font-size: 0.9rem;
-  line-height: 1.45;
+.problem-strip p,
+.timeline-stage p {
+  margin-top: 0.14rem;
+  font-size: 0.88rem;
+  line-height: 1.42;
 }
 
-.positioning-card {
-  margin-top: 0.74rem;
+.timeline-figure {
+  margin-top: 0.72rem;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  gap: 0.46rem;
+  align-items: stretch;
+}
+
+.timeline-stage {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.56rem;
+}
+
+.timeline-arrow,
+.proj-arrow,
+.stack-arrow,
+.syn-arrow {
+  display: grid;
+  place-items: center;
+  color: #6a6a6a;
+  font-size: 1.02rem;
 }
 
 .positioning-grid {
-  margin-top: 0.46rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.78rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.positioning-grid article {
-  border: 1px solid var(--line);
-  padding: 0.6rem;
-  background: var(--surface);
+.ref-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.44rem;
 }
 
-.positioning-grid h4 {
-  margin-bottom: 0.24rem;
-  font-size: 0.81rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.ref-list li {
+  font-size: 0.85rem;
+  line-height: 1.36;
+}
+
+.ref-list .why {
+  display: block;
+  margin-top: 0.08rem;
   color: #3f3f3f;
 }
 
-.citation-list {
-  margin: 0;
-  padding-left: 1rem;
-  display: grid;
-  gap: 0.3rem;
-}
-
-.citation-list li {
-  font-size: 0.87rem;
-  line-height: 1.38;
-}
-
-.concept-grid {
-  margin-top: 0.82rem;
+.objects-grid {
+  margin-top: 0.8rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.concept-card p {
-  font-size: 0.9rem;
-  line-height: 1.46;
+.span-2 {
+  grid-column: 1 / -1;
 }
 
-.anchor-table,
-.map-table,
-.method-table,
-.ref-list,
-.math-table {
-  width: 100%;
+.object-caption {
+  color: #222222;
+  line-height: 1.45;
 }
 
 .anchor-table,
 .map-table,
 .method-table {
+  width: 100%;
   border-collapse: collapse;
 }
 
 .anchor-table {
-  margin-top: 0.46rem;
+  margin-top: 0.45rem;
 }
 
 .anchor-table th,
@@ -299,98 +315,112 @@ h1 {
   line-height: 1.38;
 }
 
-.concept-note {
-  margin-top: 0.44rem;
-  font-size: 0.85rem;
-  color: #333333;
-}
-
-.projection-figure {
+.projection-diagram {
   margin-top: 0.48rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.38rem;
+  align-items: stretch;
 }
 
-.projection-figure svg {
-  width: 100%;
-  height: auto;
+.proj-node {
   border: 1px solid var(--line);
-  background: #fcfcfc;
+  background: var(--surface);
+  padding: 0.52rem;
 }
 
-.proj-axis {
-  stroke: #8a8a8a;
-  stroke-width: 1.4;
+.proj-node p {
+  margin-top: 0.12rem;
+  font-size: 0.84rem;
+  line-height: 1.34;
 }
 
-.proj-boundary {
-  stroke: #585858;
-  stroke-width: 1.4;
-  stroke-dasharray: 6 4;
+.proj-node.constraint {
+  border-style: dashed;
+  border-color: var(--accent);
 }
 
-.proj-vector-anchor {
-  stroke: #0f5fbf;
-  stroke-width: 2.3;
+.proj-node.safe {
+  border-width: 2px;
+  border-color: var(--proposed);
 }
 
-.proj-vector-drift {
-  stroke: #8f2f2f;
-  stroke-width: 2.3;
+.math-inline {
+  margin-top: 0.14rem;
+  font-size: 0.85rem;
 }
 
-.proj-vector-safe {
-  stroke: #b55400;
-  stroke-width: 2.4;
-}
-
-.proj-drop {
-  stroke: #8d8d8d;
-  stroke-width: 1.2;
-  stroke-dasharray: 4 4;
-}
-
-.proj-point {
-  fill: #b55400;
-}
-
-.proj-vector-anchor,
-.proj-vector-drift,
-.proj-vector-safe {
-  color: inherit;
-}
-
-.proj-text {
-  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
-  font-size: 13px;
-  fill: #2a2a2a;
-}
-
-.projection-list {
-  margin: 0.48rem 0 0;
+.object-points {
+  margin: 0.5rem 0 0;
   padding-left: 1rem;
   display: grid;
   gap: 0.24rem;
 }
 
-.projection-list li {
-  font-size: 0.86rem;
-  line-height: 1.36;
-}
-
-.object-map {
-  margin-top: 0.74rem;
+.object-points li {
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
 .map-table {
-  margin-top: 0.34rem;
+  margin-top: 0.36rem;
 }
 
-.strategy-card + .strategy-card {
-  margin-top: 0.92rem;
+.math-grid {
+  margin-top: 0.78rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.math-card {
+  min-height: 220px;
+}
+
+.math-tag {
+  display: inline-block;
+  margin-bottom: 0.22rem;
+  padding: 0.12rem 0.34rem;
+  border: 1px solid var(--line);
+  font-size: 0.67rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.math-tag.literature {
+  border-color: #b8b8b8;
+  background: #f7f7f7;
+  color: #333333;
+}
+
+.math-tag.proposal {
+  border-color: var(--proposed);
+  background: #f7eee8;
+  color: #7f3713;
+  font-weight: 600;
+}
+
+.math-block {
+  margin-top: 0.16rem;
+  overflow-x: auto;
+  border: 1px solid #d7d7d7;
+  background: #fcfcfc;
+  padding: 0.34rem 0.48rem;
+}
+
+.math-note {
+  margin-top: 0.38rem;
+  font-size: 0.85rem;
+  line-height: 1.42;
+  color: #2f2f2f;
+}
+
+.strategy-grid {
+  margin-top: 0.78rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .method-tag {
   display: inline-flex;
-  padding: 0.14rem 0.38rem;
+  padding: 0.14rem 0.36rem;
   border: 1px solid var(--line);
   font-size: 0.66rem;
   text-transform: uppercase;
@@ -405,105 +435,46 @@ h1 {
   font-weight: 600;
 }
 
-.strategy-claim {
-  margin-top: 0.14rem;
-  font-size: 0.9rem;
-  color: #1f1f1f;
-}
-
-.pipeline-diagram {
-  margin-top: 0.58rem;
+.pipeline-stack {
+  margin-top: 0.52rem;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 0.38rem;
-  align-items: stretch;
+  gap: 0.26rem;
 }
 
-.pipe-node {
+.stack-node {
   border: 1px solid var(--line);
-  padding: 0.52rem 0.46rem;
   background: var(--surface);
+  padding: 0.48rem;
 }
 
-.pipe-node h4 {
-  margin-bottom: 0.13rem;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #3d3d3d;
-}
-
-.pipe-node p {
-  font-size: 0.84rem;
+.stack-node p {
+  margin-top: 0.12rem;
+  font-size: 0.83rem;
   line-height: 1.34;
 }
 
-.pipe-node.source,
-.pipe-node.output,
-.pipe-node.update {
-  border-color: #bcbcbc;
+.stack-node.frozen {
+  border-style: dashed;
 }
 
-.pipe-node.memory {
+.stack-node.memory {
   border-style: dashed;
   border-color: var(--accent);
 }
 
-.pipe-node.soft {
-  border-color: #6f6f6f;
+.stack-node.danger {
+  border-color: #8f2f2f;
 }
 
-.pipe-node.hard {
+.stack-node.safe {
   border-width: 2px;
   border-color: var(--proposed);
 }
 
-.pipe-node.off {
-  border-style: dashed;
-  color: #666666;
-}
-
-.pipe-arrow {
-  display: grid;
-  place-items: center;
-  color: #696969;
-  font-size: 1.06rem;
-}
-
-.strategy-ledger {
-  margin-top: 0.56rem;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.strategy-ledger article {
-  border: 1px solid var(--line);
-  background: #ffffff;
-  padding: 0.48rem;
-}
-
-.strategy-ledger h4 {
-  margin-bottom: 0.14rem;
-  font-size: 0.74rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #424242;
-}
-
-.strategy-ledger p {
-  font-size: 0.85rem;
-  line-height: 1.36;
-}
-
-.strategy-rationale {
+.pipeline-note {
   margin-top: 0.52rem;
-  font-size: 0.9rem;
-  line-height: 1.47;
-}
-
-.strategy-cite {
-  margin-top: 0.28rem;
-  font-size: 0.82rem;
-  color: #3e3e3e;
+  font-size: 0.85rem;
+  color: #2d2d2d;
 }
 
 .protocol-board {
@@ -687,8 +658,7 @@ input {
 .chart-card h3,
 .table-wrap h3,
 .takeaway h4,
-.math-card h3,
-.refs-grid h3 {
+.close-card h3 {
   margin-bottom: 0.3rem;
   font-size: 0.94rem;
 }
@@ -718,8 +688,7 @@ input {
   background: #ffffff;
 }
 
-.table-wrap,
-.takeaway {
+.table-wrap {
   margin-top: 0.76rem;
 }
 
@@ -760,7 +729,7 @@ input {
 }
 
 .line-chip-naive {
-  border-top-color: #6e6e6e;
+  border-top-color: #666666;
   border-top-style: dashed;
 }
 
@@ -770,80 +739,50 @@ input {
 }
 
 .line-chip-anchor_proj {
-  border-top-color: #b55400;
+  border-top-color: #111111;
   border-top-style: solid;
 }
 
-.takeaway p {
-  font-size: 0.94rem;
-}
-
-.math-grid {
+.synthesis-diagram {
   margin-top: 0.74rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.math-card {
-  min-height: 210px;
-}
-
-.math-tag {
-  display: inline-block;
-  margin-bottom: 0.22rem;
-  padding: 0.12rem 0.34rem;
-  border: 1px solid var(--line);
-  font-size: 0.67rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.math-tag.literature {
-  border-color: #b8b8b8;
-  background: #f7f7f7;
-  color: #333333;
-}
-
-.math-tag.proposal {
-  border-color: var(--proposed);
-  background: #f7eee8;
-  color: #7f3713;
-  font-weight: 600;
-}
-
-.math-block {
-  margin-top: 0.16rem;
-  overflow-x: auto;
-  border: 1px solid #d7d7d7;
-  background: #fcfcfc;
-  padding: 0.34rem 0.48rem;
-}
-
-.math-block mjx-container {
-  font-size: 112% !important;
-}
-
-.refs-grid {
-  margin-top: 0.66rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.ref-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
   display: grid;
-  gap: 0.44rem;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 0.38rem;
+  align-items: stretch;
 }
 
-.ref-list li {
-  font-size: 0.86rem;
+.syn-node {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0.5rem;
+}
+
+.syn-node p {
+  margin-top: 0.12rem;
+  font-size: 0.82rem;
+  line-height: 1.32;
+}
+
+.syn-node.highlight {
+  border-width: 2px;
+  border-color: var(--proposed);
+}
+
+.takeaway,
+.close-card {
+  margin-top: 0.74rem;
+}
+
+.close-card ul {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.close-card li {
+  font-size: 0.88rem;
   line-height: 1.38;
-}
-
-.ref-list .why {
-  display: block;
-  margin-top: 0.08rem;
-  color: #404040;
 }
 
 .footer {
@@ -872,30 +811,31 @@ mjx-container[jax="SVG"] {
   font-size: 101% !important;
 }
 
-@media (max-width: 1140px) {
-  .pipeline-diagram {
+@media (max-width: 1160px) {
+  .timeline-figure,
+  .projection-diagram,
+  .synthesis-diagram {
     grid-template-columns: 1fr;
   }
 
-  .pipe-arrow {
-    min-height: 14px;
-  }
-
-  .scenario-strip,
+  .problem-strip,
   .positioning-grid,
-  .concept-grid,
-  .strategy-ledger,
+  .objects-grid,
+  .math-grid,
+  .strategy-grid,
   .mode-grid,
   .decision-panels,
-  .chart-grid,
-  .math-grid,
-  .refs-grid {
+  .chart-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .knob-grid,
   .kpi-row {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .span-2 {
+    grid-column: auto;
   }
 }
 
@@ -909,19 +849,18 @@ mjx-container[jax="SVG"] {
   }
 
   .hero-actions,
-  .scenario-strip,
+  .problem-strip,
   .positioning-grid,
-  .concept-grid,
-  .strategy-ledger,
+  .objects-grid,
+  .math-grid,
+  .strategy-grid,
   .mode-grid,
   .preset-row,
   .knob-grid,
   .action-row,
   .decision-panels,
   .kpi-row,
-  .chart-grid,
-  .math-grid,
-  .refs-grid {
+  .chart-grid {
     grid-template-columns: 1fr;
   }
 

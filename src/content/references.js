@@ -73,11 +73,6 @@ export const REFERENCES = {
       why: "Reference implementation of low-rank adaptation.",
     },
     {
-      title: "ContinualAI/avalanche",
-      link: "https://github.com/ContinualAI/avalanche",
-      why: "Continual learning baselines and protocols.",
-    },
-    {
       title: "cvxgrp/cvxportfolio",
       link: "https://github.com/cvxgrp/cvxportfolio",
       why: "Constraint-aware portfolio optimization framework.",
