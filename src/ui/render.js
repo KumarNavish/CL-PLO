@@ -9,25 +9,16 @@ const METHOD_STYLES = {
     color: "#5f6774",
     dash: [10, 6],
     short: "Naive",
-    mechanism: "Raw drift step only",
-    protect: "Nothing except frozen backbone",
-    tradeoff: "Fastest fit, brittle under stress",
   },
   anchor: {
     color: "#2f557f",
     dash: [2, 6],
     short: "Replay",
-    mechanism: "Drift + anchor replay",
-    protect: "Stored stress anchors",
-    tradeoff: "Better memory, no hard feasibility gate",
   },
   anchor_proj: {
     color: "#7f4a1e",
     dash: [],
     short: "Hybrid",
-    mechanism: "Replay + projected step",
-    protect: "Anchors + update geometry",
-    tradeoff: "Slight drift-cost increase for release safety",
   },
 };
 
@@ -408,56 +399,15 @@ function renderAll(result) {
 
   setStatus(`Complete (${mode.label}). ${mode.lens}`);
 
-  renderExpectationCheck(result, methodRows, regimeInfo);
-  renderDecisionCard(result, methodRows, regimeInfo);
+  renderDecisionCard(methodRows);
   renderKpis(methodRows);
-  renderStrategySnapshots(methodRows);
   renderCharts(methodRows, regimeInfo);
   renderChartReadouts(methodRows);
   renderMethodTable(methodRows);
   renderTakeaway(methodRows);
 }
 
-function renderExpectationCheck(result, rows, regimeInfo) {
-  const host = document.getElementById("expectation-check");
-  if (!host) {
-    return;
-  }
-
-  const naive = findRow(rows, "naive");
-  const replay = findRow(rows, "anchor");
-  const hybrid = findRow(rows, "anchor_proj");
-  if (!naive || !replay || !hybrid) {
-    return;
-  }
-
-  const stressOrder = naive.stressMse > replay.stressMse && replay.stressMse > hybrid.stressMse;
-  const ddOrder = hybrid.maxDrawdown > replay.maxDrawdown && replay.maxDrawdown > naive.maxDrawdown;
-  const stressSharpeOrder =
-    (hybrid.sharpeByRegime.stress || 0) > (replay.sharpeByRegime.stress || 0) &&
-    (replay.sharpeByRegime.stress || 0) > (naive.sharpeByRegime.stress || 0);
-
-  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
-
-  host.innerHTML = `
-    <h3>Decision Checks (${mode.label})</h3>
-    <ul>
-      <li>Stress loss ordering (naive > replay > hybrid)
-        <span class="${stressOrder ? "pass" : "warn"}">${stressOrder ? "Pass" : "Fail"}</span>
-      </li>
-      <li>Drawdown ordering (hybrid should be shallowest)
-        <span class="${ddOrder ? "pass" : "warn"}">${ddOrder ? "Pass" : "Review"}</span>
-      </li>
-      <li>Stress Sharpe ordering
-        <span class="${stressSharpeOrder ? "pass" : "warn"}">${stressSharpeOrder ? "Pass" : "Mixed"}</span>
-      </li>
-      <li>Regime mix: stress ${pct(regimeInfo.stressShare)} | shift events ${regimeInfo.shiftCount}</li>
-      <li>${mode.readout}</li>
-    </ul>
-  `;
-}
-
-function renderDecisionCard(result, rows) {
+function renderDecisionCard(rows) {
   const host = document.getElementById("decision-card");
   if (!host) {
     return;
@@ -548,59 +498,6 @@ function renderKpis(rows) {
   `;
 }
 
-function renderStrategySnapshots(rows) {
-  const host = document.getElementById("strategy-snapshots");
-  if (!host) {
-    return;
-  }
-
-  const visible = getVisibleMethodIds(rows);
-
-  host.innerHTML = rows
-    .map((row) => {
-      const focused = visible.has(row.id);
-      return `
-        <article class="snapshot-card ${focused ? "focused" : "muted"}">
-          <div class="snapshot-header">
-            <div class="snapshot-title"><span class="dot" style="background:${row.style.color}"></span>${row.style.short}</div>
-            <div class="snapshot-score">Deploy score ${row.deployScore.toFixed(1)}</div>
-          </div>
-
-          <div class="snapshot-grid">
-            <div class="snapshot-metric">
-              <div class="label">Mechanism</div>
-              <div class="value">${row.style.mechanism}</div>
-            </div>
-            <div class="snapshot-metric">
-              <div class="label">Protects</div>
-              <div class="value">${row.style.protect}</div>
-            </div>
-            <div class="snapshot-metric">
-              <div class="label">Stress MSE</div>
-              <div class="value">${fmt(row.stressMse, 6)}</div>
-            </div>
-            <div class="snapshot-metric">
-              <div class="label">Max Drawdown</div>
-              <div class="value">${pct(row.maxDrawdown)}</div>
-            </div>
-            <div class="snapshot-metric">
-              <div class="label">Stress Sharpe</div>
-              <div class="value">${signed(row.sharpeByRegime.stress || 0, 2)}</div>
-            </div>
-            <div class="snapshot-metric">
-              <div class="label">Stress Allocation</div>
-              <div class="value">risky ${pct(row.stressWeight)} / cash ${pct(1 - row.stressWeight)}</div>
-            </div>
-            <div class="snapshot-metric">
-              <div class="label">Trade-off</div>
-              <div class="value">${row.style.tradeoff}</div>
-            </div>
-          </div>
-        </article>
-      `;
-    })
-    .join("");
-}
 
 function renderCharts(rows, regimeInfo) {
   const pnlCanvas = document.getElementById("pnl-chart");
@@ -665,9 +562,8 @@ function renderChartReadouts(rows) {
   const naive = findRow(rows, "naive");
   const primaryId = getPrimaryStrategyId();
   const selected = findRow(rows, primaryId) || findRow(rows, "anchor_proj");
-  const hybrid = findRow(rows, "anchor_proj");
 
-  if (!naive || !selected || !hybrid) {
+  if (!naive || !selected) {
     return;
   }
 
@@ -842,9 +738,6 @@ function buildMethodRows(result, regimeInfo) {
       color: method.color || "#222222",
       dash: [],
       short: method.label,
-      mechanism: "n/a",
-      protect: "n/a",
-      tradeoff: "n/a",
     };
 
     const metrics = result.metrics?.[method.id] || {};
@@ -1179,19 +1072,6 @@ function classBySign(v) {
     return "bad";
   }
   return "caution";
-}
-
-function fmt(x, digits = 4) {
-  if (!Number.isFinite(x)) {
-    return "n/a";
-  }
-
-  const ax = Math.abs(x);
-  if (ax > 0 && (ax < 1e-4 || ax > 1e4)) {
-    return x.toExponential(2);
-  }
-
-  return x.toFixed(digits);
 }
 
 function pct(x) {

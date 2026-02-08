@@ -270,7 +270,6 @@ a {
 
 .strategy-grid,
 .math-grid,
-.decision-panels,
 .kpi-row,
 .plot-stack,
 .mode-grid,
@@ -289,7 +288,6 @@ a {
 .math-card,
 .protocol-board,
 .control-stack,
-.expectation-check,
 .decision-card,
 .kpi-row article,
 .chart-card,
@@ -640,27 +638,6 @@ input {
   gap: 0.72rem;
 }
 
-.decision-panels {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.expectation-check ul {
-  margin: 0;
-  padding-left: 1.05rem;
-  display: grid;
-  gap: 0.24rem;
-}
-
-.expectation-check .pass {
-  color: var(--good);
-  font-weight: 700;
-}
-
-.expectation-check .warn {
-  color: var(--warn);
-  font-weight: 700;
-}
-
 .decision-card {
   border-left: 3px solid #6b6b6b;
 }
@@ -741,72 +718,6 @@ input {
 .chart-reading {
   margin-top: 0.34rem;
   min-height: 2.4em;
-}
-
-.strategy-snapshots {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.62rem;
-}
-
-.snapshot-card {
-  border: 1px solid var(--line);
-  background: #ffffff;
-  padding: 0.66rem;
-}
-
-.snapshot-card.focused {
-  border-color: var(--ink);
-  box-shadow: inset 0 0 0 1px #1f2937;
-}
-
-.snapshot-card.muted {
-  opacity: 0.6;
-}
-
-.snapshot-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.4rem;
-}
-
-.snapshot-title {
-  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
-  font-size: 0.79rem;
-  font-weight: 600;
-}
-
-.snapshot-title .dot {
-  margin-right: 0.28rem;
-}
-
-.snapshot-score {
-  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
-  font-size: 0.76rem;
-  color: #495262;
-}
-
-.snapshot-grid {
-  margin-top: 0.48rem;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.4rem 0.5rem;
-}
-
-.snapshot-metric .label {
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #5d6673;
-}
-
-.snapshot-metric .value {
-  margin-top: 0.1rem;
-  font-family: "IBM Plex Sans", "Avenir Next", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 620;
-  line-height: 1.32;
 }
 
 .method-table {
@@ -970,13 +881,8 @@ input {
     position: static;
   }
 
-  .decision-panels,
   .kpi-row,
   .synthesis-diagram {
-    grid-template-columns: 1fr;
-  }
-
-  .strategy-snapshots {
     grid-template-columns: 1fr;
   }
 
@@ -1007,8 +913,7 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .focus-grid,
-  .snapshot-grid {
+  .focus-grid {
     grid-template-columns: 1fr;
   }
 
