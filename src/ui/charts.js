@@ -83,6 +83,10 @@ function drawLegend(ctx, legendItems, width, y) {
     if (item.kind === "bar") {
       ctx.fillStyle = item.color;
       ctx.fillRect(x, y - 1, 14, 5);
+    } else if (item.kind === "bar_outline") {
+      ctx.strokeStyle = item.color;
+      ctx.lineWidth = 1.4;
+      ctx.strokeRect(x, y - 2, 14, 6);
     } else {
       ctx.save();
       ctx.strokeStyle = item.color;
@@ -250,4 +254,105 @@ export function drawEquity(canvas, series, stressMarkers) {
   }
 
   drawLegend(ctx, series.map((s) => ({ label: s.label, color: s.color, dash: s.dash })), width, 10);
+}
+
+export function drawRegimeBars(canvas, rows) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!rows || rows.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 70,
+    right: width - 16,
+    top: 24,
+    bottom: height - 46,
+  };
+
+  const values = rows.flatMap((r) => [r.driftBp, r.stressBp, 0]);
+  const [rawMin, rawMax] = extent(values, 0.15);
+  const yMin = Math.min(rawMin, 0);
+  const yMax = Math.max(rawMax, 0);
+
+  function yToPx(y) {
+    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
+  }
+
+  function xCenter(i, n) {
+    return dims.left + ((i + 0.5) / n) * (dims.right - dims.left);
+  }
+
+  drawGrid(ctx, dims, 4);
+  drawAxes(ctx, dims, "Method", "Mean return (basis points)");
+
+  const zeroY = yToPx(0);
+  ctx.strokeStyle = "#333333";
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(dims.left, zeroY);
+  ctx.lineTo(dims.right, zeroY);
+  ctx.stroke();
+
+  const groupWidth = (dims.right - dims.left) / rows.length;
+  const barWidth = Math.min(18, groupWidth * 0.18);
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const cx = xCenter(i, rows.length);
+
+    const driftY = yToPx(row.driftBp);
+    const stressY = yToPx(row.stressBp);
+
+    // Drift regime: outlined bar for quick contrast.
+    ctx.strokeStyle = row.color;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(
+      cx - barWidth * 1.25,
+      Math.min(driftY, zeroY),
+      barWidth,
+      Math.max(1, Math.abs(driftY - zeroY)),
+    );
+
+    // Stress regime: filled bar.
+    ctx.fillStyle = row.color;
+    ctx.fillRect(
+      cx + barWidth * 0.25,
+      Math.min(stressY, zeroY),
+      barWidth,
+      Math.max(1, Math.abs(stressY - zeroY)),
+    );
+
+    ctx.fillStyle = "#222222";
+    ctx.font = "11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(shortLabel(row.label), cx, dims.bottom + 16);
+  }
+
+  drawLegend(
+    ctx,
+    [
+      { label: "Drift regime", color: "#444444", kind: "bar_outline" },
+      { label: "Stress regime", color: "#444444", kind: "bar" },
+    ],
+    width,
+    10,
+  );
+}
+
+function shortLabel(label) {
+  if (!label) {
+    return "";
+  }
+  if (label.includes("Naive")) {
+    return "Naive";
+  }
+  if (label.includes("projection")) {
+    return "Anchor+Proj";
+  }
+  if (label.includes("Anchor")) {
+    return "Anchor";
+  }
+  return label;
 }

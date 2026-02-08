@@ -1,7 +1,7 @@
 export const METHOD_SPECS = [
-  { id: "naive", label: "LoRA (naive)", color: "#cf4f37" },
-  { id: "anchor", label: "LoRA + anchor", color: "#117864" },
-  { id: "anchor_proj", label: "LoRA + anchor + projection", color: "#2856a4" },
+  { id: "naive", label: "Naive online update", color: "#6e6e6e" },
+  { id: "anchor", label: "Anchor-regularized update", color: "#0f5fbf" },
+  { id: "anchor_proj", label: "Anchor + projection update", color: "#111111" },
 ];
 
 export const DEFAULT_CONFIG = {
@@ -34,40 +34,46 @@ export const DEFAULT_CONFIG = {
 
 export const PRESETS = {
   quick_check: {
-    label: "Quick Check",
+    label: "Quick",
     values: {
       seed: 24,
-      steps: 280,
-      nTrainDrift: 900,
-      nAnchorStress: 192,
-      nTestDrift: 700,
-      nTestStress: 420,
-      simT: 180,
+      steps: 220,
+      nTrainDrift: 760,
+      nAnchorStress: 160,
+      nTestDrift: 520,
+      nTestStress: 320,
+      simT: 150,
+      pStress: 0.24,
+      noiseStd: 0.12,
     },
   },
   proposal_like: {
-    label: "Default (High Signal)",
+    label: "Default",
     values: {
       seed: 24,
-      steps: 1200,
-      nTrainDrift: 2000,
+      steps: 1000,
+      nTrainDrift: 2200,
       nAnchorStress: 512,
-      nTestDrift: 2000,
-      nTestStress: 1024,
-      simT: 300,
+      nTestDrift: 1800,
+      nTestStress: 960,
+      simT: 320,
       batchSize: 128,
       anchorBatchSize: 128,
+      anchorBeta: 0.06,
+      pStress: 0.36,
     },
   },
   stress_heavy: {
-    label: "Stress Heavy",
+    label: "Stress+",
     values: {
       seed: 24,
-      pStress: 0.55,
-      anchorBeta: 0.08,
-      steps: 900,
-      simT: 320,
-      noiseStd: 0.12,
+      pStress: 0.7,
+      anchorBeta: 0.1,
+      steps: 1200,
+      simT: 380,
+      noiseStd: 0.16,
+      nAnchorStress: 640,
+      nTestStress: 1400,
     },
   },
 };

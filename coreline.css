@@ -413,7 +413,7 @@ h1 {
 }
 
 .strategy-head {
-  margin-bottom: 0.48rem;
+  margin-bottom: 0.42rem;
 }
 
 .strategy-head p {
@@ -436,6 +436,65 @@ h1 {
   color: var(--accent);
   background: var(--accent-soft);
   font-weight: 600;
+}
+
+.strategy-layout {
+  display: grid;
+  grid-template-columns: 1.45fr 0.85fr;
+  gap: 0.58rem;
+}
+
+.strategy-diagram {
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 0.35rem;
+}
+
+.strategy-diagram svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.strategy-eval {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.strategy-eval article {
+  border: 1px solid var(--line);
+  padding: 0.5rem;
+}
+
+.strategy-eval h4 {
+  margin: 0 0 0.15rem;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #444;
+}
+
+.strategy-eval p {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.strategy-proof {
+  margin-top: 0.5rem;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.strategy-proof p {
+  margin: 0;
+  padding: 0.4rem 0.52rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.87rem;
+}
+
+.strategy-proof p:first-child {
+  border-top: none;
 }
 
 .pipeline-grid {
@@ -520,6 +579,55 @@ h1 {
   padding-left: 1rem;
   display: grid;
   gap: 0.12rem;
+}
+
+.protocol-board {
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 0.66rem;
+}
+
+.protocol-board h3 {
+  margin-bottom: 0.35rem;
+}
+
+.mode-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.52rem;
+}
+
+.mode-card {
+  border: 1px solid var(--line);
+  background: #fff;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.mode-card h4 {
+  margin: 0 0 0.2rem;
+  font-size: 0.84rem;
+}
+
+.mode-card p {
+  font-size: 0.83rem;
+  line-height: 1.4;
+}
+
+.mode-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.mode-readout {
+  margin-top: 0.42rem;
+  font-size: 0.86rem;
+  color: #2a2a2a;
+}
+
+.btn.active {
+  background: var(--ink);
+  color: #fff;
 }
 
 .expectation-check h3 {
@@ -648,7 +756,7 @@ input {
 
 .chart-grid {
   margin-top: 0.8rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .chart-grid h3,
@@ -656,6 +764,13 @@ input {
 .takeaway h4 {
   margin-bottom: 0.35rem;
   font-size: 0.92rem;
+}
+
+.chart-guide {
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  color: #2f2f2f;
+  line-height: 1.45;
 }
 
 .chart-canvas {
@@ -745,6 +860,11 @@ mjx-container[jax="SVG"] {
     grid-template-columns: 1fr 1fr;
   }
 
+  .strategy-layout,
+  .mode-grid {
+    grid-template-columns: 1fr;
+  }
+
   .bridge-core {
     grid-column: 1 / -1;
   }
@@ -793,6 +913,7 @@ mjx-container[jax="SVG"] {
   .decision-grid,
   .hero-signal,
   .implementation-grid,
+  .mode-grid,
   .preset-row,
   .action-row,
   .knob-grid {

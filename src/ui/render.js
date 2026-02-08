@@ -1,5 +1,5 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
-import { drawEquity, drawImpactBars } from "./charts.js";
+import { drawEquity, drawImpactBars, drawRegimeBars } from "./charts.js";
 
 const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
 const METHOD_STYLES = {
@@ -8,19 +8,48 @@ const METHOD_STYLES = {
   anchor_proj: { color: "#111111", dash: [] },
 };
 
+const MODE_META = {
+  quick_check: {
+    label: "Quick",
+    runLabel: "quick diagnostic",
+    readout: "Quick mode is a coarse directional test. Use it to verify sign-level ordering before deeper runs.",
+  },
+  proposal_like: {
+    label: "Default",
+    runLabel: "deployment-like",
+    readout: "Default mode approximates a realistic deployment balance of drift adaptation and stress exposure.",
+  },
+  stress_heavy: {
+    label: "Stress+",
+    runLabel: "stress-adversarial",
+    readout: "Stress+ mode concentrates crisis regimes to expose hidden forgetting and fragile adaptation.",
+  },
+};
+
 let worker = null;
 let latestResult = null;
+let activePreset = "proposal_like";
 
 export function initApp() {
-  fillForm(DEFAULT_CONFIG);
+  const defaultPreset = PRESETS.proposal_like?.values || {};
+  fillForm(clampConfig({ ...DEFAULT_CONFIG, ...defaultPreset }));
+  setActiveMode("proposal_like");
 
   document.getElementById("run-demo")?.addEventListener("click", () => runCurrentConfig());
   document.getElementById("apply-quick")?.addEventListener("click", () => applyPreset("quick_check"));
   document.getElementById("apply-proposal")?.addEventListener("click", () => applyPreset("proposal_like"));
   document.getElementById("apply-stress")?.addEventListener("click", () => applyPreset("stress_heavy"));
+  document.querySelectorAll("[data-mode-card]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const mode = card.getAttribute("data-mode-card");
+      if (mode) {
+        applyPreset(mode);
+      }
+    });
+  });
   document.getElementById("reset-form")?.addEventListener("click", () => {
-    fillForm(DEFAULT_CONFIG);
-    setStatus("Controls reset to default.");
+    applyPreset("proposal_like", false);
+    setStatus("Controls reset to Default mode.");
   });
   document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
 
@@ -72,7 +101,8 @@ function runCurrentConfig() {
   fillForm(safe);
 
   setRunning(true);
-  setStatus("Running validation...");
+  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
+  setStatus(`Running ${mode.runLabel} validation...`);
   setProgress(0);
 
   ensureWorker().postMessage({
@@ -105,7 +135,7 @@ function fillForm(cfg) {
   }
 }
 
-function applyPreset(name) {
+function applyPreset(name, announce = true) {
   const preset = PRESETS[name];
   if (!preset) {
     return;
@@ -113,7 +143,10 @@ function applyPreset(name) {
 
   const merged = clampConfig({ ...DEFAULT_CONFIG, ...readConfigFromForm(), ...preset.values });
   fillForm(merged);
-  setStatus(`Preset applied: ${preset.label}`);
+  setActiveMode(name);
+  if (announce) {
+    setStatus(`Mode set: ${preset.label}`);
+  }
 }
 
 function setRunning(isRunning) {
@@ -163,7 +196,8 @@ function renderProgress(payload) {
 
 function renderAll(result) {
   setProgress(100);
-  setStatus("Validation complete. Compare observed ordering to the decision surface.");
+  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
+  setStatus(`Validation complete (${mode.label}). Compare observed ordering to the decision surface.`);
 
   renderExpectationCheck(result);
   renderDecisionCard(result);
@@ -186,6 +220,7 @@ function renderExpectationCheck(result) {
   const stressOrder = n.stressMse > a.stressMse && a.stressMse > p.stressMse;
   const driftOrder = n.driftMse <= a.driftMse && a.driftMse <= p.driftMse;
 
+  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
   host.innerHTML = `
     <h3>Bridge checks</h3>
     <ul>
@@ -197,7 +232,7 @@ function renderExpectationCheck(result) {
         Drift-fit error is expected to rise as constraints become stricter.
         <span class="${driftOrder ? "pass" : "warn"}">${driftOrder ? "Observed" : "Not fully observed"}</span>
       </li>
-      <li>If both hold repeatedly under stress-heavy presets, the projection method is promotion-ready.</li>
+      <li>${mode.readout}</li>
     </ul>
   `;
 }
@@ -272,6 +307,7 @@ function renderKpis(result) {
 function renderCharts(result) {
   const impactCanvas = document.getElementById("impact-chart");
   const equityCanvas = document.getElementById("equity-chart");
+  const regimeCanvas = document.getElementById("regime-chart");
 
   if (!impactCanvas || !equityCanvas) {
     return;
@@ -302,6 +338,10 @@ function renderCharts(result) {
   }));
 
   drawEquity(equityCanvas, lineSeries, result.stressMarkers);
+
+  if (regimeCanvas) {
+    drawRegimeBars(regimeCanvas, buildRegimeReturnRows(result));
+  }
 }
 
 function renderMethodTable(result) {
@@ -385,13 +425,15 @@ function renderTakeaway(result) {
   const stressGainProj = improvement(naive.stressMse, proj.stressMse);
   const stressGainAnchor = improvement(naive.stressMse, anchor.stressMse);
   const ddProj = proj.maxDrawdown - naive.maxDrawdown;
+  const mode = MODE_META[activePreset] || MODE_META.proposal_like;
 
   host.innerHTML = `
     <h4>Run interpretation</h4>
     <p>
       In this sample path, projection improves stress retention by <strong>${pct(stressGainProj)}</strong> relative to
       naive (anchor: ${pct(stressGainAnchor)}), with drawdown change <strong>${pp(ddProj)}</strong>. Treat this as
-      one evidence point; promotion requires the same ordering across repeated stress-heavy runs.
+      one evidence point in <strong>${mode.label}</strong> mode; promotion requires this ordering across repeated seeds
+      and especially under Stress+.
     </p>
   `;
 }
@@ -431,6 +473,63 @@ function classBySign(v) {
     return "bad";
   }
   return "caution";
+}
+
+function setActiveMode(modeName) {
+  activePreset = modeName;
+
+  document.querySelectorAll("[data-preset]").forEach((btn) => {
+    const target = btn.getAttribute("data-preset");
+    btn.classList.toggle("active", target === modeName);
+  });
+
+  document.querySelectorAll("[data-mode-card]").forEach((card) => {
+    const target = card.getAttribute("data-mode-card");
+    card.classList.toggle("active", target === modeName);
+  });
+
+  const readout = document.getElementById("mode-readout");
+  if (readout) {
+    const meta = MODE_META[modeName] || MODE_META.proposal_like;
+    readout.textContent = `Active mode: ${meta.label}. ${meta.readout}`;
+  }
+}
+
+function buildRegimeReturnRows(result) {
+  const regimes = result.streamRegimes || [];
+  if (!Array.isArray(regimes) || regimes.length === 0) {
+    return [];
+  }
+
+  return result.methods.map((method) => {
+    const diag = result.sharedDiagnostics?.[method.id];
+    const returns = diag?.returns || [];
+
+    let driftSum = 0;
+    let driftCount = 0;
+    let stressSum = 0;
+    let stressCount = 0;
+
+    for (let i = 0; i < Math.min(regimes.length, returns.length); i += 1) {
+      if (regimes[i] === "stress") {
+        stressSum += returns[i];
+        stressCount += 1;
+      } else {
+        driftSum += returns[i];
+        driftCount += 1;
+      }
+    }
+
+    const driftMean = driftCount > 0 ? driftSum / driftCount : 0;
+    const stressMean = stressCount > 0 ? stressSum / stressCount : 0;
+
+    return {
+      label: method.label,
+      color: METHOD_STYLES[method.id]?.color || "#111111",
+      driftBp: driftMean * 10000,
+      stressBp: stressMean * 10000,
+    };
+  });
 }
 
 function normalizeLowerBetter(values) {
