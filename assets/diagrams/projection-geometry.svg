@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 320" role="img" aria-label="Projection geometry with raw update, constraint half-space, and projected update">
+  <defs>
+    <marker id="arrow-raw" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#a33232"/>
+    </marker>
+    <marker id="arrow-proj" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#1f2732"/>
+    </marker>
+    <style>
+      .lbl { font: 500 13px 'IBM Plex Sans', Arial, sans-serif; fill: #273241; }
+      .lbl-raw { font: 500 13px 'IBM Plex Sans', Arial, sans-serif; fill: #a33232; }
+    </style>
+  </defs>
+
+  <rect width="760" height="320" fill="#ffffff"/>
+  <rect x="12" y="12" width="736" height="296" rx="8" fill="#ffffff" stroke="#d8dde5"/>
+
+  <polygon points="356,34 728,34 728,286 520,286" fill="#f2f4f7"/>
+  <line x1="356" y1="34" x2="520" y2="286" stroke="#4f5660" stroke-width="2.4" stroke-dasharray="8 5"/>
+
+  <line x1="112" y1="250" x2="670" y2="98" stroke="#a33232" stroke-width="3" marker-end="url(#arrow-raw)"/>
+  <line x1="112" y1="250" x2="486" y2="168" stroke="#1f2732" stroke-width="3" marker-end="url(#arrow-proj)"/>
+
+  <circle cx="112" cy="250" r="4" fill="#1f2732"/>
+
+  <text x="540" y="272" class="lbl">constraint half-space H_t</text>
+  <text x="582" y="88" class="lbl-raw">raw update g_d,t</text>
+  <text x="494" y="158" class="lbl">projected update g_tilde,t</text>
+</svg>
