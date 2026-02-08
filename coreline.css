@@ -50,6 +50,7 @@ h4,
 .method-tag,
 .mode-card,
 input,
+select,
 label,
 .method-table,
 .syn-node,
@@ -504,6 +505,49 @@ a {
 
 .focus-panel h3 {
   font-size: 0.84rem;
+}
+
+.component-panel {
+  margin-top: 0.58rem;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  padding: 0.52rem;
+  display: grid;
+  gap: 0.42rem;
+}
+
+.component-panel h3 {
+  font-size: 0.84rem;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+
+.switch-row input {
+  width: 16px;
+  height: 16px;
+  accent-color: #1f2937;
+}
+
+.view-row {
+  display: grid;
+  gap: 0.16rem;
+  font-size: 0.77rem;
+  font-weight: 600;
+}
+
+.view-row select {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.38rem 0.44rem;
+  font-size: 0.76rem;
 }
 
 .focus-grid {

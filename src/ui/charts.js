@@ -31,6 +31,17 @@ function extent(values, paddingRatio = 0.1) {
   return [min - span * paddingRatio, max + span * paddingRatio];
 }
 
+function mean(values) {
+  if (!Array.isArray(values) || values.length === 0) {
+    return 0;
+  }
+  let sum = 0;
+  for (const v of values) {
+    sum += Number(v) || 0;
+  }
+  return sum / values.length;
+}
+
 function drawAxes(ctx, dims, xLabel, yLabel) {
   const { left, top, right, bottom } = dims;
 
@@ -403,6 +414,11 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
   }
 
+  const turnoverScale = Math.max(
+    1e-6,
+    ...profiles.flatMap((p) => (p.turnovers || []).map((v) => Number(v) || 0)),
+  );
+
   drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
 
   const laneGap = 14;
@@ -426,10 +442,41 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
       return laneBottom - Math.max(0, Math.min(1, v)) * laneHeight;
     }
 
+    const values = p.values || [];
+    const turns = p.turnovers || [];
+
+    // Cash/risky allocation fill: lower area is risky weight, upper area is cash.
+    ctx.save();
+    ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.08;
+    ctx.fillStyle = "#111111";
+    ctx.beginPath();
+    ctx.moveTo(xToPx(0), laneTop);
+    for (let t = 0; t < values.length; t += 1) {
+      ctx.lineTo(xToPx(t), yToPx(values[t]));
+    }
+    ctx.lineTo(xToPx(Math.max(values.length - 1, 0)), laneTop);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    ctx.save();
+    ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.15;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.moveTo(xToPx(0), laneBottom);
+    for (let t = 0; t < values.length; t += 1) {
+      ctx.lineTo(xToPx(t), yToPx(values[t]));
+    }
+    ctx.lineTo(xToPx(Math.max(values.length - 1, 0)), laneBottom);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
     ctx.fillStyle = "#5a646f";
     ctx.font = "10px 'IBM Plex Sans', 'Avenir Next', sans-serif";
     ctx.fillText("100%", 54, laneTop + 10);
     ctx.fillText("0%", 66, laneBottom - 2);
+    ctx.fillText("TO", dims.right - 16, laneTop + 11);
 
     ctx.save();
     ctx.strokeStyle = p.color;
@@ -438,7 +485,6 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.setLineDash(p.dash || []);
     ctx.beginPath();
 
-    const values = p.values || [];
     for (let t = 0; t < values.length; t += 1) {
       const x = xToPx(t);
       const y = yToPx(values[t]);
@@ -451,6 +497,31 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
 
     ctx.stroke();
     ctx.restore();
+
+    // Dashed turnover path inside each lane for stability-vs-responsiveness read.
+    ctx.save();
+    ctx.strokeStyle = "#111111";
+    ctx.lineWidth = 1.2;
+    ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.75;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    for (let t = 0; t < Math.min(values.length, turns.length); t += 1) {
+      const x = xToPx(t);
+      const normalized = Math.max(0, Math.min(1, (turns[t] || 0) / turnoverScale));
+      const y = laneBottom - normalized * laneHeight * 0.42;
+      if (t === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = "#3e4754";
+    ctx.font = "10px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+    ctx.textAlign = "right";
+    ctx.fillText(`avg TO ${Math.max(0, mean(turns) * 100).toFixed(1)}%`, dims.right - 8, laneBottom - 3);
   }
 
   drawLegend(
@@ -458,6 +529,11 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     profiles.map((p) => ({ label: shortMethod(p.label), color: p.color, dash: p.dash, alpha: p.alpha })),
     10,
   );
+
+  ctx.fillStyle = "#2a2a2a";
+  ctx.font = "11px 'IBM Plex Sans', 'Avenir Next', sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("solid: risky allocation | dashed: turnover", dims.right, 14);
 }
 
 export function drawRegimeRisk(canvas, regimes, rows) {

@@ -254,6 +254,26 @@
                 <p id="focus-readout" class="mode-readout">Viewing all strategies for side-by-side deployability checks.</p>
               </article>
 
+              <article class="component-panel" aria-label="Constraint toggle interface">
+                <h3>Constraint Interface</h3>
+                <label class="switch-row" for="toggle-anchor">
+                  <span>Anchor fixtures</span>
+                  <input id="toggle-anchor" type="checkbox" checked />
+                </label>
+                <label class="switch-row" for="toggle-projection">
+                  <span>Projection gate</span>
+                  <input id="toggle-projection" type="checkbox" checked />
+                </label>
+                <label class="view-row" for="compare-view">
+                  <span>Comparison view</span>
+                  <select id="compare-view">
+                    <option value="all">All strategies</option>
+                    <option value="pair">Selected vs naive</option>
+                  </select>
+                </label>
+                <p id="component-readout" class="mode-readout">Anchors ON, projection ON: hybrid control path active.</p>
+              </article>
+
               <form id="config-form" class="knob-grid">
                 <label>
                   Anchor weight
@@ -302,21 +322,21 @@
             <div class="plot-stack">
               <article class="chart-card">
                 <h3>Portfolio Value Across Regimes</h3>
-                <p class="plot-caption"><strong>Shows:</strong> cumulative portfolio value with calm/volatile/stress/shift context.<br /><strong>Read:</strong> deployable strategy compounds while avoiding stress path collapse.</p>
+                <p class="plot-caption"><strong>Shows:</strong> realized portfolio equity path with transaction frictions under regime shading.<br /><strong>Read:</strong> deployment candidate must compound without catastrophic stress-phase breaks.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Drawdown and Recovery</h3>
-                <p class="plot-caption"><strong>Shows:</strong> depth and duration of capital impairment under each regime.<br /><strong>Read:</strong> release candidate should recover faster after stress dislocations.</p>
+                <p class="plot-caption"><strong>Shows:</strong> depth and time-to-recovery of capital impairment under each scenario.<br /><strong>Read:</strong> release candidate needs shallower troughs and faster recovery after shock periods.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Allocation Stability vs Responsiveness</h3>
-                <p class="plot-caption"><strong>Shows:</strong> explicit risky-allocation path per strategy under regime shifts.<br /><strong>Read:</strong> robust methods adjust decisively in stress without noisy over-trading.</p>
+                <p class="plot-caption"><strong>Shows:</strong> risky vs cash allocation trajectory (solid) with turnover pressure (dashed).<br /><strong>Read:</strong> robust policies de-risk in stress without churning capital in calm tape.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>

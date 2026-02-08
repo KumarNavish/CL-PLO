@@ -62,6 +62,12 @@ const FOCUS_META = {
 let latestResult = null;
 let activePreset = "proposal_like";
 let activeFocus = "all";
+let activeCompare = "all";
+const componentState = {
+  anchors: true,
+  projection: true,
+  strategy: "anchor_proj",
+};
 
 export function initApp() {
   const defaultPreset = PRESETS.proposal_like?.values || {};
@@ -70,6 +76,8 @@ export function initApp() {
   bindControls();
   setActiveMode("proposal_like");
   setActiveFocus("all", false);
+  syncComponentFromStrategy("anchor_proj", false);
+  updateComponentReadout();
   runCurrentConfig();
 
   window.addEventListener("resize", () => {
@@ -101,16 +109,43 @@ function bindControls() {
         return;
       }
       setActiveFocus(focus);
+      if (focus !== "all") {
+        syncComponentFromStrategy(focus, false);
+        updateComponentReadout();
+      } else if (activeCompare === "pair") {
+        activeCompare = "all";
+        setCompareControl("all");
+        updateComponentReadout();
+      }
       if (latestResult) {
         renderAll(latestResult);
       }
     });
   });
 
+  document.getElementById("toggle-anchor")?.addEventListener("change", () => {
+    applyComponentControls(true);
+  });
+
+  document.getElementById("toggle-projection")?.addEventListener("change", () => {
+    applyComponentControls(true);
+  });
+
+  document.getElementById("compare-view")?.addEventListener("change", () => {
+    applyComponentControls(false);
+  });
+
   document.getElementById("reset-form")?.addEventListener("click", () => {
     applyPreset("proposal_like", false);
     setActiveFocus("all", false);
+    syncComponentFromStrategy("anchor_proj", false);
+    activeCompare = "all";
+    setCompareControl("all");
+    updateComponentReadout();
     setStatus("Controls reset to Default mode. Click Run Demo.");
+    if (latestResult) {
+      renderAll(latestResult);
+    }
   });
 
   document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
@@ -231,6 +266,109 @@ function prettyFocus(id) {
   return "All";
 }
 
+function applyComponentControls(announce = false) {
+  const anchorInput = document.getElementById("toggle-anchor");
+  const projectionInput = document.getElementById("toggle-projection");
+  const compareInput = document.getElementById("compare-view");
+
+  let anchors = anchorInput?.checked ?? true;
+  let projection = projectionInput?.checked ?? true;
+
+  let coerced = false;
+  if (!anchors && projection) {
+    projection = false;
+    coerced = true;
+    if (projectionInput) {
+      projectionInput.checked = false;
+    }
+  }
+
+  componentState.anchors = anchors;
+  componentState.projection = projection;
+  componentState.strategy = deriveStrategyFromComponents(anchors, projection);
+  activeCompare = compareInput?.value === "pair" ? "pair" : "all";
+
+  if (activeCompare === "pair" || activeFocus !== "all") {
+    setActiveFocus(componentState.strategy, false);
+  }
+
+  updateComponentReadout(coerced);
+
+  if (announce) {
+    const note = coerced
+      ? "Projection requires anchors. Projection was switched off."
+      : "Constraint interface updated.";
+    setStatus(`${note} Active path: ${METHOD_STYLES[componentState.strategy]?.short || "strategy"}.`);
+  }
+
+  if (latestResult) {
+    renderAll(latestResult);
+  }
+}
+
+function deriveStrategyFromComponents(anchors, projection) {
+  if (!anchors) {
+    return "naive";
+  }
+  return projection ? "anchor_proj" : "anchor";
+}
+
+function syncComponentFromStrategy(strategyId, setStatusLine = false) {
+  const anchorInput = document.getElementById("toggle-anchor");
+  const projectionInput = document.getElementById("toggle-projection");
+
+  if (strategyId === "naive") {
+    if (anchorInput) {
+      anchorInput.checked = false;
+    }
+    if (projectionInput) {
+      projectionInput.checked = false;
+    }
+  } else if (strategyId === "anchor") {
+    if (anchorInput) {
+      anchorInput.checked = true;
+    }
+    if (projectionInput) {
+      projectionInput.checked = false;
+    }
+  } else if (strategyId === "anchor_proj") {
+    if (anchorInput) {
+      anchorInput.checked = true;
+    }
+    if (projectionInput) {
+      projectionInput.checked = true;
+    }
+  }
+
+  componentState.anchors = anchorInput?.checked ?? true;
+  componentState.projection = projectionInput?.checked ?? true;
+  componentState.strategy = deriveStrategyFromComponents(componentState.anchors, componentState.projection);
+  updateComponentReadout(false);
+
+  if (setStatusLine) {
+    setStatus(`Constraint interface aligned to ${METHOD_STYLES[componentState.strategy]?.short || "strategy"} path.`);
+  }
+}
+
+function setCompareControl(value) {
+  const select = document.getElementById("compare-view");
+  if (select) {
+    select.value = value;
+  }
+}
+
+function updateComponentReadout(coerced = false) {
+  const host = document.getElementById("component-readout");
+  if (!host) {
+    return;
+  }
+
+  const method = METHOD_STYLES[componentState.strategy];
+  const compareLabel = activeCompare === "pair" ? "Selected vs naive view." : "All-strategy view.";
+  const coercionNote = coerced ? " Projection requires anchors, so projection was disabled." : "";
+  host.textContent = `Anchors ${componentState.anchors ? "ON" : "OFF"}, projection ${componentState.projection ? "ON" : "OFF"}: ${method?.short || "Strategy"} path active. ${compareLabel}${coercionNote}`;
+}
+
 function setRunning(isRunning) {
   const runButton = document.getElementById("run-demo");
   if (!runButton) {
@@ -266,7 +404,7 @@ function renderAll(result) {
   const mode = MODE_META[activePreset] || MODE_META.proposal_like;
   const regimeInfo = buildRegimeInfo(result);
   const methodRows = buildMethodRows(result, regimeInfo);
-  attachDeployScores(methodRows);
+  attachDeployScores(methodRows, activePreset);
 
   setStatus(`Validation complete (${mode.label}). ${mode.lens}`);
 
@@ -275,9 +413,9 @@ function renderAll(result) {
   renderKpis(methodRows);
   renderStrategySnapshots(methodRows);
   renderCharts(methodRows, regimeInfo);
-  renderChartReadouts(methodRows, regimeInfo);
+  renderChartReadouts(methodRows);
   renderMethodTable(methodRows);
-  renderTakeaway(methodRows, regimeInfo);
+  renderTakeaway(methodRows);
 }
 
 function renderExpectationCheck(result, rows, regimeInfo) {
@@ -416,9 +554,11 @@ function renderStrategySnapshots(rows) {
     return;
   }
 
+  const visible = getVisibleMethodIds(rows);
+
   host.innerHTML = rows
     .map((row) => {
-      const focused = activeFocus === "all" || activeFocus === row.id;
+      const focused = visible.has(row.id);
       return `
         <article class="snapshot-card ${focused ? "focused" : "muted"}">
           <div class="snapshot-header">
@@ -448,6 +588,10 @@ function renderStrategySnapshots(rows) {
               <div class="value">${signed(row.sharpeByRegime.stress || 0, 2)}</div>
             </div>
             <div class="snapshot-metric">
+              <div class="label">Stress Allocation</div>
+              <div class="value">risky ${pct(row.stressWeight)} / cash ${pct(1 - row.stressWeight)}</div>
+            </div>
+            <div class="snapshot-metric">
               <div class="label">Trade-off</div>
               <div class="value">${row.style.tradeoff}</div>
             </div>
@@ -468,14 +612,17 @@ function renderCharts(rows, regimeInfo) {
     return;
   }
 
+  const visible = getVisibleMethodIds(rows);
+  const primary = getPrimaryStrategyId();
+
   const lineSeries = rows.map((row) => ({
     id: row.id,
     label: row.label,
     color: row.style.color,
     dash: row.style.dash,
     values: row.equity,
-    alpha: focusAlpha(row.id),
-    lineWidth: focusLineWidth(row.id),
+    alpha: lineAlpha(row.id, visible),
+    lineWidth: lineWidth(row.id, visible, primary),
   }));
 
   const allocationSeries = rows.map((row) => ({
@@ -484,8 +631,9 @@ function renderCharts(rows, regimeInfo) {
     color: row.style.color,
     dash: row.style.dash,
     values: row.riskyWeights,
-    alpha: focusAlpha(row.id),
-    lineWidth: focusLineWidth(row.id),
+    turnovers: row.turnovers,
+    alpha: lineAlpha(row.id, visible),
+    lineWidth: lineWidth(row.id, visible, primary),
   }));
 
   drawEquity(pnlCanvas, lineSeries, regimeInfo.timelineStates);
@@ -499,7 +647,7 @@ function renderCharts(rows, regimeInfo) {
       id: row.id,
       label: row.label,
       color: row.style.color,
-      alpha: focusAlpha(row.id),
+      alpha: lineAlpha(row.id, visible),
       sharpe: row.sharpeByRegime,
     })),
   );
@@ -515,34 +663,37 @@ function renderChartReadouts(rows) {
   }
 
   const naive = findRow(rows, "naive");
-  const replay = findRow(rows, "anchor");
+  const primaryId = getPrimaryStrategyId();
+  const selected = findRow(rows, primaryId) || findRow(rows, "anchor_proj");
   const hybrid = findRow(rows, "anchor_proj");
-  if (!naive || !replay || !hybrid) {
+
+  if (!naive || !selected || !hybrid) {
     return;
   }
 
-  const hybridVsNaiveRet = hybrid.totalReturn - naive.totalReturn;
-  const hybridVsReplayRet = hybrid.totalReturn - replay.totalReturn;
-  const hybridDdLift = hybrid.maxDrawdown - naive.maxDrawdown;
+  const selectedVsNaiveRet = selected.totalReturn - naive.totalReturn;
+  const selectedDdLift = selected.maxDrawdown - naive.maxDrawdown;
+  const selectedStressGain = improvement(naive.stressMse, selected.stressMse);
+  const selectedLabel = selected.style.short;
 
   pnlHost.textContent =
-    `Signal: compare terminal value and stress trough depth. Hybrid vs naive return delta ${pp(hybridVsNaiveRet)}; ` +
-    `hybrid vs replay ${pp(hybridVsReplayRet)}.`;
+    `Signal: compare terminal value and stress trough depth. ${selectedLabel} vs naive return delta ${pp(selectedVsNaiveRet)}; ` +
+    `stress-retention gain ${pct(selectedStressGain)}.`;
 
   drawdownHost.textContent =
-    `Signal: drawdown curve should be shallower with faster recovery. Hybrid drawdown lift vs naive is ${pp(hybridDdLift)} ` +
-    `with recovery in ${formatRecovery(hybrid.recoveryDays)}.`;
+    `Signal: drawdown path should be shallower with faster recovery. ${selectedLabel} drawdown lift vs naive is ${pp(selectedDdLift)} ` +
+    `with recovery in ${formatRecovery(selected.recoveryDays)}.`;
 
-  const stressWeightGap = hybrid.stressWeight - naive.stressWeight;
-  const turnoverGap = naive.turnover - hybrid.turnover;
+  const stressWeightGap = selected.stressWeight - naive.stressWeight;
+  const turnoverGap = naive.turnover - selected.turnover;
   allocationHost.textContent =
-    `Signal: robust strategy de-risks in stress without whipsaw turnover. Hybrid stress risky-weight gap vs naive ${pp(stressWeightGap)}; ` +
+    `Signal: robust strategy de-risks in stress without whipsaw turnover. ${selectedLabel} stress risky-weight gap vs naive ${pp(stressWeightGap)}; ` +
     `turnover improvement ${pp(turnoverGap)}.`;
 
-  const stressSharpeLift = (hybrid.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
-  const shiftSharpeLift = (hybrid.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
+  const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
+  const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
   regimeHost.textContent =
-    `Signal: regime bars should prove robustness, not average it away. Hybrid minus naive Sharpe: ` +
+    `Signal: regime bars should prove robustness, not average it away. ${selectedLabel} minus naive Sharpe: ` +
     `stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 }
 
@@ -724,11 +875,12 @@ function buildMethodRows(result, regimeInfo) {
       equity: diag.equity,
       returns: diag.returns,
       riskyWeights: diag.riskyWeights,
+      turnovers: diag.turnovers,
     };
   });
 }
 
-function attachDeployScores(rows) {
+function attachDeployScores(rows, modeName = "proposal_like") {
   const stressRetention = normalizeHigherBetter(rows.map((row) => row.stressRetention));
   const drawdownControl = normalizeHigherBetter(rows.map((row) => row.maxDrawdown));
   const stressSharpe = normalizeHigherBetter(rows.map((row) => row.sharpeByRegime.stress || 0));
@@ -736,15 +888,22 @@ function attachDeployScores(rows) {
   const turnoverControl = normalizeLowerBetter(rows.map((row) => row.turnover));
   const recoveryControl = normalizeLowerBetter(rows.map((row) => row.recoveryDays));
 
+  const weights =
+    modeName === "quick_check"
+      ? { stress: 0.5, drawdown: 0.16, stressSharpe: 0.2, shiftSharpe: 0.06, turnover: 0.04, recovery: 0.04 }
+      : modeName === "stress_heavy"
+        ? { stress: 0.46, drawdown: 0.26, stressSharpe: 0.16, shiftSharpe: 0.07, turnover: 0.03, recovery: 0.02 }
+        : { stress: 0.4, drawdown: 0.24, stressSharpe: 0.18, shiftSharpe: 0.08, turnover: 0.06, recovery: 0.04 };
+
   for (let i = 0; i < rows.length; i += 1) {
     rows[i].deployScore =
       100 *
-      (0.34 * stressRetention[i] +
-        0.22 * drawdownControl[i] +
-        0.18 * stressSharpe[i] +
-        0.1 * shiftSharpe[i] +
-        0.08 * turnoverControl[i] +
-        0.08 * recoveryControl[i]);
+      (weights.stress * stressRetention[i] +
+        weights.drawdown * drawdownControl[i] +
+        weights.stressSharpe * stressSharpe[i] +
+        weights.shiftSharpe * shiftSharpe[i] +
+        weights.turnover * turnoverControl[i] +
+        weights.recovery * recoveryControl[i]);
   }
 }
 
@@ -838,16 +997,56 @@ function computeRecoveryDays(equity) {
   return 999;
 }
 
-function renderModeForFocus(id) {
-  return activeFocus === "all" || activeFocus === id;
+function getPrimaryStrategyId() {
+  if (activeFocus !== "all") {
+    return activeFocus;
+  }
+  return componentState.strategy || "anchor_proj";
 }
 
-function focusAlpha(id) {
-  return renderModeForFocus(id) ? 1 : 0.22;
+function getVisibleMethodIds(rows) {
+  const ids = rows.map((row) => row.id);
+  if (activeCompare !== "pair") {
+    return new Set(ids);
+  }
+
+  const primary = getPrimaryStrategyId();
+  if (primary === "naive") {
+    return new Set(["naive", "anchor_proj"]);
+  }
+  return new Set(["naive", primary]);
 }
 
-function focusLineWidth(id) {
-  return renderModeForFocus(id) ? 2.4 : 1.4;
+function lineAlpha(id, visibleSet) {
+  if (!visibleSet.has(id)) {
+    return 0.08;
+  }
+
+  if (activeCompare === "pair") {
+    return 1;
+  }
+
+  if (activeFocus === "all") {
+    return 1;
+  }
+
+  return id === activeFocus ? 1 : 0.48;
+}
+
+function lineWidth(id, visibleSet, primaryId) {
+  if (!visibleSet.has(id)) {
+    return 1.2;
+  }
+
+  if (activeCompare === "pair") {
+    return id === primaryId ? 2.8 : 2.2;
+  }
+
+  if (activeFocus === "all") {
+    return 2.2;
+  }
+
+  return id === activeFocus ? 2.8 : 1.9;
 }
 
 function exportCurrentRun() {
@@ -860,6 +1059,8 @@ function exportCurrentRun() {
     exportedAt: new Date().toISOString(),
     mode: activePreset,
     strategyLens: activeFocus,
+    compareView: activeCompare,
+    componentState: { ...componentState },
     config: latestResult.config,
     keyResult: latestResult.keyResult,
     metrics: latestResult.metrics,
