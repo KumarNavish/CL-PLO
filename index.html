@@ -66,181 +66,249 @@
     <main class="shell flow">
       <section class="section" id="strategies">
         <h2>1. Three Strategy Mechanisms</h2>
-        <p class="section-note">Only one component changes: the adapter update rule. Backbone, optimizer, and limits remain fixed.</p>
-        <div class="pipeline-legend" aria-label="pipeline role legend">
-          <span><i class="swatch data"></i>Data stream</span>
+        <p class="section-note">One production problem drives the full design: the model must adapt to new flow without dropping stress behavior that protects capital. Each strategy below uses the same LLM stream and the same portfolio optimizer. Only the update operator changes.</p>
+
+        <div class="pipeline-legend" aria-label="Pipeline role legend">
+          <span><i class="swatch data"></i>Stream input</span>
           <span><i class="swatch memory"></i>Anchor memory</span>
           <span><i class="swatch update"></i>Update operator</span>
           <span><i class="swatch decision"></i>Decision layer</span>
         </div>
 
-        <div class="strategy-grid">
-          <article class="strategy-card">
-            <header>
-              <p class="method-tag">A · Baseline</p>
-              <h3>Naive Online Update</h3>
+        <div class="mechanism-stack">
+          <article class="mechanism-card">
+            <header class="mechanism-head">
+              <p class="method-tag">A · Prior literature</p>
+              <h3>Naive Drift Update</h3>
+              <p class="mechanism-intuition">The updater follows the current stream only. Adaptation is fast, but stress fixtures are not replayed into the step.</p>
             </header>
-            <div class="pipeline-layout">
-              <figure class="pipeline-figure">
-                <img class="pipeline-image" src="./assets/diagrams/strategy-naive.svg" alt="Naive pipeline: drift stream updates adapter with no anchor memory protection" loading="lazy" />
-              </figure>
 
-              <aside class="pipeline-equation">
-                <p class="math-tag prior">Prior work · Eq A</p>
-                <div class="math-block compact">
-                  \[
-                  \theta_{t+1}=\theta_t-\eta_t g_{d,t}
-                  \]
-                </div>
-                <p class="math-meaning">Raw adaptation only; no stress-memory protection.</p>
-              </aside>
+            <figure class="pipeline-canvas" aria-label="Naive strategy pipeline">
+              <div class="pipe-row">
+                <article class="pipe-node role-data">
+                  <p class="pipe-cap">Stream</p>
+                  <h4>LLM market stream</h4>
+                  <p class="pipe-sub">tokens + returns</p>
+                  <p class="pipe-inline-math">\(x_t\)</p>
+                </article>
+
+                <article class="pipe-node role-core">
+                  <p class="pipe-cap">Frozen core</p>
+                  <h4>Transformer backbone</h4>
+                  <p class="pipe-sub">weights frozen</p>
+                </article>
+
+                <article class="pipe-node role-memory muted">
+                  <p class="pipe-cap">Anchor memory</p>
+                  <h4>Anchor set \(A_t\)</h4>
+                  <p class="pipe-sub">stored, not injected</p>
+                </article>
+
+                <article class="pipe-node role-update">
+                  <p class="pipe-cap">Update</p>
+                  <h4>Raw drift step</h4>
+                  <div class="pipe-math">\[\theta_{t+1}=\theta_t-\eta_t g_{d,t}\]</div>
+                  <p class="pipe-origin prior">Prior work</p>
+                </article>
+
+                <article class="pipe-node role-decision">
+                  <p class="pipe-cap">Decision</p>
+                  <h4>Portfolio optimizer</h4>
+                  <p class="pipe-sub">weights \(w_t\)</p>
+                </article>
+              </div>
+
+              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="pipe-arrow-a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
+                  </marker>
+                </defs>
+                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-a)"></path>
+                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-a)"></path>
+                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-a)"></path>
+                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-a)"></path>
+              </svg>
+            </figure>
+
+            <div class="mechanism-concrete">
+              <p class="mechanism-concrete-title">Concrete fixture view</p>
+              <div class="fixture-row">
+                <span class="fixture-chip risk">Liquidity freeze</span>
+                <span class="fixture-chip risk">Gap-open shock</span>
+                <span class="fixture-chip risk">Volatility cluster</span>
+              </div>
+              <p class="mechanism-concrete-note">These fixtures exist in memory, but this strategy does not replay them during the update.</p>
             </div>
           </article>
 
-          <article class="strategy-card">
-            <header>
-              <p class="method-tag">B · Baseline</p>
-              <h3>Replay-Regularized</h3>
+          <article class="mechanism-card">
+            <header class="mechanism-head">
+              <p class="method-tag">B · Prior literature</p>
+              <h3>Replay-Regularized Update</h3>
+              <p class="mechanism-intuition">Stress fixtures are replayed into every update. Retention improves, but the mixed step can still violate a tight risk budget.</p>
             </header>
-            <div class="pipeline-layout">
-              <figure class="pipeline-figure">
-                <img class="pipeline-image" src="./assets/diagrams/strategy-replay.svg" alt="Replay pipeline: anchor memory replay mixed into adapter updates without hard projection constraint" loading="lazy" />
-              </figure>
 
-              <aside class="pipeline-equation">
-                <p class="math-tag prior">Prior work · Eq B</p>
-                <div class="math-block compact">
-                  \[
-                  \theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)
-                  \]
-                </div>
-                <p class="math-meaning">Replay reduces forgetting, but updates remain unconstrained.</p>
-              </aside>
+            <figure class="pipeline-canvas has-arc" aria-label="Replay strategy pipeline">
+              <div class="pipe-row">
+                <article class="pipe-node role-data">
+                  <p class="pipe-cap">Stream</p>
+                  <h4>LLM market stream</h4>
+                  <p class="pipe-sub">tokens + returns</p>
+                  <p class="pipe-inline-math">\(x_t\)</p>
+                </article>
+
+                <article class="pipe-node role-core">
+                  <p class="pipe-cap">Frozen core</p>
+                  <h4>Transformer backbone</h4>
+                  <p class="pipe-sub">weights frozen</p>
+                </article>
+
+                <article class="pipe-node role-memory">
+                  <p class="pipe-cap">Anchor memory</p>
+                  <h4>Replay set \(A_t\)</h4>
+                  <p class="pipe-sub">fixtures injected</p>
+                  <p class="pipe-inline-math">\(g_{a,t}\)</p>
+                </article>
+
+                <article class="pipe-node role-update">
+                  <p class="pipe-cap">Update</p>
+                  <h4>Replay-mixed step</h4>
+                  <div class="pipe-math">\[\theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)\]</div>
+                  <p class="pipe-origin prior">Prior work</p>
+                </article>
+
+                <article class="pipe-node role-decision">
+                  <p class="pipe-cap">Decision</p>
+                  <h4>Portfolio optimizer</h4>
+                  <p class="pipe-sub">weights \(w_t\)</p>
+                </article>
+              </div>
+
+              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="pipe-arrow-b" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
+                  </marker>
+                  <marker id="pipe-arc-b" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"></path>
+                  </marker>
+                </defs>
+                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path class="arc" d="M505 132 C 560 188, 640 188, 695 132" marker-end="url(#pipe-arc-b)"></path>
+              </svg>
+            </figure>
+
+            <div class="mechanism-concrete">
+              <p class="mechanism-concrete-title">Concrete fixture view</p>
+              <div class="fixture-row">
+                <span class="fixture-chip">A1 · Liquidity freeze</span>
+                <span class="fixture-chip">A2 · Gap-open day</span>
+                <span class="fixture-chip">A3 · Correlation break</span>
+              </div>
+              <p class="mechanism-concrete-note">Each anchor chip is replayed as a mini-batch before the trade decision is generated.</p>
             </div>
           </article>
 
-          <article class="strategy-card">
-            <header>
-              <p class="method-tag proposed">C · Proposed</p>
+          <article class="mechanism-card">
+            <header class="mechanism-head">
+              <p class="method-tag proposed">C · Proposed here</p>
               <h3>Replay + Projection Gate</h3>
+              <p class="mechanism-intuition">The drift step is first projected to the feasible region, then replay memory is added. Adaptation stays active while updates remain risk-valid.</p>
             </header>
-            <div class="pipeline-layout">
-              <figure class="pipeline-figure">
-                <img class="pipeline-image" src="./assets/diagrams/strategy-projection.svg" alt="Projection-gated pipeline: replay memory with hard projection gate before decision update" loading="lazy" />
-              </figure>
 
-              <aside class="pipeline-equation">
-                <p class="math-tag proposed">Proposed here · Eq C</p>
-                <div class="math-block compact">
+            <figure class="pipeline-canvas has-arc" aria-label="Hybrid replay projection strategy pipeline">
+              <div class="pipe-row">
+                <article class="pipe-node role-data">
+                  <p class="pipe-cap">Stream</p>
+                  <h4>LLM market stream</h4>
+                  <p class="pipe-sub">tokens + returns</p>
+                  <p class="pipe-inline-math">\(x_t\)</p>
+                </article>
+
+                <article class="pipe-node role-core">
+                  <p class="pipe-cap">Frozen core</p>
+                  <h4>Transformer backbone</h4>
+                  <p class="pipe-sub">weights frozen</p>
+                </article>
+
+                <article class="pipe-node role-memory">
+                  <p class="pipe-cap">Anchor memory</p>
+                  <h4>Replay set \(A_t\)</h4>
+                  <p class="pipe-sub">fixtures injected</p>
+                  <p class="pipe-inline-math">\(g_{a,t}\)</p>
+                </article>
+
+                <article class="pipe-node role-update">
+                  <p class="pipe-cap">Update</p>
+                  <h4>Projected mixed step</h4>
+                  <div class="pipe-math">
+                    \[
+                    \tilde g_t=\Pi_{\mathcal{H}_t}(g_{d,t}),\quad
+                    \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
+                    \]
+                  </div>
+                  <p class="pipe-origin proposed">Proposed here</p>
+                </article>
+
+                <article class="pipe-node role-decision">
+                  <p class="pipe-cap">Decision</p>
+                  <h4>Portfolio optimizer</h4>
+                  <p class="pipe-sub">weights \(w_t\)</p>
+                </article>
+              </div>
+
+              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="pipe-arrow-c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
+                  </marker>
+                  <marker id="pipe-arc-c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"></path>
+                  </marker>
+                </defs>
+                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path class="arc" d="M505 132 C 560 188, 640 188, 695 132" marker-end="url(#pipe-arc-c)"></path>
+              </svg>
+            </figure>
+
+            <div class="mechanism-concrete">
+              <p class="mechanism-concrete-title">Concrete projection view</p>
+              <div class="projection-mini-wrap">
+                <svg class="projection-mini" viewBox="0 0 360 150" role="img" aria-label="Projection sketch">
+                  <line x1="36" y1="124" x2="250" y2="124" stroke="#8d99aa" stroke-width="1.4"></line>
+                  <line x1="36" y1="124" x2="36" y2="24" stroke="#8d99aa" stroke-width="1.4"></line>
+                  <polygon points="108,34 250,34 250,124 156,124" fill="#eef5ef"></polygon>
+                  <line x1="108" y1="34" x2="156" y2="124" stroke="#40634d" stroke-width="2" stroke-dasharray="7 5"></line>
+                  <line x1="72" y1="110" x2="198" y2="48" stroke="#b13f35" stroke-width="2.6"></line>
+                  <line x1="72" y1="110" x2="128" y2="98" stroke="#1f2c3a" stroke-width="2.6"></line>
+                  <circle cx="72" cy="110" r="3.8" fill="#1f2c3a"></circle>
+                  <circle cx="128" cy="98" r="3.4" fill="#1f2c3a"></circle>
+                  <text x="204" y="46" font-size="10.5" fill="#b13f35">raw step</text>
+                  <text x="132" y="96" font-size="10.5" fill="#1f2c3a">projected step</text>
+                </svg>
+                <div class="projection-mini-math">
                   \[
-                  \tilde g_t=\Pi_{\mathcal{H}_t}(g_{d,t}),
-                  \qquad
-                  \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
+                  g_{\mathrm{proj}}=\arg\min_g\lVert g-g_{\mathrm{raw}}\rVert_2^2
+                  \;\text{s.t.}\;
+                  \langle g,a_t\rangle \ge 0
                   \]
                 </div>
-                <p class="math-meaning">Clip drift to the feasible set, then add replay signal.</p>
-              </aside>
+              </div>
+              <p class="mechanism-concrete-note">Operational reading: keep the closest update that stays inside the risk budget boundary.</p>
             </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section" id="objects">
-        <h2>2. Concrete Anchors and Projection</h2>
-        <p class="section-note">Anchor fixtures are stored stress episodes. Projection clips updates to the allowed risk geometry.</p>
-
-        <figure class="anchor-board" aria-label="Concrete anchor fixture board">
-          <img src="./assets/diagrams/anchor-fixture-board.svg" alt="Financial anchor fixtures shown as regime timeline windows, stress slices on price paths, and distribution-shift signatures" loading="lazy" />
-          <figcaption>Anchor set = replayable stress fixtures used at each update.</figcaption>
-        </figure>
-
-        <div class="projection-wrap">
-          <figure class="projection-figure" aria-label="Risk-budget constrained projection">
-            <img class="projection-image" src="./assets/diagrams/projection-geometry.svg" alt="Exposure-space projection: raw portfolio update, risk-budget feasible region, and projected feasible update" loading="lazy" />
-          </figure>
-
-          <aside class="projection-math-card" aria-label="Projection equation">
-            <p class="math-tag proposed">Proposed here</p>
-            <div class="math-block projection-math">
-              \[
-              g_{\mathrm{proj}}
-              =
-              \arg\min_{g}\lVert g-g_{\mathrm{raw}}\rVert_2^2
-              \quad\text{s.t.}\quad
-              \langle g,a_t\rangle \ge 0
-              \]
-            </div>
-            <p class="math-meaning">Closest valid step under the risk budget.</p>
-          </aside>
-        </div>
-
-        <p class="object-note">Anchors store stress memory. Projection enforces a valid update before trades.</p>
-      </section>
-
-      <section class="section" id="math">
-        <h2>3. Bounded Math (Prior vs Proposed)</h2>
-        <p class="section-note">Formal layer for the same mechanism: portfolio objective, replay update, then projected update.</p>
-
-        <div class="math-grid">
-          <article class="math-card">
-            <p class="math-tag prior">Prior work</p>
-            <h3>Constrained portfolio decision</h3>
-            <div class="math-block">
-              \[
-              \begin{aligned}
-              w_t^\star
-              &=\arg\max_{w\in\mathcal{W}}
-              \Big(
-              \mu_t^\top w
-              -\frac{\gamma}{2}w^\top\Sigma_t w
-              -\lambda_{\mathrm{tc}}\lVert w-w_{t-1}\rVert_1
-              \Big)
-              \end{aligned}
-              \]
-            </div>
-            <p class="math-meaning">Forecasts become tradable weights under fixed risk and turnover limits.</p>
-          </article>
-
-          <article class="math-card">
-            <p class="math-tag prior">Prior work</p>
-            <h3>Replay-regularized adapter update</h3>
-            <div class="math-block">
-              \[
-              \begin{aligned}
-              \theta_{t+1}
-              &=\theta_t-\eta_t\nabla_\theta
-              \Big(
-              \mathcal{L}_{\mathrm{drift},t}(\theta_t)
-              +\beta_t\,\mathcal{L}_{\mathrm{anchor},t}(\theta_t)
-              \Big)
-              \end{aligned}
-              \]
-            </div>
-            <p class="math-meaning">Balance current drift and replayed anchor loss.</p>
-          </article>
-
-          <article class="math-card">
-            <p class="math-tag proposed">Proposed here</p>
-            <h3>Projected safe adapter update</h3>
-            <div class="math-block">
-              \[
-              \begin{aligned}
-              \tilde g_t
-              &=\arg\min_v\lVert v-g_{d,t}\rVert_2^2\\
-              \text{s.t.}\quad
-              \langle v,g_{a,t}\rangle &\ge -\varepsilon_t\\
-              \theta_{t+1}
-              &=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
-              \end{aligned}
-              \]
-            </div>
-            <p class="math-meaning">Take the nearest drift step that remains anchor-safe.</p>
           </article>
         </div>
       </section>
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
-        <h2>4. Deployment Decision Dashboard</h2>
+        <h2>2. Deployment Decision Dashboard</h2>
         <p class="section-note">Read top to bottom. Each plot answers one deployment question.</p>
 
         <div class="experiment-layout">
@@ -358,7 +426,7 @@
       </section>
 
       <section class="section" id="takeaway-section">
-        <h2>5. Deploy Path</h2>
+        <h2>3. Deploy Path</h2>
 
         <figure class="synthesis-diagram" aria-label="End to end deployment pathway">
           <div class="syn-node">LLM stream</div>
