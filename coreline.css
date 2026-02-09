@@ -592,16 +592,16 @@ a {
 }
 
 .projection-intuition {
-  font-size: 0.82rem !important;
-  line-height: 1.44;
+  font-size: 0.79rem !important;
+  line-height: 1.38;
   color: #334155;
-  max-width: 72ch;
+  max-width: 66ch;
 }
 
 .projection-stage {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.75fr);
-  gap: 0.54rem;
+  gap: 0.42rem;
   align-items: stretch;
 }
 
@@ -622,16 +622,16 @@ a {
   border: 1px solid #d1dae8;
   border-radius: 12px;
   background: #ffffff;
-  padding: 0.52rem 0.58rem;
+  padding: 0.44rem 0.5rem;
   display: grid;
   align-content: start;
-  gap: 0.32rem;
+  gap: 0.26rem;
 }
 
 .projection-key h4 {
-  font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: 0.74rem;
+  letter-spacing: 0.01em;
+  font-weight: 600;
   color: #4f5e72;
 }
 
@@ -639,9 +639,9 @@ a {
   border: 1px solid #e1e7f1;
   border-radius: 8px;
   background: #fbfdff;
-  padding: 0.3rem 0.34rem;
-  font-size: 0.76rem !important;
-  line-height: 1.38;
+  padding: 0.24rem 0.3rem;
+  font-size: 0.74rem !important;
+  line-height: 1.34;
   color: #344255;
 }
 
@@ -683,14 +683,14 @@ a {
 }
 
 .projection-operational {
-  font-size: 0.78rem !important;
-  line-height: 1.4;
+  font-size: 0.76rem !important;
+  line-height: 1.34;
   color: #334155;
 }
 
 .projection-math-block {
   display: grid;
-  gap: 0.36rem;
+  gap: 0.3rem;
 }
 
 .mechanism-concrete-note {

@@ -330,7 +330,7 @@
 
             <div class="mechanism-concrete projection-concrete">
               <p class="mechanism-concrete-title">Concrete projection view</p>
-              <p class="projection-intuition">The raw learning step may imply an inadmissible trade. Projection keeps the step as close as possible to the proposal while enforcing the live risk budget.</p>
+              <p class="projection-intuition">The model proposes a move. If that move breaks the risk budget, we keep the direction and trim the size until it fits.</p>
 
               <div class="projection-stage">
                 <figure class="projection-figure">
@@ -347,29 +347,29 @@
                     <rect x="0" y="0" width="540" height="270" fill="#ffffff"></rect>
                     <line x1="74" y1="220" x2="466" y2="220" stroke="#8f9ba9" stroke-width="1.6"></line>
                     <line x1="74" y1="220" x2="74" y2="42" stroke="#8f9ba9" stroke-width="1.6"></line>
-                    <text x="470" y="239" font-size="12" fill="#5f6c7d">risk factor 1</text>
-                    <text x="35" y="48" font-size="12" fill="#5f6c7d" transform="rotate(-90 35 48)">risk factor 2</text>
+                    <text x="470" y="239" font-size="12" fill="#5f6c7d">market exposure</text>
+                    <text x="35" y="48" font-size="12" fill="#5f6c7d" transform="rotate(-90 35 48)">style exposure</text>
 
                     <polygon points="196,54 468,54 468,220 292,220" fill="#edf5ef" stroke="#587662" stroke-width="1.8"></polygon>
                     <line x1="196" y1="54" x2="292" y2="220" stroke="#587662" stroke-width="1.6" stroke-dasharray="6 5"></line>
-                    <text x="336" y="75" font-size="12" fill="#4f6b57">risk budget</text>
+                    <text x="330" y="75" font-size="12" fill="#4f6b57">allowed region</text>
 
                     <circle cx="126" cy="194" r="4.2" fill="#111827"></circle>
                     <line x1="126" y1="194" x2="392" y2="84" stroke="#b64834" stroke-width="2.8" marker-end="url(#proj-raw-arrow)"></line>
                     <line x1="126" y1="194" x2="292" y2="164" stroke="#1f3249" stroke-width="2.8" marker-end="url(#proj-safe-arrow)"></line>
                     <line x1="292" y1="164" x2="392" y2="84" stroke="#8f9daf" stroke-width="1.7" stroke-dasharray="4 5"></line>
 
-                    <text x="398" y="82" font-size="12" fill="#b64834">raw update</text>
-                    <text x="299" y="161" font-size="12" fill="#1f3249">projected update</text>
-                    <text x="299" y="181" font-size="11.5" fill="#677487">nearest feasible correction</text>
+                    <text x="398" y="82" font-size="12" fill="#b64834">proposed move</text>
+                    <text x="299" y="161" font-size="12" fill="#1f3249">safe move</text>
+                    <text x="299" y="181" font-size="11.5" fill="#677487">trim to boundary</text>
                   </svg>
                 </figure>
 
                 <aside class="projection-key">
-                  <h4>Mechanism key</h4>
-                  <p><span>Raw step</span>unconstrained update from drift signal.</p>
-                  <p><span>Budget</span>feasible exposure region set by risk limits.</p>
-                  <p><span>Projection</span>nearest admissible update used for trading.</p>
+                  <h4>Read in 5 seconds</h4>
+                  <p><span>Proposed move</span>what the model wants to do from new flow.</p>
+                  <p><span>Allowed region</span>position changes that respect risk limits.</p>
+                  <p><span>Safe move</span>closest allowed update sent to execution.</p>
                 </aside>
               </div>
 
@@ -383,7 +383,7 @@
                   \end{aligned}
                   \]
                 </div>
-                <p class="projection-operational">Operational meaning: learning is not rejected; the update is clipped to the closest direction that stays inside the live risk budget.</p>
+                <p class="projection-operational">Operational meaning: keep the learning signal, but clip the update so the trade stays inside the live risk budget.</p>
               </div>
             </div>
           </article>
