@@ -575,6 +575,7 @@ function renderCharts(rows, regimeInfo) {
   drawEquity(pnlCanvas, lineSeries, regimeInfo.timelineStates);
   drawDrawdown(drawdownCanvas, lineSeries, regimeInfo.timelineStates);
   drawAllocationProfiles(allocationCanvas, allocationSeries, regimeInfo.timelineStates);
+  renderAllocationLegend(allocationSeries);
 
   drawRegimeRisk(
     regimeRiskCanvas,
@@ -602,6 +603,26 @@ function renderCharts(rows, regimeInfo) {
       recoveryDays: row.recoveryDays,
     })),
   );
+}
+
+function renderAllocationLegend(series) {
+  const host = document.getElementById("allocation-legend");
+  if (!host) {
+    return;
+  }
+
+  host.innerHTML = (series || [])
+    .map((row) => {
+      const dashed = Array.isArray(row.dash) && row.dash.length > 0;
+      const dimmedClass = (row.alpha === undefined ? 1 : row.alpha) < 0.8 ? " dimmed" : "";
+      return `
+        <span class="legend-chip${dimmedClass}">
+          <span class="legend-line" style="border-top-color:${row.color};border-top-style:${dashed ? "dashed" : "solid"}"></span>
+          <span>${row.label}</span>
+        </span>
+      `;
+    })
+    .join("");
 }
 
 function renderChartReadouts(rows) {

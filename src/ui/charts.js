@@ -442,7 +442,7 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
   }
 
   const frame = {
-    left: 62,
+    left: 74,
     right: width - 22,
     top: 34,
     bottom: height - 42,
@@ -528,7 +528,7 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.strokeStyle = p.color;
     ctx.lineWidth = (p.lineWidth || 1.9);
     ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
-    ctx.setLineDash([4, 4]);
+    ctx.setLineDash(p.dash || []);
     ctx.beginPath();
     for (let t = 0; t < turns.length; t += 1) {
       const x = xToPx(t);
@@ -542,18 +542,6 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.stroke();
     ctx.restore();
   }
-
-  drawLegend(
-    ctx,
-    profiles.map((p) => ({
-      label: shortMethod(p.label),
-      color: p.color,
-      dash: p.dash,
-      alpha: p.alpha,
-    })),
-    11,
-    width - 14,
-  );
 
   drawAxes(ctx, turnPanel, "Time", "Turnover (%)");
 }
