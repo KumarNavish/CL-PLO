@@ -1,63 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 224" role="img" aria-label="Replay strategy pipeline">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 336" role="img" aria-label="Replay strategy pipeline">
   <defs>
     <style>
-      .t { font: 600 18px 'IBM Plex Sans', Arial, sans-serif; fill: #1c232d; }
-      .k { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; letter-spacing: .08em; text-transform: uppercase; fill: #5a6474; }
-      .n { font: 600 14px 'IBM Plex Sans', Arial, sans-serif; fill: #1f2833; }
-      .s { font: 500 11px 'IBM Plex Sans', Arial, sans-serif; fill: #3f4a5a; }
-      .chip { font: 600 11px 'IBM Plex Sans', Arial, sans-serif; fill: #243041; }
+      .title { font: 600 21px 'IBM Plex Sans', sans-serif; fill: #101722; }
+      .meta { font: 500 12px 'IBM Plex Sans', sans-serif; fill: #4f5b6a; }
+      .cap { font: 600 10px 'IBM Plex Sans', sans-serif; letter-spacing: 0.09em; text-transform: uppercase; fill: #5b6675; }
+      .node { font: 600 14px 'IBM Plex Sans', sans-serif; fill: #1f2a37; }
+      .sub { font: 500 11px 'IBM Plex Sans', sans-serif; fill: #445064; }
+      .aux { font: 500 11px 'IBM Plex Sans', sans-serif; fill: #644d36; }
+      .foot { font: 600 11px 'IBM Plex Sans', sans-serif; fill: #2a3646; }
     </style>
-    <marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-      <path d="M0,0 L8,4 L0,8 z" fill="#2f3a47"/>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2e3c4f"/>
+    </marker>
+    <marker id="mem" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"/>
     </marker>
   </defs>
 
-  <rect width="1280" height="224" fill="#ffffff"/>
-  <rect x="8" y="8" width="1264" height="208" rx="10" fill="#ffffff" stroke="#d4dbe4"/>
-  <text x="28" y="34" class="t">B. Replay: anchor memory with soft regularization</text>
+  <rect width="1320" height="336" fill="#ffffff"/>
+  <rect x="10" y="10" width="1300" height="316" rx="12" fill="#ffffff" stroke="#d4dce6"/>
 
-  <text x="62" y="58" class="k">Data</text>
-  <text x="316" y="58" class="k">Frozen</text>
-  <text x="566" y="58" class="k">Memory</text>
-  <text x="816" y="58" class="k">Update</text>
-  <text x="1066" y="58" class="k">Decision</text>
+  <text x="34" y="40" class="title">B. Replay-regularized update</text>
+  <text x="34" y="60" class="meta">Anchor fixtures are replayed during every update, but the mixed step is not projected.</text>
 
-  <rect x="28" y="70" width="220" height="92" rx="10" fill="#eef3f8" stroke="#5a6f88"/>
-  <text x="138" y="108" text-anchor="middle" class="n">LLM stream</text>
-  <text x="138" y="128" text-anchor="middle" class="s">regime tokens</text>
+  <g transform="translate(36,108)">
+    <text x="14" y="-14" class="cap">Stream</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#eaf1f8" stroke="#4f6b88"/>
+    <text x="110" y="52" text-anchor="middle" class="node">LLM market stream</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">tokens plus returns</text>
+  </g>
 
-  <line x1="248" y1="116" x2="278" y2="116" stroke="#2f3a47" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="256" y1="168" x2="276" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
 
-  <rect x="278" y="70" width="220" height="92" rx="10" fill="#f8fafc" stroke="#6a7686"/>
-  <text x="388" y="108" text-anchor="middle" class="n">Backbone fixed</text>
-  <text x="388" y="128" text-anchor="middle" class="s">model + optimizer</text>
+  <g transform="translate(284,108)">
+    <text x="14" y="-14" class="cap">Frozen core</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f8fafc" stroke="#7a8798"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Transformer backbone</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">weights fixed</text>
+  </g>
 
-  <line x1="498" y1="116" x2="528" y2="116" stroke="#2f3a47" stroke-width="2" marker-end="url(#a)"/>
+  <line x1="504" y1="168" x2="524" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
 
-  <rect x="528" y="70" width="220" height="92" rx="10" fill="#f8f2ea" stroke="#7a644a"/>
-  <text x="638" y="108" text-anchor="middle" class="n">Anchor on</text>
-  <text x="638" y="128" text-anchor="middle" class="s">stress fixtures replayed</text>
+  <g transform="translate(532,108)">
+    <text x="14" y="-14" class="cap">Anchor memory</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f6efe6" stroke="#7a6245"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Anchor store A<tspan baseline-shift="sub" font-size="10">t</tspan></text>
+    <text x="110" y="72" text-anchor="middle" class="sub">stress fixtures replayed</text>
+  </g>
 
-  <line x1="748" y1="116" x2="778" y2="116" stroke="#2f3a47" stroke-width="2" marker-end="url(#a)"/>
-  <line x1="638" y1="164" x2="876" y2="164" stroke="#7a644a" stroke-width="1.9" marker-end="url(#a)"/>
-  <text x="754" y="159" text-anchor="middle" class="s" fill="#65503a">anchor gradient g_a</text>
+  <line x1="752" y1="168" x2="772" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
 
-  <rect x="778" y="70" width="220" height="92" rx="10" fill="#f3ede7" stroke="#8c5b2f"/>
-  <text x="888" y="108" text-anchor="middle" class="n">Mixed step</text>
-  <text x="888" y="128" text-anchor="middle" class="s">g = g_d + β g_a</text>
+  <g transform="translate(780,108)">
+    <text x="14" y="-14" class="cap">Update operator</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f8f2ea" stroke="#915f2c"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Replay-mixed step</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">g = g<tspan baseline-shift="sub" font-size="10">d</tspan> + beta g<tspan baseline-shift="sub" font-size="10">a</tspan></text>
+  </g>
 
-  <line x1="998" y1="116" x2="1028" y2="116" stroke="#2f3a47" stroke-width="2" marker-end="url(#a)"/>
+  <path d="M642 228 C 712 260, 804 260, 874 228" fill="none" stroke="#7a6245" stroke-width="2.1" marker-end="url(#mem)"/>
+  <text x="758" y="262" text-anchor="middle" class="aux">replay gradient g<tspan baseline-shift="sub" font-size="10">a</tspan></text>
 
-  <rect x="1028" y="70" width="220" height="92" rx="10" fill="#eef4ef" stroke="#47644f"/>
-  <text x="1138" y="108" text-anchor="middle" class="n">Portfolio action</text>
-  <text x="1138" y="128" text-anchor="middle" class="s">weights + turnover</text>
+  <line x1="1000" y1="168" x2="1020" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
 
-  <rect x="28" y="174" width="294" height="28" rx="14" fill="#f8fafc" stroke="#d4dbe4"/>
-  <text x="50" y="192" class="chip">Preserves: anchor fixtures</text>
+  <g transform="translate(1028,108)">
+    <text x="14" y="-14" class="cap">Decision layer</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#eef5ef" stroke="#40634d"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Portfolio optimizer</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">weights and costs</text>
+  </g>
 
-  <rect x="332" y="174" width="346" height="28" rx="14" fill="#f8fafc" stroke="#d4dbe4"/>
-  <text x="354" y="192" class="chip">Allows: drift with replay pullback</text>
+  <rect x="36" y="258" width="404" height="44" rx="22" fill="#f8fafc" stroke="#d4dce6"/>
+  <text x="56" y="284" class="foot">Preserves: anchor stress fixtures</text>
 
-  <rect x="688" y="174" width="560" height="28" rx="14" fill="#f5f9fd" stroke="#c5d6e8"/>
-  <text x="710" y="192" class="chip">Control point: soft regularization, no hard feasibility gate</text>
+  <rect x="454" y="258" width="348" height="44" rx="22" fill="#f8fafc" stroke="#d4dce6"/>
+  <text x="474" y="284" class="foot">Changes: drift plus replay mix</text>
+
+  <rect x="816" y="258" width="432" height="44" rx="22" fill="#f2f7fc" stroke="#c5d6e8"/>
+  <text x="836" y="284" class="foot">Control point: soft replay regularization</text>
 </svg>

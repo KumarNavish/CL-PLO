@@ -4,56 +4,59 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CL-PLO Spine | Stable Transformer Updates for Portfolio Decisions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./coreline.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
   </head>
   <body>
     <header class="executive" id="top">
       <div class="shell">
-        <article class="hero-insight" aria-label="High-signal decision summary">
+        <article class="hero-insight" aria-label="Decision summary">
           <p class="hero-kicker">CL-PLO Decision Spine</p>
-          <h1>In deployed transformer portfolios, the updater is the risk control surface.</h1>
+          <h1>In deployed transformer portfolios, update control is the real risk control.</h1>
 
           <div class="hero-grid">
             <article class="hero-mini">
               <p class="hero-mini-title">Problem</p>
-              <p>Drift-only LLM adaptation overfits calm flow and erodes stress behavior exactly when capital is fragile.</p>
+              <p>Drift-only adaptation tracks calm windows and loses stress behavior.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Controlled Variable</p>
-              <p>Backbone, optimizer, and risk limits stay fixed. Only the adapter update operator is swapped.</p>
+              <p>Backbone, optimizer, and limits stay fixed; only the updater changes.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Decision Claim</p>
-              <p>With identical data and limits, replay + projection keeps stress memory and improves release safety.</p>
+              <p>Replay + projection preserves stress memory while enforcing feasible updates.</p>
             </article>
           </div>
 
           <div class="hero-method-row" aria-label="Three strategy one-line summaries">
-            <p><span>A</span>Naive: fastest fit, no memory guard.</p>
-            <p><span>B</span>Replay: memory pressure, no hard feasibility gate.</p>
-            <p><span>C</span>Hybrid: replay plus projected feasible step.</p>
+            <p><span>A</span>Naive: drift-only update.</p>
+            <p><span>B</span>Replay: drift + anchor replay.</p>
+            <p><span>C</span>Hybrid: replay + projection gate.</p>
           </div>
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Default signal:</strong> hybrid keeps stress retention and drawdown control without freezing allocation response.
+              <strong>Default signal:</strong> hybrid keeps retention and drawdown in control without freezing adaptation.
             </p>
-            <article class="hero-proof" aria-label="One-screen deployment check">
-              <h3>One-screen gate</h3>
+            <article class="hero-proof" aria-label="One-screen check">
+              <h3>Gate Snapshot</h3>
               <div class="proof-row">
                 <span>Naive</span>
-                <span class="proof-metric">stress retention low</span>
+                <span class="proof-metric">weak under stress</span>
               </div>
               <div class="proof-row">
                 <span>Replay</span>
-                <span class="proof-metric">retention improves, control partial</span>
+                <span class="proof-metric">retention improves</span>
               </div>
               <div class="proof-row highlight">
                 <span>Hybrid</span>
-                <span class="proof-metric">retention + feasible-step control</span>
+                <span class="proof-metric">retention with hard control</span>
               </div>
-              <p class="proof-note">Use Quick, Default, Stress+ below and check if this ordering stays stable.</p>
+              <p class="proof-note">Check Quick, Default, Stress+ and confirm ordering remains stable.</p>
             </article>
           </div>
         </article>
@@ -63,6 +66,7 @@
     <main class="shell flow">
       <section class="section" id="strategies">
         <h2>1. Three Strategy Mechanisms</h2>
+        <p class="section-note">Only one component changes: the adapter update rule. Backbone, optimizer, and limits remain fixed.</p>
         <div class="pipeline-legend" aria-label="pipeline role legend">
           <span><i class="swatch data"></i>Data stream</span>
           <span><i class="swatch memory"></i>Anchor memory</span>
@@ -88,7 +92,7 @@
                   \theta_{t+1}=\theta_t-\eta_t g_{d,t}
                   \]
                 </div>
-                <p class="math-meaning"><strong>Use:</strong> fastest adaptation, no stress-memory guard.</p>
+                <p class="math-meaning">Raw adaptation only; no stress-memory protection.</p>
               </aside>
             </div>
           </article>
@@ -110,7 +114,7 @@
                   \theta_{t+1}=\theta_t-\eta_t\left(g_{d,t}+\beta_t g_{a,t}\right)
                   \]
                 </div>
-                <p class="math-meaning"><strong>Use:</strong> replay reduces forgetting, but conflicting steps can pass.</p>
+                <p class="math-meaning">Replay reduces forgetting, but updates remain unconstrained.</p>
               </aside>
             </div>
           </article>
@@ -134,7 +138,7 @@
                   \theta_{t+1}=\theta_t-\eta_t\left(\tilde g_t+\beta_t g_{a,t}\right)
                   \]
                 </div>
-                <p class="math-meaning"><strong>Use:</strong> every drift step is clipped to anchor-safe geometry before allocation updates.</p>
+                <p class="math-meaning">Clip drift to the feasible set, then add replay signal.</p>
               </aside>
             </div>
           </article>
@@ -143,10 +147,11 @@
 
       <section class="section" id="objects">
         <h2>2. Concrete Anchors and Projection</h2>
+        <p class="section-note">Anchor fixtures are stored stress episodes. Projection clips updates to the allowed risk geometry.</p>
 
         <figure class="anchor-board" aria-label="Concrete anchor fixture board">
           <img src="./assets/diagrams/anchor-fixture-board.svg" alt="Financial anchor fixtures shown as regime timeline windows, stress slices on price paths, and distribution-shift signatures" loading="lazy" />
-          <figcaption>Anchor set: replayable stress fixtures (regime windows, stress slices, shift signatures) used at each update.</figcaption>
+          <figcaption>Anchor set = replayable stress fixtures used at each update.</figcaption>
         </figure>
 
         <div class="projection-wrap">
@@ -165,15 +170,16 @@
               \langle g,a_t\rangle \ge 0
               \]
             </div>
-            <p class="math-meaning"><strong>Use:</strong> keep learning, but clip the step to the nearest move that satisfies the risk budget.</p>
+            <p class="math-meaning">Closest valid step under the risk budget.</p>
           </aside>
         </div>
 
-        <p class="object-note">Anchors are stress cases the desk keeps. Projection clips updates before they change allocations.</p>
+        <p class="object-note">Anchors store stress memory. Projection enforces a valid update before trades.</p>
       </section>
 
       <section class="section" id="math">
         <h2>3. Bounded Math (Prior vs Proposed)</h2>
+        <p class="section-note">Formal layer for the same mechanism: portfolio objective, replay update, then projected update.</p>
 
         <div class="math-grid">
           <article class="math-card">
@@ -192,7 +198,7 @@
               \end{aligned}
               \]
             </div>
-            <p class="math-meaning"><strong>Use:</strong> map forecasts to tradable weights under fixed risk and turnover limits.</p>
+            <p class="math-meaning">Forecasts become tradable weights under fixed risk and turnover limits.</p>
           </article>
 
           <article class="math-card">
@@ -210,7 +216,7 @@
               \end{aligned}
               \]
             </div>
-            <p class="math-meaning"><strong>Use:</strong> adapt to current drift while replaying stress anchors.</p>
+            <p class="math-meaning">Balance current drift and replayed anchor loss.</p>
           </article>
 
           <article class="math-card">
@@ -228,13 +234,14 @@
               \end{aligned}
               \]
             </div>
-            <p class="math-meaning"><strong>Use:</strong> apply the closest drift step that keeps anchor-memory safety.</p>
+            <p class="math-meaning">Take the nearest drift step that remains anchor-safe.</p>
           </article>
         </div>
       </section>
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
         <h2>4. Deployment Decision Dashboard</h2>
+        <p class="section-note">Read top to bottom. Each plot answers one deployment question.</p>
 
         <div class="experiment-layout">
           <aside class="control-panel">
@@ -269,14 +276,6 @@
                   <span>Projection gate</span>
                   <input id="toggle-projection" type="checkbox" checked />
                 </label>
-                <label class="view-row" for="compare-view">
-                  <span>Comparison view</span>
-                  <select id="compare-view">
-                    <option value="all">All strategies</option>
-                    <option value="pair">Selected vs naive</option>
-                  </select>
-                </label>
-                <p id="component-readout" class="mode-readout">Anchors ON, projection ON: hybrid control path.</p>
               </article>
 
               <details class="advanced-panel">
@@ -285,10 +284,6 @@
                   <label>
                     Anchor weight
                     <input name="anchorBeta" type="number" step="0.01" />
-                  </label>
-                  <label>
-                    LoRA rank
-                    <input name="loraRank" type="number" step="1" />
                   </label>
                   <label>
                     Stress frequency
@@ -312,7 +307,7 @@
             </div>
 
             <div class="run-status">
-              <p id="status-line">Ready. Run the selected mode.</p>
+              <p id="status-line">Ready.</p>
               <div class="progress-track"><div id="progress-fill"></div></div>
             </div>
           </aside>
@@ -321,50 +316,43 @@
             <article id="decision-card" class="decision-card"></article>
 
             <div id="impact-kpis" class="kpi-row"></div>
-            <div id="mode-scorecard" class="mode-scorecard"></div>
 
             <div class="plot-stack">
               <article class="chart-card">
-                <h3>Q1. Which updater survives regime stress while compounding?</h3>
-                <p class="plot-caption">All strategies run on the same path with the same frictions.<br />The deploy candidate keeps capital intact in stress blocks and still compounds in calm blocks.</p>
+                <h3>Q1. Equity Through Regimes</h3>
+                <p class="plot-caption">Same market path, same costs. Read stress windows first.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q2. How much damage is taken, and how fast is recovery?</h3>
-                <p class="plot-caption">Drawdown depth and recovery horizon under identical shocks.<br />Better control means shallower losses and faster repair.</p>
+                <h3>Q2. Drawdown and Recovery</h3>
+                <p class="plot-caption">Compare drawdown depth and recovery speed after shocks.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q3. Stability vs responsiveness: does allocation adapt without churn?</h3>
-                <p class="plot-caption">Solid line: risky allocation. Dashed line: turnover pressure.<br />Strong policies de-risk in stress without churn in calm flow.</p>
+                <h3>Q3. Allocation vs Turnover</h3>
+                <p class="plot-caption">Risk sleeve and turnover path for each strategy.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q4. Do risk-adjusted returns hold across regime buckets?</h3>
-                <p class="plot-caption">Annualized Sharpe by regime bucket (calm, volatile, stress, shift).<br />Robust strategies hold quality in stress and shifts, not only in aggregate.</p>
+                <h3>Q4. Regime Sharpe</h3>
+                <p class="plot-caption">Risk-adjusted return by calm, volatile, stress, and shift regimes.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
 
               <article class="chart-card chart-card-wide">
-                <h3>Q5. What portfolios do these updaters actually hold?</h3>
-                <p class="plot-caption">Representative risky/cash sleeves in calm vs stress, with drawdown and recovery context.<br />This is the policy view: compare strategies as decision-makers, not as loss minimizers.</p>
+                <h3>Q5. Portfolio Policy View</h3>
+                <p class="plot-caption">Calm vs stress risky allocation for each strategy.</p>
                 <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
                 <p class="chart-reading" id="portfolio-state-reading"></p>
               </article>
             </div>
-
-            <article class="table-wrap">
-              <h3>Deployment Scoreboard</h3>
-              <p class="table-guide">Score = stress retention + drawdown control + regime Sharpe + turnover discipline.</p>
-              <table id="method-table" class="method-table"></table>
-            </article>
           </div>
         </div>
       </section>

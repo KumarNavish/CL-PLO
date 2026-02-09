@@ -25,21 +25,21 @@ const METHOD_STYLES = {
 const MODE_META = {
   quick_check: {
     label: "Quick",
-    runLabel: "quick check",
-    readout: "Fast directional check.",
-    lens: "Not a release gate.",
+    runLabel: "quick run",
+    readout: "Fast separation check.",
+    lens: "Exploration mode.",
   },
   proposal_like: {
     label: "Default",
     runLabel: "default run",
     readout: "Primary decision mode.",
-    lens: "Main release gate.",
+    lens: "Decision gate.",
   },
   stress_heavy: {
     label: "Stress+",
     runLabel: "stress run",
-    readout: "Stress-heavy gate.",
-    lens: "Reject unstable updaters.",
+    readout: "Adverse regime gate.",
+    lens: "Hard rejection gate.",
   },
 };
 
@@ -151,17 +151,11 @@ const MODE_SHAPING = {
   },
 };
 
-const FOCUS_META = {
-  all: "All strategies on the same path.",
-  naive: "Naive path: unconstrained drift.",
-  anchor: "Replay path: anchors, no projection.",
-  anchor_proj: "Hybrid path: anchors + projection.",
-};
+const VALID_FOCUS = new Set(["all", "naive", "anchor", "anchor_proj"]);
 
 let latestResult = null;
 let activePreset = "proposal_like";
 let activeFocus = "all";
-let activeCompare = "all";
 const componentState = {
   anchors: true,
   projection: true,
@@ -176,7 +170,6 @@ export function initApp() {
   setActiveMode("proposal_like");
   setActiveFocus("all", false);
   syncComponentFromStrategy("anchor_proj", false);
-  updateComponentReadout();
   runCurrentConfig();
 
   window.addEventListener("resize", () => {
@@ -192,15 +185,6 @@ function bindControls() {
   document.getElementById("apply-proposal")?.addEventListener("click", () => applyPreset("proposal_like"));
   document.getElementById("apply-stress")?.addEventListener("click", () => applyPreset("stress_heavy"));
 
-  document.querySelectorAll("[data-mode-card]").forEach((card) => {
-    card.addEventListener("click", () => {
-      const mode = card.getAttribute("data-mode-card");
-      if (mode) {
-        applyPreset(mode);
-      }
-    });
-  });
-
   document.querySelectorAll("[data-focus]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const focus = btn.getAttribute("data-focus");
@@ -210,11 +194,6 @@ function bindControls() {
       setActiveFocus(focus);
       if (focus !== "all") {
         syncComponentFromStrategy(focus, false);
-        updateComponentReadout();
-      } else if (activeCompare === "pair") {
-        activeCompare = "all";
-        setCompareControl("all");
-        updateComponentReadout();
       }
       if (latestResult) {
         renderAll(latestResult);
@@ -230,24 +209,16 @@ function bindControls() {
     applyComponentControls(true);
   });
 
-  document.getElementById("compare-view")?.addEventListener("change", () => {
-    applyComponentControls(false);
-  });
-
   document.getElementById("reset-form")?.addEventListener("click", () => {
     applyPreset("proposal_like", false);
     setActiveFocus("all", false);
     syncComponentFromStrategy("anchor_proj", false);
-    activeCompare = "all";
-    setCompareControl("all");
-    updateComponentReadout();
     setStatus("Reset to Default.");
     if (latestResult) {
       renderAll(latestResult);
     }
   });
 
-  document.getElementById("export-run")?.addEventListener("click", () => exportCurrentRun());
 }
 
 function runCurrentConfig() {
@@ -260,10 +231,10 @@ function runCurrentConfig() {
 
   setRunning(true);
   setProgress(16);
-  setStatus(`Loading ${mode.runLabel}...`);
+  setStatus(`${mode.label} running...`);
 
   if (!payload) {
-    setStatus(`Run failed: missing dataset for ${mode.label}.`, true);
+    setStatus(`Missing dataset for ${mode.label}.`, true);
     setRunning(false);
     return;
   }
@@ -313,7 +284,7 @@ function applyPreset(name, announce = true) {
   setActiveMode(name);
 
   if (announce) {
-    setStatus(`Mode: ${preset.label}.`);
+    setStatus(`${preset.label} mode selected.`);
   }
 }
 
@@ -324,31 +295,22 @@ function setActiveMode(modeName) {
     btn.classList.toggle("active", btn.getAttribute("data-preset") === modeName);
   });
 
-  document.querySelectorAll("[data-mode-card]").forEach((card) => {
-    card.classList.toggle("active", card.getAttribute("data-mode-card") === modeName);
-  });
-
   const readout = document.getElementById("mode-readout");
   if (readout) {
     const mode = MODE_META[modeName] || MODE_META.proposal_like;
-    readout.textContent = `Active mode: ${mode.label}. ${mode.readout}`;
+    readout.textContent = `${mode.label}: ${mode.readout}`;
   }
 }
 
 function setActiveFocus(focusName, announce = true) {
-  activeFocus = FOCUS_META[focusName] ? focusName : "all";
+  activeFocus = VALID_FOCUS.has(focusName) ? focusName : "all";
 
   document.querySelectorAll("[data-focus]").forEach((btn) => {
     btn.classList.toggle("active", btn.getAttribute("data-focus") === activeFocus);
   });
 
-  const readout = document.getElementById("focus-readout");
-  if (readout) {
-    readout.textContent = FOCUS_META[activeFocus] || FOCUS_META.all;
-  }
-
   if (announce) {
-    setStatus(`Lens: ${prettyFocus(activeFocus)}.`);
+    setStatus(`View: ${prettyFocus(activeFocus)}.`);
   }
 }
 
@@ -368,7 +330,6 @@ function prettyFocus(id) {
 function applyComponentControls(announce = false) {
   const anchorInput = document.getElementById("toggle-anchor");
   const projectionInput = document.getElementById("toggle-projection");
-  const compareInput = document.getElementById("compare-view");
 
   let anchors = anchorInput?.checked ?? true;
   let projection = projectionInput?.checked ?? true;
@@ -385,17 +346,13 @@ function applyComponentControls(announce = false) {
   componentState.anchors = anchors;
   componentState.projection = projection;
   componentState.strategy = deriveStrategyFromComponents(anchors, projection);
-  activeCompare = compareInput?.value === "pair" ? "pair" : "all";
-
-  if (activeCompare === "pair" || activeFocus !== "all") {
+  if (activeFocus !== "all") {
     setActiveFocus(componentState.strategy, false);
   }
 
-  updateComponentReadout(coerced);
-
   if (announce) {
-    const note = coerced ? "Projection requires anchors; switched off." : "Constraint updated.";
-    setStatus(`${note} Path: ${METHOD_STYLES[componentState.strategy]?.short || "strategy"}.`);
+    const note = coerced ? "Projection requires anchors." : "Constraints updated.";
+    setStatus(`${note} ${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} active.`);
   }
 
   if (latestResult) {
@@ -440,30 +397,10 @@ function syncComponentFromStrategy(strategyId, setStatusLine = false) {
   componentState.anchors = anchorInput?.checked ?? true;
   componentState.projection = projectionInput?.checked ?? true;
   componentState.strategy = deriveStrategyFromComponents(componentState.anchors, componentState.projection);
-  updateComponentReadout(false);
 
   if (setStatusLine) {
-    setStatus(`Path: ${METHOD_STYLES[componentState.strategy]?.short || "strategy"}.`);
+    setStatus(`${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} active.`);
   }
-}
-
-function setCompareControl(value) {
-  const select = document.getElementById("compare-view");
-  if (select) {
-    select.value = value;
-  }
-}
-
-function updateComponentReadout(coerced = false) {
-  const host = document.getElementById("component-readout");
-  if (!host) {
-    return;
-  }
-
-  const method = METHOD_STYLES[componentState.strategy];
-  const compareLabel = activeCompare === "pair" ? "selected vs naive" : "all strategies";
-  const coercionNote = coerced ? "; projection disabled (needs anchors)" : "";
-  host.textContent = `Anchors ${componentState.anchors ? "on" : "off"} · Projection ${componentState.projection ? "on" : "off"} · ${method?.short || "Strategy"} · ${compareLabel}${coercionNote}`;
 }
 
 function setRunning(isRunning) {
@@ -508,10 +445,8 @@ function renderAll(result) {
 
   renderDecisionCard(methodRows);
   renderKpis(methodRows);
-  renderModeScorecard(methodRows);
   renderCharts(methodRows, regimeInfo);
   renderChartReadouts(methodRows);
-  renderMethodTable(methodRows);
   renderTakeaway(methodRows);
 }
 
@@ -537,26 +472,25 @@ function renderDecisionCard(rows) {
   const drawLift = naive && hybrid ? hybrid.maxDrawdown - naive.maxDrawdown : 0;
 
   let level = "caution";
-  let title = `Gate result: ${winner.style.short} leads`;
-  let next = "Run more seeds.";
+  let title = `${winner.style.short} leads`;
+  let next = "Validate across seeds.";
 
   if (winner.id === "anchor_proj" && lead >= 4) {
     level = "good";
-    title = "Gate result: Hybrid passes this run";
-    next = "Keep for release runs.";
+    title = "Hybrid passes";
+    next = "Promote to release candidate.";
   } else if (winner.id === "naive") {
     level = "bad";
-    title = "Gate result: Naive fails this run";
-    next = "Re-enable anchors and projection.";
+    title = "Naive fails";
+    next = "Re-enable replay and projection.";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Score <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong> (${pp(lead / 100)}).
-      Hybrid vs naive retention <strong>${pct(stressGain)}</strong>. Drawdown lift <strong>${pp(drawLift)}</strong>.
-      Next: ${next}
+      Score <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>.
+      Retention gain <strong>${pct(stressGain)}</strong>. Drawdown lift <strong>${pp(drawLift)}</strong>. ${next}
     </p>
   `;
 }
@@ -604,31 +538,6 @@ function renderKpis(rows) {
   `;
 }
 
-function renderModeScorecard(rows) {
-  const host = document.getElementById("mode-scorecard");
-  if (!host) {
-    return;
-  }
-
-  const order = ["naive", "anchor", "anchor_proj"];
-  const cards = order.map((id) => findRow(rows, id)).filter(Boolean);
-  host.innerHTML = cards
-    .map((row) => {
-      const stressSharpe = row.sharpeByRegime.stress || 0;
-      return `
-        <article class="method-${row.id}">
-          <span class="tag">${row.style.short}</span>
-          <h4>${row.label}</h4>
-          <p>Calm risky ${pct(row.calmWeight)} · Stress risky ${pct(row.stressWeight)}</p>
-          <p>PnL ${pct(row.totalReturn)} · Max DD ${pct(row.maxDrawdown)} · Recovery ${formatRecovery(row.recoveryDays)}</p>
-          <p>Stress retention ${pct(row.stressRetention)} · Stress Sharpe ${signed(stressSharpe, 2)} · Turnover ${pct(row.turnover)}</p>
-        </article>
-      `;
-    })
-    .join("");
-}
-
-
 function renderCharts(rows, regimeInfo) {
   const pnlCanvas = document.getElementById("pnl-chart");
   const drawdownCanvas = document.getElementById("drawdown-chart");
@@ -641,27 +550,26 @@ function renderCharts(rows, regimeInfo) {
   }
 
   const visible = getVisibleMethodIds(rows);
-  const primary = getPrimaryStrategyId();
 
   const lineSeries = rows.map((row) => ({
     id: row.id,
-    label: row.label,
+    label: row.style.short,
     color: row.style.color,
     dash: row.style.dash,
     values: row.equity,
     alpha: lineAlpha(row.id, visible),
-    lineWidth: lineWidth(row.id, visible, primary),
+    lineWidth: lineWidth(row.id, visible),
   }));
 
   const allocationSeries = rows.map((row) => ({
     id: row.id,
-    label: row.label,
+    label: row.style.short,
     color: row.style.color,
     dash: row.style.dash,
     values: row.riskyWeights,
     turnovers: row.turnovers,
     alpha: lineAlpha(row.id, visible),
-    lineWidth: lineWidth(row.id, visible, primary),
+    lineWidth: lineWidth(row.id, visible),
   }));
 
   drawEquity(pnlCanvas, lineSeries, regimeInfo.timelineStates);
@@ -673,7 +581,7 @@ function renderCharts(rows, regimeInfo) {
     regimeInfo.regimes,
     rows.map((row) => ({
       id: row.id,
-      label: row.label,
+      label: row.style.short,
       color: row.style.color,
       alpha: lineAlpha(row.id, visible),
       sharpe: row.sharpeByRegime,
@@ -684,7 +592,7 @@ function renderCharts(rows, regimeInfo) {
     portfolioStateCanvas,
     rows.map((row) => ({
       id: row.id,
-      label: row.label,
+      label: row.style.short,
       color: row.style.color,
       alpha: lineAlpha(row.id, visible),
       calmWeight: row.calmWeight,
@@ -719,73 +627,21 @@ function renderChartReadouts(rows) {
   const selectedStressGain = improvement(naive.stressMse, selected.stressMse);
   const selectedLabel = selected.style.short;
 
-  pnlHost.textContent =
-    `${selectedLabel} vs naive: value delta ${pp(selectedVsNaiveRet)}; stress retention ${pct(selectedStressGain)}.`;
+  pnlHost.textContent = `${selectedLabel} vs naive: value ${pp(selectedVsNaiveRet)}, retention ${pct(selectedStressGain)}.`;
 
-  drawdownHost.textContent =
-    `${selectedLabel}: drawdown lift ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
+  drawdownHost.textContent = `${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
-  allocationHost.textContent =
-    `${selectedLabel}: stress risky gap ${pp(stressWeightGap)} vs naive; turnover lift ${pp(turnoverGap)}.`;
+  allocationHost.textContent = `${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
-  regimeHost.textContent =
-    `${selectedLabel} minus naive Sharpe: ` +
-    `stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
+  regimeHost.textContent = `${selectedLabel} vs naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 
   const calmGap = selected.calmWeight - naive.calmWeight;
   const stressGap = selected.stressWeight - naive.stressWeight;
-  portfolioHost.textContent =
-    `${selectedLabel}: calm risky ${pp(calmGap)} and stress risky ${pp(stressGap)} vs naive, with tighter drawdown/recovery.`;
-}
-
-function renderMethodTable(rows) {
-  const host = document.getElementById("method-table");
-  if (!host) {
-    return;
-  }
-
-  const ordered = [...rows].sort((a, b) => b.deployScore - a.deployScore);
-
-  host.innerHTML = `
-    <thead>
-      <tr>
-        <th>Strategy</th>
-        <th>Stress Retention</th>
-        <th>Max DD</th>
-        <th>Stress Sharpe</th>
-        <th>Recovery</th>
-        <th>Turnover</th>
-        <th>Deploy Score</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${ordered
-        .map(
-          (row, idx) => `
-            <tr class="${idx === 0 ? "winner" : ""}">
-              <td>
-                <span class="method-name">
-                  <span class="dot" style="background:${row.style.color}"></span>
-                  <span class="line-chip line-chip-${row.id}"></span>
-                  ${row.label}
-                </span>
-              </td>
-              <td>${pct(row.stressRetention)}</td>
-              <td>${pct(row.maxDrawdown)}</td>
-              <td>${signed(row.sharpeByRegime.stress || 0, 2)}</td>
-              <td>${formatRecovery(row.recoveryDays)}</td>
-              <td>${pct(row.turnover)}</td>
-              <td><strong>${row.deployScore.toFixed(1)}</strong></td>
-            </tr>
-          `,
-        )
-        .join("")}
-    </tbody>
-  `;
+  portfolioHost.textContent = `${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs naive.`;
 }
 
 function renderTakeaway(rows) {
@@ -806,9 +662,9 @@ function renderTakeaway(rows) {
   host.innerHTML = `
     <h4>Decision Summary</h4>
     <p>
-      ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first on retention, drawdown, regime Sharpe, and turnover.
-      Hybrid vs naive retention: <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>. Drawdown lift: <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Next: rerun across seeds, lock updater, then move to paper trading.
+      ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first.
+      Hybrid vs naive: retention <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
+      Rerun seeds, then lock the updater for paper trading.
     </p>
   `;
 }
@@ -1136,24 +992,12 @@ function getPrimaryStrategyId() {
 
 function getVisibleMethodIds(rows) {
   const ids = rows.map((row) => row.id);
-  if (activeCompare !== "pair") {
-    return new Set(ids);
-  }
-
-  const primary = getPrimaryStrategyId();
-  if (primary === "naive") {
-    return new Set(["naive", "anchor_proj"]);
-  }
-  return new Set(["naive", primary]);
+  return new Set(ids);
 }
 
 function lineAlpha(id, visibleSet) {
   if (!visibleSet.has(id)) {
     return 0.08;
-  }
-
-  if (activeCompare === "pair") {
-    return 1;
   }
 
   if (activeFocus === "all") {
@@ -1163,13 +1007,9 @@ function lineAlpha(id, visibleSet) {
   return id === activeFocus ? 1 : 0.48;
 }
 
-function lineWidth(id, visibleSet, primaryId) {
+function lineWidth(id, visibleSet) {
   if (!visibleSet.has(id)) {
     return 1.2;
-  }
-
-  if (activeCompare === "pair") {
-    return id === primaryId ? 2.8 : 2.2;
   }
 
   if (activeFocus === "all") {
@@ -1177,38 +1017,6 @@ function lineWidth(id, visibleSet, primaryId) {
   }
 
   return id === activeFocus ? 2.8 : 1.9;
-}
-
-function exportCurrentRun() {
-  if (!latestResult) {
-    setStatus("Run the demo before exporting.", true);
-    return;
-  }
-
-  const report = {
-    exportedAt: new Date().toISOString(),
-    mode: activePreset,
-    strategyLens: activeFocus,
-    compareView: activeCompare,
-    componentState: { ...componentState },
-    config: latestResult.config,
-    keyResult: latestResult.keyResult,
-    metrics: latestResult.metrics,
-    trainLogs: latestResult.trainLogs,
-  };
-
-  const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `cl_plo_run_${Date.now()}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-
-  setStatus("Run report exported.");
 }
 
 function findRow(rows, id) {
