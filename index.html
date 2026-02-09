@@ -334,34 +334,40 @@
 
               <div class="projection-stage">
                 <figure class="projection-figure">
-                  <svg class="projection-diagram" viewBox="0 0 540 270" role="img" aria-label="Risk-budget constrained update projection">
+                  <svg class="projection-diagram" viewBox="0 0 620 300" role="img" aria-label="Risk-budget constrained update projection">
                     <defs>
-                      <marker id="proj-raw-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-                        <path d="M0,0 L9,4.5 L0,9 z" fill="#b64834"></path>
+                      <marker id="proj-raw-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#b64834"></path>
                       </marker>
-                      <marker id="proj-safe-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-                        <path d="M0,0 L9,4.5 L0,9 z" fill="#1f3249"></path>
+                      <marker id="proj-safe-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#1f3249"></path>
                       </marker>
                     </defs>
 
-                    <rect x="0" y="0" width="540" height="270" fill="#ffffff"></rect>
-                    <line x1="74" y1="220" x2="466" y2="220" stroke="#8f9ba9" stroke-width="1.6"></line>
-                    <line x1="74" y1="220" x2="74" y2="42" stroke="#8f9ba9" stroke-width="1.6"></line>
-                    <text x="470" y="239" font-size="12" fill="#5f6c7d">market exposure</text>
-                    <text x="35" y="48" font-size="12" fill="#5f6c7d" transform="rotate(-90 35 48)">style exposure</text>
+                    <rect x="0" y="0" width="620" height="300" fill="#ffffff"></rect>
+                    <rect x="100" y="70" width="420" height="166" fill="#fcfdff" stroke="#e3e8f0" stroke-width="1"></rect>
 
-                    <polygon points="196,54 468,54 468,220 292,220" fill="#edf5ef" stroke="#587662" stroke-width="1.8"></polygon>
-                    <line x1="196" y1="54" x2="292" y2="220" stroke="#587662" stroke-width="1.6" stroke-dasharray="6 5"></line>
-                    <text x="330" y="75" font-size="12" fill="#4f6b57">allowed region</text>
+                    <line x1="100" y1="236" x2="520" y2="236" stroke="#8f9ba9" stroke-width="1.8"></line>
+                    <line x1="100" y1="236" x2="100" y2="70" stroke="#8f9ba9" stroke-width="1.8"></line>
+                    <text x="100" y="54" font-size="13" fill="#536276">style exposure</text>
+                    <text x="520" y="258" font-size="13" text-anchor="end" fill="#536276">market exposure</text>
 
-                    <circle cx="126" cy="194" r="4.2" fill="#111827"></circle>
-                    <line x1="126" y1="194" x2="392" y2="84" stroke="#b64834" stroke-width="2.8" marker-end="url(#proj-raw-arrow)"></line>
-                    <line x1="126" y1="194" x2="292" y2="164" stroke="#1f3249" stroke-width="2.8" marker-end="url(#proj-safe-arrow)"></line>
-                    <line x1="292" y1="164" x2="392" y2="84" stroke="#8f9daf" stroke-width="1.7" stroke-dasharray="4 5"></line>
+                    <polygon points="230,70 520,70 520,236 330,236" fill="#edf6ef"></polygon>
+                    <line x1="230" y1="70" x2="330" y2="236" stroke="#5a7763" stroke-width="2" stroke-dasharray="7 5"></line>
+                    <text x="356" y="94" font-size="12.5" fill="#4f6b57">allowed region (risk budget)</text>
 
-                    <text x="398" y="82" font-size="12" fill="#b64834">proposed move</text>
-                    <text x="299" y="161" font-size="12" fill="#1f3249">safe move</text>
-                    <text x="299" y="181" font-size="11.5" fill="#677487">trim to boundary</text>
+                    <circle cx="148" cy="210" r="4.4" fill="#111827"></circle>
+                    <text x="112" y="224" font-size="11.5" fill="#5f6b7b">current policy</text>
+
+                    <line x1="148" y1="210" x2="434" y2="90" stroke="#b64834" stroke-width="3" marker-end="url(#proj-raw-arrow)"></line>
+                    <line x1="148" y1="210" x2="306" y2="196" stroke="#1f3249" stroke-width="3" marker-end="url(#proj-safe-arrow)"></line>
+                    <line x1="306" y1="196" x2="434" y2="90" stroke="#8f9daf" stroke-width="1.8" stroke-dasharray="5 5"></line>
+
+                    <circle cx="434" cy="90" r="3.2" fill="#b64834"></circle>
+                    <circle cx="306" cy="196" r="3.2" fill="#1f3249"></circle>
+                    <text x="438" y="86" font-size="12.5" fill="#b64834">proposed move</text>
+                    <text x="238" y="188" font-size="12.5" fill="#1f3249">safe move</text>
+                    <text x="340" y="150" font-size="11.5" fill="#677487">trim to boundary</text>
                   </svg>
                 </figure>
 
