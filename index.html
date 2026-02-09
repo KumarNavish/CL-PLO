@@ -240,34 +240,27 @@
           <aside class="control-panel">
             <article class="protocol-board">
               <h3>Modes</h3>
-              <div class="mode-grid">
-              <article class="mode-card" data-mode-card="quick_check"><h4>Quick</h4><p>Fast directional check.</p></article>
-                <article class="mode-card" data-mode-card="proposal_like"><h4>Default</h4><p>Primary deployment baseline.</p></article>
-                <article class="mode-card" data-mode-card="stress_heavy"><h4>Stress+</h4><p>Release gate under stress concentration.</p></article>
+              <div class="preset-row mode-row">
+                <button id="apply-quick" data-preset="quick_check" class="btn btn-ghost" type="button">Quick</button>
+                <button id="apply-proposal" data-preset="proposal_like" class="btn btn-ghost" type="button">Default</button>
+                <button id="apply-stress" data-preset="stress_heavy" class="btn btn-ghost" type="button">Stress+</button>
               </div>
               <p id="mode-readout" class="mode-readout"></p>
             </article>
 
             <div class="control-stack">
-              <div class="preset-row">
-                <button id="apply-quick" data-preset="quick_check" class="btn btn-ghost" type="button">Quick</button>
-                <button id="apply-proposal" data-preset="proposal_like" class="btn btn-ghost" type="button">Default</button>
-                <button id="apply-stress" data-preset="stress_heavy" class="btn btn-ghost" type="button">Stress+</button>
-              </div>
-
               <article class="focus-panel" aria-label="Strategy focus selector">
-                <h3>Strategy Lens</h3>
+                <h3>Strategy</h3>
                 <div class="focus-grid">
                   <button id="focus-all" data-focus="all" class="focus-btn active" type="button">All</button>
                   <button id="focus-naive" data-focus="naive" class="focus-btn" type="button">Naive</button>
                   <button id="focus-anchor" data-focus="anchor" class="focus-btn" type="button">Replay</button>
                   <button id="focus-proj" data-focus="anchor_proj" class="focus-btn" type="button">Hybrid</button>
                 </div>
-                <p id="focus-readout" class="mode-readout">Compare all strategies on identical market paths.</p>
               </article>
 
               <article class="component-panel" aria-label="Constraint toggle interface">
-                <h3>Constraint Interface</h3>
+                <h3>Constraint</h3>
                 <label class="switch-row" for="toggle-anchor">
                   <span>Anchor fixtures</span>
                   <input id="toggle-anchor" type="checkbox" checked />
@@ -286,33 +279,35 @@
                 <p id="component-readout" class="mode-readout">Anchors ON, projection ON: hybrid control path.</p>
               </article>
 
-              <form id="config-form" class="knob-grid">
-                <label>
-                  Anchor weight
-                  <input name="anchorBeta" type="number" step="0.01" />
-                </label>
-                <label>
-                  LoRA rank
-                  <input name="loraRank" type="number" step="1" />
-                </label>
-                <label>
-                  Stress frequency
-                  <input name="pStress" type="number" step="0.01" />
-                </label>
-                <label>
-                  Update steps
-                  <input name="steps" type="number" step="1" />
-                </label>
-                <label>
-                  Seed
-                  <input name="seed" type="number" step="1" />
-                </label>
-              </form>
+              <details class="advanced-panel">
+                <summary>Advanced knobs</summary>
+                <form id="config-form" class="knob-grid">
+                  <label>
+                    Anchor weight
+                    <input name="anchorBeta" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    LoRA rank
+                    <input name="loraRank" type="number" step="1" />
+                  </label>
+                  <label>
+                    Stress frequency
+                    <input name="pStress" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Update steps
+                    <input name="steps" type="number" step="1" />
+                  </label>
+                  <label>
+                    Seed
+                    <input name="seed" type="number" step="1" />
+                  </label>
+                </form>
+              </details>
 
               <div class="action-row">
                 <button id="run-demo" class="btn btn-primary" type="button">Run Demo</button>
                 <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
-                <button id="export-run" class="btn btn-ghost" type="button">Export JSON</button>
               </div>
             </div>
 
