@@ -519,55 +519,45 @@
 
       <section class="section" id="takeaway-section">
         <h2>3. Deploy Path</h2>
-        <p class="section-note">Treat deployment as a gated updater release. Promote only if retention, drawdown, turnover, and regime Sharpe stay inside release bands on the same market path.</p>
+        <p class="section-note">Deploy the updater as a gated release, not a one-shot backtest choice.</p>
 
         <div class="deploy-path">
           <figure class="deploy-flow" aria-label="End-to-end deployment flow">
             <article class="deploy-node">
               <p class="deploy-step">Step 1</p>
-              <h3>Updater candidate</h3>
-              <p>Freeze the transformer backbone and optimizer. Swap only the update policy.</p>
+              <h3>Candidate</h3>
+              <p>Freeze backbone and optimizer. Change only the update policy.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 2</p>
-              <h3>Shadow replay run</h3>
-              <p>Run drift plus anchors on the same path, transaction costs, and regime labels.</p>
+              <h3>Shadow run</h3>
+              <p>Run drift + anchors on the same path, costs, and regime labels.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node proposed">
               <p class="deploy-step">Step 3</p>
-              <h3>Release gate</h3>
-              <p>Check stress retention, drawdown, turnover, and regime Sharpe as one release decision.</p>
+              <h3>Gate</h3>
+              <p>Score retention, drawdown, turnover, and regime Sharpe together.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 4</p>
-              <h3>Paper then live</h3>
-              <p>Paper trade first, then staged live rollout with a standing rollback trigger.</p>
+              <h3>Paper → live</h3>
+              <p>Paper trade first, then staged rollout with rollback armed.</p>
             </article>
           </figure>
 
-          <p class="deploy-gate-title">Release gates</p>
-          <div class="deploy-gates" aria-label="Deployment gate checklist">
-            <article>
-              <h4>Promotion rule</h4>
-              <p class="gate-pass"><strong>Pass:</strong> hybrid ranks first on deploy score and keeps positive drawdown lift.</p>
-              <p class="gate-fail"><strong>Fail:</strong> block release and keep the replay-only updater active.</p>
-            </article>
-            <article>
-              <h4>Safety check</h4>
-              <p class="gate-pass"><strong>Pass:</strong> stress retention and stress Sharpe remain above replay across seeds.</p>
-              <p class="gate-fail"><strong>Fail:</strong> tighten the projection budget and rerun the full gate set.</p>
-            </article>
-            <article>
-              <h4>Rollback rule</h4>
-              <p class="gate-pass"><strong>Pass:</strong> live turnover and drawdown stay inside approved limits.</p>
-              <p class="gate-fail"><strong>Fail:</strong> revert to the last approved updater in the next rebalance cycle.</p>
-            </article>
-          </div>
+          <article class="deploy-checks" aria-label="Go or no-go checks">
+            <p class="deploy-gate-title">Go / no-go checks</p>
+            <ul>
+              <li><strong>Promote:</strong> hybrid stays first on deploy score with positive drawdown lift.</li>
+              <li><strong>Hold:</strong> if stress retention or stress Sharpe drop below replay, tighten projection and rerun.</li>
+              <li><strong>Rollback:</strong> if live turnover or drawdown leave the approved band, revert next cycle.</li>
+            </ul>
+          </article>
 
-          <p class="deploy-outcome">Implementation takeaway: updater changes move through a controlled release loop, not a one-shot backtest choice.</p>
+          <p class="deploy-outcome">Takeaway: deployment is a repeatable gate loop where each updater must earn release under the same constraints.</p>
         </div>
 
         <article id="takeaway" class="takeaway"></article>
