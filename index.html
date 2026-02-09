@@ -328,42 +328,62 @@
               </svg>
             </figure>
 
-            <div class="mechanism-concrete">
+            <div class="mechanism-concrete projection-concrete">
               <p class="mechanism-concrete-title">Concrete projection view</p>
-              <div class="projection-mini-wrap">
-                <svg class="projection-mini" viewBox="0 0 430 220" role="img" aria-label="Risk-budget projection in exposure space">
-                  <defs>
-                    <marker id="mini-arrow-raw" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                      <path d="M0,0 L8,4 L0,8 z" fill="#b64834"></path>
-                    </marker>
-                    <marker id="mini-arrow-proj" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
-                      <path d="M0,0 L8,4 L0,8 z" fill="#1e3148"></path>
-                    </marker>
-                  </defs>
-                  <rect x="0" y="0" width="430" height="220" fill="#ffffff"></rect>
-                  <line x1="56" y1="182" x2="362" y2="182" stroke="#8a95a5" stroke-width="1.6"></line>
-                  <line x1="56" y1="182" x2="56" y2="36" stroke="#8a95a5" stroke-width="1.6"></line>
-                  <text x="358" y="199" font-size="12" fill="#5a6677">Market β exposure</text>
-                  <text x="16" y="44" font-size="12" fill="#5a6677" transform="rotate(-90 16 44)">Value β exposure</text>
-                  <polygon points="118,58 340,58 340,182 188,182" fill="#eef6ef" stroke="#5b7a63" stroke-width="1.5"></polygon>
-                  <line x1="118" y1="58" x2="188" y2="182" stroke="#5b7a63" stroke-width="1.5" stroke-dasharray="6 4"></line>
-                  <text x="235" y="78" font-size="12" fill="#45604c">feasible risk budget</text>
-                  <circle cx="104" cy="166" r="4" fill="#111c2b"></circle>
-                  <line x1="104" y1="166" x2="302" y2="88" stroke="#b64834" stroke-width="3" marker-end="url(#mini-arrow-raw)"></line>
-                  <line x1="104" y1="166" x2="188" y2="148" stroke="#1e3148" stroke-width="3" marker-end="url(#mini-arrow-proj)"></line>
-                  <text x="308" y="90" font-size="12" fill="#b64834">raw update</text>
-                  <text x="194" y="146" font-size="12" fill="#1e3148">projected update</text>
-                </svg>
-                <div class="projection-mini-math">
-                  \[
-                  \begin{aligned}
-                  g_{\mathrm{proj}}&=\arg\min_g\lVert g-g_{\mathrm{raw}}\rVert_2^2\\
-                  \text{s.t. }&\langle g,a_t\rangle \ge 0
-                  \end{aligned}
-                  \]
-                </div>
+              <p class="projection-intuition">A drift update can imply a trade that breaches the live risk budget. Projection keeps the step as close as possible to the raw proposal, but forces it back into the feasible region.</p>
+
+              <div class="projection-stage">
+                <figure class="projection-figure">
+                  <svg class="projection-diagram" viewBox="0 0 520 260" role="img" aria-label="Risk-budget constrained update projection">
+                    <defs>
+                      <marker id="proj-raw-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+                        <path d="M0,0 L9,4.5 L0,9 z" fill="#b64834"></path>
+                      </marker>
+                      <marker id="proj-safe-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+                        <path d="M0,0 L9,4.5 L0,9 z" fill="#1f3249"></path>
+                      </marker>
+                    </defs>
+
+                    <rect x="0" y="0" width="520" height="260" fill="#ffffff"></rect>
+                    <line x1="68" y1="212" x2="442" y2="212" stroke="#8c98a9" stroke-width="1.6"></line>
+                    <line x1="68" y1="212" x2="68" y2="38" stroke="#8c98a9" stroke-width="1.6"></line>
+                    <text x="444" y="232" font-size="12" fill="#5a687a">Exposure 1</text>
+                    <text x="30" y="46" font-size="12" fill="#5a687a" transform="rotate(-90 30 46)">Exposure 2</text>
+
+                    <polygon points="182,48 444,48 444,212 272,212" fill="#edf5ef" stroke="#5a775f" stroke-width="1.6"></polygon>
+                    <line x1="182" y1="48" x2="272" y2="212" stroke="#5a775f" stroke-width="1.6" stroke-dasharray="7 5"></line>
+                    <text x="308" y="68" font-size="12" fill="#48634e">feasible risk budget</text>
+
+                    <circle cx="118" cy="188" r="4" fill="#111827"></circle>
+                    <line x1="118" y1="188" x2="368" y2="86" stroke="#b64834" stroke-width="3" marker-end="url(#proj-raw-arrow)"></line>
+                    <line x1="118" y1="188" x2="270" y2="160" stroke="#1f3249" stroke-width="3" marker-end="url(#proj-safe-arrow)"></line>
+                    <line x1="270" y1="160" x2="368" y2="86" stroke="#9aa7b9" stroke-width="1.5" stroke-dasharray="5 5"></line>
+
+                    <text x="374" y="84" font-size="12" fill="#b64834">raw update</text>
+                    <text x="276" y="158" font-size="12" fill="#1f3249">projected update</text>
+                    <text x="282" y="178" font-size="11.5" fill="#6a7586">closest feasible correction</text>
+                  </svg>
+                </figure>
+
+                <aside class="projection-companion">
+                  <p class="projection-origin">Proposed here</p>
+                  <div class="projection-math">
+                    \[
+                    \begin{aligned}
+                    g_{\mathrm{proj}}&=\arg\min_g\lVert g-g_{\mathrm{raw}}\rVert_2^2\\
+                    \text{s.t. }&\langle g,a_t\rangle \ge 0
+                    \end{aligned}
+                    \]
+                  </div>
+                  <p class="projection-operational">Operational meaning: keep learning active, but clip each update to the nearest direction that remains risk-valid.</p>
+                </aside>
               </div>
-              <p class="mechanism-concrete-note">Operational reading: keep the nearest learning step that respects the exposure budget instead of canceling the update.</p>
+
+              <div class="projection-map">
+                <p><strong>Raw update</strong> → proposed trade delta from current drift.</p>
+                <p><strong>Constraint boundary</strong> → live risk budget and exposure limits.</p>
+                <p><strong>Projected update</strong> → nearest admissible step passed to execution.</p>
+              </div>
             </div>
           </article>
         </div>
@@ -471,7 +491,7 @@
 
               <article class="chart-card">
                 <h3>Q3. Allocation vs Turnover</h3>
-                <p class="plot-caption">Solid line is risky weight. Dashed line is turnover, so stability and responsiveness are visible together.</p>
+                <p class="plot-caption">Top panel: risky allocation path. Bottom panel: turnover response. Same regime shading makes the stability-versus-responsiveness trade-off immediate.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
@@ -496,18 +516,50 @@
 
       <section class="section" id="takeaway-section">
         <h2>3. Deploy Path</h2>
+        <p class="section-note">Deployment is a gated pipeline, not a one-shot score. A candidate updater moves forward only if it keeps stress retention, drawdown control, and execution stability inside release limits.</p>
 
-        <figure class="synthesis-diagram" aria-label="End to end deployment pathway">
-          <div class="syn-node">LLM stream</div>
-          <div class="syn-arrow">→</div>
-          <div class="syn-node">Anchor fixture</div>
-          <div class="syn-arrow">→</div>
-          <div class="syn-node proposed">Projection-gated update</div>
-          <div class="syn-arrow">→</div>
-          <div class="syn-node">Fixed optimizer</div>
-          <div class="syn-arrow">→</div>
-          <div class="syn-node">Release decision</div>
-        </figure>
+        <div class="deploy-path">
+          <figure class="deploy-flow" aria-label="End-to-end deployment flow">
+            <article class="deploy-node">
+              <p class="deploy-step">Step 1</p>
+              <h3>Updater candidate</h3>
+              <p>Freeze backbone and optimizer. Swap only the updater rule.</p>
+            </article>
+            <div class="deploy-arrow">→</div>
+            <article class="deploy-node">
+              <p class="deploy-step">Step 2</p>
+              <h3>Shadow replay run</h3>
+              <p>Replay stress fixtures and current flow on the same market path.</p>
+            </article>
+            <div class="deploy-arrow">→</div>
+            <article class="deploy-node proposed">
+              <p class="deploy-step">Step 3</p>
+              <h3>Decision gate</h3>
+              <p>Check retention, drawdown, turnover, and regime Sharpe before promotion.</p>
+            </article>
+            <div class="deploy-arrow">→</div>
+            <article class="deploy-node">
+              <p class="deploy-step">Step 4</p>
+              <h3>Paper then live</h3>
+              <p>Promote to paper trading, then release only if gate ordering is stable.</p>
+            </article>
+          </figure>
+
+          <div class="deploy-gates" aria-label="Deployment gate checklist">
+            <article>
+              <h4>Promotion rule</h4>
+              <p>Hybrid must lead on deployment score and keep drawdown lift positive versus naive.</p>
+            </article>
+            <article>
+              <h4>Safety check</h4>
+              <p>Stress retention and stress Sharpe must remain above replay baseline across seeds.</p>
+            </article>
+            <article>
+              <h4>Rollback rule</h4>
+              <p>If turnover spikes or stress retention drops, revert updater and rerun gate.</p>
+            </article>
+          </div>
+        </div>
 
         <article id="takeaway" class="takeaway"></article>
       </section>

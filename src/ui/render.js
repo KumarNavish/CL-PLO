@@ -633,7 +633,7 @@ function renderChartReadouts(rows) {
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
-  allocationHost.textContent = `How to read: solid line is risky weight, dashed is turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
+  allocationHost.textContent = `How to read: top panel shows risky allocation; bottom panel shows turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
@@ -664,7 +664,7 @@ function renderTakeaway(rows) {
     <p>
       ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first.
       Hybrid vs naive: retention <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Next step: rerun alternate seeds, then lock updater settings for paper trading.
+      Deploy sequence: rerun alternate seeds, promote to paper trading, then release only if gate ordering and risk limits hold.
     </p>
   `;
 }

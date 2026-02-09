@@ -441,58 +441,68 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     return;
   }
 
-  const dims = {
-    left: 108,
+  const frame = {
+    left: 62,
     right: width - 22,
     top: 34,
-    bottom: height - 32,
+    bottom: height - 42,
+  };
+
+  const panelGap = 18;
+  const panelHeight = (frame.bottom - frame.top - panelGap) / 2;
+  const allocPanel = {
+    left: frame.left,
+    right: frame.right,
+    top: frame.top,
+    bottom: frame.top + panelHeight,
+  };
+  const turnPanel = {
+    left: frame.left,
+    right: frame.right,
+    top: allocPanel.bottom + panelGap,
+    bottom: frame.bottom,
   };
 
   const maxT = Math.max(...profiles.map((p) => (p.values?.length || 1) - 1), 1);
 
   function xToPx(t) {
-    return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
+    return frame.left + (t / Math.max(1, maxT)) * (frame.right - frame.left);
   }
 
-  const turnoverScale = Math.max(1e-6, ...profiles.flatMap((p) => (p.turnovers || []).map((v) => Number(v) || 0)));
+  function yAlloc(v) {
+    return allocPanel.bottom - Math.max(0, Math.min(1, v)) * (allocPanel.bottom - allocPanel.top);
+  }
 
-  drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
+  const maxTurn = Math.max(1e-6, ...profiles.flatMap((p) => (p.turnovers || []).map((v) => Number(v) || 0)));
+  function yTurn(v) {
+    return turnPanel.bottom - Math.max(0, Math.min(1, (Number(v) || 0) / maxTurn)) * (turnPanel.bottom - turnPanel.top);
+  }
 
-  const laneGap = 14;
-  const laneHeight = (dims.bottom - dims.top - laneGap * (profiles.length - 1)) / profiles.length;
+  drawRegimeBackdrop(ctx, allocPanel, regimeStates, xToPx, maxT);
+  drawRegimeBackdrop(ctx, turnPanel, regimeStates, xToPx, maxT);
 
-  ctx.fillStyle = "#4f5f74";
+  ctx.strokeStyle = "rgba(134, 149, 168, 0.55)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(frame.left, allocPanel.bottom);
+  ctx.lineTo(frame.right, allocPanel.bottom);
+  ctx.stroke();
+
+  ctx.fillStyle = "#425266";
   ctx.font = "500 11px 'IBM Plex Sans', sans-serif";
   ctx.textAlign = "left";
-  ctx.fillText("solid: risky weight   dashed: turnover", dims.left + 4, dims.top - 12);
+  ctx.fillText("risky allocation", frame.left + 2, allocPanel.top - 8);
+  ctx.fillText("turnover", frame.left + 2, turnPanel.top - 8);
 
-  for (let i = 0; i < profiles.length; i += 1) {
-    const p = profiles[i];
-    const laneTop = dims.top + i * (laneHeight + laneGap);
-    const laneBottom = laneTop + laneHeight;
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#4a5a6e";
+  ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
+  ctx.fillText("100%", frame.left - 8, allocPanel.top + 3);
+  ctx.fillText("0%", frame.left - 8, allocPanel.bottom + 3);
+  ctx.fillText(`${(maxTurn * 100).toFixed(1)}%`, frame.left - 8, turnPanel.top + 3);
+  ctx.fillText("0%", frame.left - 8, turnPanel.bottom + 3);
 
-    ctx.strokeStyle = "rgba(125, 139, 158, 0.45)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(dims.left, laneTop);
-    ctx.lineTo(dims.right, laneTop);
-    ctx.stroke();
-    if (i === profiles.length - 1) {
-      ctx.beginPath();
-      ctx.moveTo(dims.left, laneBottom);
-      ctx.lineTo(dims.right, laneBottom);
-      ctx.stroke();
-    }
-
-    ctx.fillStyle = "#243347";
-    ctx.font = "600 12px 'IBM Plex Sans', sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText(shortMethod(p.label), 14, laneTop + laneHeight * 0.36);
-
-    function yToPx(v) {
-      return laneBottom - 6 - Math.max(0, Math.min(1, v)) * (laneHeight - 12);
-    }
-
+  for (const p of profiles) {
     const values = p.values || [];
     const turns = p.turnovers || [];
 
@@ -502,31 +512,27 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
     ctx.setLineDash(p.dash || []);
     ctx.beginPath();
-
     for (let t = 0; t < values.length; t += 1) {
       const x = xToPx(t);
-      const y = yToPx(values[t]);
+      const y = yAlloc(values[t]);
       if (t === 0) {
         ctx.moveTo(x, y);
       } else {
         ctx.lineTo(x, y);
       }
     }
-
     ctx.stroke();
     ctx.restore();
 
-    // Dashed turnover path for stability-vs-responsiveness read.
     ctx.save();
-    ctx.strokeStyle = "#425165";
-    ctx.lineWidth = 1.2;
-    ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.75;
-    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = p.color;
+    ctx.lineWidth = (p.lineWidth || 1.9);
+    ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
+    ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    for (let t = 0; t < Math.min(values.length, turns.length); t += 1) {
+    for (let t = 0; t < turns.length; t += 1) {
       const x = xToPx(t);
-      const normalized = Math.max(0, Math.min(1, (turns[t] || 0) / turnoverScale));
-      const y = laneBottom - 6 - normalized * (laneHeight - 12) * 0.46;
+      const y = yTurn(turns[t]);
       if (t === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -535,20 +541,21 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     }
     ctx.stroke();
     ctx.restore();
-
-    ctx.fillStyle = "#5b6778";
-    ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText(`turnover ${Math.max(0, mean(turns) * 100).toFixed(1)}%`, dims.left + 8, laneBottom - 6);
   }
 
   drawLegend(
     ctx,
-    profiles.map((p) => ({ label: shortMethod(p.label), color: p.color, dash: p.dash, alpha: p.alpha })),
-    10,
+    profiles.map((p) => ({
+      label: shortMethod(p.label),
+      color: p.color,
+      dash: p.dash,
+      alpha: p.alpha,
+    })),
+    11,
     width - 14,
   );
 
+  drawAxes(ctx, turnPanel, "Time", "Turnover (%)");
 }
 
 export function drawRegimeRisk(canvas, regimes, rows) {
