@@ -526,9 +526,9 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
 
     ctx.save();
     ctx.strokeStyle = p.color;
-    ctx.lineWidth = (p.lineWidth || 1.9);
+    ctx.lineWidth = 1.65;
     ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
-    ctx.setLineDash(p.dash || []);
+    ctx.setLineDash([2, 4]);
     ctx.beginPath();
     for (let t = 0; t < turns.length; t += 1) {
       const x = xToPx(t);
@@ -543,7 +543,18 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.restore();
   }
 
-  drawAxes(ctx, turnPanel, "Time", "Turnover (%)");
+  ctx.strokeStyle = CHART_THEME.axis;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(frame.left, turnPanel.top);
+  ctx.lineTo(frame.left, turnPanel.bottom);
+  ctx.lineTo(frame.right, turnPanel.bottom);
+  ctx.stroke();
+
+  ctx.fillStyle = CHART_THEME.axisText;
+  ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
+  ctx.textAlign = "center";
+  ctx.fillText("time", (frame.left + frame.right) / 2, frame.bottom + 22);
 }
 
 export function drawRegimeRisk(canvas, regimes, rows) {

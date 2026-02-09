@@ -595,36 +595,7 @@ a {
   font-size: 0.82rem !important;
   line-height: 1.44;
   color: #334155;
-  max-width: 80ch;
-}
-
-.projection-scan {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.34rem;
-}
-
-.projection-scan p {
-  border: 1px solid #d8e1ee;
-  border-radius: 8px;
-  background: #ffffff;
-  padding: 0.32rem 0.36rem;
-  font-size: 0.74rem !important;
-  line-height: 1.34;
-  color: #324154;
-}
-
-.projection-scan span {
-  display: inline-grid;
-  place-items: center;
-  width: 16px;
-  height: 16px;
-  border: 1px solid #bac8db;
-  border-radius: 999px;
-  margin-right: 0.24rem;
-  font-size: 0.62rem;
-  font-weight: 700;
-  color: #42556e;
+  max-width: 72ch;
 }
 
 .projection-stage {
@@ -647,27 +618,39 @@ a {
   height: auto;
 }
 
-.projection-read {
+.projection-key {
   border: 1px solid #d1dae8;
   border-radius: 12px;
   background: #ffffff;
   padding: 0.52rem 0.58rem;
   display: grid;
   align-content: start;
-  gap: 0.38rem;
+  gap: 0.32rem;
 }
 
-.projection-read h4 {
+.projection-key h4 {
   font-size: 0.76rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: #4f5e72;
 }
 
-.projection-read p {
+.projection-key p {
+  border: 1px solid #e1e7f1;
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 0.3rem 0.34rem;
   font-size: 0.76rem !important;
   line-height: 1.38;
   color: #344255;
+}
+
+.projection-key span {
+  display: inline-block;
+  min-width: 62px;
+  margin-right: 0.28rem;
+  color: #28384c;
+  font-weight: 600;
 }
 
 .projection-origin {
@@ -1015,6 +998,12 @@ input {
   margin-bottom: 0.46rem;
 }
 
+.plot-legend-note {
+  margin: -0.14rem 0 0.42rem;
+  font-size: 0.74rem !important;
+  color: #516176;
+}
+
 .legend-chip {
   display: inline-flex;
   align-items: center;
@@ -1151,6 +1140,16 @@ input {
   color: #2f3d50;
 }
 
+.deploy-gates .gate-pass {
+  border-left: 2px solid #6f8a75;
+  padding-left: 0.34rem;
+}
+
+.deploy-gates .gate-fail {
+  border-left: 2px solid #b67f59;
+  padding-left: 0.34rem;
+}
+
 .deploy-outcome {
   border-top: 1px solid #dde5f0;
   padding-top: 0.46rem;
@@ -1208,10 +1207,6 @@ input {
   }
 
   .projection-stage {
-    grid-template-columns: 1fr;
-  }
-
-  .projection-scan {
     grid-template-columns: 1fr;
   }
 

@@ -330,13 +330,7 @@
 
             <div class="mechanism-concrete projection-concrete">
               <p class="mechanism-concrete-title">Concrete projection view</p>
-              <p class="projection-intuition">A drift update can imply a trade that breaches the live risk budget. Projection keeps the step as close as possible to the raw proposal, but forces it back into the feasible region.</p>
-
-              <div class="projection-scan" aria-label="Five-second projection summary">
-                <p><span>1</span>raw update proposes the unconstrained move</p>
-                <p><span>2</span>risk budget defines the feasible region</p>
-                <p><span>3</span>projection returns the nearest admissible step</p>
-              </div>
+              <p class="projection-intuition">The raw learning step may imply an inadmissible trade. Projection keeps the step as close as possible to the proposal while enforcing the live risk budget.</p>
 
               <div class="projection-stage">
                 <figure class="projection-figure">
@@ -361,21 +355,21 @@
                     <text x="336" y="75" font-size="12" fill="#4f6b57">risk budget</text>
 
                     <circle cx="126" cy="194" r="4.2" fill="#111827"></circle>
-                    <line x1="126" y1="194" x2="392" y2="84" stroke="#b64834" stroke-width="3" marker-end="url(#proj-raw-arrow)"></line>
-                    <line x1="126" y1="194" x2="292" y2="164" stroke="#1f3249" stroke-width="3" marker-end="url(#proj-safe-arrow)"></line>
-                    <line x1="292" y1="164" x2="392" y2="84" stroke="#9ca8b7" stroke-width="1.5" stroke-dasharray="4 5"></line>
+                    <line x1="126" y1="194" x2="392" y2="84" stroke="#b64834" stroke-width="2.8" marker-end="url(#proj-raw-arrow)"></line>
+                    <line x1="126" y1="194" x2="292" y2="164" stroke="#1f3249" stroke-width="2.8" marker-end="url(#proj-safe-arrow)"></line>
+                    <line x1="292" y1="164" x2="392" y2="84" stroke="#8f9daf" stroke-width="1.7" stroke-dasharray="4 5"></line>
 
                     <text x="398" y="82" font-size="12" fill="#b64834">raw update</text>
                     <text x="299" y="161" font-size="12" fill="#1f3249">projected update</text>
-                    <text x="299" y="181" font-size="11.5" fill="#667487">nearest feasible correction</text>
+                    <text x="299" y="181" font-size="11.5" fill="#677487">nearest feasible correction</text>
                   </svg>
                 </figure>
 
-                <aside class="projection-read">
-                  <h4>How to read this figure</h4>
-                  <p>Start at the black point (current state). The red arrow is the unconstrained trade delta.</p>
-                  <p>The green region is the admissible risk set. Projection lands on its boundary with the blue arrow.</p>
-                  <p>The dashed segment is the correction distance minimized by the projection operator.</p>
+                <aside class="projection-key">
+                  <h4>Mechanism key</h4>
+                  <p><span>Raw step</span>unconstrained update from drift signal.</p>
+                  <p><span>Budget</span>feasible exposure region set by risk limits.</p>
+                  <p><span>Projection</span>nearest admissible update used for trading.</p>
                 </aside>
               </div>
 
@@ -500,6 +494,7 @@
                 <h3>Q3. Allocation vs Turnover</h3>
                 <p class="plot-caption">Top panel: risky allocation path. Bottom panel: turnover response. Same regime shading makes the stability-versus-responsiveness trade-off immediate.</p>
                 <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
+                <p class="plot-legend-note">Color identifies strategy. Solid path = allocation, dotted path = turnover.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
@@ -557,15 +552,18 @@
           <div class="deploy-gates" aria-label="Deployment gate checklist">
             <article>
               <h4>Promotion rule</h4>
-              <p>Hybrid must lead on deployment score and keep drawdown lift positive versus naive.</p>
+              <p class="gate-pass"><strong>Pass:</strong> hybrid leads score and drawdown lift stays positive.</p>
+              <p class="gate-fail"><strong>Fail:</strong> hold release and keep replay-only updater active.</p>
             </article>
             <article>
               <h4>Safety check</h4>
-              <p>Stress retention and stress Sharpe must remain above replay baseline across seeds.</p>
+              <p class="gate-pass"><strong>Pass:</strong> stress retention and stress Sharpe stay above replay across seeds.</p>
+              <p class="gate-fail"><strong>Fail:</strong> rerun with tighter projection and re-evaluate.</p>
             </article>
             <article>
               <h4>Rollback rule</h4>
-              <p>If turnover spikes or stress retention drops, revert updater and rerun gate.</p>
+              <p class="gate-pass"><strong>Pass:</strong> turnover and drawdown remain inside release band.</p>
+              <p class="gate-fail"><strong>Fail:</strong> revert to last approved updater within one cycle.</p>
             </article>
           </div>
 
