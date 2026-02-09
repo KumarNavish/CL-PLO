@@ -375,15 +375,14 @@
 
               <div class="projection-math-block">
                 <p class="projection-origin">Proposed here</p>
+                <p class="projection-equation-intro">Equation in plain words: take the model's proposed move and keep the closest version that stays inside the risk budget.</p>
+                <p class="projection-symbol-key"><span>\(g_{d,t}\)</span> proposed move from current flow · <span>\(\mathcal{F}_t\)</span> allowed region from risk limits · <span>\(g_t^{\mathrm{safe}}\)</span> move sent to execution.</p>
                 <div class="projection-math">
                   \[
-                  \begin{aligned}
-                  g_{\mathrm{proj}}&=\arg\min_g\lVert g-g_{\mathrm{raw}}\rVert_2^2\\
-                  \text{s.t. }&\langle g,a_t\rangle \ge 0
-                  \end{aligned}
+                  g_t^{\mathrm{safe}}=\arg\min_{g\in\mathcal{F}_t}\lVert g-g_{d,t}\rVert_2^2
                   \]
                 </div>
-                <p class="projection-operational">Operational meaning: keep the learning signal, but clip the update so the trade stays inside the live risk budget.</p>
+                <p class="projection-operational">Operational meaning: keep the live signal direction, then clip size to the nearest risk-feasible trade.</p>
               </div>
             </div>
           </article>

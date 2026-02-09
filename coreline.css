@@ -673,6 +673,27 @@ a {
   overflow-x: auto;
 }
 
+.projection-equation-intro {
+  font-size: 0.74rem !important;
+  line-height: 1.32;
+  color: #334155;
+}
+
+.projection-symbol-key {
+  font-size: 0.72rem !important;
+  line-height: 1.32;
+  color: #425266;
+  border: 1px solid #e1e7f1;
+  border-radius: 8px;
+  background: #fbfdff;
+  padding: 0.2rem 0.28rem;
+}
+
+.projection-symbol-key span {
+  color: #1f3249;
+  font-weight: 600;
+}
+
 .projection-math .katex-display {
   margin: 0;
 }
