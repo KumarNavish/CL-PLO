@@ -43,13 +43,13 @@ function mean(values) {
 }
 
 const CHART_THEME = {
-  axis: "#9aa8ba",
+  axis: "#8a97a8",
   axisText: "#405064",
-  grid: "rgba(63, 79, 101, 0.035)",
+  grid: "rgba(63, 79, 101, 0.06)",
   legendText: "#223045",
-  bgVolatile: "rgba(58, 88, 124, 0.05)",
-  bgStress: "rgba(124, 82, 52, 0.06)",
-  shiftLine: "rgba(73, 84, 102, 0.24)",
+  bgVolatile: "rgba(64, 100, 142, 0.06)",
+  bgStress: "rgba(142, 88, 54, 0.08)",
+  shiftLine: "rgba(73, 84, 102, 0.3)",
   zero: "#5f6f84",
 };
 
@@ -442,13 +442,13 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
   }
 
   const frame = {
-    left: 78,
-    right: width - 24,
-    top: 30,
-    bottom: height - 40,
+    left: 74,
+    right: width - 22,
+    top: 34,
+    bottom: height - 42,
   };
 
-  const panelGap = 22;
+  const panelGap = 18;
   const panelHeight = (frame.bottom - frame.top - panelGap) / 2;
   const allocPanel = {
     left: frame.left,
@@ -481,35 +481,26 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
   drawRegimeBackdrop(ctx, allocPanel, regimeStates, xToPx, maxT);
   drawRegimeBackdrop(ctx, turnPanel, regimeStates, xToPx, maxT);
 
-  ctx.strokeStyle = "rgba(124, 139, 158, 0.85)";
-  ctx.lineWidth = 1.1;
-  ctx.strokeRect(allocPanel.left, allocPanel.top, allocPanel.right - allocPanel.left, allocPanel.bottom - allocPanel.top);
-  ctx.strokeRect(turnPanel.left, turnPanel.top, turnPanel.right - turnPanel.left, turnPanel.bottom - turnPanel.top);
-
-  ctx.fillStyle = "#2f3e52";
-  ctx.font = "600 11px 'IBM Plex Sans', sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("risky allocation", frame.left + 6, allocPanel.top + 12);
-  ctx.fillText("turnover", frame.left + 6, turnPanel.top + 12);
-
-  const allocMid = yAlloc(0.5);
-  ctx.strokeStyle = "rgba(104, 119, 138, 0.3)";
+  ctx.strokeStyle = "rgba(134, 149, 168, 0.55)";
   ctx.lineWidth = 1;
-  ctx.setLineDash([3, 4]);
   ctx.beginPath();
-  ctx.moveTo(allocPanel.left, allocMid);
-  ctx.lineTo(allocPanel.right, allocMid);
+  ctx.moveTo(frame.left, allocPanel.bottom);
+  ctx.lineTo(frame.right, allocPanel.bottom);
   ctx.stroke();
-  ctx.setLineDash([]);
+
+  ctx.fillStyle = "#425266";
+  ctx.font = "500 11px 'IBM Plex Sans', sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("risky allocation", frame.left + 2, allocPanel.top - 8);
+  ctx.fillText("turnover", frame.left + 2, turnPanel.top - 8);
 
   ctx.textAlign = "right";
-  ctx.fillStyle = "#48586e";
+  ctx.fillStyle = "#4a5a6e";
   ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
-  ctx.fillText("100%", frame.left - 10, allocPanel.top + 2);
-  ctx.fillText("50%", frame.left - 10, allocMid + 3);
-  ctx.fillText("0%", frame.left - 10, allocPanel.bottom + 3);
-  ctx.fillText(`${(maxTurn * 100).toFixed(0)}%`, frame.left - 10, turnPanel.top + 2);
-  ctx.fillText("0%", frame.left - 10, turnPanel.bottom + 3);
+  ctx.fillText("100%", frame.left - 8, allocPanel.top + 3);
+  ctx.fillText("0%", frame.left - 8, allocPanel.bottom + 3);
+  ctx.fillText(`${(maxTurn * 100).toFixed(1)}%`, frame.left - 8, turnPanel.top + 3);
+  ctx.fillText("0%", frame.left - 8, turnPanel.bottom + 3);
 
   for (const p of profiles) {
     const values = p.values || [];
@@ -517,9 +508,9 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
 
     ctx.save();
     ctx.strokeStyle = p.color;
-    ctx.lineWidth = (p.lineWidth || 2) + 0.3;
+    ctx.lineWidth = (p.lineWidth || 2) + 0.1;
     ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
-    ctx.setLineDash([]);
+    ctx.setLineDash(p.dash || []);
     ctx.beginPath();
     for (let t = 0; t < values.length; t += 1) {
       const x = xToPx(t);
@@ -535,9 +526,9 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
 
     ctx.save();
     ctx.strokeStyle = p.color;
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 1.65;
     ctx.globalAlpha = p.alpha === undefined ? 1 : p.alpha;
-    ctx.setLineDash([1.6, 4]);
+    ctx.setLineDash([2, 4]);
     ctx.beginPath();
     for (let t = 0; t < turns.length; t += 1) {
       const x = xToPx(t);
@@ -552,15 +543,15 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.restore();
   }
 
-  ctx.strokeStyle = "rgba(124, 139, 158, 0.95)";
+  ctx.strokeStyle = CHART_THEME.axis;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(frame.left, allocPanel.top);
+  ctx.moveTo(frame.left, turnPanel.top);
   ctx.lineTo(frame.left, turnPanel.bottom);
   ctx.lineTo(frame.right, turnPanel.bottom);
   ctx.stroke();
 
-  ctx.fillStyle = "#3f4f64";
+  ctx.fillStyle = CHART_THEME.axisText;
   ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
   ctx.textAlign = "center";
   ctx.fillText("time", (frame.left + frame.right) / 2, frame.bottom + 22);
@@ -704,21 +695,10 @@ export function drawPortfolioState(canvas, rows) {
   const barWidth = Math.max(18, Math.min(34, groupWidth * 0.2));
   const chartHeight = dims.bottom - dims.top;
 
-  const legendY = dims.top - 22;
-  ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#3f4f63";
-  ctx.fillText("calm sleeve", dims.left + 18, legendY + 5);
-  ctx.fillText("stress sleeve", dims.left + 118, legendY + 5);
-  ctx.strokeStyle = "#8ea0b4";
-  ctx.lineWidth = 1;
-  ctx.strokeRect(dims.left, legendY - 2, 12, 12);
-  ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-  ctx.fillRect(dims.left + 1, legendY - 1, 10, 10);
-  ctx.strokeStyle = "#8ea0b4";
-  ctx.strokeRect(dims.left + 96, legendY - 2, 12, 12);
-  ctx.fillStyle = "rgba(74, 95, 118, 0.22)";
-  ctx.fillRect(dims.left + 97, legendY - 1, 10, 10);
+  ctx.fillStyle = "#425266";
+  ctx.font = "500 11px 'IBM Plex Sans', sans-serif";
+  ctx.textAlign = "right";
+  ctx.fillText("calm | stress", dims.right, dims.top - 14);
 
   for (let i = 0; i < rows.length; i += 1) {
     const row = rows[i];
@@ -736,7 +716,7 @@ export function drawPortfolioState(canvas, rows) {
       calm,
       row.color,
       methodPattern(row.id),
-      alpha * 0.66,
+      alpha,
     );
     drawStackBarVertical(
       ctx,
