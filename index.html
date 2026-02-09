@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CL-PLO Spine | Stable Transformer Updates for Portfolio Decisions</title>
+    <title>CL-PLO Spine | Stable Transformer Portfolio Updates</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -15,48 +15,48 @@
       <div class="shell">
         <article class="hero-insight" aria-label="Decision summary">
           <p class="hero-kicker">CL-PLO Decision Spine</p>
-          <h1>Keep the portfolio model adaptive without forgetting how markets break.</h1>
+          <h1>Keep the portfolio model learning without forgetting stress behavior.</h1>
 
           <div class="hero-grid">
             <article class="hero-mini">
               <p class="hero-mini-title">Problem</p>
-              <p>Market behavior shifts. A model tuned only to recent flow can forget stress behavior.</p>
+              <p>Market regimes change. A model tuned only to recent flow can forget stress patterns.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Why It Matters</p>
-              <p>When stress memory fades, live allocations can look fine until a shock hits and drawdowns jump.</p>
+              <p>When that memory fades, allocations can look fine in calm periods and fail in shocks.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Core Idea</p>
-              <p>Keep the transformer fixed, and improve only the update rule with replay and a risk-feasible projection.</p>
+              <p>Freeze the transformer. Improve only the update rule with replay and a risk projection.</p>
             </article>
           </div>
 
           <div class="hero-method-row" aria-label="Three strategy one-line summaries">
-            <p><span>A</span>Naive: adapts fast, but stress memory decays.</p>
-            <p><span>B</span>Replay: keeps stress fixtures active in each update.</p>
-            <p><span>C</span>Hybrid: replay plus projected update inside risk limits.</p>
+            <p><span>A</span>Naive: learns fast from new flow, but stress memory fades.</p>
+            <p><span>B</span>Replay: reuses stress fixtures at every step.</p>
+            <p><span>C</span>Hybrid: replay plus a projected step inside risk limits.</p>
           </div>
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Decision signal:</strong> choose the updater that adapts, keeps stress retention, and stays within risk limits.
+              <strong>Decision signal:</strong> choose the updater that adapts, keeps stress memory, and respects risk limits.
             </p>
             <article class="hero-proof" aria-label="One-screen check">
-              <h3>One-Screen Decision Check</h3>
+              <h3>30-Second Decision Check</h3>
               <div class="proof-row">
                 <span>Naive</span>
-                <span class="proof-metric">adapts, but forgets stress regimes</span>
+                <span class="proof-metric">fast adaptation, weak stress memory</span>
               </div>
               <div class="proof-row">
                 <span>Replay</span>
-                <span class="proof-metric">stress retention improves</span>
+                <span class="proof-metric">better stress memory</span>
               </div>
               <div class="proof-row highlight">
                 <span>Hybrid</span>
-                <span class="proof-metric">retention with risk-bounded updates</span>
+                <span class="proof-metric">memory plus risk-bounded updates</span>
               </div>
-              <p class="proof-note">Run Quick, Default, and Stress+ to check whether this ranking stays stable across regime mixes.</p>
+              <p class="proof-note">Run Quick, Default, and Stress+ to check if this ordering stays stable across regime mixes.</p>
             </article>
           </div>
         </article>
@@ -66,20 +66,20 @@
     <main class="shell flow">
       <section class="section" id="strategies">
         <h2>1. Three Strategy Mechanisms</h2>
-        <p class="section-note">A live portfolio model has one hard requirement: keep adapting to new flow without erasing behavior learned from stress windows. All three pipelines share the same transformer, same data stream, and same optimizer. Only the update rule changes.</p>
+        <p class="section-note">All three strategies use the same transformer, stream, and optimizer. Only the update rule changes.</p>
 
         <div class="notation-strip" aria-label="Notation primer">
-          <p><strong>\(x_t\)</strong>: current LLM market batch (tokens plus returns)</p>
-          <p><strong>\(A_t\)</strong>: anchor fixture set (stress windows kept in memory)</p>
-          <p><strong>\(g_{d,t}\)</strong>: drift gradient from current flow</p>
-          <p><strong>\(g_{a,t}\)</strong>: anchor gradient from replay fixtures</p>
+          <p><strong>\(x_t\)</strong>: current transformer market batch (tokens and returns)</p>
+          <p><strong>\(A_t\)</strong>: anchor set (stored stress windows)</p>
+          <p><strong>\(g_{d,t}\)</strong>: gradient from current flow</p>
+          <p><strong>\(g_{a,t}\)</strong>: gradient from replayed anchors</p>
           <p><strong>\(w_t\)</strong>: portfolio weights sent to execution</p>
         </div>
 
         <div class="pipeline-legend" aria-label="Pipeline role legend">
-          <span><i class="swatch data"></i>Stream input</span>
+          <span><i class="swatch data"></i>Stream data</span>
           <span><i class="swatch memory"></i>Anchor memory</span>
-          <span><i class="swatch update"></i>Update operator</span>
+          <span><i class="swatch update"></i>Update rule</span>
           <span><i class="swatch decision"></i>Decision layer</span>
         </div>
 
@@ -87,15 +87,15 @@
           <article class="mechanism-card">
             <header class="mechanism-head">
               <p class="method-tag">A · Prior literature</p>
-              <h3>Naive Drift Update</h3>
-              <p class="mechanism-intuition">Only the latest batch drives the step. This reacts quickly, but stress fixtures stay idle and retention decays after regime breaks.</p>
+              <h3>Naive Live-Only Update</h3>
+              <p class="mechanism-intuition">Each step uses only the newest batch. It adapts quickly, but stress fixtures do not shape the update.</p>
             </header>
 
             <figure class="pipeline-canvas" aria-label="Naive strategy pipeline">
               <div class="pipe-row">
                 <article class="pipe-node role-data">
                   <p class="pipe-cap">Stream</p>
-                  <h4>LLM market stream</h4>
+                  <h4>Transformer market stream</h4>
                   <p class="pipe-sub">tokens + returns</p>
                   <p class="pipe-inline-math">\(x_t\)</p>
                 </article>
@@ -166,7 +166,7 @@
                   <span>persistent high vol</span>
                 </article>
               </div>
-              <p class="mechanism-concrete-note">Anchors exist, but the step ignores them. In production this is equivalent to trading on recent flow alone.</p>
+              <p class="mechanism-concrete-note">Anchors are stored but not used. In practice, this behaves like trading on recent flow alone.</p>
             </div>
           </article>
 
@@ -174,14 +174,14 @@
             <header class="mechanism-head">
               <p class="method-tag">B · Prior literature</p>
               <h3>Replay-Regularized Update</h3>
-              <p class="mechanism-intuition">Each update mixes live drift with anchor replay. Retention improves, but the mixed step can still move outside a strict risk budget.</p>
+              <p class="mechanism-intuition">Each step mixes live drift with anchor replay. Stress memory improves, but the mixed step can still break tight risk limits.</p>
             </header>
 
             <figure class="pipeline-canvas has-arc" aria-label="Replay strategy pipeline">
               <div class="pipe-row">
                 <article class="pipe-node role-data">
                   <p class="pipe-cap">Stream</p>
-                  <h4>LLM market stream</h4>
+                  <h4>Transformer market stream</h4>
                   <p class="pipe-sub">tokens + returns</p>
                   <p class="pipe-inline-math">\(x_t\)</p>
                 </article>
@@ -257,7 +257,7 @@
                   <span>beta inversion</span>
                 </article>
               </div>
-              <p class="mechanism-concrete-note">Fixtures are replayed before every decision step, so stress memory actively shapes the update.</p>
+              <p class="mechanism-concrete-note">Fixtures are replayed before each update, so stress memory directly shapes the step.</p>
             </div>
           </article>
 
@@ -265,14 +265,14 @@
             <header class="mechanism-head">
               <p class="method-tag proposed">C · Proposed here</p>
               <h3>Replay + Projection Gate</h3>
-              <p class="mechanism-intuition">The drift step is clipped to the feasible region before replay is added. The model keeps adapting, but the update stays inside the risk budget.</p>
+              <p class="mechanism-intuition">First project the live step into the allowed region, then add replay. The model keeps adapting while staying inside the risk budget.</p>
             </header>
 
             <figure class="pipeline-canvas has-arc" aria-label="Hybrid replay projection strategy pipeline">
               <div class="pipe-row">
                 <article class="pipe-node role-data">
                   <p class="pipe-cap">Stream</p>
-                  <h4>LLM market stream</h4>
+                  <h4>Transformer market stream</h4>
                   <p class="pipe-sub">tokens + returns</p>
                   <p class="pipe-inline-math">\(x_t\)</p>
                 </article>
@@ -386,23 +386,23 @@
                 </figure>
 
                 <aside class="projection-key">
-                  <h4>Read in 5 seconds</h4>
-                  <p><span>Proposed move</span>what the model wants to do from new flow.</p>
-                  <p><span>Allowed region</span>position changes that respect risk limits.</p>
-                  <p><span>Safe move</span>closest allowed update sent to execution.</p>
+                  <h4>Quick read</h4>
+                  <p><span>Proposed move</span>step suggested by current flow.</p>
+                  <p><span>Allowed region</span>steps that satisfy live risk limits.</p>
+                  <p><span>Safe move</span>closest allowed step sent to execution.</p>
                 </aside>
               </div>
 
               <div class="projection-math-block">
                 <p class="projection-origin">Proposed here</p>
-                <p class="projection-equation-intro">Equation in plain words: take the model's proposed move and keep the closest version that stays inside the risk budget.</p>
-                <p class="projection-symbol-key"><span>\(g_{d,t}\)</span> proposed move from current flow · <span>\(\mathcal{F}_t\)</span> allowed region from risk limits · <span>\(g_t^{\mathrm{safe}}\)</span> move sent to execution.</p>
+                <p class="projection-equation-intro">Plain meaning: choose the allowed step that is closest to the proposed step.</p>
+                <p class="projection-symbol-key"><span>\(g_{d,t}\)</span> proposed step from current flow · <span>\(\mathcal{F}_t\)</span> set of allowed steps from risk limits · <span>\(g_t^{\mathrm{safe}}\)</span> step sent to execution.</p>
                 <div class="projection-math">
                   \[
                   g_t^{\mathrm{safe}}=\arg\min_{g\in\mathcal{F}_t}\lVert g-g_{d,t}\rVert_2^2
                   \]
                 </div>
-                <p class="projection-operational">Operational meaning: keep the live signal direction, then clip size to the nearest risk-feasible trade.</p>
+                <p class="projection-operational">Operational meaning: keep the signal direction, then clip size to stay inside the risk budget.</p>
               </div>
             </div>
           </article>
@@ -411,13 +411,13 @@
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
         <h2>2. Deployment Decision Dashboard</h2>
-        <p class="section-note">Use this section like a release gate. Each chart answers one practical question: does a strategy hold value, control drawdown, keep allocations stable, and stay robust by regime.</p>
+        <p class="section-note">Use this as a release gate. Each chart answers one deployment question: value, drawdown, stability, and regime robustness.</p>
 
         <div class="metric-primer" aria-label="Metric primer">
-          <article><strong>Portfolio value</strong><span>Cumulative capital after transaction costs.</span></article>
-          <article><strong>Drawdown</strong><span>Drop from the previous peak. Smaller magnitude is safer.</span></article>
-          <article><strong>Turnover</strong><span>How much weights change step to step. Lower is easier to execute.</span></article>
-          <article><strong>Regime Sharpe</strong><span>Risk-adjusted return measured separately in calm, volatile, stress, and shift windows.</span></article>
+          <article><strong>Portfolio value</strong><span>Total capital after transaction costs.</span></article>
+          <article><strong>Drawdown</strong><span>Loss from the latest peak. Smaller is safer.</span></article>
+          <article><strong>Turnover</strong><span>How much weights change each step. Lower is easier to trade.</span></article>
+          <article><strong>Regime Sharpe</strong><span>Risk-adjusted return measured separately by regime.</span></article>
         </div>
 
         <div class="experiment-layout">
@@ -444,7 +444,7 @@
               </article>
 
               <article class="component-panel" aria-label="Constraint toggle interface">
-                <h3>Constraint</h3>
+                <h3>Constraints</h3>
                 <label class="switch-row" for="toggle-anchor">
                   <span>Anchor fixtures</span>
                   <input id="toggle-anchor" type="checkbox" checked />
@@ -456,14 +456,14 @@
               </article>
 
               <details class="advanced-panel">
-                <summary>Advanced knobs</summary>
+                <summary>Advanced settings</summary>
                 <form id="config-form" class="knob-grid">
                   <label>
                     Anchor weight
                     <input name="anchorBeta" type="number" step="0.01" />
                   </label>
                   <label>
-                    Stress frequency
+                    Stress probability
                     <input name="pStress" type="number" step="0.01" />
                   </label>
                   <label>
@@ -484,7 +484,7 @@
             </div>
 
             <div class="run-status">
-              <p id="status-line">Ready.</p>
+              <p id="status-line">Ready to run.</p>
               <div class="progress-track"><div id="progress-fill"></div></div>
             </div>
           </aside>
@@ -497,37 +497,37 @@
             <div class="plot-stack">
               <article class="chart-card">
                 <h3>Q1. Portfolio Value Through Regimes</h3>
-                <p class="plot-caption">Same market path and cost model. Start with stress windows, then compare end value.</p>
+                <p class="plot-caption">Same market path and cost model for every strategy. Start with stress windows, then compare ending value.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q2. Drawdown and Recovery</h3>
-                <p class="plot-caption">Depth shows worst loss from peak. Recovery shows how quickly each strategy regains that peak.</p>
+                <p class="plot-caption">Depth is worst peak-to-trough loss. Recovery is time to regain that peak.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q3. Allocation vs Turnover</h3>
-                <p class="plot-caption">Top panel: risky allocation path. Bottom panel: turnover response. Same regime shading makes the stability-versus-responsiveness trade-off immediate.</p>
+                <p class="plot-caption">Top: risky allocation path. Bottom: turnover response. Read both together to see stability versus responsiveness.</p>
                 <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
-                <p class="plot-legend-note">Color identifies strategy. Solid path = allocation, dotted path = turnover.</p>
+                <p class="plot-legend-note">Color identifies strategy. Solid = allocation, dotted = turnover.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q4. Regime Sharpe</h3>
-                <p class="plot-caption">Each bar is annualized Sharpe by regime. This isolates where a strategy truly earns risk-adjusted return.</p>
+                <p class="plot-caption">Each bar is annualized Sharpe by regime. This shows where each strategy earns return per unit risk.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
 
               <article class="chart-card chart-card-wide">
                 <h3>Q5. Portfolio Policy View</h3>
-                <p class="plot-caption">Per strategy: calm risky sleeve vs stress risky sleeve. This shows how policy compresses risk under stress.</p>
+                <p class="plot-caption">For each strategy: risky sleeve in calm versus stress regimes. Lower stress sleeve means tighter risk control.</p>
                 <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
                 <p class="chart-reading" id="portfolio-state-reading"></p>
               </article>
@@ -538,45 +538,45 @@
 
       <section class="section" id="takeaway-section">
         <h2>3. Deploy Path</h2>
-        <p class="section-note">How this ships in practice: one small update, one strict check, one clear decision.</p>
+        <p class="section-note">How this ships in practice: one updater change, one strict gate, one clear decision.</p>
 
         <div class="deploy-path">
           <figure class="deploy-flow" aria-label="End-to-end deployment flow">
             <article class="deploy-node">
               <p class="deploy-step">Step 1</p>
               <h3>Freeze core</h3>
-              <p>Keep the transformer and optimizer fixed. Swap only the updater.</p>
+              <p>Keep the transformer and optimizer fixed. Change only the updater.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 2</p>
               <h3>Dry run</h3>
-              <p>Replay the same path with costs and regime labels.</p>
+              <p>Replay the same path with costs and regime tags.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node proposed">
               <p class="deploy-step">Step 3</p>
               <h3>Decide</h3>
-              <p>Check stress retention, drawdown, turnover, and regime Sharpe together.</p>
+              <p>Check stress memory, drawdown, turnover, and regime Sharpe together.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 4</p>
-              <h3>Paper → live</h3>
+              <h3>Paper to live</h3>
               <p>Paper trade first. Roll out in stages with rollback ready.</p>
             </article>
           </figure>
 
-          <article class="deploy-checks" aria-label="Go or no-go checks">
-            <p class="deploy-gate-title">Go / no-go checks</p>
+          <article class="deploy-checks" aria-label="Go hold rollback checks">
+            <p class="deploy-gate-title">Go / hold / rollback checks</p>
             <ul>
-              <li><strong>Go:</strong> hybrid stays first and drawdown lift is still positive.</li>
-              <li><strong>Hold:</strong> stress retention or stress Sharpe falls below replay.</li>
+              <li><strong>Go:</strong> hybrid stays first and drawdown gain remains positive.</li>
+              <li><strong>Hold:</strong> stress memory or stress Sharpe drops below replay.</li>
               <li><strong>Rollback:</strong> live turnover or drawdown moves outside the approved band.</li>
             </ul>
           </article>
 
-          <p class="deploy-outcome">Takeaway: treat updater changes like any other production release, with fixed checks and a fast rollback path.</p>
+          <p class="deploy-outcome">Takeaway: treat updater changes like any production release, with fixed checks and a fast rollback path.</p>
         </div>
 
         <article id="takeaway" class="takeaway"></article>

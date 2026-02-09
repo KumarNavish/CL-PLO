@@ -26,20 +26,20 @@ const MODE_META = {
   quick_check: {
     label: "Quick",
     runLabel: "quick run",
-    readout: "Fast separation check with coarse stress structure.",
-    lens: "Fast diagnostic pass.",
+    readout: "Fast check with a coarse stress mix.",
+    lens: "Quick gate.",
   },
   proposal_like: {
     label: "Default",
     runLabel: "default run",
-    readout: "Deployment-like setting for primary decision checks.",
-    lens: "Primary deployment gate.",
+    readout: "Primary deployment setting.",
+    lens: "Primary gate.",
   },
   stress_heavy: {
     label: "Stress+",
     runLabel: "stress run",
-    readout: "Adverse regime mix to expose failure modes quickly.",
-    lens: "Adverse-regime gate.",
+    readout: "Adverse regime mix to expose failure modes.",
+    lens: "Stress gate.",
   },
 };
 
@@ -231,10 +231,10 @@ function runCurrentConfig() {
 
   setRunning(true);
   setProgress(16);
-  setStatus(`${mode.label} running...`);
+  setStatus(`${mode.label} run in progress...`);
 
   if (!payload) {
-    setStatus(`Missing dataset for ${mode.label}.`, true);
+    setStatus(`No dataset found for ${mode.label}.`, true);
     setRunning(false);
     return;
   }
@@ -284,7 +284,7 @@ function applyPreset(name, announce = true) {
   setActiveMode(name);
 
   if (announce) {
-    setStatus(`${preset.label} mode selected. Run demo to refresh all plots.`);
+    setStatus(`${preset.label} mode selected. Run Demo to refresh plots.`);
   }
 }
 
@@ -310,7 +310,7 @@ function setActiveFocus(focusName, announce = true) {
   });
 
   if (announce) {
-    setStatus(`Focus set to ${prettyFocus(activeFocus)}.`);
+    setStatus(`Focus: ${prettyFocus(activeFocus)}.`);
   }
 }
 
@@ -351,8 +351,8 @@ function applyComponentControls(announce = false) {
   }
 
   if (announce) {
-    const note = coerced ? "Projection requires anchors." : "Constraint switches updated.";
-    setStatus(`${note} ${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} active.`);
+    const note = coerced ? "Projection needs anchors." : "Constraint toggles updated.";
+    setStatus(`${note} ${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} selected.`);
   }
 
   if (latestResult) {
@@ -399,7 +399,7 @@ function syncComponentFromStrategy(strategyId, setStatusLine = false) {
   componentState.strategy = deriveStrategyFromComponents(componentState.anchors, componentState.projection);
 
   if (setStatusLine) {
-    setStatus(`${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} active.`);
+    setStatus(`${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} selected.`);
   }
 }
 
@@ -441,7 +441,7 @@ function renderAll(result) {
   const methodRows = applyModeShaping(baseRows, activePreset, regimeInfo);
   attachDeployScores(methodRows, activePreset);
 
-  setStatus(`${mode.label} complete. ${mode.lens}`);
+  setStatus(`${mode.label} run complete. ${mode.lens}`);
 
   renderDecisionCard(methodRows);
   renderKpis(methodRows);
@@ -477,12 +477,12 @@ function renderDecisionCard(rows) {
 
   if (winner.id === "anchor_proj" && lead >= 4) {
     level = "good";
-    title = "Hybrid clears release bar";
-    next = "Promote to paper-trading candidate.";
+    title = "Hybrid clears the gate";
+    next = "Move to paper trading.";
   } else if (winner.id === "naive") {
     level = "bad";
-    title = "Naive fails risk gate";
-    next = "Re-enable replay and projection before deployment.";
+    title = "Naive fails the risk gate";
+    next = "Turn replay and projection back on before deployment.";
   }
 
   host.className = `decision-card ${level}`;
@@ -490,7 +490,7 @@ function renderDecisionCard(rows) {
     <h4>${title}</h4>
     <p>
       Deployment score: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>.
-      Stress retention lift: <strong>${pct(stressGain)}</strong>. Drawdown lift: <strong>${pp(drawLift)}</strong>. ${next}
+      Stress memory gain: <strong>${pct(stressGain)}</strong>. Drawdown gain: <strong>${pp(drawLift)}</strong>. ${next}
     </p>
   `;
 }
@@ -516,22 +516,22 @@ function renderKpis(rows) {
 
   host.innerHTML = `
     <article class="${classBySign(stressGain)}">
-      <div class="label">Stress Retention Gain</div>
+      <div class="label">Stress Memory Gain</div>
       <div class="value">${pct(stressGain)}</div>
       <div class="note">hybrid minus naive</div>
     </article>
     <article class="${classBySign(ddLift)}">
-      <div class="label">Drawdown Lift</div>
+      <div class="label">Drawdown Gain</div>
       <div class="value">${pp(ddLift)}</div>
       <div class="note">hybrid minus naive</div>
     </article>
     <article class="${classBySign(stressSharpeLift)}">
-      <div class="label">Stress Sharpe Lift</div>
+      <div class="label">Stress Sharpe Gain</div>
       <div class="value">${signed(stressSharpeLift, 2)}</div>
       <div class="note">annualized stress regime</div>
     </article>
     <article class="${classBySign(turnoverDelta)}">
-      <div class="label">Turnover Discipline</div>
+      <div class="label">Turnover Reduction</div>
       <div class="value">${pp(turnoverDelta)}</div>
       <div class="note">replay minus hybrid</div>
     </article>
@@ -648,21 +648,21 @@ function renderChartReadouts(rows) {
   const selectedStressGain = improvement(naive.stressMse, selected.stressMse);
   const selectedLabel = selected.style.short;
 
-  pnlHost.textContent = `What it shows: cumulative value with regime shading. Read stress windows first. ${selectedLabel} vs naive: value ${pp(selectedVsNaiveRet)}, retention ${pct(selectedStressGain)}.`;
+  pnlHost.textContent = `Shows portfolio value over time with regime shading. ${selectedLabel} vs Naive: value ${pp(selectedVsNaiveRet)}, stress memory ${pct(selectedStressGain)}.`;
 
-  drawdownHost.textContent = `How to read: deeper negative values mean larger losses from peak. ${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
+  drawdownHost.textContent = `Read deeper negative values as larger losses from peak. ${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
-  allocationHost.textContent = `How to read: top panel shows risky allocation; bottom panel shows turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
+  allocationHost.textContent = `Top panel is risky allocation; bottom panel is turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover gain ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
-  regimeHost.textContent = `What it shows: risk-adjusted return by regime. ${selectedLabel} vs naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
+  regimeHost.textContent = `Shows risk-adjusted return by regime. ${selectedLabel} vs Naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 
   const calmGap = selected.calmWeight - naive.calmWeight;
   const stressGap = selected.stressWeight - naive.stressWeight;
-  portfolioHost.textContent = `How to read: compare calm and stress risky sleeves for each strategy. ${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs naive.`;
+  portfolioHost.textContent = `Compare calm and stress risky sleeves for each strategy. ${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs Naive.`;
 }
 
 function renderTakeaway(rows) {
@@ -684,8 +684,8 @@ function renderTakeaway(rows) {
     <h4>Decision Summary</h4>
     <p>
       ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first.
-      Hybrid vs naive: retention <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Deploy sequence: rerun alternate seeds, promote to paper trading, then release only if gate ordering and risk limits hold.
+      Hybrid vs Naive: stress memory <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
+      Next steps: rerun alternate seeds, move to paper trading, then release only if ordering and risk limits hold.
     </p>
   `;
 }
