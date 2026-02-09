@@ -91,59 +91,58 @@
               <p class="mechanism-intuition">Only the latest batch drives the step. This reacts quickly, but stress fixtures stay idle and retention decays after regime breaks.</p>
             </header>
 
-            <figure class="pipeline-canvas" aria-label="Naive strategy pipeline">
-              <div class="pipe-row">
-                <article class="pipe-node role-data">
-                  <p class="pipe-cap">Stream</p>
-                  <h4>LLM market stream</h4>
-                  <p class="pipe-sub">tokens + returns</p>
-                  <p class="pipe-inline-math">\(x_t\)</p>
-                </article>
-
-                <article class="pipe-node role-core">
-                  <p class="pipe-cap">Frozen core</p>
-                  <h4>Transformer backbone</h4>
-                  <p class="pipe-sub">weights frozen</p>
-                </article>
-
-                <article class="pipe-node role-memory muted">
-                  <p class="pipe-cap">Anchor memory</p>
-                  <h4>Anchor set \(A_t\)</h4>
-                  <p class="pipe-sub">stored only</p>
-                </article>
-
-                <article class="pipe-node role-update">
-                  <p class="pipe-cap">Update</p>
-                  <h4>Drift step</h4>
-                  <div class="pipe-math">
-                    \[
-                    \begin{aligned}
-                    g_t &= g_{d,t}\\
-                    \theta_{t+1}&=\theta_t-\eta_t g_t
-                    \end{aligned}
-                    \]
-                  </div>
-                  <p class="pipe-origin prior">Prior work</p>
-                </article>
-
-                <article class="pipe-node role-decision">
-                  <p class="pipe-cap">Decision</p>
-                  <h4>Portfolio optimizer</h4>
-                  <p class="pipe-sub">weights \(w_t\)</p>
-                </article>
-              </div>
-
-              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+            <figure class="pipeline-figure" aria-label="Naive strategy pipeline">
+              <svg class="pipeline-svg" viewBox="0 0 1240 282" role="img" aria-label="Naive update pipeline">
                 <defs>
-                  <marker id="pipe-arrow-a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                  <marker id="arrow-naive" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
                     <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
                   </marker>
                 </defs>
-                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-a)"></path>
-                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-a)"></path>
-                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-a)"></path>
-                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-a)"></path>
+
+                <rect class="stage-box role-data" x="32" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-core" x="272" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-memory passive" x="512" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-update" x="752" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-decision" x="992" y="86" width="206" height="122" rx="10"></rect>
+
+                <line class="flow-arrow" x1="238" y1="147" x2="272" y2="147" marker-end="url(#arrow-naive)"></line>
+                <line class="flow-arrow" x1="478" y1="147" x2="512" y2="147" marker-end="url(#arrow-naive)"></line>
+                <line class="flow-arrow" x1="718" y1="147" x2="752" y2="147" marker-end="url(#arrow-naive)"></line>
+                <line class="flow-arrow" x1="958" y1="147" x2="992" y2="147" marker-end="url(#arrow-naive)"></line>
+
+                <text class="stage-cap" x="50" y="108">STREAM</text>
+                <text class="stage-title" x="50" y="136">LLM market batch</text>
+                <text class="stage-sub" x="50" y="158">tokens + returns x_t</text>
+
+                <text class="stage-cap" x="290" y="108">FROZEN</text>
+                <text class="stage-title" x="290" y="136">Transformer backbone</text>
+                <text class="stage-sub" x="290" y="158">encoder + optimizer fixed</text>
+
+                <text class="stage-cap" x="530" y="108">MEMORY</text>
+                <text class="stage-title" x="530" y="136">Anchor set A_t</text>
+                <text class="stage-sub" x="530" y="158">stored, not replayed</text>
+
+                <text class="stage-cap" x="770" y="108">UPDATE</text>
+                <text class="stage-title" x="770" y="136">Drift-only step</text>
+                <text class="stage-sub" x="770" y="158">uses only g_d,t</text>
+
+                <text class="stage-cap" x="1010" y="108">DECISION</text>
+                <text class="stage-title" x="1010" y="136">Portfolio optimizer</text>
+                <text class="stage-sub" x="1010" y="158">emits weights w_t</text>
               </svg>
+
+              <figcaption class="pipeline-formula">
+                <p class="pipe-origin prior">Prior work</p>
+                <div class="pipe-math">
+                  \[
+                  \begin{aligned}
+                  g_t&=g_{d,t},\\
+                  \theta_{t+1}&=\theta_t-\eta_t g_t
+                  \end{aligned}
+                  \]
+                </div>
+                <p class="pipe-operational">Operational meaning: the updater adapts to recent flow, but stress fixtures do not constrain the step.</p>
+              </figcaption>
             </figure>
 
             <div class="mechanism-concrete">
@@ -177,64 +176,63 @@
               <p class="mechanism-intuition">Each update mixes live drift with anchor replay. Retention improves, but the mixed step can still move outside a strict risk budget.</p>
             </header>
 
-            <figure class="pipeline-canvas has-arc" aria-label="Replay strategy pipeline">
-              <div class="pipe-row">
-                <article class="pipe-node role-data">
-                  <p class="pipe-cap">Stream</p>
-                  <h4>LLM market stream</h4>
-                  <p class="pipe-sub">tokens + returns</p>
-                  <p class="pipe-inline-math">\(x_t\)</p>
-                </article>
-
-                <article class="pipe-node role-core">
-                  <p class="pipe-cap">Frozen core</p>
-                  <h4>Transformer backbone</h4>
-                  <p class="pipe-sub">weights frozen</p>
-                </article>
-
-                <article class="pipe-node role-memory">
-                  <p class="pipe-cap">Anchor memory</p>
-                  <h4>Replay set \(A_t\)</h4>
-                  <p class="pipe-sub">fixtures replayed</p>
-                  <p class="pipe-inline-math">\(g_{a,t}\)</p>
-                </article>
-
-                <article class="pipe-node role-update">
-                  <p class="pipe-cap">Update</p>
-                  <h4>Replay-mixed step</h4>
-                  <div class="pipe-math">
-                    \[
-                    \begin{aligned}
-                    g_t&=g_{d,t}+\beta_t g_{a,t}\\
-                    \theta_{t+1}&=\theta_t-\eta_t g_t
-                    \end{aligned}
-                    \]
-                  </div>
-                  <p class="pipe-origin prior">Prior work</p>
-                </article>
-
-                <article class="pipe-node role-decision">
-                  <p class="pipe-cap">Decision</p>
-                  <h4>Portfolio optimizer</h4>
-                  <p class="pipe-sub">weights \(w_t\)</p>
-                </article>
-              </div>
-
-              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+            <figure class="pipeline-figure" aria-label="Replay strategy pipeline">
+              <svg class="pipeline-svg" viewBox="0 0 1240 282" role="img" aria-label="Replay update pipeline">
                 <defs>
-                  <marker id="pipe-arrow-b" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                  <marker id="arrow-replay" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
                     <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
                   </marker>
-                  <marker id="pipe-arc-b" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
-                    <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"></path>
+                  <marker id="arc-replay" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#7b6346"></path>
                   </marker>
                 </defs>
-                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-b)"></path>
-                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-b)"></path>
-                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-b)"></path>
-                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-b)"></path>
-                <path class="arc" d="M505 132 C 560 188, 640 188, 695 132" marker-end="url(#pipe-arc-b)"></path>
+
+                <rect class="stage-box role-data" x="32" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-core" x="272" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-memory" x="512" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-update" x="752" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-decision" x="992" y="86" width="206" height="122" rx="10"></rect>
+
+                <line class="flow-arrow" x1="238" y1="147" x2="272" y2="147" marker-end="url(#arrow-replay)"></line>
+                <line class="flow-arrow" x1="478" y1="147" x2="512" y2="147" marker-end="url(#arrow-replay)"></line>
+                <line class="flow-arrow" x1="718" y1="147" x2="752" y2="147" marker-end="url(#arrow-replay)"></line>
+                <line class="flow-arrow" x1="958" y1="147" x2="992" y2="147" marker-end="url(#arrow-replay)"></line>
+                <path class="flow-arc" d="M615 208 C 660 252, 805 252, 850 208" marker-end="url(#arc-replay)"></path>
+                <text class="arc-label" x="676" y="258">anchor replay path</text>
+
+                <text class="stage-cap" x="50" y="108">STREAM</text>
+                <text class="stage-title" x="50" y="136">LLM market batch</text>
+                <text class="stage-sub" x="50" y="158">tokens + returns x_t</text>
+
+                <text class="stage-cap" x="290" y="108">FROZEN</text>
+                <text class="stage-title" x="290" y="136">Transformer backbone</text>
+                <text class="stage-sub" x="290" y="158">encoder + optimizer fixed</text>
+
+                <text class="stage-cap" x="530" y="108">MEMORY</text>
+                <text class="stage-title" x="530" y="136">Anchor set A_t</text>
+                <text class="stage-sub" x="530" y="158">replayed each update</text>
+
+                <text class="stage-cap" x="770" y="108">UPDATE</text>
+                <text class="stage-title" x="770" y="136">Replay-mixed step</text>
+                <text class="stage-sub" x="770" y="158">drift + anchor gradient</text>
+
+                <text class="stage-cap" x="1010" y="108">DECISION</text>
+                <text class="stage-title" x="1010" y="136">Portfolio optimizer</text>
+                <text class="stage-sub" x="1010" y="158">emits weights w_t</text>
               </svg>
+
+              <figcaption class="pipeline-formula">
+                <p class="pipe-origin prior">Prior work</p>
+                <div class="pipe-math">
+                  \[
+                  \begin{aligned}
+                  g_t&=g_{d,t}+\beta_t g_{a,t},\\
+                  \theta_{t+1}&=\theta_t-\eta_t g_t
+                  \end{aligned}
+                  \]
+                </div>
+                <p class="pipe-operational">Operational meaning: replay protects stress memory, but the mixed step can still exceed live risk bounds.</p>
+              </figcaption>
             </figure>
 
             <div class="mechanism-concrete">
@@ -268,64 +266,63 @@
               <p class="mechanism-intuition">The drift step is clipped to the feasible region before replay is added. The model keeps adapting, but the update stays inside the risk budget.</p>
             </header>
 
-            <figure class="pipeline-canvas has-arc" aria-label="Hybrid replay projection strategy pipeline">
-              <div class="pipe-row">
-                <article class="pipe-node role-data">
-                  <p class="pipe-cap">Stream</p>
-                  <h4>LLM market stream</h4>
-                  <p class="pipe-sub">tokens + returns</p>
-                  <p class="pipe-inline-math">\(x_t\)</p>
-                </article>
-
-                <article class="pipe-node role-core">
-                  <p class="pipe-cap">Frozen core</p>
-                  <h4>Transformer backbone</h4>
-                  <p class="pipe-sub">weights frozen</p>
-                </article>
-
-                <article class="pipe-node role-memory">
-                  <p class="pipe-cap">Anchor memory</p>
-                  <h4>Replay set \(A_t\)</h4>
-                  <p class="pipe-sub">fixtures replayed</p>
-                  <p class="pipe-inline-math">\(g_{a,t}\)</p>
-                </article>
-
-                <article class="pipe-node role-update">
-                  <p class="pipe-cap">Update</p>
-                  <h4>Projected mixed step</h4>
-                  <div class="pipe-math">
-                    \[
-                    \begin{aligned}
-                    g_t&=\Pi_{\mathcal{H}_t}(g_{d,t})+\beta_t g_{a,t}\\
-                    \theta_{t+1}&=\theta_t-\eta_t g_t
-                    \end{aligned}
-                    \]
-                  </div>
-                  <p class="pipe-origin proposed">Proposed here</p>
-                </article>
-
-                <article class="pipe-node role-decision">
-                  <p class="pipe-cap">Decision</p>
-                  <h4>Portfolio optimizer</h4>
-                  <p class="pipe-sub">weights \(w_t\)</p>
-                </article>
-              </div>
-
-              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+            <figure class="pipeline-figure" aria-label="Hybrid replay projection strategy pipeline">
+              <svg class="pipeline-svg" viewBox="0 0 1240 282" role="img" aria-label="Hybrid update pipeline">
                 <defs>
-                  <marker id="pipe-arrow-c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                  <marker id="arrow-hybrid" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
                     <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
                   </marker>
-                  <marker id="pipe-arc-c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
-                    <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"></path>
+                  <marker id="arc-hybrid" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#7b6346"></path>
                   </marker>
                 </defs>
-                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-c)"></path>
-                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-c)"></path>
-                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-c)"></path>
-                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-c)"></path>
-                <path class="arc" d="M505 132 C 560 188, 640 188, 695 132" marker-end="url(#pipe-arc-c)"></path>
+
+                <rect class="stage-box role-data" x="32" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-core" x="272" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-memory" x="512" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-update proposed" x="752" y="86" width="206" height="122" rx="10"></rect>
+                <rect class="stage-box role-decision" x="992" y="86" width="206" height="122" rx="10"></rect>
+
+                <line class="flow-arrow" x1="238" y1="147" x2="272" y2="147" marker-end="url(#arrow-hybrid)"></line>
+                <line class="flow-arrow" x1="478" y1="147" x2="512" y2="147" marker-end="url(#arrow-hybrid)"></line>
+                <line class="flow-arrow" x1="718" y1="147" x2="752" y2="147" marker-end="url(#arrow-hybrid)"></line>
+                <line class="flow-arrow" x1="958" y1="147" x2="992" y2="147" marker-end="url(#arrow-hybrid)"></line>
+                <path class="flow-arc" d="M615 208 C 660 252, 805 252, 850 208" marker-end="url(#arc-hybrid)"></path>
+                <text class="arc-label" x="662" y="258">anchor replay path</text>
+
+                <text class="stage-cap" x="50" y="108">STREAM</text>
+                <text class="stage-title" x="50" y="136">LLM market batch</text>
+                <text class="stage-sub" x="50" y="158">tokens + returns x_t</text>
+
+                <text class="stage-cap" x="290" y="108">FROZEN</text>
+                <text class="stage-title" x="290" y="136">Transformer backbone</text>
+                <text class="stage-sub" x="290" y="158">encoder + optimizer fixed</text>
+
+                <text class="stage-cap" x="530" y="108">MEMORY</text>
+                <text class="stage-title" x="530" y="136">Anchor set A_t</text>
+                <text class="stage-sub" x="530" y="158">replayed each update</text>
+
+                <text class="stage-cap" x="770" y="108">UPDATE</text>
+                <text class="stage-title" x="770" y="136">Projected mixed step</text>
+                <text class="stage-sub" x="770" y="158">projected + replay mix</text>
+
+                <text class="stage-cap" x="1010" y="108">DECISION</text>
+                <text class="stage-title" x="1010" y="136">Portfolio optimizer</text>
+                <text class="stage-sub" x="1010" y="158">emits weights w_t</text>
               </svg>
+
+              <figcaption class="pipeline-formula">
+                <p class="pipe-origin proposed">Proposed here</p>
+                <div class="pipe-math">
+                  \[
+                  \begin{aligned}
+                  g_t&=\Pi_{\mathcal{H}_t}(g_{d,t})+\beta_t g_{a,t},\\
+                  \theta_{t+1}&=\theta_t-\eta_t g_t
+                  \end{aligned}
+                  \]
+                </div>
+                <p class="pipe-operational">Operational meaning: the step keeps replay memory and clips drift to the feasible risk region before execution.</p>
+              </figcaption>
             </figure>
 
             <div class="mechanism-concrete projection-concrete">
@@ -347,14 +344,15 @@
                     <rect x="0" y="0" width="540" height="270" fill="#ffffff"></rect>
                     <line x1="74" y1="220" x2="466" y2="220" stroke="#8f9ba9" stroke-width="1.6"></line>
                     <line x1="74" y1="220" x2="74" y2="42" stroke="#8f9ba9" stroke-width="1.6"></line>
-                    <text x="470" y="239" font-size="12" fill="#5f6c7d">risk factor 1</text>
-                    <text x="35" y="48" font-size="12" fill="#5f6c7d" transform="rotate(-90 35 48)">risk factor 2</text>
+                    <text x="470" y="239" font-size="12" fill="#5f6c7d">market beta</text>
+                    <text x="35" y="48" font-size="12" fill="#5f6c7d" transform="rotate(-90 35 48)">value beta</text>
 
                     <polygon points="196,54 468,54 468,220 292,220" fill="#edf5ef" stroke="#587662" stroke-width="1.8"></polygon>
                     <line x1="196" y1="54" x2="292" y2="220" stroke="#587662" stroke-width="1.6" stroke-dasharray="6 5"></line>
-                    <text x="336" y="75" font-size="12" fill="#4f6b57">risk budget</text>
+                    <text x="322" y="75" font-size="12" fill="#4f6b57">feasible risk region</text>
 
                     <circle cx="126" cy="194" r="4.2" fill="#111827"></circle>
+                    <text x="94" y="214" font-size="11" fill="#4a5565">current</text>
                     <line x1="126" y1="194" x2="392" y2="84" stroke="#b64834" stroke-width="2.8" marker-end="url(#proj-raw-arrow)"></line>
                     <line x1="126" y1="194" x2="292" y2="164" stroke="#1f3249" stroke-width="2.8" marker-end="url(#proj-safe-arrow)"></line>
                     <line x1="292" y1="164" x2="392" y2="84" stroke="#8f9daf" stroke-width="1.7" stroke-dasharray="4 5"></line>
@@ -392,13 +390,13 @@
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
         <h2>2. Deployment Decision Dashboard</h2>
-        <p class="section-note">Use this section like a release gate. Each chart answers one practical question: does a strategy hold value, control drawdown, keep allocations stable, and stay robust by regime.</p>
+        <p class="section-note">Treat this as a release gate. Each chart answers one deployment question before promotion.</p>
 
         <div class="metric-primer" aria-label="Metric primer">
-          <article><strong>Portfolio value</strong><span>Cumulative capital after transaction costs.</span></article>
-          <article><strong>Drawdown</strong><span>Drop from the previous peak. Smaller magnitude is safer.</span></article>
-          <article><strong>Turnover</strong><span>How much weights change step to step. Lower is easier to execute.</span></article>
-          <article><strong>Regime Sharpe</strong><span>Risk-adjusted return measured separately in calm, volatile, stress, and shift windows.</span></article>
+          <article><strong>Portfolio value</strong><span>Capital path after costs.</span></article>
+          <article><strong>Drawdown</strong><span>Peak-to-trough loss.</span></article>
+          <article><strong>Turnover</strong><span>Weight change per step.</span></article>
+          <article><strong>Regime Sharpe</strong><span>Risk-adjusted return per regime.</span></article>
         </div>
 
         <div class="experiment-layout">
@@ -478,21 +476,21 @@
             <div class="plot-stack">
               <article class="chart-card">
                 <h3>Q1. Portfolio Value Through Regimes</h3>
-                <p class="plot-caption">Same market path and cost model. Start with stress windows, then compare end value.</p>
+                <p class="plot-caption">Same path, same costs. Compare stress windows first, then terminal value.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q2. Drawdown and Recovery</h3>
-                <p class="plot-caption">Depth shows worst loss from peak. Recovery shows how quickly each strategy regains that peak.</p>
+                <p class="plot-caption">Depth is loss from peak. Recovery is time back to peak.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
                 <h3>Q3. Allocation vs Turnover</h3>
-                <p class="plot-caption">Top panel: risky allocation path. Bottom panel: turnover response. Same regime shading makes the stability-versus-responsiveness trade-off immediate.</p>
+                <p class="plot-caption">Top: risky sleeve path. Bottom: turnover response on the same regimes.</p>
                 <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
                 <p class="plot-legend-note">Color identifies strategy. Solid path = allocation, dotted path = turnover.</p>
                 <canvas id="allocation-chart" class="chart-canvas"></canvas>
@@ -501,14 +499,14 @@
 
               <article class="chart-card">
                 <h3>Q4. Regime Sharpe</h3>
-                <p class="plot-caption">Each bar is annualized Sharpe by regime. This isolates where a strategy truly earns risk-adjusted return.</p>
+                <p class="plot-caption">Annualized Sharpe by regime. This isolates where risk-adjusted return is earned.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
 
               <article class="chart-card chart-card-wide">
                 <h3>Q5. Portfolio Policy View</h3>
-                <p class="plot-caption">Per strategy: calm risky sleeve vs stress risky sleeve. This shows how policy compresses risk under stress.</p>
+                <p class="plot-caption">Calm vs stress risky sleeve per strategy. Lower stress sleeve indicates tighter risk compression.</p>
                 <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
                 <p class="chart-reading" id="portfolio-state-reading"></p>
               </article>

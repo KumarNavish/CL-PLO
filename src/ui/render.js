@@ -613,11 +613,10 @@ function renderAllocationLegend(series) {
 
   host.innerHTML = (series || [])
     .map((row) => {
-      const dashed = Array.isArray(row.dash) && row.dash.length > 0;
       const dimmedClass = (row.alpha === undefined ? 1 : row.alpha) < 0.8 ? " dimmed" : "";
       return `
         <span class="legend-chip${dimmedClass}">
-          <span class="legend-line" style="border-top-color:${row.color};border-top-style:${dashed ? "dashed" : "solid"}"></span>
+          <span class="legend-line" style="border-top-color:${row.color};border-top-style:solid"></span>
           <span>${row.label}</span>
         </span>
       `;
@@ -648,21 +647,21 @@ function renderChartReadouts(rows) {
   const selectedStressGain = improvement(naive.stressMse, selected.stressMse);
   const selectedLabel = selected.style.short;
 
-  pnlHost.textContent = `What it shows: cumulative value with regime shading. Read stress windows first. ${selectedLabel} vs naive: value ${pp(selectedVsNaiveRet)}, retention ${pct(selectedStressGain)}.`;
+  pnlHost.textContent = `What this shows: cumulative value with regime context. ${selectedLabel} vs naive: value ${pp(selectedVsNaiveRet)}, retention ${pct(selectedStressGain)}.`;
 
-  drawdownHost.textContent = `How to read: deeper negative values mean larger losses from peak. ${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
+  drawdownHost.textContent = `How to read: deeper troughs are riskier. ${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
-  allocationHost.textContent = `How to read: top panel shows risky allocation; bottom panel shows turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
+  allocationHost.textContent = `How to read: top is risky sleeve, bottom is turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
-  regimeHost.textContent = `What it shows: risk-adjusted return by regime. ${selectedLabel} vs naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
+  regimeHost.textContent = `What this shows: risk-adjusted return by regime. ${selectedLabel} vs naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 
   const calmGap = selected.calmWeight - naive.calmWeight;
   const stressGap = selected.stressWeight - naive.stressWeight;
-  portfolioHost.textContent = `How to read: compare calm and stress risky sleeves for each strategy. ${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs naive.`;
+  portfolioHost.textContent = `How to read: compare calm and stress risky sleeves. ${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs naive.`;
 }
 
 function renderTakeaway(rows) {
