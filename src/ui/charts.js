@@ -43,14 +43,14 @@ function mean(values) {
 }
 
 const CHART_THEME = {
-  axis: "#8795a9",
-  axisText: "#415066",
-  grid: "rgba(60, 79, 106, 0.08)",
-  legendText: "#253247",
-  bgVolatile: "rgba(68, 107, 154, 0.08)",
-  bgStress: "rgba(157, 94, 61, 0.1)",
-  shiftLine: "rgba(69, 81, 101, 0.4)",
-  zero: "#6a788c",
+  axis: "#8a97a8",
+  axisText: "#405064",
+  grid: "rgba(63, 79, 101, 0.06)",
+  legendText: "#223045",
+  bgVolatile: "rgba(64, 100, 142, 0.06)",
+  bgStress: "rgba(142, 88, 54, 0.08)",
+  shiftLine: "rgba(73, 84, 102, 0.3)",
+  zero: "#5f6f84",
 };
 
 function applyLineQuality(ctx) {
@@ -114,25 +114,16 @@ function drawGrid(ctx, dims, ticks = 4) {
 function drawLegend(ctx, legendItems, y = 10, maxWidth = Number.POSITIVE_INFINITY) {
   let x = 14;
   let rowY = y;
-  ctx.font = "11px 'IBM Plex Sans', sans-serif";
+  ctx.font = "500 11px 'IBM Plex Sans', sans-serif";
   applyLineQuality(ctx);
 
   for (const item of legendItems) {
     const labelWidth = ctx.measureText(item.label).width;
-    const chipWidth = 16 + 8 + labelWidth + 10;
+    const chipWidth = 16 + 8 + labelWidth + 6;
     if (x + chipWidth > maxWidth && x > 14) {
       x = 14;
-      rowY += 22;
+      rowY += 18;
     }
-
-    ctx.save();
-    ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-    ctx.strokeStyle = "rgba(193, 204, 220, 0.9)";
-    ctx.lineWidth = 1;
-    roundedRectPath(ctx, x - 6, rowY - 8, chipWidth, 18, 5);
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
 
     if (item.kind === "pattern") {
       ctx.save();
@@ -159,7 +150,7 @@ function drawLegend(ctx, legendItems, y = 10, maxWidth = Number.POSITIVE_INFINIT
     ctx.textAlign = "left";
     ctx.fillText(item.label, x + 18, rowY + 4);
 
-    x += chipWidth + 8;
+    x += chipWidth + 10;
   }
 }
 
@@ -309,11 +300,10 @@ export function drawEquity(canvas, series, regimeStates) {
   const dims = {
     left: 62,
     right: width - 20,
-    top: 28,
+    top: 30,
     bottom: height - 48,
   };
 
-  drawGrid(ctx, dims, 4);
   drawAxes(ctx, dims, "Time", "Portfolio value");
 
   const allY = series.flatMap((s) => s.values || []);
@@ -369,11 +359,10 @@ export function drawDrawdown(canvas, series, regimeStates) {
   const dims = {
     left: 62,
     right: width - 20,
-    top: 28,
+    top: 30,
     bottom: height - 48,
   };
 
-  drawGrid(ctx, dims, 4);
   drawAxes(ctx, dims, "Time", "Drawdown (%)");
 
   const drawdownSeries = series.map((s) => {
@@ -453,10 +442,10 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
   }
 
   const dims = {
-    left: 104,
-    right: width - 20,
-    top: 28,
-    bottom: height - 24,
+    left: 108,
+    right: width - 22,
+    top: 34,
+    bottom: height - 32,
   };
 
   const maxT = Math.max(...profiles.map((p) => (p.values?.length || 1) - 1), 1);
@@ -465,63 +454,47 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
   }
 
-  const turnoverScale = Math.max(
-    1e-6,
-    ...profiles.flatMap((p) => (p.turnovers || []).map((v) => Number(v) || 0)),
-  );
+  const turnoverScale = Math.max(1e-6, ...profiles.flatMap((p) => (p.turnovers || []).map((v) => Number(v) || 0)));
 
   drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
 
-  const laneGap = 18;
+  const laneGap = 14;
   const laneHeight = (dims.bottom - dims.top - laneGap * (profiles.length - 1)) / profiles.length;
+
+  ctx.fillStyle = "#4f5f74";
+  ctx.font = "500 11px 'IBM Plex Sans', sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("solid: risky weight   dashed: turnover", dims.left + 4, dims.top - 12);
 
   for (let i = 0; i < profiles.length; i += 1) {
     const p = profiles[i];
     const laneTop = dims.top + i * (laneHeight + laneGap);
     const laneBottom = laneTop + laneHeight;
 
-    ctx.strokeStyle = "rgba(93, 110, 132, 0.3)";
+    ctx.strokeStyle = "rgba(125, 139, 158, 0.45)";
     ctx.lineWidth = 1;
-    ctx.strokeRect(dims.left, laneTop, dims.right - dims.left, laneHeight);
+    ctx.beginPath();
+    ctx.moveTo(dims.left, laneTop);
+    ctx.lineTo(dims.right, laneTop);
+    ctx.stroke();
+    if (i === profiles.length - 1) {
+      ctx.beginPath();
+      ctx.moveTo(dims.left, laneBottom);
+      ctx.lineTo(dims.right, laneBottom);
+      ctx.stroke();
+    }
 
-    ctx.fillStyle = "#2f3b4c";
-    ctx.font = "12px 'IBM Plex Sans', sans-serif";
+    ctx.fillStyle = "#243347";
+    ctx.font = "600 12px 'IBM Plex Sans', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText(shortMethod(p.label), 14, laneTop + laneHeight * 0.45);
+    ctx.fillText(shortMethod(p.label), 14, laneTop + laneHeight * 0.36);
 
     function yToPx(v) {
-      return laneBottom - Math.max(0, Math.min(1, v)) * laneHeight;
+      return laneBottom - 6 - Math.max(0, Math.min(1, v)) * (laneHeight - 12);
     }
 
     const values = p.values || [];
     const turns = p.turnovers || [];
-
-    // Cash/risky allocation fill: lower area is risky weight, upper area is cash.
-    ctx.save();
-    ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.08;
-    ctx.fillStyle = "#111111";
-    ctx.beginPath();
-    ctx.moveTo(xToPx(0), laneTop);
-    for (let t = 0; t < values.length; t += 1) {
-      ctx.lineTo(xToPx(t), yToPx(values[t]));
-    }
-    ctx.lineTo(xToPx(Math.max(values.length - 1, 0)), laneTop);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    ctx.save();
-    ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.15;
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.moveTo(xToPx(0), laneBottom);
-    for (let t = 0; t < values.length; t += 1) {
-      ctx.lineTo(xToPx(t), yToPx(values[t]));
-    }
-    ctx.lineTo(xToPx(Math.max(values.length - 1, 0)), laneBottom);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
 
     ctx.save();
     ctx.strokeStyle = p.color;
@@ -543,17 +516,17 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.stroke();
     ctx.restore();
 
-    // Dashed turnover path inside each lane for stability-vs-responsiveness read.
+    // Dashed turnover path for stability-vs-responsiveness read.
     ctx.save();
     ctx.strokeStyle = "#425165";
-    ctx.lineWidth = 1.15;
+    ctx.lineWidth = 1.2;
     ctx.globalAlpha = (p.alpha === undefined ? 1 : p.alpha) * 0.75;
-    ctx.setLineDash([4, 3]);
+    ctx.setLineDash([5, 4]);
     ctx.beginPath();
     for (let t = 0; t < Math.min(values.length, turns.length); t += 1) {
       const x = xToPx(t);
       const normalized = Math.max(0, Math.min(1, (turns[t] || 0) / turnoverScale));
-      const y = laneBottom - normalized * laneHeight * 0.42;
+      const y = laneBottom - 6 - normalized * (laneHeight - 12) * 0.46;
       if (t === 0) {
         ctx.moveTo(x, y);
       } else {
@@ -564,9 +537,9 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
     ctx.restore();
 
     ctx.fillStyle = "#5b6778";
-    ctx.font = "10px 'IBM Plex Sans', sans-serif";
+    ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText(`TO ${Math.max(0, mean(turns) * 100).toFixed(1)}%`, dims.left + 8, laneBottom - 4);
+    ctx.fillText(`turnover ${Math.max(0, mean(turns) * 100).toFixed(1)}%`, dims.left + 8, laneBottom - 6);
   }
 
   drawLegend(
@@ -679,13 +652,12 @@ export function drawPortfolioState(canvas, rows) {
   }
 
   const dims = {
-    left: 56,
-    right: width - 20,
-    top: 46,
-    bottom: height - 52,
+    left: 58,
+    right: width - 22,
+    top: 42,
+    bottom: height - 60,
   };
 
-  drawGrid(ctx, dims, 4);
   ctx.strokeStyle = CHART_THEME.axis;
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -713,14 +685,14 @@ export function drawPortfolioState(canvas, rows) {
   }
 
   const groupWidth = (dims.right - dims.left) / rows.length;
-  const barGap = Math.max(10, Math.min(16, groupWidth * 0.1));
-  const barWidth = Math.max(24, Math.min(40, groupWidth * 0.22));
+  const barGap = Math.max(8, Math.min(14, groupWidth * 0.09));
+  const barWidth = Math.max(18, Math.min(34, groupWidth * 0.2));
   const chartHeight = dims.bottom - dims.top;
 
   ctx.fillStyle = "#425266";
   ctx.font = "500 11px 'IBM Plex Sans', sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("Left bar: calm, right bar: stress", dims.left + 4, dims.top - 16);
+  ctx.textAlign = "right";
+  ctx.fillText("calm | stress", dims.right, dims.top - 14);
 
   for (let i = 0; i < rows.length; i += 1) {
     const row = rows[i];
@@ -757,26 +729,9 @@ export function drawPortfolioState(canvas, rows) {
     ctx.fillStyle = "#223244";
     ctx.font = "600 11px 'IBM Plex Sans', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(shortMethod(row.label), centerX, dims.bottom + 16);
-    ctx.fillStyle = "#556579";
-    ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
-    ctx.fillText("C", centerX - barWidth * 0.75 - barGap * 0.5, dims.bottom + 32);
-    ctx.fillText("S", centerX + barWidth * 0.75 + barGap * 0.5, dims.bottom + 32);
+    ctx.fillText(shortMethod(row.label), centerX, dims.bottom + 18);
     ctx.restore();
   }
-
-  drawLegend(
-    ctx,
-    rows.map((row) => ({
-      label: shortMethod(row.label),
-      color: row.color,
-      kind: "pattern",
-      pattern: methodPattern(row.id),
-      alpha: row.alpha,
-    })),
-    10,
-    width - 14,
-  );
 }
 
 function drawStackBarVertical(ctx, x, y, width, height, riskyWeight, color, pattern, alpha) {

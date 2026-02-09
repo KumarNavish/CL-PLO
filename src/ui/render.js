@@ -26,20 +26,20 @@ const MODE_META = {
   quick_check: {
     label: "Quick",
     runLabel: "quick run",
-    readout: "Fast separation check.",
-    lens: "Exploration mode.",
+    readout: "Fast separation check with coarse stress structure.",
+    lens: "Fast diagnostic pass.",
   },
   proposal_like: {
     label: "Default",
     runLabel: "default run",
-    readout: "Primary decision mode.",
-    lens: "Decision gate.",
+    readout: "Deployment-like setting for primary decision checks.",
+    lens: "Primary deployment gate.",
   },
   stress_heavy: {
     label: "Stress+",
     runLabel: "stress run",
-    readout: "Adverse regime gate.",
-    lens: "Hard rejection gate.",
+    readout: "Adverse regime mix to expose failure modes quickly.",
+    lens: "Adverse-regime gate.",
   },
 };
 
@@ -284,7 +284,7 @@ function applyPreset(name, announce = true) {
   setActiveMode(name);
 
   if (announce) {
-    setStatus(`${preset.label} mode selected.`);
+    setStatus(`${preset.label} mode selected. Run demo to refresh all plots.`);
   }
 }
 
@@ -310,7 +310,7 @@ function setActiveFocus(focusName, announce = true) {
   });
 
   if (announce) {
-    setStatus(`View: ${prettyFocus(activeFocus)}.`);
+    setStatus(`Focus set to ${prettyFocus(activeFocus)}.`);
   }
 }
 
@@ -351,7 +351,7 @@ function applyComponentControls(announce = false) {
   }
 
   if (announce) {
-    const note = coerced ? "Projection requires anchors." : "Constraints updated.";
+    const note = coerced ? "Projection requires anchors." : "Constraint switches updated.";
     setStatus(`${note} ${METHOD_STYLES[componentState.strategy]?.short || "Strategy"} active.`);
   }
 
@@ -472,25 +472,25 @@ function renderDecisionCard(rows) {
   const drawLift = naive && hybrid ? hybrid.maxDrawdown - naive.maxDrawdown : 0;
 
   let level = "caution";
-  let title = `${winner.style.short} leads`;
-  let next = "Validate across seeds.";
+  let title = `${winner.style.short} leads this gate`;
+  let next = "Recheck with alternate seeds before paper trading.";
 
   if (winner.id === "anchor_proj" && lead >= 4) {
     level = "good";
-    title = "Hybrid passes";
-    next = "Promote to release candidate.";
+    title = "Hybrid clears release bar";
+    next = "Promote to paper-trading candidate.";
   } else if (winner.id === "naive") {
     level = "bad";
-    title = "Naive fails";
-    next = "Re-enable replay and projection.";
+    title = "Naive fails risk gate";
+    next = "Re-enable replay and projection before deployment.";
   }
 
   host.className = `decision-card ${level}`;
   host.innerHTML = `
     <h4>${title}</h4>
     <p>
-      Score <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>.
-      Retention gain <strong>${pct(stressGain)}</strong>. Drawdown lift <strong>${pp(drawLift)}</strong>. ${next}
+      Deployment score: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>.
+      Stress retention lift: <strong>${pct(stressGain)}</strong>. Drawdown lift: <strong>${pp(drawLift)}</strong>. ${next}
     </p>
   `;
 }
@@ -518,22 +518,22 @@ function renderKpis(rows) {
     <article class="${classBySign(stressGain)}">
       <div class="label">Stress Retention Gain</div>
       <div class="value">${pct(stressGain)}</div>
-      <div class="note">hybrid vs naive</div>
+      <div class="note">hybrid minus naive</div>
     </article>
     <article class="${classBySign(ddLift)}">
       <div class="label">Drawdown Lift</div>
       <div class="value">${pp(ddLift)}</div>
-      <div class="note">hybrid vs naive</div>
+      <div class="note">hybrid minus naive</div>
     </article>
     <article class="${classBySign(stressSharpeLift)}">
       <div class="label">Stress Sharpe Lift</div>
       <div class="value">${signed(stressSharpeLift, 2)}</div>
-      <div class="note">annualized, stress bucket</div>
+      <div class="note">annualized stress regime</div>
     </article>
     <article class="${classBySign(turnoverDelta)}">
       <div class="label">Turnover Discipline</div>
       <div class="value">${pp(turnoverDelta)}</div>
-      <div class="note">replay minus hybrid turnover</div>
+      <div class="note">replay minus hybrid</div>
     </article>
   `;
 }
@@ -627,21 +627,21 @@ function renderChartReadouts(rows) {
   const selectedStressGain = improvement(naive.stressMse, selected.stressMse);
   const selectedLabel = selected.style.short;
 
-  pnlHost.textContent = `${selectedLabel} vs naive: value ${pp(selectedVsNaiveRet)}, retention ${pct(selectedStressGain)}.`;
+  pnlHost.textContent = `What it shows: cumulative value with regime shading. Read stress windows first. ${selectedLabel} vs naive: value ${pp(selectedVsNaiveRet)}, retention ${pct(selectedStressGain)}.`;
 
-  drawdownHost.textContent = `${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
+  drawdownHost.textContent = `How to read: deeper negative values mean larger losses from peak. ${selectedLabel}: drawdown ${pp(selectedDdLift)}, recovery ${formatRecovery(selected.recoveryDays)}.`;
 
   const stressWeightGap = selected.stressWeight - naive.stressWeight;
   const turnoverGap = naive.turnover - selected.turnover;
-  allocationHost.textContent = `${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
+  allocationHost.textContent = `How to read: solid line is risky weight, dashed is turnover. ${selectedLabel}: stress risky gap ${pp(stressWeightGap)}, turnover lift ${pp(turnoverGap)}.`;
 
   const stressSharpeLift = (selected.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const shiftSharpeLift = (selected.sharpeByRegime.shift || 0) - (naive.sharpeByRegime.shift || 0);
-  regimeHost.textContent = `${selectedLabel} vs naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
+  regimeHost.textContent = `What it shows: risk-adjusted return by regime. ${selectedLabel} vs naive Sharpe: stress ${signed(stressSharpeLift, 2)}, shift ${signed(shiftSharpeLift, 2)}.`;
 
   const calmGap = selected.calmWeight - naive.calmWeight;
   const stressGap = selected.stressWeight - naive.stressWeight;
-  portfolioHost.textContent = `${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs naive.`;
+  portfolioHost.textContent = `How to read: compare calm and stress risky sleeves for each strategy. ${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs naive.`;
 }
 
 function renderTakeaway(rows) {
@@ -664,7 +664,7 @@ function renderTakeaway(rows) {
     <p>
       ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first.
       Hybrid vs naive: retention <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
-      Rerun seeds, then lock the updater for paper trading.
+      Next step: rerun alternate seeds, then lock updater settings for paper trading.
     </p>
   `;
 }
