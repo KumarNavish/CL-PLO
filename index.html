@@ -15,48 +15,48 @@
       <div class="shell">
         <article class="hero-insight" aria-label="Decision summary">
           <p class="hero-kicker">CL-PLO Decision Spine</p>
-          <h1>When market regimes shift, the update rule decides whether a transformer portfolio survives.</h1>
+          <h1>Keep the portfolio model adaptive without forgetting how markets break.</h1>
 
           <div class="hero-grid">
             <article class="hero-mini">
-              <p class="hero-mini-title">Core Problem</p>
-              <p>Pure drift updates chase recent flow and forget stress behavior needed in live trading.</p>
+              <p class="hero-mini-title">Problem</p>
+              <p>Market behavior shifts. A model tuned only to recent flow can forget stress behavior.</p>
             </article>
             <article class="hero-mini">
-              <p class="hero-mini-title">What Stays Fixed</p>
-              <p>Transformer backbone, optimizer, and risk limits are fixed across all runs.</p>
+              <p class="hero-mini-title">Why It Matters</p>
+              <p>When stress memory fades, live allocations can look fine until a shock hits and drawdowns jump.</p>
             </article>
             <article class="hero-mini">
-              <p class="hero-mini-title">What This Page Tests</p>
-              <p>Only the updater changes: naive, replay, or replay plus projection gate.</p>
+              <p class="hero-mini-title">Core Idea</p>
+              <p>Keep the transformer fixed, and improve only the update rule with replay and a risk-feasible projection.</p>
             </article>
           </div>
 
           <div class="hero-method-row" aria-label="Three strategy one-line summaries">
-            <p><span>A</span>Naive: fast adaptation, no stress replay.</p>
-            <p><span>B</span>Replay: stress fixtures added to each step.</p>
-            <p><span>C</span>Hybrid: replay plus risk-feasible projection.</p>
+            <p><span>A</span>Naive: adapts fast, but stress memory decays.</p>
+            <p><span>B</span>Replay: keeps stress fixtures active in each update.</p>
+            <p><span>C</span>Hybrid: replay plus projected update inside risk limits.</p>
           </div>
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Decision signal:</strong> hybrid keeps stress retention high while limiting drawdown and turnover.
+              <strong>Decision signal:</strong> choose the updater that adapts, keeps stress retention, and stays within risk limits.
             </p>
             <article class="hero-proof" aria-label="One-screen check">
               <h3>One-Screen Decision Check</h3>
               <div class="proof-row">
                 <span>Naive</span>
-                <span class="proof-metric">forgets stress regime</span>
+                <span class="proof-metric">adapts, but forgets stress regimes</span>
               </div>
               <div class="proof-row">
                 <span>Replay</span>
-                <span class="proof-metric">retention improves</span>
+                <span class="proof-metric">stress retention improves</span>
               </div>
               <div class="proof-row highlight">
                 <span>Hybrid</span>
-                <span class="proof-metric">retention with risk gate</span>
+                <span class="proof-metric">retention with risk-bounded updates</span>
               </div>
-              <p class="proof-note">Run Quick, Default, and Stress+ to verify the same ranking under each regime mix.</p>
+              <p class="proof-note">Run Quick, Default, and Stress+ to check whether this ranking stays stable across regime mixes.</p>
             </article>
           </div>
         </article>
@@ -519,32 +519,32 @@
 
       <section class="section" id="takeaway-section">
         <h2>3. Deploy Path</h2>
-        <p class="section-note">Deploy as a four-stage gate. The updater is promoted only when retention, drawdown, and execution stability remain inside release limits on the same market path.</p>
+        <p class="section-note">Treat deployment as a gated updater release. Promote only if retention, drawdown, turnover, and regime Sharpe stay inside release bands on the same market path.</p>
 
         <div class="deploy-path">
           <figure class="deploy-flow" aria-label="End-to-end deployment flow">
             <article class="deploy-node">
               <p class="deploy-step">Step 1</p>
               <h3>Updater candidate</h3>
-              <p>Freeze backbone and optimizer. Swap only the updater.</p>
+              <p>Freeze the transformer backbone and optimizer. Swap only the update policy.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 2</p>
               <h3>Shadow replay run</h3>
-              <p>Run drift plus anchors on the identical path, costs, and regimes.</p>
+              <p>Run drift plus anchors on the same path, transaction costs, and regime labels.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node proposed">
               <p class="deploy-step">Step 3</p>
               <h3>Release gate</h3>
-              <p>Check retention, drawdown, turnover, and regime Sharpe together.</p>
+              <p>Check stress retention, drawdown, turnover, and regime Sharpe as one release decision.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 4</p>
               <h3>Paper then live</h3>
-              <p>Paper trade first, then staged live rollout if ordering remains stable.</p>
+              <p>Paper trade first, then staged live rollout with a standing rollback trigger.</p>
             </article>
           </figure>
 
@@ -552,22 +552,22 @@
           <div class="deploy-gates" aria-label="Deployment gate checklist">
             <article>
               <h4>Promotion rule</h4>
-              <p class="gate-pass"><strong>Pass:</strong> hybrid leads score and drawdown lift stays positive.</p>
-              <p class="gate-fail"><strong>Fail:</strong> hold release and keep replay-only updater active.</p>
+              <p class="gate-pass"><strong>Pass:</strong> hybrid ranks first on deploy score and keeps positive drawdown lift.</p>
+              <p class="gate-fail"><strong>Fail:</strong> block release and keep the replay-only updater active.</p>
             </article>
             <article>
               <h4>Safety check</h4>
-              <p class="gate-pass"><strong>Pass:</strong> stress retention and stress Sharpe stay above replay across seeds.</p>
-              <p class="gate-fail"><strong>Fail:</strong> rerun with tighter projection and re-evaluate.</p>
+              <p class="gate-pass"><strong>Pass:</strong> stress retention and stress Sharpe remain above replay across seeds.</p>
+              <p class="gate-fail"><strong>Fail:</strong> tighten the projection budget and rerun the full gate set.</p>
             </article>
             <article>
               <h4>Rollback rule</h4>
-              <p class="gate-pass"><strong>Pass:</strong> turnover and drawdown remain inside release band.</p>
-              <p class="gate-fail"><strong>Fail:</strong> revert to last approved updater within one cycle.</p>
+              <p class="gate-pass"><strong>Pass:</strong> live turnover and drawdown stay inside approved limits.</p>
+              <p class="gate-fail"><strong>Fail:</strong> revert to the last approved updater in the next rebalance cycle.</p>
             </article>
           </div>
 
-          <p class="deploy-outcome">Implementation takeaway: this process turns model updates into a controlled release workflow, not a one-shot backtest decision.</p>
+          <p class="deploy-outcome">Implementation takeaway: updater changes move through a controlled release loop, not a one-shot backtest choice.</p>
         </div>
 
         <article id="takeaway" class="takeaway"></article>
