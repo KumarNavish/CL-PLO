@@ -1073,13 +1073,13 @@ input {
 
 .deploy-path {
   display: grid;
-  gap: 0.58rem;
+  gap: 0.48rem;
 }
 
 .deploy-flow {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 0.34rem;
+  gap: 0.28rem;
   align-items: stretch;
 }
 
@@ -1087,10 +1087,10 @@ input {
   border: 1px solid var(--line);
   background: #ffffff;
   border-radius: 10px;
-  padding: 0.5rem 0.54rem;
+  padding: 0.44rem 0.5rem;
   display: grid;
   align-content: start;
-  gap: 0.15rem;
+  gap: 0.12rem;
 }
 
 .deploy-node.proposed {
@@ -1115,8 +1115,8 @@ input {
 }
 
 .deploy-node p:last-child {
-  font-size: 0.75rem !important;
-  line-height: 1.34;
+  font-size: 0.74rem !important;
+  line-height: 1.32;
   color: #334155;
 }
 
@@ -1131,19 +1131,19 @@ input {
   border: 1px solid #d6deea;
   border-radius: 10px;
   background: #ffffff;
-  padding: 0.5rem 0.56rem;
+  padding: 0.44rem 0.52rem;
 }
 
 .deploy-checks ul {
-  margin: 0.22rem 0 0;
+  margin: 0.2rem 0 0;
   padding-left: 1rem;
   display: grid;
-  gap: 0.2rem;
+  gap: 0.16rem;
 }
 
 .deploy-checks li {
-  font-size: 0.77rem;
-  line-height: 1.34;
+  font-size: 0.75rem;
+  line-height: 1.32;
   color: #2f3d50;
 }
 
@@ -1156,9 +1156,9 @@ input {
 
 .deploy-outcome {
   border-top: 1px solid #dde5f0;
-  padding-top: 0.38rem;
-  font-size: 0.77rem !important;
-  line-height: 1.34;
+  padding-top: 0.34rem;
+  font-size: 0.75rem !important;
+  line-height: 1.32;
   color: #334155;
 }
 

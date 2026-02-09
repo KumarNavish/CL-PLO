@@ -521,45 +521,45 @@
 
       <section class="section" id="takeaway-section">
         <h2>3. Deploy Path</h2>
-        <p class="section-note">How this ships in practice: one updater change, one strict gate, one clear decision.</p>
+        <p class="section-note">Ship this like a normal production change: lock the core model, test the updater, then release only if risk stays controlled.</p>
 
         <div class="deploy-path">
           <figure class="deploy-flow" aria-label="End-to-end deployment flow">
             <article class="deploy-node">
               <p class="deploy-step">Step 1</p>
-              <h3>Freeze core</h3>
-              <p>Keep the transformer and optimizer fixed. Change only the updater.</p>
+              <h3>Lock the core</h3>
+              <p>Freeze the transformer and optimizer. The updater is the only moving part.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 2</p>
-              <h3>Dry run</h3>
-              <p>Replay the same path with costs and regime tags.</p>
+              <h3>Replay the path</h3>
+              <p>Run the same timeline with transaction costs and regime tags.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node proposed">
               <p class="deploy-step">Step 3</p>
-              <h3>Decide</h3>
-              <p>Check stress memory, drawdown, turnover, and regime Sharpe together.</p>
+              <h3>Pass the gate</h3>
+              <p>Approve only if drawdown, turnover, and stress Sharpe stay inside the release band.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 4</p>
-              <h3>Paper to live</h3>
-              <p>Paper trade first. Roll out in stages with rollback ready.</p>
+              <h3>Ship in stages</h3>
+              <p>Paper trade first, then ramp capital gradually with rollback armed.</p>
             </article>
           </figure>
 
           <article class="deploy-checks" aria-label="Go hold rollback checks">
             <p class="deploy-gate-title">Go / hold / rollback checks</p>
             <ul>
-              <li><strong>Go:</strong> hybrid stays first and drawdown gain remains positive.</li>
-              <li><strong>Hold:</strong> stress memory or stress Sharpe drops below replay.</li>
-              <li><strong>Rollback:</strong> live turnover or drawdown moves outside the approved band.</li>
+              <li><strong>Go:</strong> hybrid stays best after costs and remains inside risk limits.</li>
+              <li><strong>Hold:</strong> stress behavior weakens versus replay or limits are hit.</li>
+              <li><strong>Rollback:</strong> live drawdown or turnover leaves the approved operating band.</li>
             </ul>
           </article>
 
-          <p class="deploy-outcome">Takeaway: treat updater changes like any production release, with fixed checks and a fast rollback path.</p>
+          <p class="deploy-outcome">Bottom line: change one part, run one gate, and keep one fast rollback path live at all times.</p>
         </div>
 
         <article id="takeaway" class="takeaway"></article>
