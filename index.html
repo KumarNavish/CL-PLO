@@ -519,45 +519,45 @@
 
       <section class="section" id="takeaway-section">
         <h2>3. Deploy Path</h2>
-        <p class="section-note">Deploy the updater as a gated release, not a one-shot backtest choice.</p>
+        <p class="section-note">How this ships in practice: one small update, one strict check, one clear decision.</p>
 
         <div class="deploy-path">
           <figure class="deploy-flow" aria-label="End-to-end deployment flow">
             <article class="deploy-node">
               <p class="deploy-step">Step 1</p>
-              <h3>Candidate</h3>
-              <p>Freeze backbone and optimizer. Change only the update policy.</p>
+              <h3>Freeze core</h3>
+              <p>Keep the transformer and optimizer fixed. Swap only the updater.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 2</p>
-              <h3>Shadow run</h3>
-              <p>Run drift + anchors on the same path, costs, and regime labels.</p>
+              <h3>Dry run</h3>
+              <p>Replay the same path with costs and regime labels.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node proposed">
               <p class="deploy-step">Step 3</p>
-              <h3>Gate</h3>
-              <p>Score retention, drawdown, turnover, and regime Sharpe together.</p>
+              <h3>Decide</h3>
+              <p>Check stress retention, drawdown, turnover, and regime Sharpe together.</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
               <p class="deploy-step">Step 4</p>
               <h3>Paper → live</h3>
-              <p>Paper trade first, then staged rollout with rollback armed.</p>
+              <p>Paper trade first. Roll out in stages with rollback ready.</p>
             </article>
           </figure>
 
           <article class="deploy-checks" aria-label="Go or no-go checks">
             <p class="deploy-gate-title">Go / no-go checks</p>
             <ul>
-              <li><strong>Promote:</strong> hybrid stays first on deploy score with positive drawdown lift.</li>
-              <li><strong>Hold:</strong> if stress retention or stress Sharpe drop below replay, tighten projection and rerun.</li>
-              <li><strong>Rollback:</strong> if live turnover or drawdown leave the approved band, revert next cycle.</li>
+              <li><strong>Go:</strong> hybrid stays first and drawdown lift is still positive.</li>
+              <li><strong>Hold:</strong> stress retention or stress Sharpe falls below replay.</li>
+              <li><strong>Rollback:</strong> live turnover or drawdown moves outside the approved band.</li>
             </ul>
           </article>
 
-          <p class="deploy-outcome">Takeaway: deployment is a repeatable gate loop where each updater must earn release under the same constraints.</p>
+          <p class="deploy-outcome">Takeaway: treat updater changes like any other production release, with fixed checks and a fast rollback path.</p>
         </div>
 
         <article id="takeaway" class="takeaway"></article>
