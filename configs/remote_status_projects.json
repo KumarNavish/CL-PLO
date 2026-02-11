@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "defaults": {
+    "dashboard_title": "Remote Training Status Dashboard",
+    "default_project_id": "fibonacci-cnl",
+    "ssh_options": [
+      "-o",
+      "BatchMode=yes"
+    ]
+  },
+  "projects": [
+    {
+      "id": "fibonacci-cnl",
+      "name": "Fibonacci CNL SmolLM",
+      "enabled": true,
+      "collector": "cnl",
+      "remote": {
+        "host": "fibonacci",
+        "workdir": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning"
+      },
+      "settings": {
+        "model_tag": "SmolLM2-360M-Instruct",
+        "datasets": [
+          "arc_c",
+          "csqa",
+          "medqa",
+          "mmlu"
+        ],
+        "use_freeze": [
+          1,
+          0
+        ],
+        "job": {
+          "log_path_template": "logs/train_{dataset}_usefreeze{use_freeze}.log",
+          "time_path_template": "logs/train_{dataset}_usefreeze{use_freeze}.time",
+          "summary_csv_template": "zero_ckpts/{dataset}_{model_tag}_lr1e-7_usefreeze{use_freeze}/summary.csv",
+          "error_markers": [
+            "Traceback (most recent call last):",
+            "CUDA out of memory",
+            "Error:"
+          ],
+          "done_markers": [
+            "Done.",
+            "Completed full SmolLM CNL+vanilla batch."
+          ],
+          "epoch_regex": "^===== Epoch ([0-9]+) =====$"
+        },
+        "coordinator": {
+          "log_glob": "logs/full_smollm_baselines_*.out",
+          "tail_lines": 80
+        },
+        "merged_summary_path": "results/smollm_full_baselines_summary.csv",
+        "process_panels": [
+          {
+            "title": "Runner Process",
+            "cmd": "pgrep -af run_full_smollm_baselines_remote.sh"
+          },
+          {
+            "title": "Training Processes",
+            "cmd": "pgrep -af python3\\ sft/sft.py"
+          },
+          {
+            "title": "Inference Processes",
+            "cmd": "pgrep -af python3\\ infer/infer.py"
+          },
+          {
+            "title": "Dashboard Processes",
+            "cmd": "pgrep -af python3\\ scripts/live_dashboard.py"
+          },
+          {
+            "title": "Cloudflared Processes",
+            "cmd": "pgrep -af cloudflared\\ tunnel"
+          }
+        ],
+        "public_link": {
+          "label": "Public Live Dashboard",
+          "source": "cloudflared_log",
+          "glob": "logs/cloudflared_dashboard_*.out",
+          "regex": "https://[-a-z0-9]+\\.trycloudflare\\.com",
+          "healthy_http_codes": [
+            "200",
+            "401",
+            "403"
+          ]
+        }
+      }
+    },
+    {
+      "id": "template-generic",
+      "name": "Template Generic Project",
+      "enabled": false,
+      "collector": "generic",
+      "remote": {
+        "host": "your-ssh-host",
+        "workdir": "~/path/to/your/repo"
+      },
+      "settings": {
+        "include_gpu": true,
+        "command_cards": [
+          {
+            "label": "Git Branch",
+            "cmd": "git rev-parse --abbrev-ref HEAD"
+          },
+          {
+            "label": "Latest Commit",
+            "cmd": "git rev-parse --short HEAD"
+          }
+        ],
+        "matrix_jobs": [
+          {
+            "title": "Training Jobs",
+            "dimensions": {
+              "dataset": [
+                "demo_a",
+                "demo_b"
+              ],
+              "variant": [
+                "baseline",
+                "method_x"
+              ]
+            },
+            "log_path_template": "logs/train_{dataset}_{variant}.log",
+            "summary_csv_template": "outputs/{dataset}_{variant}/summary.csv",
+            "time_path_template": "logs/train_{dataset}_{variant}.time",
+            "metrics": [
+              "epoch",
+              "loss",
+              "accuracy"
+            ]
+          }
+        ],
+        "log_panels": [
+          {
+            "title": "Main Log Tail",
+            "path": "logs/main.log",
+            "lines": 80
+          }
+        ],
+        "command_panels": [
+          {
+            "title": "Active Python Processes",
+            "cmd": "pgrep -af python3"
+          }
+        ],
+        "links": [
+          {
+            "label": "Custom Monitoring URL",
+            "url": "https://example.com/replace-me",
+            "healthy_http_codes": [
+              "200",
+              "401",
+              "403"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

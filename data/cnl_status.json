@@ -1,15 +1,393 @@
 {
-  "collected_at_utc": "2026-02-11T14:16:08.391890+00:00",
+  "collected_at_utc": "2026-02-11T14:31:03.068983+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
-  "model_tag": "SmolLM2-360M-Instruct",
+  "status": "ok",
+  "project_id": "fibonacci-cnl",
+  "project_name": "Fibonacci CNL SmolLM",
+  "cards": [
+    {
+      "label": "Remote Host",
+      "value": "dmi-fibonacci"
+    },
+    {
+      "label": "Remote CWD",
+      "value": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning"
+    },
+    {
+      "label": "Collected At (UTC)",
+      "value": "2026-02-11T14:31:03.068983+00:00"
+    },
+    {
+      "label": "Model Tag",
+      "value": "SmolLM2-360M-Instruct"
+    },
+    {
+      "label": "Coordinator Log",
+      "value": "logs/full_smollm_baselines_20260211_143202.out"
+    }
+  ],
+  "tables": [
+    {
+      "title": "Training Jobs",
+      "columns": [
+        {
+          "key": "dataset",
+          "label": "dataset"
+        },
+        {
+          "key": "use_freeze",
+          "label": "use_freeze"
+        },
+        {
+          "key": "status",
+          "label": "status"
+        },
+        {
+          "key": "epoch",
+          "label": "epoch"
+        },
+        {
+          "key": "train_avg_loss",
+          "label": "train_avg_loss"
+        },
+        {
+          "key": "wrong_to_correct",
+          "label": "wrong_to_correct"
+        },
+        {
+          "key": "correct_to_wrong",
+          "label": "correct_to_wrong"
+        },
+        {
+          "key": "elapsed",
+          "label": "elapsed"
+        }
+      ],
+      "rows": [
+        {
+          "dataset": "arc_c",
+          "use_freeze": 1,
+          "status": "running",
+          "epoch": "21",
+          "train_avg_loss": "2.4700397686167617",
+          "wrong_to_correct": "38",
+          "correct_to_wrong": "40",
+          "elapsed": "",
+          "log_path": "logs/train_arc_c_usefreeze1.log",
+          "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+        },
+        {
+          "dataset": "arc_c",
+          "use_freeze": 0,
+          "status": "done",
+          "epoch": "25",
+          "train_avg_loss": "1.3083139358742",
+          "wrong_to_correct": "298",
+          "correct_to_wrong": "254",
+          "elapsed": "44:40.38",
+          "log_path": "logs/train_arc_c_usefreeze0.log",
+          "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+        },
+        {
+          "dataset": "csqa",
+          "use_freeze": 1,
+          "status": "running",
+          "epoch": "4",
+          "train_avg_loss": "1.9320744991595749",
+          "wrong_to_correct": "13",
+          "correct_to_wrong": "20",
+          "elapsed": "",
+          "log_path": "logs/train_csqa_usefreeze1.log",
+          "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+        },
+        {
+          "dataset": "csqa",
+          "use_freeze": 0,
+          "status": "pending",
+          "epoch": "",
+          "train_avg_loss": "",
+          "wrong_to_correct": "",
+          "correct_to_wrong": "",
+          "elapsed": "",
+          "log_path": "logs/train_csqa_usefreeze0.log",
+          "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+        },
+        {
+          "dataset": "medqa",
+          "use_freeze": 1,
+          "status": "pending",
+          "epoch": "",
+          "train_avg_loss": "",
+          "wrong_to_correct": "",
+          "correct_to_wrong": "",
+          "elapsed": "",
+          "log_path": "logs/train_medqa_usefreeze1.log",
+          "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+        },
+        {
+          "dataset": "medqa",
+          "use_freeze": 0,
+          "status": "pending",
+          "epoch": "",
+          "train_avg_loss": "",
+          "wrong_to_correct": "",
+          "correct_to_wrong": "",
+          "elapsed": "",
+          "log_path": "logs/train_medqa_usefreeze0.log",
+          "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+        },
+        {
+          "dataset": "mmlu",
+          "use_freeze": 1,
+          "status": "pending",
+          "epoch": "",
+          "train_avg_loss": "",
+          "wrong_to_correct": "",
+          "correct_to_wrong": "",
+          "elapsed": "",
+          "log_path": "logs/train_mmlu_usefreeze1.log",
+          "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+        },
+        {
+          "dataset": "mmlu",
+          "use_freeze": 0,
+          "status": "pending",
+          "epoch": "",
+          "train_avg_loss": "",
+          "wrong_to_correct": "",
+          "correct_to_wrong": "",
+          "elapsed": "",
+          "log_path": "logs/train_mmlu_usefreeze0.log",
+          "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+        }
+      ]
+    },
+    {
+      "title": "GPU",
+      "columns": [
+        {
+          "key": "gpu",
+          "label": "gpu"
+        },
+        {
+          "key": "name",
+          "label": "name"
+        },
+        {
+          "key": "memory_used",
+          "label": "memory_used"
+        },
+        {
+          "key": "memory_total",
+          "label": "memory_total"
+        },
+        {
+          "key": "utilization",
+          "label": "utilization"
+        }
+      ],
+      "rows": [
+        {
+          "gpu": "0",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "14170 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "22 %"
+        },
+        {
+          "gpu": "1",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "9174 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "23 %"
+        },
+        {
+          "gpu": "2",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "9174 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "88 %"
+        },
+        {
+          "gpu": "3",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "9726 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "95 %"
+        },
+        {
+          "gpu": "4",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "9726 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "25 %"
+        },
+        {
+          "gpu": "5",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "9726 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "25 %"
+        },
+        {
+          "gpu": "6",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "10587 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "99 %"
+        },
+        {
+          "gpu": "7",
+          "name": "NVIDIA GeForce RTX 3090",
+          "memory_used": "4 MiB",
+          "memory_total": "24576 MiB",
+          "utilization": "0 %"
+        }
+      ]
+    }
+  ],
+  "texts": [
+    {
+      "title": "Coordinator Log Tail (logs/full_smollm_baselines_20260211_143202.out)",
+      "content": "Using GPUs: 6, 7,\nModel: HuggingFaceTB/SmolLM2-360M-Instruct\nDatasets: arc_c csqa medqa mmlu\narc_c rows 1270\ncsqa rows 1096\nmedqa rows 1272\nmmlu rows 1553"
+    },
+    {
+      "title": "Runner Process",
+      "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n687835 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+    },
+    {
+      "title": "Training Processes",
+      "content": "648577 bash -lc mkdir -p zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 && /usr/bin/time -f 'ELAPSED:%E' -o logs/train_arc_c_usefreeze1.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6, > logs/train_arc_c_usefreeze1.log 2>&1\n648602 /usr/bin/time -f ELAPSED:%E -o logs/train_arc_c_usefreeze1.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6,\n648603 python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6,\n679873 bash -lc mkdir -p zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 && /usr/bin/time -f 'ELAPSED:%E' -o logs/train_csqa_usefreeze1.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/csqa_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/csqa_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6, > logs/train_csqa_usefreeze1.log 2>&1\n679885 /usr/bin/time -f ELAPSED:%E -o logs/train_csqa_usefreeze1.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/csqa_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/csqa_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6,\n679886 python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/csqa_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/csqa_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6,"
+    },
+    {
+      "title": "Inference Processes",
+      "content": "ERROR: Command 'pgrep -af python3\\ infer/infer.py' returned non-zero exit status 1."
+    },
+    {
+      "title": "Dashboard Processes",
+      "content": "663829 bash -c cd ~/Collaborative-Neuron-Learning && . logs/dashboard_auth.env && nohup python3 scripts/live_dashboard.py --host 127.0.0.1 --port 18080 --base_dir . --auth_user \"$DASHBOARD_USER\" --auth_password *** > logs/live_dashboard_auth.out 2>&1 < /dev/null & echo DASH_PID:$!\n663830 python3 scripts/live_dashboard.py --host 127.0.0.1 --port 18080 --base_dir . --auth_user cnl --auth_password ***"
+    },
+    {
+      "title": "Cloudflared Processes",
+      "content": "664476 /users/staff/dmi-dmi/kumar0002/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:18080"
+    }
+  ],
+  "links": [
+    {
+      "label": "Public Live Dashboard",
+      "url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
+      "health": "auth_required",
+      "http_code": "401",
+      "source": "cloudflared_log",
+      "source_path": "logs/cloudflared_dashboard_20260211_144945.out"
+    }
+  ],
+  "jobs": [
+    {
+      "dataset": "arc_c",
+      "use_freeze": 1,
+      "status": "running",
+      "epoch": "21",
+      "train_avg_loss": "2.4700397686167617",
+      "wrong_to_correct": "38",
+      "correct_to_wrong": "40",
+      "elapsed": "",
+      "log_path": "logs/train_arc_c_usefreeze1.log",
+      "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+    },
+    {
+      "dataset": "arc_c",
+      "use_freeze": 0,
+      "status": "done",
+      "epoch": "25",
+      "train_avg_loss": "1.3083139358742",
+      "wrong_to_correct": "298",
+      "correct_to_wrong": "254",
+      "elapsed": "44:40.38",
+      "log_path": "logs/train_arc_c_usefreeze0.log",
+      "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+    },
+    {
+      "dataset": "csqa",
+      "use_freeze": 1,
+      "status": "running",
+      "epoch": "4",
+      "train_avg_loss": "1.9320744991595749",
+      "wrong_to_correct": "13",
+      "correct_to_wrong": "20",
+      "elapsed": "",
+      "log_path": "logs/train_csqa_usefreeze1.log",
+      "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+    },
+    {
+      "dataset": "csqa",
+      "use_freeze": 0,
+      "status": "pending",
+      "epoch": "",
+      "train_avg_loss": "",
+      "wrong_to_correct": "",
+      "correct_to_wrong": "",
+      "elapsed": "",
+      "log_path": "logs/train_csqa_usefreeze0.log",
+      "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+    },
+    {
+      "dataset": "medqa",
+      "use_freeze": 1,
+      "status": "pending",
+      "epoch": "",
+      "train_avg_loss": "",
+      "wrong_to_correct": "",
+      "correct_to_wrong": "",
+      "elapsed": "",
+      "log_path": "logs/train_medqa_usefreeze1.log",
+      "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+    },
+    {
+      "dataset": "medqa",
+      "use_freeze": 0,
+      "status": "pending",
+      "epoch": "",
+      "train_avg_loss": "",
+      "wrong_to_correct": "",
+      "correct_to_wrong": "",
+      "elapsed": "",
+      "log_path": "logs/train_medqa_usefreeze0.log",
+      "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+    },
+    {
+      "dataset": "mmlu",
+      "use_freeze": 1,
+      "status": "pending",
+      "epoch": "",
+      "train_avg_loss": "",
+      "wrong_to_correct": "",
+      "correct_to_wrong": "",
+      "elapsed": "",
+      "log_path": "logs/train_mmlu_usefreeze1.log",
+      "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+    },
+    {
+      "dataset": "mmlu",
+      "use_freeze": 0,
+      "status": "pending",
+      "epoch": "",
+      "train_avg_loss": "",
+      "wrong_to_correct": "",
+      "correct_to_wrong": "",
+      "elapsed": "",
+      "log_path": "logs/train_mmlu_usefreeze0.log",
+      "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+    }
+  ],
   "gpu": [
     {
       "gpu": "0",
       "name": "NVIDIA GeForce RTX 3090",
-      "memory_used": "10455 MiB",
+      "memory_used": "14170 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "24 %"
+      "utilization": "22 %"
     },
     {
       "gpu": "1",
@@ -23,163 +401,44 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "22 %"
+      "utilization": "88 %"
     },
     {
       "gpu": "3",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "24 %"
+      "utilization": "95 %"
     },
     {
       "gpu": "4",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "24 %"
+      "utilization": "25 %"
     },
     {
       "gpu": "5",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "23 %"
+      "utilization": "25 %"
     },
     {
       "gpu": "6",
       "name": "NVIDIA GeForce RTX 3090",
-      "memory_used": "5450 MiB",
+      "memory_used": "10587 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "51 %"
+      "utilization": "99 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
-      "memory_used": "3994 MiB",
+      "memory_used": "4 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "46 %"
+      "utilization": "0 %"
     }
   ],
-  "jobs": [
-    {
-      "dataset": "arc_c",
-      "use_freeze": 1,
-      "status": "running",
-      "epoch": "16",
-      "train_avg_loss": "2.311890320531253",
-      "wrong_to_correct": "38",
-      "correct_to_wrong": "40",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv",
-      "log_path": "logs/train_arc_c_usefreeze1.log"
-    },
-    {
-      "dataset": "arc_c",
-      "use_freeze": 0,
-      "status": "running",
-      "epoch": "23",
-      "train_avg_loss": "1.3119735256532628",
-      "wrong_to_correct": "299",
-      "correct_to_wrong": "253",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv",
-      "log_path": "logs/train_arc_c_usefreeze0.log"
-    },
-    {
-      "dataset": "csqa",
-      "use_freeze": 1,
-      "status": "pending",
-      "epoch": "",
-      "train_avg_loss": "",
-      "wrong_to_correct": "",
-      "correct_to_wrong": "",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv",
-      "log_path": "logs/train_csqa_usefreeze1.log"
-    },
-    {
-      "dataset": "csqa",
-      "use_freeze": 0,
-      "status": "pending",
-      "epoch": "",
-      "train_avg_loss": "",
-      "wrong_to_correct": "",
-      "correct_to_wrong": "",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv",
-      "log_path": "logs/train_csqa_usefreeze0.log"
-    },
-    {
-      "dataset": "medqa",
-      "use_freeze": 1,
-      "status": "pending",
-      "epoch": "",
-      "train_avg_loss": "",
-      "wrong_to_correct": "",
-      "correct_to_wrong": "",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv",
-      "log_path": "logs/train_medqa_usefreeze1.log"
-    },
-    {
-      "dataset": "medqa",
-      "use_freeze": 0,
-      "status": "pending",
-      "epoch": "",
-      "train_avg_loss": "",
-      "wrong_to_correct": "",
-      "correct_to_wrong": "",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv",
-      "log_path": "logs/train_medqa_usefreeze0.log"
-    },
-    {
-      "dataset": "mmlu",
-      "use_freeze": 1,
-      "status": "pending",
-      "epoch": "",
-      "train_avg_loss": "",
-      "wrong_to_correct": "",
-      "correct_to_wrong": "",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv",
-      "log_path": "logs/train_mmlu_usefreeze1.log"
-    },
-    {
-      "dataset": "mmlu",
-      "use_freeze": 0,
-      "status": "pending",
-      "epoch": "",
-      "train_avg_loss": "",
-      "wrong_to_correct": "",
-      "correct_to_wrong": "",
-      "elapsed": "",
-      "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv",
-      "log_path": "logs/train_mmlu_usefreeze0.log"
-    }
-  ],
-  "coordinator_log_path": "logs/full_smollm_baselines_20260211_143202.out",
-  "coordinator_log_tail": [
-    "Using GPUs: 6, 7,",
-    "Model: HuggingFaceTB/SmolLM2-360M-Instruct",
-    "Datasets: arc_c csqa medqa mmlu",
-    "arc_c rows 1270",
-    "csqa rows 1096",
-    "medqa rows 1272",
-    "mmlu rows 1553"
-  ],
-  "merged_summary_path": "results/smollm_full_baselines_summary.csv",
-  "merged_summary_rows": [],
-  "processes": {
-    "runner": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh",
-    "train": "648577 bash -lc mkdir -p zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 && /usr/bin/time -f 'ELAPSED:%E' -o logs/train_arc_c_usefreeze1.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6, > logs/train_arc_c_usefreeze1.log 2>&1\n648581 bash -lc mkdir -p zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0 && /usr/bin/time -f 'ELAPSED:%E' -o logs/train_arc_c_usefreeze0.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 0 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0 --cuda_visible_devices 7, > logs/train_arc_c_usefreeze0.log 2>&1\n648599 /usr/bin/time -f ELAPSED:%E -o logs/train_arc_c_usefreeze0.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 0 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0 --cuda_visible_devices 7,\n648600 python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 0 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0 --cuda_visible_devices 7,\n648602 /usr/bin/time -f ELAPSED:%E -o logs/train_arc_c_usefreeze1.time python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6,\n648603 python3 sft/sft.py --lr 1e-7 --epochs 25 --use_freeze 1 --model_name HuggingFaceTB/SmolLM2-360M-Instruct --wrong_jsonl data/arc_c_wrong_SmolLM2-360M-Instruct.jsonl --correct_jsonl data/arc_c_correct_SmolLM2-360M-Instruct.jsonl --out_dir zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1 --cuda_visible_devices 6,",
-    "infer": "ERROR: Command '['pgrep', '-af', 'python3 infer/infer.py']' returned non-zero exit status 1.",
-    "dashboard": "663829 bash -c cd ~/Collaborative-Neuron-Learning && . logs/dashboard_auth.env && nohup python3 scripts/live_dashboard.py --host 127.0.0.1 --port 18080 --base_dir . --auth_user \"$DASHBOARD_USER\" --auth_password *** > logs/live_dashboard_auth.out 2>&1 < /dev/null & echo DASH_PID:$!\n663830 python3 scripts/live_dashboard.py --host 127.0.0.1 --port 18080 --base_dir . --auth_user cnl --auth_password ***",
-    "cloudflared": "664476 /users/staff/dmi-dmi/kumar0002/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:18080"
-  },
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
-  "public_dashboard_source_log": "logs/cloudflared_dashboard_20260211_144945.out",
-  "public_dashboard_http_noauth": "401",
-  "publisher_timestamp_utc": "2026-02-11T14:16:09.304003+00:00"
+  "public_dashboard_http_noauth": "401"
 }

@@ -6,66 +6,120 @@
   <title>CNL SmolLM Remote Dashboard</title>
   <style>
     :root {
-      --bg: #f4f8fb;
-      --ink: #11202d;
-      --muted: #4e6475;
+      --bg: #f2f8fc;
+      --ink: #112538;
+      --muted: #516a80;
       --card: #ffffff;
-      --line: #d6e2eb;
-      --good: #17622b;
-      --warn: #925b00;
-      --bad: #9f1d2d;
+      --line: #d4e1eb;
+      --ok: #13652b;
+      --warn: #936200;
+      --bad: #a71f32;
     }
     body {
       margin: 0;
-      background: linear-gradient(165deg, #eef5fa 0%, #f9fcff 70%);
+      background: linear-gradient(160deg, #eaf3fa 0%, #f8fbff 62%);
       color: var(--ink);
       font-family: "Avenir Next", "Segoe UI", sans-serif;
     }
     .wrap {
-      max-width: 1120px;
+      max-width: 1160px;
       margin: 0 auto;
       padding: 24px;
     }
     h1 {
       margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: 0.4px;
+      font-size: 30px;
+      letter-spacing: 0.3px;
     }
     .muted {
       color: var(--muted);
-      margin: 0 0 14px;
       font-size: 14px;
+      margin: 0 0 14px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    select {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--ink);
+      min-width: 260px;
+      font-size: 14px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid transparent;
+    }
+    .status-ok {
+      color: var(--ok);
+      background: #e6f5ea;
+      border-color: #bfe3c8;
+    }
+    .status-error {
+      color: var(--bad);
+      background: #fdecef;
+      border-color: #f7c9d2;
     }
     .grid {
       display: grid;
-      gap: 14px;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      margin-bottom: 14px;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      margin: 12px 0 16px;
     }
     .card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 12px;
-      padding: 14px;
-      box-shadow: 0 8px 20px rgba(26, 57, 82, 0.07);
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(23, 50, 76, 0.07);
+    }
+    .card .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .card .value {
+      margin-top: 5px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .section {
+      margin-bottom: 16px;
+    }
+    .section h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: var(--card);
+      background: #fff;
       border: 1px solid var(--line);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
     }
     th, td {
-      padding: 8px 10px;
       border-bottom: 1px solid var(--line);
-      font-size: 13px;
+      padding: 7px 8px;
       text-align: left;
+      font-size: 13px;
       vertical-align: top;
     }
     th {
-      background: #eaf2f8;
+      background: #e8f1f8;
       font-size: 12px;
       letter-spacing: 0.3px;
     }
@@ -73,156 +127,173 @@
       border-bottom: none;
     }
     .status-running { color: var(--warn); font-weight: 700; }
-    .status-done { color: var(--good); font-weight: 700; }
+    .status-done { color: var(--ok); font-weight: 700; }
     .status-error { color: var(--bad); font-weight: 700; }
-    .status-pending { color: var(--muted); font-weight: 700; }
+    .status-pending { color: #607689; font-weight: 700; }
     pre {
       margin: 0;
-      background: #0f172a;
-      color: #d9e5f2;
-      border-radius: 10px;
       padding: 12px;
-      overflow: auto;
-      max-height: 330px;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #d9e4f0;
       font-size: 12px;
       line-height: 1.35;
+      overflow: auto;
+      max-height: 330px;
     }
-    .row {
-      display: grid;
-      gap: 14px;
-      grid-template-columns: 1fr 1fr;
-      margin-top: 14px;
+    a {
+      color: #005cc5;
+      text-decoration: none;
+      font-weight: 700;
     }
-    @media (max-width: 900px) {
-      .row { grid-template-columns: 1fr; }
+    @media (max-width: 800px) {
+      .wrap {
+        padding: 16px;
+      }
+      h1 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>CNL SmolLM Remote Dashboard</h1>
-    <p class="muted" id="stamp">Loading snapshot...</p>
-    <div class="grid">
-      <div class="card">
-        <strong>Remote Host</strong>
-        <div id="host">-</div>
-      </div>
-      <div class="card">
-        <strong>Model Tag</strong>
-        <div id="model">-</div>
-      </div>
-      <div class="card">
-        <strong>Public Live Dashboard</strong>
-        <div id="public_url">-</div>
-      </div>
+    <p class="muted" id="meta">Loading dashboard snapshot...</p>
+
+    <div class="toolbar">
+      <label for="projectSelect"><strong>Project</strong></label>
+      <select id="projectSelect"></select>
+      <span id="projectStatus" class="badge status-ok">-</span>
     </div>
 
-    <h2>Jobs</h2>
-    <table id="jobs_table"></table>
-
-    <h2 style="margin-top: 14px;">GPU</h2>
-    <table id="gpu_table"></table>
-
-    <div class="row">
-      <div class="card">
-        <strong>Coordinator Log Tail</strong>
-        <p class="muted" id="log_path">-</p>
-        <pre id="run_log"></pre>
-      </div>
-      <div class="card">
-        <strong>Processes</strong>
-        <pre id="procs"></pre>
-      </div>
-    </div>
+    <div id="projectError" class="section"></div>
+    <div id="cards" class="grid"></div>
+    <div id="links" class="section"></div>
+    <div id="tables"></div>
+    <div id="texts"></div>
   </div>
 
   <script>
-    const JSON_PATH = 'data/cnl_status.json';
-    const STATUS_ORDER = ["running", "done", "error", "pending"];
+    const JSON_PATH = 'data/run_status.json';
+    let payload = null;
 
-    function esc(x) {
-      return String(x ?? "").replace(/[&<>]/g, (c) => {
-        if (c === "&") return "&amp;";
-        if (c === "<") return "&lt;";
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>]/g, (ch) => {
+        if (ch === "&") return "&amp;";
+        if (ch === "<") return "&lt;";
         return "&gt;";
       });
     }
 
-    function toRows(headers, rows) {
-      let html = "<tr>" + headers.map((h) => `<th>${esc(h.label)}</th>`).join("") + "</tr>";
-      for (const row of rows) {
-        html += "<tr>" + headers.map((h) => {
-          const value = row[h.key] ?? "";
-          if (h.key === "status") {
-            const cls = `status-${value}`;
-            return `<td class="${esc(cls)}">${esc(value)}</td>`;
-          }
-          return `<td>${esc(value)}</td>`;
-        }).join("") + "</tr>";
+    function renderTable(table) {
+      const cols = table.columns || [];
+      const rows = table.rows || [];
+      let html = `<div class="section"><h2>${esc(table.title || "Table")}</h2>`;
+      html += "<table><tr>";
+      for (const c of cols) {
+        html += `<th>${esc(c.label || c.key || "")}</th>`;
       }
+      html += "</tr>";
+      for (const row of rows) {
+        html += "<tr>";
+        for (const c of cols) {
+          const key = c.key || "";
+          const value = row[key] ?? "";
+          const cls = key === "status" ? `status-${String(value).toLowerCase()}` : "";
+          html += `<td class="${esc(cls)}">${esc(value)}</td>`;
+        }
+        html += "</tr>";
+      }
+      html += "</table></div>";
       return html;
+    }
+
+    function renderProject(project) {
+      const statusEl = document.getElementById("projectStatus");
+      statusEl.textContent = project.status || "unknown";
+      statusEl.className = `badge status-${project.status === "error" ? "error" : "ok"}`;
+
+      const errEl = document.getElementById("projectError");
+      if (project.status === "error") {
+        errEl.innerHTML = `<div class="card"><strong>Collection Error</strong><div class="value">${esc(project.error || "unknown")}</div></div>`;
+      } else {
+        errEl.innerHTML = "";
+      }
+
+      const cards = project.cards || [];
+      document.getElementById("cards").innerHTML = cards.map((card) => `
+        <div class="card">
+          <div class="label">${esc(card.label || "")}</div>
+          <div class="value">${esc(card.value || "")}</div>
+        </div>
+      `).join("");
+
+      const links = project.links || [];
+      const linksEl = document.getElementById("links");
+      if (links.length > 0) {
+        linksEl.innerHTML = `
+          <h2>Verified Links</h2>
+          <div class="card">
+            ${
+              links.map((link) => `<div><a href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.label || link.url)}</a> <span class="muted">(health: ${esc(link.health || "")}, http: ${esc(link.http_code || "")})</span></div>`).join("")
+            }
+          </div>
+        `;
+      } else {
+        linksEl.innerHTML = "";
+      }
+
+      const tables = project.tables || [];
+      document.getElementById("tables").innerHTML = tables.map((t) => renderTable(t)).join("");
+
+      const texts = project.texts || [];
+      document.getElementById("texts").innerHTML = texts.map((block) => `
+        <div class="section">
+          <h2>${esc(block.title || "Text")}</h2>
+          <pre>${esc(block.content || "")}</pre>
+        </div>
+      `).join("");
+    }
+
+    function projectById(id) {
+      const projects = payload.projects || [];
+      return projects.find((p) => p.project_id === id) || projects[0] || null;
+    }
+
+    function bindSelect(defaultId) {
+      const select = document.getElementById("projectSelect");
+      const projects = payload.projects || [];
+      select.innerHTML = projects.map((p) => `
+        <option value="${esc(p.project_id)}">${esc(p.project_name || p.project_id)}</option>
+      `).join("");
+      const exists = projects.some((p) => p.project_id === defaultId);
+      select.value = exists ? defaultId : (projects[0] ? projects[0].project_id : "");
+      const current = projectById(select.value);
+      if (current) renderProject(current);
+      select.onchange = () => {
+        const chosen = projectById(select.value);
+        if (chosen) renderProject(chosen);
+      };
     }
 
     async function load() {
       const res = await fetch(`${JSON_PATH}?t=${Date.now()}`, { cache: "no-store" });
-      const data = await res.json();
-      document.getElementById("stamp").textContent =
-        `Snapshot updated: ${data.collected_at_utc || "-"}`;
-      document.getElementById("host").textContent = data.host || "-";
-      document.getElementById("model").textContent = data.model_tag || "-";
-      const url = data.public_dashboard_url || "";
-      document.getElementById("public_url").innerHTML = url
-        ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(url)}</a>`
-        : "not available";
-
-      const jobs = [...(data.jobs || [])].sort((a, b) => {
-        const sa = STATUS_ORDER.indexOf(a.status);
-        const sb = STATUS_ORDER.indexOf(b.status);
-        if (sa !== sb) return sa - sb;
-        return `${a.dataset}:${a.use_freeze}`.localeCompare(`${b.dataset}:${b.use_freeze}`);
-      });
-      document.getElementById("jobs_table").innerHTML = toRows(
-        [
-          { key: "dataset", label: "dataset" },
-          { key: "use_freeze", label: "use_freeze" },
-          { key: "status", label: "status" },
-          { key: "epoch", label: "epoch" },
-          { key: "train_avg_loss", label: "train_avg_loss" },
-          { key: "wrong_to_correct", label: "wrong_to_correct" },
-          { key: "correct_to_wrong", label: "correct_to_wrong" },
-          { key: "elapsed", label: "elapsed" }
-        ],
-        jobs
-      );
-
-      document.getElementById("gpu_table").innerHTML = toRows(
-        [
-          { key: "gpu", label: "gpu" },
-          { key: "name", label: "name" },
-          { key: "memory_used", label: "memory_used" },
-          { key: "memory_total", label: "memory_total" },
-          { key: "utilization", label: "utilization" }
-        ],
-        data.gpu || []
-      );
-
-      document.getElementById("log_path").textContent = data.coordinator_log_path || "-";
-      document.getElementById("run_log").textContent = (data.coordinator_log_tail || []).join("\n");
-      const procs = data.processes || {};
-      document.getElementById("procs").textContent =
-        `runner:\n${procs.runner || ""}\n\ntrain:\n${procs.train || ""}\n\ninfer:\n${procs.infer || ""}\n\ndashboard:\n${procs.dashboard || ""}\n\ncloudflared:\n${procs.cloudflared || ""}`;
+      payload = await res.json();
+      document.getElementById("meta").textContent = `Snapshot generated: ${payload.generated_at_utc || "-"}`;
+      bindSelect(payload.default_project_id || "");
     }
 
     async function tick() {
       try {
         await load();
       } catch (err) {
-        document.getElementById("stamp").textContent = `Load error: ${err}`;
+        document.getElementById("meta").textContent = `Load error: ${err}`;
       }
     }
 
     tick();
-    setInterval(tick, 20000);
+    setInterval(tick, 30000);
   </script>
 </body>
 </html>

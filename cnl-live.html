@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CNL Live Bridge</title>
+  <title>Remote Live Dashboard</title>
   <style>
     :root {
       --ink: #102437;
@@ -55,17 +55,68 @@
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>CNL Live Dashboard Bridge</h1>
-      <p>This stable GitHub Pages URL points to the current live dashboard tunnel.</p>
-      <p><a id="open_link" target="_blank" rel="noopener noreferrer">Open live dashboard in new tab</a></p>
-      <iframe id="live_iframe" title="Live CNL Dashboard"></iframe>
+      <h1>Live Dashboard Bridge</h1>
+      <p id="meta">Loading latest verified live link...</p>
+      <p id="link_row" style="display:none;">
+        <a id="open_link" target="_blank" rel="noopener noreferrer"></a>
+      </p>
+      <div id="missing_row" style="display:none;">
+        No verified public live link is currently available.
+      </div>
+      <iframe id="live_iframe" title="Live Dashboard" style="display:none;"></iframe>
     </div>
   </div>
   <script>
-    const LIVE_URL = "https://romance-auditor-spots-kijiji.trycloudflare.com";
-    document.getElementById("open_link").href = LIVE_URL;
-    document.getElementById("open_link").textContent = LIVE_URL;
-    document.getElementById("live_iframe").src = LIVE_URL;
+    const STATUS_JSON = "data/run_status.json";
+
+    function pickProject(payload) {
+      const projects = payload.projects || [];
+      const defaultId = payload.default_project_id || "";
+      return projects.find((p) => p.project_id === defaultId) || projects[0] || null;
+    }
+
+    function firstLiveLink(project) {
+      const links = project && project.links ? project.links : [];
+      for (const link of links) {
+        const health = String(link.health || "").toLowerCase();
+        if ((health === "healthy" || health === "auth_required") && link.url) {
+          return link;
+        }
+      }
+      return null;
+    }
+
+    async function load() {
+      const res = await fetch(`${STATUS_JSON}?t=${Date.now()}`, { cache: "no-store" });
+      const payload = await res.json();
+      const project = pickProject(payload);
+      const link = firstLiveLink(project);
+      const meta = document.getElementById("meta");
+      const linkRow = document.getElementById("link_row");
+      const missingRow = document.getElementById("missing_row");
+      const openLink = document.getElementById("open_link");
+      const iframe = document.getElementById("live_iframe");
+
+      if (link) {
+        meta.textContent = `Using verified live link (${link.health}, HTTP ${link.http_code || "-"})`;
+        linkRow.style.display = "block";
+        missingRow.style.display = "none";
+        iframe.style.display = "block";
+        openLink.href = link.url;
+        openLink.textContent = link.label || link.url;
+        iframe.src = link.url;
+      } else {
+        meta.textContent = "No verified live link found in current snapshot.";
+        linkRow.style.display = "none";
+        missingRow.style.display = "block";
+        iframe.style.display = "none";
+      }
+    }
+
+    load().catch((err) => {
+      document.getElementById("meta").textContent = `Failed to load status: ${err}`;
+      document.getElementById("missing_row").style.display = "block";
+    });
   </script>
 </body>
 </html>

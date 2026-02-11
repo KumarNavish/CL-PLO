@@ -74,3 +74,35 @@ One-time setup in GitHub:
 4. Push again (or manually run the deploy workflow).
 
 Your site URL will be available in the workflow output.
+
+## Modular remote run dashboard (SSH + any codebase)
+This repository now includes a config-driven remote monitoring stack that can track any SSH-accessible training project.
+
+Default project:
+- `fibonacci` host
+- `Collaborative-Neuron-Learning` codebase
+
+Core files:
+- `configs/remote_status_projects.json` - project registry (collector type, host/workdir, metric/log/process rules)
+- `scripts/publish_remote_status.py` - generic publisher (collects project status over SSH and writes dashboard JSON/HTML)
+- `scripts/run_remote_dashboard_sync.sh` - periodic collector + GitHub push loop
+- `cnl-dashboard.html` - rendered dashboard UI (reads `data/run_status.json`)
+- `cnl-live.html` - live-link bridge (shows only health-verified public links)
+
+How to add a new project:
+1. Copy the disabled `template-generic` entry in `configs/remote_status_projects.json`.
+2. Set `remote.host` and `remote.workdir`.
+3. Choose collector:
+   - `cnl` for CNL-style matrix metrics.
+   - `generic` for custom matrix jobs / CSV tables / log panels / command panels.
+4. Set `enabled: true` and run:
+
+```bash
+cd "/Users/kumar0002/Documents/New project"
+python3 scripts/publish_remote_status.py \
+  --config configs/remote_status_projects.json \
+  --project-ids your-project-id \
+  --output-json data/run_status.json \
+  --output-html cnl-dashboard.html \
+  --html-json-path data/run_status.json
+```
