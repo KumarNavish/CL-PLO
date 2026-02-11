@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 INTERVAL_SECONDS="${INTERVAL_SECONDS:-300}"
 REMOTE_HOST="${REMOTE_HOST:-fibonacci}"
-REMOTE_DIR="${REMOTE_DIR:-~/Collaborative-Neuron-Learning}"
+REMOTE_DIR="${REMOTE_DIR:-/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning}"
 TARGET_BRANCH="${TARGET_BRANCH:-master}"
 
 cd "$ROOT_DIR"
