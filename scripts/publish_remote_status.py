@@ -884,11 +884,13 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     function bindSelect(defaultId) {{
       const select = document.getElementById("projectSelect");
       const projects = payload.projects || [];
+      const previousValue = select.value || "";
       select.innerHTML = projects.map((p) => `
         <option value="${{esc(p.project_id)}}">${{esc(p.project_name || p.project_id)}}</option>
       `).join("");
-      const exists = projects.some((p) => p.project_id === defaultId);
-      select.value = exists ? defaultId : (projects[0] ? projects[0].project_id : "");
+      const preferred = previousValue || defaultId;
+      const exists = projects.some((p) => p.project_id === preferred);
+      select.value = exists ? preferred : (projects[0] ? projects[0].project_id : "");
       const current = projectById(select.value);
       if (current) renderProject(current);
       select.onchange = () => {{
@@ -900,7 +902,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     async function load() {{
       const res = await fetch(`${{JSON_PATH}}?t=${{Date.now()}}`, {{ cache: "no-store" }});
       payload = await res.json();
-      document.getElementById("meta").textContent = `Snapshot generated: ${{payload.generated_at_utc || "-"}}`;
+      document.getElementById("meta").textContent = `Snapshot generated: ${{payload.generated_at_utc || "-"}} | Auto-refresh: 15s`;
       bindSelect(payload.default_project_id || "");
     }}
 
@@ -913,7 +915,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     }}
 
     tick();
-    setInterval(tick, 30000);
+    setInterval(tick, 15000);
   </script>
 </body>
 </html>

@@ -98,7 +98,7 @@
       const iframe = document.getElementById("live_iframe");
 
       if (link) {
-        meta.textContent = `Using verified live link (${link.health}, HTTP ${link.http_code || "-"})`;
+        meta.textContent = `Using verified live link (${link.health}, HTTP ${link.http_code || "-"}) | Auto-refresh: 15s`;
         linkRow.style.display = "block";
         missingRow.style.display = "none";
         iframe.style.display = "block";
@@ -117,6 +117,12 @@
       document.getElementById("meta").textContent = `Failed to load status: ${err}`;
       document.getElementById("missing_row").style.display = "block";
     });
+
+    setInterval(() => {
+      load().catch((err) => {
+        document.getElementById("meta").textContent = `Failed to refresh status: ${err}`;
+      });
+    }, 15000);
   </script>
 </body>
 </html>

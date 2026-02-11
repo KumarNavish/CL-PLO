@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-INTERVAL_SECONDS="${INTERVAL_SECONDS:-300}"
+INTERVAL_SECONDS="${INTERVAL_SECONDS:-60}"
 TARGET_BRANCH="${TARGET_BRANCH:-master}"
 CONFIG_PATH="${CONFIG_PATH:-configs/remote_status_projects.json}"
 PROJECT_IDS="${PROJECT_IDS:-fibonacci-cnl}"
