@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CNL Live Bridge</title>
+  <style>
+    :root {
+      --ink: #102437;
+      --bg: #f1f7fb;
+      --card: #ffffff;
+      --line: #d5e3ee;
+    }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top right, #dbefff 0, #f7fbff 55%, #eef4f9 100%);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(23, 50, 76, 0.08);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 26px;
+    }
+    p {
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+    a {
+      color: #0b5bb5;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100vh - 240px);
+      min-height: 560px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>CNL Live Dashboard Bridge</h1>
+      <p>This stable GitHub Pages URL points to the current live dashboard tunnel.</p>
+      <p><a id="open_link" target="_blank" rel="noopener noreferrer">Open live dashboard in new tab</a></p>
+      <iframe id="live_iframe" title="Live CNL Dashboard"></iframe>
+    </div>
+  </div>
+  <script>
+    const LIVE_URL = "https://romance-auditor-spots-kijiji.trycloudflare.com";
+    document.getElementById("open_link").href = LIVE_URL;
+    document.getElementById("open_link").textContent = LIVE_URL;
+    document.getElementById("live_iframe").src = LIVE_URL;
+  </script>
+</body>
+</html>
