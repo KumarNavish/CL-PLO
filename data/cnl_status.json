@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-11T14:05:42.830334+00:00",
+  "collected_at_utc": "2026-02-11T14:16:08.391890+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "model_tag": "SmolLM2-360M-Instruct",
@@ -9,56 +9,56 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "10455 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "23 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "1",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "14 %"
+      "utilization": "23 %"
     },
     {
       "gpu": "2",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "88 %"
+      "utilization": "22 %"
     },
     {
       "gpu": "3",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "25 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "4",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "25 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "5",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "26 %"
+      "utilization": "23 %"
     },
     {
       "gpu": "6",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "5450 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "55 %"
+      "utilization": "51 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "3994 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "49 %"
+      "utilization": "46 %"
     }
   ],
   "jobs": [
@@ -66,10 +66,10 @@
       "dataset": "arc_c",
       "use_freeze": 1,
       "status": "running",
-      "epoch": "12",
-      "train_avg_loss": "2.17881300301871",
+      "epoch": "16",
+      "train_avg_loss": "2.311890320531253",
       "wrong_to_correct": "38",
-      "correct_to_wrong": "39",
+      "correct_to_wrong": "40",
       "elapsed": "",
       "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv",
       "log_path": "logs/train_arc_c_usefreeze1.log"
@@ -78,9 +78,9 @@
       "dataset": "arc_c",
       "use_freeze": 0,
       "status": "running",
-      "epoch": "18",
-      "train_avg_loss": "1.324941000154971",
-      "wrong_to_correct": "298",
+      "epoch": "23",
+      "train_avg_loss": "1.3119735256532628",
+      "wrong_to_correct": "299",
       "correct_to_wrong": "253",
       "elapsed": "",
       "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv",
@@ -181,5 +181,5 @@
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
   "public_dashboard_source_log": "logs/cloudflared_dashboard_20260211_144945.out",
   "public_dashboard_http_noauth": "401",
-  "publisher_timestamp_utc": "2026-02-11T14:05:43.573679+00:00"
+  "publisher_timestamp_utc": "2026-02-11T14:16:09.304003+00:00"
 }
