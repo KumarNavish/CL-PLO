@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CNL SmolLM Remote Dashboard</title>
+  <style>
+    :root {
+      --bg: #f4f8fb;
+      --ink: #11202d;
+      --muted: #4e6475;
+      --card: #ffffff;
+      --line: #d6e2eb;
+      --good: #17622b;
+      --warn: #925b00;
+      --bad: #9f1d2d;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(165deg, #eef5fa 0%, #f9fcff 70%);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0.4px;
+    }
+    .muted {
+      color: var(--muted);
+      margin: 0 0 14px;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      margin-bottom: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      box-shadow: 0 8px 20px rgba(26, 57, 82, 0.07);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #eaf2f8;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .status-running { color: var(--warn); font-weight: 700; }
+    .status-done { color: var(--good); font-weight: 700; }
+    .status-error { color: var(--bad); font-weight: 700; }
+    .status-pending { color: var(--muted); font-weight: 700; }
+    pre {
+      margin: 0;
+      background: #0f172a;
+      color: #d9e5f2;
+      border-radius: 10px;
+      padding: 12px;
+      overflow: auto;
+      max-height: 330px;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .row {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 14px;
+    }
+    @media (max-width: 900px) {
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>CNL SmolLM Remote Dashboard</h1>
+    <p class="muted" id="stamp">Loading snapshot...</p>
+    <div class="grid">
+      <div class="card">
+        <strong>Remote Host</strong>
+        <div id="host">-</div>
+      </div>
+      <div class="card">
+        <strong>Model Tag</strong>
+        <div id="model">-</div>
+      </div>
+      <div class="card">
+        <strong>Public Live Dashboard</strong>
+        <div id="public_url">-</div>
+      </div>
+    </div>
+
+    <h2>Jobs</h2>
+    <table id="jobs_table"></table>
+
+    <h2 style="margin-top: 14px;">GPU</h2>
+    <table id="gpu_table"></table>
+
+    <div class="row">
+      <div class="card">
+        <strong>Coordinator Log Tail</strong>
+        <p class="muted" id="log_path">-</p>
+        <pre id="run_log"></pre>
+      </div>
+      <div class="card">
+        <strong>Processes</strong>
+        <pre id="procs"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const JSON_PATH = 'data/cnl_status.json';
+    const STATUS_ORDER = ["running", "done", "error", "pending"];
+
+    function esc(x) {
+      return String(x ?? "").replace(/[&<>]/g, (c) => {
+        if (c === "&") return "&amp;";
+        if (c === "<") return "&lt;";
+        return "&gt;";
+      });
+    }
+
+    function toRows(headers, rows) {
+      let html = "<tr>" + headers.map((h) => `<th>${esc(h.label)}</th>`).join("") + "</tr>";
+      for (const row of rows) {
+        html += "<tr>" + headers.map((h) => {
+          const value = row[h.key] ?? "";
+          if (h.key === "status") {
+            const cls = `status-${value}`;
+            return `<td class="${esc(cls)}">${esc(value)}</td>`;
+          }
+          return `<td>${esc(value)}</td>`;
+        }).join("") + "</tr>";
+      }
+      return html;
+    }
+
+    async function load() {
+      const res = await fetch(`${JSON_PATH}?t=${Date.now()}`, { cache: "no-store" });
+      const data = await res.json();
+      document.getElementById("stamp").textContent =
+        `Snapshot updated: ${data.collected_at_utc || "-"}`;
+      document.getElementById("host").textContent = data.host || "-";
+      document.getElementById("model").textContent = data.model_tag || "-";
+      const url = data.public_dashboard_url || "";
+      document.getElementById("public_url").innerHTML = url
+        ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(url)}</a>`
+        : "not available";
+
+      const jobs = [...(data.jobs || [])].sort((a, b) => {
+        const sa = STATUS_ORDER.indexOf(a.status);
+        const sb = STATUS_ORDER.indexOf(b.status);
+        if (sa !== sb) return sa - sb;
+        return `${a.dataset}:${a.use_freeze}`.localeCompare(`${b.dataset}:${b.use_freeze}`);
+      });
+      document.getElementById("jobs_table").innerHTML = toRows(
+        [
+          { key: "dataset", label: "dataset" },
+          { key: "use_freeze", label: "use_freeze" },
+          { key: "status", label: "status" },
+          { key: "epoch", label: "epoch" },
+          { key: "train_avg_loss", label: "train_avg_loss" },
+          { key: "wrong_to_correct", label: "wrong_to_correct" },
+          { key: "correct_to_wrong", label: "correct_to_wrong" },
+          { key: "elapsed", label: "elapsed" }
+        ],
+        jobs
+      );
+
+      document.getElementById("gpu_table").innerHTML = toRows(
+        [
+          { key: "gpu", label: "gpu" },
+          { key: "name", label: "name" },
+          { key: "memory_used", label: "memory_used" },
+          { key: "memory_total", label: "memory_total" },
+          { key: "utilization", label: "utilization" }
+        ],
+        data.gpu || []
+      );
+
+      document.getElementById("log_path").textContent = data.coordinator_log_path || "-";
+      document.getElementById("run_log").textContent = (data.coordinator_log_tail || []).join("\n");
+      const procs = data.processes || {};
+      document.getElementById("procs").textContent =
+        `runner:\n${procs.runner || ""}\n\ntrain:\n${procs.train || ""}\n\ninfer:\n${procs.infer || ""}\n\ndashboard:\n${procs.dashboard || ""}\n\ncloudflared:\n${procs.cloudflared || ""}`;
+    }
+
+    async function tick() {
+      try {
+        await load();
+      } catch (err) {
+        document.getElementById("stamp").textContent = `Load error: ${err}`;
+      }
+    }
+
+    tick();
+    setInterval(tick, 20000);
+  </script>
+</body>
+</html>
