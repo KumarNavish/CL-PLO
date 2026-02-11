@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-11T17:04:41.784116+00:00",
+  "collected_at_utc": "2026-02-11T17:05:12.439393+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "ok",
@@ -16,7 +16,7 @@
     },
     {
       "label": "Collected At (UTC)",
-      "value": "2026-02-11T17:04:41.784116+00:00"
+      "value": "2026-02-11T17:05:12.439393+00:00"
     },
     {
       "label": "Model Tag",
@@ -164,6 +164,65 @@
       ]
     },
     {
+      "title": "Table 3 (SmolLM): LEARNED vs FORGOT",
+      "columns": [
+        {
+          "key": "model",
+          "label": "MODEL"
+        },
+        {
+          "key": "method",
+          "label": "METHOD"
+        },
+        {
+          "key": "arc_c_learned",
+          "label": "Arc-c LEARNED"
+        },
+        {
+          "key": "arc_c_forgot",
+          "label": "Arc-c FORGOT"
+        },
+        {
+          "key": "csqa_learned",
+          "label": "CSQA LEARNED"
+        },
+        {
+          "key": "csqa_forgot",
+          "label": "CSQA FORGOT"
+        },
+        {
+          "key": "medqa_learned",
+          "label": "MEDQA LEARNED"
+        },
+        {
+          "key": "medqa_forgot",
+          "label": "MEDQA FORGOT"
+        }
+      ],
+      "rows": [
+        {
+          "model": "SmolLM2-360M-Instruct",
+          "method": "freeze-50",
+          "arc_c_learned": "38 (3.85%)",
+          "arc_c_forgot": "40 (14.08%)",
+          "csqa_learned": "23 (2.83%)",
+          "csqa_forgot": "32 (11.31%)",
+          "medqa_learned": "83 (8.63%)",
+          "medqa_forgot": "82 (26.45%)"
+        },
+        {
+          "model": "",
+          "method": "freeze-0",
+          "arc_c_learned": "298 (30.22%)",
+          "arc_c_forgot": "254 (89.44%)",
+          "csqa_learned": "236 (29.03%)",
+          "csqa_forgot": "257 (90.81%)",
+          "medqa_learned": "261 (27.13%)",
+          "medqa_forgot": "264 (85.16%)"
+        }
+      ]
+    },
+    {
       "title": "GPU",
       "columns": [
         {
@@ -193,68 +252,72 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "26 %"
+          "utilization": "20 %"
         },
         {
           "gpu": "1",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "27 %"
+          "utilization": "26 %"
         },
         {
           "gpu": "2",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "23 %"
+          "utilization": "89 %"
         },
         {
           "gpu": "3",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "96 %"
+          "utilization": "85 %"
         },
         {
           "gpu": "4",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "22 %"
+          "utilization": "21 %"
         },
         {
           "gpu": "5",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "93 %"
+          "utilization": "24 %"
         },
         {
           "gpu": "6",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "8046 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "68 %"
+          "utilization": "93 %"
         },
         {
           "gpu": "7",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "6654 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "42 %"
+          "utilization": "84 %"
         }
       ]
     }
   ],
   "texts": [
     {
+      "title": "Table 3 Status",
+      "content": "Rendered datasets: Arc-c, CSQA, MEDQA\nPending datasets (waiting for epoch 25 on all methods): MMLU"
+    },
+    {
       "title": "Coordinator Log Tail (logs/full_smollm_baselines_20260211_143202.out)",
       "content": "Using GPUs: 6, 7,\nModel: HuggingFaceTB/SmolLM2-360M-Instruct\nDatasets: arc_c csqa medqa mmlu\narc_c rows 1270\ncsqa rows 1096\nmedqa rows 1272\nmmlu rows 1553"
     },
     {
       "title": "Runner Process",
-      "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n759887 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+      "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n760181 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
     },
     {
       "title": "Training Processes",
@@ -387,56 +450,56 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "26 %"
+      "utilization": "20 %"
     },
     {
       "gpu": "1",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "27 %"
+      "utilization": "26 %"
     },
     {
       "gpu": "2",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "23 %"
+      "utilization": "89 %"
     },
     {
       "gpu": "3",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "96 %"
+      "utilization": "85 %"
     },
     {
       "gpu": "4",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "22 %"
+      "utilization": "21 %"
     },
     {
       "gpu": "5",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "93 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "6",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "8046 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "68 %"
+      "utilization": "93 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "6654 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "42 %"
+      "utilization": "84 %"
     }
   ],
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
