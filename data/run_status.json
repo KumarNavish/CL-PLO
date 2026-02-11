@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-11T16:57:18.662982+00:00",
+  "generated_at_utc": "2026-02-11T17:00:21.346478+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -10,7 +10,7 @@
       "collector": "cnl",
       "status": "ok",
       "error": "",
-      "collected_at_utc": "2026-02-11T16:57:17.675787+00:00",
+      "collected_at_utc": "2026-02-11T17:00:20.203330+00:00",
       "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [
@@ -24,7 +24,7 @@
         },
         {
           "label": "Collected At (UTC)",
-          "value": "2026-02-11T16:57:17.675787+00:00"
+          "value": "2026-02-11T17:00:20.203330+00:00"
         },
         {
           "label": "Model Tag",
@@ -149,8 +149,8 @@
               "dataset": "mmlu",
               "use_freeze": 1,
               "status": "running",
-              "epoch": "13",
-              "train_avg_loss": "2.2429570228266877",
+              "epoch": "14",
+              "train_avg_loss": "2.2686404379046694",
               "wrong_to_correct": "54",
               "correct_to_wrong": "68",
               "elapsed": "",
@@ -161,10 +161,10 @@
               "dataset": "mmlu",
               "use_freeze": 0,
               "status": "running",
-              "epoch": "9",
-              "train_avg_loss": "1.3899233634678685",
-              "wrong_to_correct": "353",
-              "correct_to_wrong": "324",
+              "epoch": "10",
+              "train_avg_loss": "1.379261895862161",
+              "wrong_to_correct": "358",
+              "correct_to_wrong": "325",
               "elapsed": "",
               "log_path": "logs/train_mmlu_usefreeze0.log",
               "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
@@ -201,14 +201,14 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "18888 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "27 %"
+              "utilization": "22 %"
             },
             {
               "gpu": "1",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9174 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "22 %"
+              "utilization": "26 %"
             },
             {
               "gpu": "2",
@@ -222,14 +222,14 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9726 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "25 %"
+              "utilization": "23 %"
             },
             {
               "gpu": "4",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9726 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "21 %"
+              "utilization": "22 %"
             },
             {
               "gpu": "5",
@@ -243,14 +243,14 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "8046 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "58 %"
+              "utilization": "60 %"
             },
             {
               "gpu": "7",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "6654 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "55 %"
+              "utilization": "43 %"
             }
           ]
         }
@@ -262,7 +262,7 @@
         },
         {
           "title": "Runner Process",
-          "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n756656 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+          "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n758080 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
         },
         {
           "title": "Training Processes",
