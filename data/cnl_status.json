@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-11T17:00:20.203330+00:00",
+  "collected_at_utc": "2026-02-11T17:01:26.425157+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "ok",
@@ -16,7 +16,7 @@
     },
     {
       "label": "Collected At (UTC)",
-      "value": "2026-02-11T17:00:20.203330+00:00"
+      "value": "2026-02-11T17:01:26.425157+00:00"
     },
     {
       "label": "Model Tag",
@@ -153,9 +153,9 @@
           "dataset": "mmlu",
           "use_freeze": 0,
           "status": "running",
-          "epoch": "10",
-          "train_avg_loss": "1.379261895862161",
-          "wrong_to_correct": "358",
+          "epoch": "11",
+          "train_avg_loss": "1.3704324263293728",
+          "wrong_to_correct": "357",
           "correct_to_wrong": "325",
           "elapsed": "",
           "log_path": "logs/train_mmlu_usefreeze0.log",
@@ -193,56 +193,56 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "18888 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "22 %"
+          "utilization": "26 %"
         },
         {
           "gpu": "1",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "26 %"
+          "utilization": "25 %"
         },
         {
           "gpu": "2",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "92 %"
+          "utilization": "88 %"
         },
         {
           "gpu": "3",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "23 %"
+          "utilization": "24 %"
         },
         {
           "gpu": "4",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "22 %"
+          "utilization": "24 %"
         },
         {
           "gpu": "5",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "25 %"
+          "utilization": "24 %"
         },
         {
           "gpu": "6",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "8046 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "60 %"
+          "utilization": "50 %"
         },
         {
           "gpu": "7",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "6654 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "43 %"
+          "utilization": "62 %"
         }
       ]
     }
@@ -254,7 +254,7 @@
     },
     {
       "title": "Runner Process",
-      "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n758080 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+      "content": "646997 bash -c cd ~/Collaborative-Neuron-Learning && RUN_ID=$(date +%Y%m%d_%H%M%S) && LOG=logs/full_smollm_baselines_${RUN_ID}.out && PIDF=logs/full_smollm_baselines_${RUN_ID}.pid && nohup bash scripts/run_full_smollm_baselines_remote.sh > \"${LOG}\" 2>&1 < /dev/null & echo $! > \"${PIDF}\" && echo RUN_ID:${RUN_ID} && echo PID:$(cat \"${PIDF}\") && echo LOG:${LOG} && echo PIDF:${PIDF}\n646999 bash scripts/run_full_smollm_baselines_remote.sh\n758573 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
     },
     {
       "title": "Training Processes",
@@ -372,9 +372,9 @@
       "dataset": "mmlu",
       "use_freeze": 0,
       "status": "running",
-      "epoch": "10",
-      "train_avg_loss": "1.379261895862161",
-      "wrong_to_correct": "358",
+      "epoch": "11",
+      "train_avg_loss": "1.3704324263293728",
+      "wrong_to_correct": "357",
       "correct_to_wrong": "325",
       "elapsed": "",
       "log_path": "logs/train_mmlu_usefreeze0.log",
@@ -387,56 +387,56 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "18888 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "22 %"
+      "utilization": "26 %"
     },
     {
       "gpu": "1",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "26 %"
+      "utilization": "25 %"
     },
     {
       "gpu": "2",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "92 %"
+      "utilization": "88 %"
     },
     {
       "gpu": "3",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "23 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "4",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "22 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "5",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "25 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "6",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "8046 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "60 %"
+      "utilization": "50 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "6654 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "43 %"
+      "utilization": "62 %"
     }
   ],
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
