@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-12T18:22:57.043630+00:00",
+  "collected_at_utc": "2026-02-12T20:55:28.494630+00:00",
   "host": "kumar0002@131.152.56.23",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "error",
@@ -10,7 +10,7 @@
   "texts": [
     {
       "title": "Collection Error",
-      "content": "SSH probe failed (code 255) for fibonacci-cnl:\nssh: connect to host 131.152.56.23 port 22: Network is unreachable"
+      "content": "SSH probe failed (code 255) for fibonacci-cnl:\nssh: connect to host 131.152.56.23 port 22: Operation timed out"
     }
   ],
   "links": []
