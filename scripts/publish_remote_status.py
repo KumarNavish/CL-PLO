@@ -286,12 +286,19 @@ def count_nonempty_lines(path_obj):
 
 def dataset_title(dataset):
     names = {
-        "arc_c": "Arc-c",
+        "arc_c": "ARC-C",
         "csqa": "CSQA",
         "mmlu": "MMLU",
-        "medqa": "MEDQA",
+        "medqa": "MedQA",
     }
     return names.get(dataset, dataset)
+
+
+def order_datasets_for_paper(settings, datasets):
+    preferred = settings.get("paper_dataset_order", ["mmlu", "medqa", "arc_c", "csqa"])
+    ordered = [ds for ds in preferred if ds in datasets]
+    ordered.extend(ds for ds in datasets if ds not in ordered)
+    return ordered
 
 
 def pct_text(numerator, denominator):
@@ -376,22 +383,30 @@ def build_cnl_table1(settings, jobs_rows, model_tag):
     if not ready_datasets:
         return None, ready_datasets, pending_datasets, neg_totals
 
-    columns = [{"key": "model", "label": "MODEL"}]
-    for ds in ready_datasets:
-        columns.append({"key": f"{ds}_dissimilar", "label": f"{dataset_title(ds)} Dissimilar"})
-        columns.append({"key": f"{ds}_similar", "label": f"{dataset_title(ds)} Similar"})
+    ordered_datasets = order_datasets_for_paper(settings, ready_datasets)
 
-    row = {"model": "SmolLM-360M"}
-    for ds in ready_datasets:
+    row = {"model": settings.get("paper_model_name", "SmolLM 360M")}
+    for ds in ordered_datasets:
         row[f"{ds}_dissimilar"] = values[ds]["dissimilar"]
         row[f"{ds}_similar"] = values[ds]["similar"]
 
     table = {
-        "title": "Table 1 (SmolLM): Similar vs Dissimilar",
-        "columns": columns,
+        "title": "Table 1",
+        "paper_table": "table1",
+        "caption": settings.get(
+            "table1_caption",
+            (
+                "Relationship between gradient similarity and catastrophic forgetting. "
+                "Results are reported as Number of forgotten questions (Percentage). "
+                "Samples with negative gradient similarity are ranked by magnitude: "
+                "top 1/3 are Sim, bottom 1/3 are Dissim."
+            ),
+        ),
+        "dataset_order": ordered_datasets,
+        "columns": [{"key": "model", "label": "MODEL"}],
         "rows": [row],
     }
-    return table, ready_datasets, pending_datasets, neg_totals
+    return table, ordered_datasets, pending_datasets, neg_totals
 
 
 def build_cnl_table2(settings, model_tag):
@@ -415,34 +430,42 @@ def build_cnl_table2(settings, model_tag):
     if not ready_datasets:
         return None, ready_datasets, pending_datasets
 
-    columns = [
-        {"key": "model", "label": "MODEL"},
-        {"key": "neuron_type", "label": "Neuron Type"},
-    ]
-    for ds in ready_datasets:
-        columns.append({"key": f"{ds}_stats", "label": f"{dataset_title(ds)} (Prop/Grad/Total)"})
-
-    coll_row = {"model": "SmolLM-360M", "neuron_type": "Collaborative"}
-    conf_row = {"model": "", "neuron_type": "Conflicting"}
-    for ds in ready_datasets:
+    ordered_datasets = order_datasets_for_paper(settings, ready_datasets)
+    prop_row = {"metric": "PROP"}
+    grad_row = {"metric": "GRAD"}
+    total_row = {"metric": "TOTAL"}
+    for ds in ordered_datasets:
         row = values[ds]
-        coll_row[f"{ds}_stats"] = (
-            f"{to_float(row.get('coll_prop')):.2f} / "
-            f"{to_float(row.get('coll_grad')):.2f} / "
-            f"{to_float(row.get('coll_total')):.2f}"
-        )
-        conf_row[f"{ds}_stats"] = (
-            f"{to_float(row.get('conf_prop')):.2f} / "
-            f"{to_float(row.get('conf_grad')):.2f} / "
-            f"{to_float(row.get('conf_total')):.2f}"
-        )
+        coll_prop = to_float(row.get("coll_prop"))
+        conf_prop = to_float(row.get("conf_prop"))
+        coll_grad = to_float(row.get("coll_grad"))
+        conf_grad = to_float(row.get("conf_grad"))
+        coll_total = to_float(row.get("coll_total"))
+        conf_total = to_float(row.get("conf_total"))
+
+        prop_row[f"{ds}_coll"] = f"{coll_prop:.1f}%"
+        prop_row[f"{ds}_conf"] = f"{conf_prop:.1f}%"
+        grad_row[f"{ds}_coll"] = f"{coll_grad:+.2f}"
+        grad_row[f"{ds}_conf"] = f"{conf_grad:+.2f}"
+        total_row[f"{ds}_total"] = f"{(coll_total + conf_total):.2f}"
 
     table = {
-        "title": "Table 2 (SmolLM): Collaborative vs Conflicting",
-        "columns": columns,
-        "rows": [coll_row, conf_row],
+        "title": "Table 2",
+        "paper_table": "table2",
+        "caption": settings.get(
+            "table2_caption",
+            (
+                "Distribution of collaborative neurons (COLL) and conflicting neurons (CONF). "
+                "PROP denotes neuron-type proportion. GRAD denotes gradient similarity sum for that type. "
+                "TOTAL denotes the gradient similarity sum over all neurons."
+            ),
+        ),
+        "dataset_order": ordered_datasets,
+        "model": settings.get("paper_model_name", "SmolLM 360M"),
+        "rows": [prop_row, grad_row, total_row],
+        "columns": [{"key": "metric", "label": "Metric"}],
     }
-    return table, ready_datasets, pending_datasets
+    return table, ordered_datasets, pending_datasets
 
 
 def build_cnl_table3(settings, jobs_rows, model_tag):
@@ -481,20 +504,28 @@ def build_cnl_table3(settings, jobs_rows, model_tag):
     if not ready_datasets:
         return None, ready_datasets, pending_datasets
 
-    columns = [
-        {"key": "model", "label": "MODEL"},
-        {"key": "method", "label": "METHOD"},
-    ]
-    for ds in ready_datasets:
+    ordered_datasets = order_datasets_for_paper(settings, ready_datasets)
+    use_freeze_ints = [int(x) for x in use_freeze_vals]
+    preferred_method_order = settings.get("table3_method_order", [0, 1])
+    method_order = []
+    for uf_raw in preferred_method_order:
+        uf = int(uf_raw)
+        if uf in use_freeze_ints and uf not in method_order:
+            method_order.append(uf)
+    for uf in use_freeze_ints:
+        if uf not in method_order:
+            method_order.append(uf)
+
+    columns = [{"key": "model", "label": "MODEL"}, {"key": "method", "label": "METHOD"}]
+    for ds in ordered_datasets:
         columns.append({"key": f"{ds}_learned", "label": f"{dataset_title(ds)} LEARNED"})
         columns.append({"key": f"{ds}_forgot", "label": f"{dataset_title(ds)} FORGOT"})
 
     rows = []
-    for idx, uf_raw in enumerate(use_freeze_vals):
-        uf = int(uf_raw)
+    for uf in method_order:
         method = method_labels.get(str(uf), default_method_labels.get(uf, f"use_freeze={uf}"))
-        row = {"model": model_tag if idx == 0 else "", "method": method}
-        for ds in ready_datasets:
+        row = {"model": settings.get("paper_model_name", "SmolLM 360M"), "method": method}
+        for ds in ordered_datasets:
             stats = by_pair.get((ds, uf), {})
             wrong_total = count_nonempty_lines(Path(f"data/{ds}_wrong_{model_tag}.jsonl"))
             correct_total = count_nonempty_lines(Path(f"data/{ds}_correct_{model_tag}.jsonl"))
@@ -505,11 +536,22 @@ def build_cnl_table3(settings, jobs_rows, model_tag):
         rows.append(row)
 
     table = {
-        "title": "Table 3 (SmolLM): LEARNED vs FORGOT",
+        "title": "Table 3",
+        "paper_table": "table3",
+        "caption": settings.get(
+            "table3_caption",
+            (
+                "Effectiveness of knowledge injection using FT and CNL. Results are reported "
+                "as Number of questions (Percentage). FT tends to forget previously mastered "
+                "knowledge, while CNL induces negligible catastrophic forgetting."
+            ),
+        ),
+        "dataset_order": ordered_datasets,
+        "model": settings.get("paper_model_name", "SmolLM 360M"),
         "columns": columns,
         "rows": rows,
     }
-    return table, ready_datasets, pending_datasets
+    return table, ordered_datasets, pending_datasets
 
 
 def build_cnl_table4(settings, model_tag):
@@ -1103,12 +1145,87 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       text-decoration: none;
       font-weight: 700;
     }}
+    .paper-wrap {{
+      background: #fff;
+      border: 1px solid #cfd7de;
+      border-radius: 10px;
+      padding: 10px 12px 12px;
+      overflow-x: auto;
+    }}
+    .paper-caption {{
+      margin: 0 0 8px;
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 18px;
+      line-height: 1.15;
+      color: #111;
+    }}
+    .paper-caption .paper-title {{
+      font-weight: 700;
+    }}
+    .paper-table {{
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      border-radius: 0;
+      font-family: "Times New Roman", Georgia, serif;
+      background: #fff;
+    }}
+    .paper-table thead tr:first-child th {{
+      border-top: 2px solid #333;
+    }}
+    .paper-table thead th {{
+      background: #fff;
+      border-bottom: 1px solid #555;
+      color: #111;
+      font-size: 13px;
+      font-variant: small-caps;
+      letter-spacing: 0.2px;
+      padding: 5px 6px 3px;
+      text-align: center;
+      white-space: nowrap;
+    }}
+    .paper-table td {{
+      border-bottom: 1px solid #666;
+      color: #111;
+      font-size: 14px;
+      line-height: 1.02;
+      padding: 4px 7px;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }}
+    .paper-table tbody tr:last-child td {{
+      border-bottom: 2px solid #333;
+    }}
+    .paper-table .left {{
+      text-align: left;
+    }}
+    .paper-table .italic {{
+      font-style: italic;
+    }}
+    .paper-table .sub {{
+      display: block;
+      font-size: 0.92em;
+      margin-top: 1px;
+    }}
+    .paper-sep td {{
+      border-top: 1px solid #555;
+    }}
     @media (max-width: 800px) {{
       .wrap {{
         padding: 16px;
       }}
       h1 {{
         font-size: 24px;
+      }}
+      .paper-caption {{
+        font-size: 16px;
+      }}
+      .paper-table thead th {{
+        font-size: 17px;
+      }}
+      .paper-table td {{
+        font-size: 16px;
       }}
     }}
   </style>
@@ -1141,6 +1258,187 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         if (ch === "<") return "&lt;";
         return "&gt;";
       }});
+    }}
+
+    function datasetLabel(dataset) {{
+      const names = {{
+        mmlu: "MMLU",
+        medqa: "MedQA",
+        arc_c: "ARC-C",
+        csqa: "CSQA",
+      }};
+      return names[dataset] || dataset || "";
+    }}
+
+    function splitMainSub(rawValue) {{
+      const text = String(rawValue ?? "").trim();
+      const m = text.match(/^(.+?)\\s*\\(([^)]*)\\)$/);
+      if (!m) {{
+        return {{ main: text, sub: "" }};
+      }}
+      return {{ main: m[1].trim(), sub: `(${{m[2].trim()}})` }};
+    }}
+
+    function renderMainSubCell(rawValue) {{
+      const parts = splitMainSub(rawValue);
+      if (!parts.sub) {{
+        return esc(parts.main);
+      }}
+      return `${{esc(parts.main)}}<span class="sub">${{esc(parts.sub)}}</span>`;
+    }}
+
+    function paperCaption(table) {{
+      const title = table.title || "Table";
+      const caption = table.caption || "";
+      if (!caption) {{
+        return `<p class="paper-caption"><span class="paper-title">${{esc(title)}}.</span></p>`;
+      }}
+      const prefix = `${{title}}:`;
+      let text = caption;
+      if (text.startsWith(prefix)) {{
+        text = text.slice(prefix.length).trim();
+      }}
+      return `<p class="paper-caption"><span class="paper-title">${{esc(prefix)}}</span> ${{esc(text)}}</p>`;
+    }}
+
+    function renderPaperTable1(table) {{
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const row = rows[0] || {{}};
+
+      let html = `<div class="section paper-wrap">${{paperCaption(table)}}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      for (const ds of datasets) {{
+        html += `<th colspan="2">${{esc(datasetLabel(ds))}}</th>`;
+      }}
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {{
+        html += `<th>DISSIM</th><th>SIM</th>`;
+      }}
+      html += `</tr></thead><tbody><tr>`;
+      html += `<td class="left italic">${{esc(row.model || table.model || "")}}</td>`;
+      for (const ds of datasets) {{
+        html += `<td>${{renderMainSubCell(row[`${{ds}}_dissimilar`])}}</td>`;
+        html += `<td>${{renderMainSubCell(row[`${{ds}}_similar`])}}</td>`;
+      }}
+      html += `</tr></tbody></table></div>`;
+      return html;
+    }}
+
+    function renderPaperTable2(table) {{
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const byMetric = {{}};
+      for (const row of rows) {{
+        byMetric[String(row.metric || "").toUpperCase()] = row;
+      }}
+
+      const model = table.model || "";
+      const prop = byMetric.PROP || {{}};
+      const grad = byMetric.GRAD || {{}};
+      const total = byMetric.TOTAL || {{}};
+
+      let html = `<div class="section paper-wrap">${{paperCaption(table)}}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      html += `<th class="left" rowspan="2">METRIC</th>`;
+      for (const ds of datasets) {{
+        html += `<th colspan="2">${{esc(datasetLabel(ds))}}</th>`;
+      }}
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {{
+        html += `<th>COLL</th><th>CONF</th>`;
+      }}
+      html += `</tr></thead><tbody>`;
+
+      html += `<tr>`;
+      html += `<td class="left italic" rowspan="3">${{esc(model)}}</td>`;
+      html += `<td class="left">PROP</td>`;
+      for (const ds of datasets) {{
+        html += `<td>${{esc(prop[`${{ds}}_coll`] || "")}}</td>`;
+        html += `<td>${{esc(prop[`${{ds}}_conf`] || "")}}</td>`;
+      }}
+      html += `</tr>`;
+
+      html += `<tr>`;
+      html += `<td class="left">GRAD</td>`;
+      for (const ds of datasets) {{
+        html += `<td>${{esc(grad[`${{ds}}_coll`] || "")}}</td>`;
+        html += `<td>${{esc(grad[`${{ds}}_conf`] || "")}}</td>`;
+      }}
+      html += `</tr>`;
+
+      html += `<tr>`;
+      html += `<td class="left">TOTAL</td>`;
+      for (const ds of datasets) {{
+        html += `<td colspan="2">${{esc(total[`${{ds}}_total`] || "")}}</td>`;
+      }}
+      html += `</tr>`;
+
+      html += `</tbody></table></div>`;
+      return html;
+    }}
+
+    function renderPaperTable3(table) {{
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const orderedRows = [];
+      const seen = new Set();
+      for (const method of ["FT", "CNL"]) {{
+        const idx = rows.findIndex((row) => String(row.method || "").toUpperCase() === method);
+        if (idx >= 0) {{
+          orderedRows.push(rows[idx]);
+          seen.add(idx);
+        }}
+      }}
+      rows.forEach((row, idx) => {{
+        if (!seen.has(idx)) orderedRows.push(row);
+      }});
+
+      const model = table.model || ((orderedRows[0] || {{}}).model || "");
+      let html = `<div class="section paper-wrap">${{paperCaption(table)}}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      html += `<th class="left" rowspan="2">METHOD</th>`;
+      for (const ds of datasets) {{
+        html += `<th colspan="2">${{esc(datasetLabel(ds))}}</th>`;
+      }}
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {{
+        html += `<th>LEARNED</th><th>FORGOT</th>`;
+      }}
+      html += `</tr></thead><tbody>`;
+
+      orderedRows.forEach((row, idx) => {{
+        const sepClass = idx > 0 ? " paper-sep" : "";
+        html += `<tr class="${{sepClass.trim()}}">`;
+        if (idx === 0) {{
+          html += `<td class="left italic" rowspan="${{orderedRows.length}}">${{esc(model)}}</td>`;
+        }}
+        html += `<td class="left">${{esc(row.method || "")}}</td>`;
+        for (const ds of datasets) {{
+          html += `<td>${{renderMainSubCell(row[`${{ds}}_learned`])}}</td>`;
+          html += `<td>${{renderMainSubCell(row[`${{ds}}_forgot`])}}</td>`;
+        }}
+        html += `</tr>`;
+      }});
+
+      html += `</tbody></table></div>`;
+      return html;
+    }}
+
+    function renderPaperTable(table) {{
+      if (table.paper_table === "table1") {{
+        return renderPaperTable1(table);
+      }}
+      if (table.paper_table === "table2") {{
+        return renderPaperTable2(table);
+      }}
+      if (table.paper_table === "table3") {{
+        return renderPaperTable3(table);
+      }}
+      return renderTable(table);
     }}
 
     function renderTable(table) {{
@@ -1202,7 +1500,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
 
       const tables = project.tables || [];
-      document.getElementById("tables").innerHTML = tables.map((t) => renderTable(t)).join("");
+      document.getElementById("tables").innerHTML = tables.map((t) => (t.paper_table ? renderPaperTable(t) : renderTable(t))).join("");
 
       const texts = project.texts || [];
       document.getElementById("texts").innerHTML = texts.map((block) => `
