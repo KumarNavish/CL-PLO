@@ -563,6 +563,62 @@
       return html;
     }
 
+    function renderPaperValue(rawValue) {
+      const text = String(rawValue ?? "");
+      if (text.trim().toUpperCase() === "PENDING") {
+        return `<span class="status-pending">PENDING</span>`;
+      }
+      if (text.includes("(") && text.includes("%")) {
+        return renderMainSubCell(text);
+      }
+      return esc(text);
+    }
+
+    function renderPaperTable4(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">OPTIMIZER</th>`;
+      html += `<th class="left" rowspan="2">METHOD</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>LEARNED</th><th>FORGOT</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      const groupSizes = {};
+      for (const row of rows) {
+        const key = String(row.optimizer || "");
+        groupSizes[key] = (groupSizes[key] || 0) + 1;
+      }
+
+      let prevOpt = null;
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] || {};
+        const opt = String(row.optimizer || "");
+        const isNewGroup = i === 0 || opt !== prevOpt;
+        const sepClass = isNewGroup && i > 0 ? " paper-sep" : "";
+        html += `<tr class="${sepClass.trim()}">`;
+        if (isNewGroup) {
+          html += `<td class="left" rowspan="${groupSizes[opt] || 1}">${esc(opt)}</td>`;
+        }
+        html += `<td class="left">${esc(row.method || "")}</td>`;
+        for (const ds of datasets) {
+          html += `<td>${renderPaperValue(row[`${ds}_learned`])}</td>`;
+          html += `<td>${renderPaperValue(row[`${ds}_forgot`])}</td>`;
+        }
+        html += `</tr>`;
+        prevOpt = opt;
+      }
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
     function renderPaperTable(table) {
       if (table.paper_table === "table1") {
         return renderPaperTable1(table);
@@ -572,6 +628,9 @@
       }
       if (table.paper_table === "table3") {
         return renderPaperTable3(table);
+      }
+      if (table.paper_table === "table4") {
+        return renderPaperTable4(table);
       }
       return renderTable(table);
     }
