@@ -307,6 +307,142 @@ def pct_text(numerator, denominator):
     return f"{(100.0 * numerator / denominator):.2f}%"
 
 
+def parse_count_pct(value):
+    text = str(value or "").strip()
+    m = re.match(r"^\s*([0-9]+)\s*\(([0-9.]+)%\)\s*$", text)
+    if not m:
+        return 0, 0.0
+    return int(m.group(1)), float(m.group(2))
+
+
+def parse_pct_only(value):
+    text = str(value or "").strip().rstrip("%")
+    try:
+        return float(text)
+    except Exception:  # noqa: BLE001
+        return 0.0
+
+
+def build_simple_paper_comparison_text(table1, table2, table3):
+    lines = []
+    lines.append("Quick read (simple language):")
+
+    if table3 and table3.get("rows"):
+        rows = table3.get("rows", [])
+        ft_row = next((r for r in rows if str(r.get("method", "")).upper() == "FT"), None)
+        cnl_row = next((r for r in rows if str(r.get("method", "")).upper() == "CNL"), None)
+        ds_order = table3.get("dataset_order", [])
+
+        if ft_row and cnl_row and ds_order:
+            ft_learn = []
+            cnl_learn = []
+            ft_forgot = []
+            cnl_forgot = []
+            for ds in ds_order:
+                _, ft_lp = parse_count_pct(ft_row.get(f"{ds}_learned", "0 (0.00%)"))
+                _, cnl_lp = parse_count_pct(cnl_row.get(f"{ds}_learned", "0 (0.00%)"))
+                _, ft_fp = parse_count_pct(ft_row.get(f"{ds}_forgot", "0 (0.00%)"))
+                _, cnl_fp = parse_count_pct(cnl_row.get(f"{ds}_forgot", "0 (0.00%)"))
+                ft_learn.append(ft_lp)
+                cnl_learn.append(cnl_lp)
+                ft_forgot.append(ft_fp)
+                cnl_forgot.append(cnl_fp)
+
+            avg_ft_learn = sum(ft_learn) / len(ft_learn)
+            avg_cnl_learn = sum(cnl_learn) / len(cnl_learn)
+            avg_ft_forgot = sum(ft_forgot) / len(ft_forgot)
+            avg_cnl_forgot = sum(cnl_forgot) / len(cnl_forgot)
+
+            forgot_reduction = (
+                (avg_ft_forgot - avg_cnl_forgot) / avg_ft_forgot * 100.0 if avg_ft_forgot > 0 else 0.0
+            )
+            learn_change = (
+                (avg_cnl_learn - avg_ft_learn) / avg_ft_learn * 100.0 if avg_ft_learn > 0 else 0.0
+            )
+
+            lines.append("")
+            lines.append("1) Table 3 (FT vs CNL): High-confidence comparison with the paper")
+            lines.append(
+                f"- Forgetting: FT {avg_ft_forgot:.2f}% -> CNL {avg_cnl_forgot:.2f}% "
+                f"(about {forgot_reduction:.1f}% lower)."
+            )
+            lines.append(
+                f"- New learning: FT {avg_ft_learn:.2f}% -> CNL {avg_cnl_learn:.2f}% "
+                f"(about {abs(learn_change):.1f}% {'lower' if learn_change < 0 else 'higher'})."
+            )
+            lines.append(
+                "- Meaning: In this SmolLM run, CNL protects old knowledge well, "
+                "but it also learns new knowledge more slowly than FT."
+            )
+        else:
+            lines.append("")
+            lines.append("1) Table 3 (FT vs CNL): Not enough completed data yet.")
+
+    if table1 and table1.get("rows"):
+        row = table1["rows"][0]
+        ds_order = table1.get("dataset_order", [])
+        stronger_sim = 0
+        for ds in ds_order:
+            _, dissim_pct = parse_count_pct(row.get(f"{ds}_dissimilar", "0 (0.00%)"))
+            _, sim_pct = parse_count_pct(row.get(f"{ds}_similar", "0 (0.00%)"))
+            if sim_pct > dissim_pct:
+                stronger_sim += 1
+        lines.append("")
+        lines.append("2) Table 1 (Sim vs Dissim): Directional comparison")
+        lines.append(
+            f"- Datasets where Sim has more forgetting than Dissim: {stronger_sim}/{len(ds_order) if ds_order else 0}."
+        )
+        lines.append(
+            "- Meaning: The paper finds a strong Sim concentration. "
+            "Here it appears weaker, so the pattern is only partially reproduced."
+        )
+
+    if table2 and table2.get("rows"):
+        ds_order = table2.get("dataset_order", [])
+        by_metric = {str(r.get("metric", "")).upper(): r for r in table2.get("rows", [])}
+        prop_row = by_metric.get("PROP", {})
+        conf_dom = 0
+        for ds in ds_order:
+            coll = parse_pct_only(prop_row.get(f"{ds}_coll", "0"))
+            conf = parse_pct_only(prop_row.get(f"{ds}_conf", "0"))
+            if conf > coll:
+                conf_dom += 1
+
+        totals_normalized = True
+        total_row = by_metric.get("TOTAL", {})
+        for ds in ds_order:
+            try:
+                if abs(float(str(total_row.get(f"{ds}_total", "0"))) - 100.0) > 1e-6:
+                    totals_normalized = False
+                    break
+            except Exception:  # noqa: BLE001
+                totals_normalized = False
+                break
+
+        lines.append("")
+        lines.append("3) Table 2 (COLL vs CONF): Partial comparison only")
+        lines.append(f"- CONF proportion is larger than COLL in {conf_dom}/{len(ds_order) if ds_order else 0} datasets.")
+        lines.append("- Meaning: The direction matches the paper (conflict-heavy neurons).")
+        if totals_normalized:
+            lines.append(
+                "- Important caveat: This run stores normalized totals (around 100), "
+                "while the paper table reports signed gradient sums. So compare trend, not raw magnitude."
+            )
+
+    lines.append("")
+    lines.append("What we can safely conclude:")
+    lines.append("- CNL still clearly reduces forgetting compared with FT on SmolLM.")
+    lines.append("- On SmolLM, CNL currently trades away a lot of new learning.")
+    lines.append("- Some mechanism signals from the paper are present, but weaker.")
+    lines.append("")
+    lines.append("What we cannot claim yet:")
+    lines.append("- We cannot claim full quantitative match to large-model paper results.")
+    lines.append("- We cannot claim final scalability from one small model and one config.")
+    lines.append("- We cannot claim exact mechanism parity until Table 2 metric definition is fully aligned.")
+
+    return "\n".join(lines)
+
+
 def read_jsonl_rows(path_obj):
     path_obj = Path(path_obj)
     if not path_obj.exists():
@@ -722,6 +858,12 @@ def collect_cnl(project):
     if table4:
         tables.append(table4)
     texts.append({"title": "Table 4 Status", "content": table4_status})
+    texts.append(
+        {
+            "title": "Paper Comparison Appendix (Simple)",
+            "content": build_simple_paper_comparison_text(table1, table2, table3),
+        }
+    )
 
     tables.append(collect_gpu_table())
 
