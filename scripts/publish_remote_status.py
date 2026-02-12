@@ -707,34 +707,103 @@ def build_cnl_table3(settings, jobs_rows, model_tag):
 
 
 def build_cnl_table4(settings, model_tag):
-    table4_csv = settings.get("table4_csv_path", "results/smollm_table4.csv")
-    csv_path = Path(table4_csv)
-    if csv_path.exists():
-        rows = read_csv_rows(csv_path, limit=200)
-        if rows:
-            return {
-                "title": "Table 4 (SmolLM): Ablation",
-                "columns": [{"key": k, "label": k} for k in rows[0].keys()],
-                "rows": rows,
-            }, f"Loaded from {table4_csv}"
+    datasets = settings.get("datasets", ["arc_c", "csqa", "medqa", "mmlu"])
+    ordered_datasets = order_datasets_for_paper(settings, datasets)
+    target_epoch = int(settings.get("table4_target_epoch", 25))
+    lr = str(settings.get("table4_lr", "1e-7"))
+    optimizer_rows = settings.get(
+        "table4_optimizer_rows",
+        [
+            {"key": "sgd", "label": "SGD"},
+            {"key": "momentum", "label": "Momentum"},
+            {"key": "adam", "label": "Adam"},
+            {"key": "adamw", "label": "AdamW"},
+        ],
+    )
+    method_rows = settings.get("table4_method_rows", [{"use_freeze": 0, "label": "FT"}, {"use_freeze": 1, "label": "CNL"}])
 
-    placeholder = {
-        "title": "Table 4 (SmolLM): Ablation",
-        "columns": [
-            {"key": "model", "label": "MODEL"},
-            {"key": "status", "label": "Status"},
-        ],
-        "rows": [
-            {
-                "model": "SmolLM-360M",
-                "status": (
-                    "Not available yet: Table 4 ablation artifacts are missing "
-                    "(lambda ablation runs are required)."
-                ),
-            }
-        ],
+    wrong_totals = {}
+    correct_totals = {}
+    for ds in ordered_datasets:
+        wrong_totals[ds] = count_nonempty_lines(Path(f"data/{ds}_wrong_{model_tag}.jsonl"))
+        correct_totals[ds] = count_nonempty_lines(Path(f"data/{ds}_correct_{model_tag}.jsonl"))
+
+    def summary_path(ds, opt_key, use_freeze):
+        uf = int(use_freeze)
+        if opt_key == "sgd":
+            return Path(f"zero_ckpts/{ds}_{model_tag}_lr{lr}_usefreeze{uf}/summary.csv")
+        if opt_key == "momentum":
+            return Path(f"optimizers/moment_{ds}_{model_tag}_lr{lr}_usefreeze{uf}/summary.csv")
+        if opt_key == "adam":
+            return Path(f"optimizers/adam_{ds}_{model_tag}_lr{lr}_usefreeze{uf}/summary.csv")
+        if opt_key == "adamw":
+            return Path(f"optimizers/adamw_{ds}_{model_tag}_lr{lr}_usefreeze{uf}/summary.csv")
+        return Path("")
+
+    rows = []
+    ready = 0
+    pending = 0
+    pending_items = []
+    for opt_cfg in optimizer_rows:
+        opt_key = str(opt_cfg.get("key", ""))
+        opt_label = str(opt_cfg.get("label", opt_key))
+        for method_cfg in method_rows:
+            uf = int(method_cfg.get("use_freeze", 0))
+            method_label = str(method_cfg.get("label", f"use_freeze={uf}"))
+            row = {"optimizer": opt_label, "method": method_label}
+            for ds in ordered_datasets:
+                s_path = summary_path(ds, opt_key, uf)
+                last = read_last_csv_row(s_path) if s_path and str(s_path) else {}
+                epoch = to_int(last.get("epoch"), default=0)
+                if not last or epoch < target_epoch:
+                    row[f"{ds}_learned"] = "PENDING"
+                    row[f"{ds}_forgot"] = "PENDING"
+                    pending += 1
+                    pending_items.append(f"{opt_label}/{method_label}/{dataset_title(ds)}")
+                    continue
+
+                learned = to_int(last.get("wrong_to_correct"), default=0)
+                forgot = to_int(last.get("correct_to_wrong"), default=0)
+                row[f"{ds}_learned"] = f"{learned} ({pct_text(learned, wrong_totals.get(ds, 0))})"
+                row[f"{ds}_forgot"] = f"{forgot} ({pct_text(forgot, correct_totals.get(ds, 0))})"
+                ready += 1
+            rows.append(row)
+
+    if not rows:
+        placeholder = {
+            "title": "Table 4",
+            "columns": [{"key": "status", "label": "Status"}],
+            "rows": [{"status": "No ablation rows configured."}],
+        }
+        return placeholder, "No optimizer/method rows configured."
+
+    total = ready + pending
+    pending_preview = ", ".join(pending_items[:8]) if pending_items else "none"
+    if pending > 8:
+        pending_preview += f", +{pending - 8} more"
+
+    table = {
+        "title": "Table 4",
+        "paper_table": "table4",
+        "caption": settings.get(
+            "table4_caption",
+            (
+                "Impact of different optimizers on catastrophic forgetting. Results are "
+                "reported as Number of questions (Percentage)."
+            ),
+        ),
+        "dataset_order": ordered_datasets,
+        "model": settings.get("paper_model_name", "SmolLM 360M"),
+        "target_epoch": target_epoch,
+        "columns": [{"key": "optimizer", "label": "OPTIMIZER"}, {"key": "method", "label": "METHOD"}],
+        "rows": rows,
     }
-    return placeholder, f"Missing file: {table4_csv}"
+    status = (
+        f"Completed entries: {ready}/{total} (target epoch {target_epoch}).\n"
+        f"Pending entries: {pending}\n"
+        f"Pending preview: {pending_preview}"
+    )
+    return table, status
 
 
 def resolve_public_link(link_cfg):
@@ -1720,6 +1789,62 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       return html;
     }}
 
+    function renderPaperValue(rawValue) {{
+      const text = String(rawValue ?? "");
+      if (text.trim().toUpperCase() === "PENDING") {{
+        return `<span class="status-pending">PENDING</span>`;
+      }}
+      if (text.includes("(") && text.includes("%")) {{
+        return renderMainSubCell(text);
+      }}
+      return esc(text);
+    }}
+
+    function renderPaperTable4(table) {{
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      let html = `<div class="section paper-wrap">${{paperCaption(table)}}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">OPTIMIZER</th>`;
+      html += `<th class="left" rowspan="2">METHOD</th>`;
+      for (const ds of datasets) {{
+        html += `<th colspan="2">${{esc(datasetLabel(ds))}}</th>`;
+      }}
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {{
+        html += `<th>LEARNED</th><th>FORGOT</th>`;
+      }}
+      html += `</tr></thead><tbody>`;
+
+      const groupSizes = {{}};
+      for (const row of rows) {{
+        const key = String(row.optimizer || "");
+        groupSizes[key] = (groupSizes[key] || 0) + 1;
+      }}
+
+      let prevOpt = null;
+      for (let i = 0; i < rows.length; i += 1) {{
+        const row = rows[i] || {{}};
+        const opt = String(row.optimizer || "");
+        const isNewGroup = i === 0 || opt !== prevOpt;
+        const sepClass = isNewGroup && i > 0 ? " paper-sep" : "";
+        html += `<tr class="${{sepClass.trim()}}">`;
+        if (isNewGroup) {{
+          html += `<td class="left" rowspan="${{groupSizes[opt] || 1}}">${{esc(opt)}}</td>`;
+        }}
+        html += `<td class="left">${{esc(row.method || "")}}</td>`;
+        for (const ds of datasets) {{
+          html += `<td>${{renderPaperValue(row[`${{ds}}_learned`])}}</td>`;
+          html += `<td>${{renderPaperValue(row[`${{ds}}_forgot`])}}</td>`;
+        }}
+        html += `</tr>`;
+        prevOpt = opt;
+      }}
+
+      html += `</tbody></table></div>`;
+      return html;
+    }}
+
     function renderPaperTable(table) {{
       if (table.paper_table === "table1") {{
         return renderPaperTable1(table);
@@ -1729,6 +1854,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
       if (table.paper_table === "table3") {{
         return renderPaperTable3(table);
+      }}
+      if (table.paper_table === "table4") {{
+        return renderPaperTable4(table);
       }}
       return renderTable(table);
     }}
