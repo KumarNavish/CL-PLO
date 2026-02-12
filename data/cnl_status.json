@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-12T11:49:43.346454+00:00",
+  "collected_at_utc": "2026-02-12T11:50:47.627575+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "ok",
@@ -16,7 +16,7 @@
     },
     {
       "label": "Collected At (UTC)",
-      "value": "2026-02-12T11:49:43.346454+00:00"
+      "value": "2026-02-12T11:50:47.627575+00:00"
     },
     {
       "label": "Model Tag",
@@ -168,103 +168,81 @@
       ]
     },
     {
-      "title": "Table 1 (SmolLM): Similar vs Dissimilar",
+      "title": "Table 1",
+      "paper_table": "table1",
+      "caption": "Relationship between gradient similarity and catastrophic forgetting. Results are reported as Number of forgotten questions (Percentage). Samples with negative gradient similarity are ranked by magnitude: top 1/3 are Sim, bottom 1/3 are Dissim.",
+      "dataset_order": [
+        "mmlu",
+        "medqa",
+        "arc_c",
+        "csqa"
+      ],
       "columns": [
         {
           "key": "model",
           "label": "MODEL"
-        },
-        {
-          "key": "arc_c_dissimilar",
-          "label": "Arc-c Dissimilar"
-        },
-        {
-          "key": "arc_c_similar",
-          "label": "Arc-c Similar"
-        },
-        {
-          "key": "csqa_dissimilar",
-          "label": "CSQA Dissimilar"
-        },
-        {
-          "key": "csqa_similar",
-          "label": "CSQA Similar"
-        },
-        {
-          "key": "medqa_dissimilar",
-          "label": "MEDQA Dissimilar"
-        },
-        {
-          "key": "medqa_similar",
-          "label": "MEDQA Similar"
-        },
-        {
-          "key": "mmlu_dissimilar",
-          "label": "MMLU Dissimilar"
-        },
-        {
-          "key": "mmlu_similar",
-          "label": "MMLU Similar"
         }
       ],
       "rows": [
         {
-          "model": "SmolLM-360M",
+          "model": "SmolLM 360M",
+          "mmlu_dissimilar": "102 (33.12%)",
+          "mmlu_similar": "102 (33.12%)",
+          "medqa_dissimilar": "75 (27.68%)",
+          "medqa_similar": "90 (33.21%)",
           "arc_c_dissimilar": "81 (33.20%)",
           "arc_c_similar": "81 (33.20%)",
           "csqa_dissimilar": "83 (33.07%)",
-          "csqa_similar": "83 (33.07%)",
-          "medqa_dissimilar": "75 (27.68%)",
-          "medqa_similar": "90 (33.21%)",
-          "mmlu_dissimilar": "102 (33.12%)",
-          "mmlu_similar": "102 (33.12%)"
+          "csqa_similar": "83 (33.07%)"
         }
       ]
     },
     {
-      "title": "Table 2 (SmolLM): Collaborative vs Conflicting",
-      "columns": [
-        {
-          "key": "model",
-          "label": "MODEL"
-        },
-        {
-          "key": "neuron_type",
-          "label": "Neuron Type"
-        },
-        {
-          "key": "arc_c_stats",
-          "label": "Arc-c (Prop/Grad/Total)"
-        },
-        {
-          "key": "csqa_stats",
-          "label": "CSQA (Prop/Grad/Total)"
-        },
-        {
-          "key": "medqa_stats",
-          "label": "MEDQA (Prop/Grad/Total)"
-        },
-        {
-          "key": "mmlu_stats",
-          "label": "MMLU (Prop/Grad/Total)"
-        }
+      "title": "Table 2",
+      "paper_table": "table2",
+      "caption": "Distribution of collaborative neurons (COLL) and conflicting neurons (CONF). PROP denotes neuron-type proportion. GRAD denotes gradient similarity sum for that type. TOTAL denotes the gradient similarity sum over all neurons.",
+      "dataset_order": [
+        "mmlu",
+        "medqa",
+        "arc_c",
+        "csqa"
       ],
+      "model": "SmolLM 360M",
       "rows": [
         {
-          "model": "SmolLM-360M",
-          "neuron_type": "Collaborative",
-          "arc_c_stats": "18.95 / 0.16 / 9.55",
-          "csqa_stats": "22.67 / 0.51 / 11.59",
-          "medqa_stats": "39.49 / 4.92 / 22.21",
-          "mmlu_stats": "20.28 / 0.34 / 10.31"
+          "metric": "Prop",
+          "mmlu_coll": "20.3%",
+          "mmlu_conf": "79.7%",
+          "medqa_coll": "39.5%",
+          "medqa_conf": "60.5%",
+          "arc_c_coll": "18.9%",
+          "arc_c_conf": "81.0%",
+          "csqa_coll": "22.7%",
+          "csqa_conf": "77.3%"
         },
         {
-          "model": "",
-          "neuron_type": "Conflicting",
-          "arc_c_stats": "81.05 / 99.84 / 90.45",
-          "csqa_stats": "77.33 / 99.49 / 88.41",
-          "medqa_stats": "60.51 / 95.08 / 77.79",
-          "mmlu_stats": "79.72 / 99.66 / 89.69"
+          "metric": "Grad",
+          "mmlu_coll": "0.34%",
+          "mmlu_conf": "99.66%",
+          "medqa_coll": "4.92%",
+          "medqa_conf": "95.08%",
+          "arc_c_coll": "0.16%",
+          "arc_c_conf": "99.84%",
+          "csqa_coll": "0.51%",
+          "csqa_conf": "99.49%"
+        },
+        {
+          "metric": "Total",
+          "mmlu_total": "100.00",
+          "medqa_total": "100.00",
+          "arc_c_total": "100.00",
+          "csqa_total": "100.00"
+        }
+      ],
+      "columns": [
+        {
+          "key": "metric",
+          "label": "Metric"
         }
       ]
     },
@@ -388,28 +366,28 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "22713 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "24 %"
+          "utilization": "23 %"
         },
         {
           "gpu": "1",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "25 %"
+          "utilization": "22 %"
         },
         {
           "gpu": "2",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "24 %"
+          "utilization": "19 %"
         },
         {
           "gpu": "3",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "46 %"
+          "utilization": "21 %"
         },
         {
           "gpu": "4",
@@ -423,21 +401,21 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "23 %"
+          "utilization": "92 %"
         },
         {
           "gpu": "6",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "51 %"
+          "utilization": "26 %"
         },
         {
           "gpu": "7",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "48 %"
+          "utilization": "45 %"
         }
       ]
     },
@@ -564,11 +542,11 @@
   "texts": [
     {
       "title": "Table 1 Status",
-      "content": "Rendered datasets: Arc-c, CSQA, MEDQA, MMLU\nPending datasets: none\nNegative grad-dot totals: Arc-c=244, CSQA=251, MEDQA=271, MMLU=308"
+      "content": "Rendered datasets: MMLU, MEDQA, Arc-c, CSQA\nPending datasets: none\nNegative grad-dot totals: MMLU=308, MEDQA=271, Arc-c=244, CSQA=251"
     },
     {
       "title": "Table 2 Status",
-      "content": "Rendered datasets: Arc-c, CSQA, MEDQA, MMLU\nPending datasets: none"
+      "content": "Rendered datasets: MMLU, MEDQA, Arc-c, CSQA\nPending datasets: none"
     },
     {
       "title": "Table 3 Status",
@@ -584,7 +562,7 @@
     },
     {
       "title": "Runner Process",
-      "content": "1210408 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+      "content": "1210813 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
     },
     {
       "title": "Training Processes",
@@ -717,28 +695,28 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "22713 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "24 %"
+      "utilization": "23 %"
     },
     {
       "gpu": "1",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "25 %"
+      "utilization": "22 %"
     },
     {
       "gpu": "2",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "24 %"
+      "utilization": "19 %"
     },
     {
       "gpu": "3",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "46 %"
+      "utilization": "21 %"
     },
     {
       "gpu": "4",
@@ -752,21 +730,21 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "23 %"
+      "utilization": "92 %"
     },
     {
       "gpu": "6",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "51 %"
+      "utilization": "26 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "48 %"
+      "utilization": "45 %"
     }
   ],
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
