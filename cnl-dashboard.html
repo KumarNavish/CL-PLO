@@ -146,12 +146,87 @@
       text-decoration: none;
       font-weight: 700;
     }
+    .paper-wrap {
+      background: #fff;
+      border: 1px solid #cfd7de;
+      border-radius: 10px;
+      padding: 10px 12px 12px;
+      overflow-x: auto;
+    }
+    .paper-caption {
+      margin: 0 0 8px;
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 18px;
+      line-height: 1.15;
+      color: #111;
+    }
+    .paper-caption .paper-title {
+      font-weight: 700;
+    }
+    .paper-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      border-radius: 0;
+      font-family: "Times New Roman", Georgia, serif;
+      background: #fff;
+    }
+    .paper-table thead tr:first-child th {
+      border-top: 2px solid #333;
+    }
+    .paper-table thead th {
+      background: #fff;
+      border-bottom: 1px solid #555;
+      color: #111;
+      font-size: 13px;
+      font-variant: small-caps;
+      letter-spacing: 0.2px;
+      padding: 5px 6px 3px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .paper-table td {
+      border-bottom: 1px solid #666;
+      color: #111;
+      font-size: 14px;
+      line-height: 1.02;
+      padding: 4px 7px;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .paper-table tbody tr:last-child td {
+      border-bottom: 2px solid #333;
+    }
+    .paper-table .left {
+      text-align: left;
+    }
+    .paper-table .italic {
+      font-style: italic;
+    }
+    .paper-table .sub {
+      display: block;
+      font-size: 0.92em;
+      margin-top: 1px;
+    }
+    .paper-sep td {
+      border-top: 1px solid #555;
+    }
     @media (max-width: 800px) {
       .wrap {
         padding: 16px;
       }
       h1 {
         font-size: 24px;
+      }
+      .paper-caption {
+        font-size: 16px;
+      }
+      .paper-table thead th {
+        font-size: 17px;
+      }
+      .paper-table td {
+        font-size: 16px;
       }
     }
   </style>
@@ -184,6 +259,187 @@
         if (ch === "<") return "&lt;";
         return "&gt;";
       });
+    }
+
+    function datasetLabel(dataset) {
+      const names = {
+        mmlu: "MMLU",
+        medqa: "MedQA",
+        arc_c: "ARC-C",
+        csqa: "CSQA",
+      };
+      return names[dataset] || dataset || "";
+    }
+
+    function splitMainSub(rawValue) {
+      const text = String(rawValue ?? "").trim();
+      const m = text.match(/^(.+?)\s*\(([^)]*)\)$/);
+      if (!m) {
+        return { main: text, sub: "" };
+      }
+      return { main: m[1].trim(), sub: `(${m[2].trim()})` };
+    }
+
+    function renderMainSubCell(rawValue) {
+      const parts = splitMainSub(rawValue);
+      if (!parts.sub) {
+        return esc(parts.main);
+      }
+      return `${esc(parts.main)}<span class="sub">${esc(parts.sub)}</span>`;
+    }
+
+    function paperCaption(table) {
+      const title = table.title || "Table";
+      const caption = table.caption || "";
+      if (!caption) {
+        return `<p class="paper-caption"><span class="paper-title">${esc(title)}.</span></p>`;
+      }
+      const prefix = `${title}:`;
+      let text = caption;
+      if (text.startsWith(prefix)) {
+        text = text.slice(prefix.length).trim();
+      }
+      return `<p class="paper-caption"><span class="paper-title">${esc(prefix)}</span> ${esc(text)}</p>`;
+    }
+
+    function renderPaperTable1(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const row = rows[0] || {};
+
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">Model</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>Dissim</th><th>Sim</th>`;
+      }
+      html += `</tr></thead><tbody><tr>`;
+      html += `<td class="left italic">${esc(row.model || table.model || "")}</td>`;
+      for (const ds of datasets) {
+        html += `<td>${renderMainSubCell(row[`${ds}_dissimilar`])}</td>`;
+        html += `<td>${renderMainSubCell(row[`${ds}_similar`])}</td>`;
+      }
+      html += `</tr></tbody></table></div>`;
+      return html;
+    }
+
+    function renderPaperTable2(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const byMetric = {};
+      for (const row of rows) {
+        byMetric[String(row.metric || "").toUpperCase()] = row;
+      }
+
+      const model = table.model || "";
+      const prop = byMetric.PROP || {};
+      const grad = byMetric.GRAD || {};
+      const total = byMetric.TOTAL || {};
+
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">Model</th>`;
+      html += `<th class="left" rowspan="2">Metric</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>Coll</th><th>Conf</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      html += `<tr>`;
+      html += `<td class="left italic" rowspan="3">${esc(model)}</td>`;
+      html += `<td class="left">PROP</td>`;
+      for (const ds of datasets) {
+        html += `<td>${esc(prop[`${ds}_coll`] || "")}</td>`;
+        html += `<td>${esc(prop[`${ds}_conf`] || "")}</td>`;
+      }
+      html += `</tr>`;
+
+      html += `<tr>`;
+      html += `<td class="left">GRAD</td>`;
+      for (const ds of datasets) {
+        html += `<td>${esc(grad[`${ds}_coll`] || "")}</td>`;
+        html += `<td>${esc(grad[`${ds}_conf`] || "")}</td>`;
+      }
+      html += `</tr>`;
+
+      html += `<tr>`;
+      html += `<td class="left">TOTAL</td>`;
+      for (const ds of datasets) {
+        html += `<td colspan="2">${esc(total[`${ds}_total`] || "")}</td>`;
+      }
+      html += `</tr>`;
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    function renderPaperTable3(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const orderedRows = [];
+      const seen = new Set();
+      for (const method of ["FT", "CNL"]) {
+        const idx = rows.findIndex((row) => String(row.method || "").toUpperCase() === method);
+        if (idx >= 0) {
+          orderedRows.push(rows[idx]);
+          seen.add(idx);
+        }
+      }
+      rows.forEach((row, idx) => {
+        if (!seen.has(idx)) orderedRows.push(row);
+      });
+
+      const model = table.model || ((orderedRows[0] || {}).model || "");
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">Model</th>`;
+      html += `<th class="left" rowspan="2">Method</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>Learned</th><th>Forgot</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      orderedRows.forEach((row, idx) => {
+        const sepClass = idx > 0 ? " paper-sep" : "";
+        html += `<tr class="${sepClass.trim()}">`;
+        if (idx === 0) {
+          html += `<td class="left italic" rowspan="${orderedRows.length}">${esc(model)}</td>`;
+        }
+        html += `<td class="left">${esc(row.method || "")}</td>`;
+        for (const ds of datasets) {
+          html += `<td>${renderMainSubCell(row[`${ds}_learned`])}</td>`;
+          html += `<td>${renderMainSubCell(row[`${ds}_forgot`])}</td>`;
+        }
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    function renderPaperTable(table) {
+      if (table.paper_table === "table1") {
+        return renderPaperTable1(table);
+      }
+      if (table.paper_table === "table2") {
+        return renderPaperTable2(table);
+      }
+      if (table.paper_table === "table3") {
+        return renderPaperTable3(table);
+      }
+      return renderTable(table);
     }
 
     function renderTable(table) {
@@ -245,7 +501,7 @@
       }
 
       const tables = project.tables || [];
-      document.getElementById("tables").innerHTML = tables.map((t) => renderTable(t)).join("");
+      document.getElementById("tables").innerHTML = tables.map((t) => (t.paper_table ? renderPaperTable(t) : renderTable(t))).join("");
 
       const texts = project.texts || [];
       document.getElementById("texts").innerHTML = texts.map((block) => `
