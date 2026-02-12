@@ -1385,6 +1385,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
     <div id="projectError" class="section"></div>
     <div id="cards" class="grid"></div>
+    <div id="appendix" class="section"></div>
     <div id="links" class="section"></div>
     <div id="tables"></div>
     <div id="texts"></div>
@@ -1626,6 +1627,18 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         </div>
       `).join("");
 
+      const texts = project.texts || [];
+      const appendix = texts.find((block) => (block.title || "") === "Paper Comparison Appendix (Simple)");
+      const appendixEl = document.getElementById("appendix");
+      if (appendix) {{
+        appendixEl.innerHTML = `
+          <h2>Paper Comparison Appendix (Simple)</h2>
+          <pre>${{esc(appendix.content || "")}}</pre>
+        `;
+      }} else {{
+        appendixEl.innerHTML = "";
+      }}
+
       const links = project.links || [];
       const linksEl = document.getElementById("links");
       if (links.length > 0) {{
@@ -1644,13 +1657,15 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       const tables = project.tables || [];
       document.getElementById("tables").innerHTML = tables.map((t) => (t.paper_table ? renderPaperTable(t) : renderTable(t))).join("");
 
-      const texts = project.texts || [];
-      document.getElementById("texts").innerHTML = texts.map((block) => `
+      document.getElementById("texts").innerHTML = texts
+        .filter((block) => (block.title || "") !== "Paper Comparison Appendix (Simple)")
+        .map((block) => `
         <div class="section">
           <h2>${{esc(block.title || "Text")}}</h2>
           <pre>${{esc(block.content || "")}}</pre>
         </div>
-      `).join("");
+      `)
+        .join("");
     }}
 
     function projectById(id) {{
