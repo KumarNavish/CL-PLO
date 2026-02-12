@@ -1287,6 +1287,130 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       text-decoration: none;
       font-weight: 700;
     }}
+    .appendix-shell {{
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #c9d7e5;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 6% 12%, rgba(209, 233, 251, 0.75), rgba(209, 233, 251, 0) 45%),
+        radial-gradient(circle at 92% 0%, rgba(255, 238, 210, 0.72), rgba(255, 238, 210, 0) 40%),
+        linear-gradient(155deg, #ffffff 0%, #f6fbff 52%, #fffaf3 100%);
+      box-shadow: 0 18px 34px rgba(16, 50, 81, 0.13);
+      padding: 18px;
+    }}
+    .appendix-shell::after {{
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(110deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+    }}
+    .appendix-kicker {{
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: #114061;
+      background: rgba(213, 232, 247, 0.78);
+      border: 1px solid rgba(108, 151, 184, 0.3);
+      font-weight: 700;
+    }}
+    .appendix-title {{
+      position: relative;
+      z-index: 1;
+      margin: 10px 0 2px;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+      color: #0f2f48;
+    }}
+    .appendix-subtitle {{
+      position: relative;
+      z-index: 1;
+      margin: 0 0 16px;
+      color: #36566f;
+      font-size: 14px;
+      line-height: 1.45;
+    }}
+    .appendix-grid {{
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }}
+    .appendix-panel {{
+      border-radius: 12px;
+      border: 1px solid #d4e2ee;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(1px);
+      padding: 12px;
+    }}
+    .appendix-panel h3 {{
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #0f3049;
+      letter-spacing: 0.2px;
+    }}
+    .appendix-panel p {{
+      margin: 0 0 8px;
+      color: #24465f;
+      font-size: 13px;
+      line-height: 1.45;
+    }}
+    .appendix-list {{
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+    }}
+    .appendix-list li {{
+      position: relative;
+      padding-left: 16px;
+      color: #1f415a;
+      font-size: 13px;
+      line-height: 1.42;
+    }}
+    .appendix-list li::before {{
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.56em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2d7fb5;
+      box-shadow: 0 0 0 3px rgba(45, 127, 181, 0.12);
+    }}
+    .appendix-panel.tone-good {{
+      border-color: #c7e3d1;
+      background: linear-gradient(150deg, rgba(241, 252, 245, 0.95), rgba(255, 255, 255, 0.84));
+    }}
+    .appendix-panel.tone-good h3 {{
+      color: #0f4a2b;
+    }}
+    .appendix-panel.tone-good .appendix-list li::before {{
+      background: #2f9553;
+      box-shadow: 0 0 0 3px rgba(47, 149, 83, 0.13);
+    }}
+    .appendix-panel.tone-caution {{
+      border-color: #ead8bf;
+      background: linear-gradient(150deg, rgba(255, 249, 237, 0.95), rgba(255, 255, 255, 0.84));
+    }}
+    .appendix-panel.tone-caution h3 {{
+      color: #6b4f14;
+    }}
+    .appendix-panel.tone-caution .appendix-list li::before {{
+      background: #b98721;
+      box-shadow: 0 0 0 3px rgba(185, 135, 33, 0.15);
+    }}
     .paper-wrap {{
       background: #fff;
       border: 1px solid #cfd7de;
@@ -1369,6 +1493,15 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       .paper-table td {{
         font-size: 16px;
       }}
+      .appendix-title {{
+        font-size: 24px;
+      }}
+      .appendix-shell {{
+        padding: 14px;
+      }}
+      .appendix-grid {{
+        grid-template-columns: 1fr;
+      }}
     }}
   </style>
 </head>
@@ -1385,9 +1518,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
     <div id="projectError" class="section"></div>
     <div id="cards" class="grid"></div>
-    <div id="appendix" class="section"></div>
     <div id="links" class="section"></div>
     <div id="tables"></div>
+    <div id="appendix" class="section"></div>
     <div id="texts"></div>
   </div>
 
@@ -1607,6 +1740,96 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       return html;
     }}
 
+    function normalizeHeading(line) {{
+      let title = String(line || "").trim();
+      title = title.replace(/^[0-9]+\\)\\s*/, "");
+      title = title.replace(/:$/, "");
+      return title;
+    }}
+
+    function panelTone(title) {{
+      const t = String(title || "").toLowerCase();
+      if (t.includes("can safely conclude")) {{
+        return "tone-good";
+      }}
+      if (t.includes("cannot claim")) {{
+        return "tone-caution";
+      }}
+      return "";
+    }}
+
+    function parseAppendix(content) {{
+      const lines = String(content || "").split(/\\r?\\n/);
+      const sections = [];
+      const intro = [];
+      let current = null;
+
+      for (const raw of lines) {{
+        const line = raw.trim();
+        if (!line) {{
+          continue;
+        }}
+        if (line.toLowerCase().startsWith("quick read")) {{
+          intro.push(line.replace(/:$/, ""));
+          continue;
+        }}
+
+        const isHeading = (/^[0-9]+\\)\\s+/.test(line) || (line.endsWith(":") && !line.startsWith("- ")));
+        if (isHeading) {{
+          current = {{ title: normalizeHeading(line), bullets: [], paragraphs: [] }};
+          sections.push(current);
+          continue;
+        }}
+
+        if (line.startsWith("- ")) {{
+          if (!current) {{
+            current = {{ title: "Summary", bullets: [], paragraphs: [] }};
+            sections.push(current);
+          }}
+          current.bullets.push(line.slice(2).trim());
+          continue;
+        }}
+
+        if (!current) {{
+          intro.push(line);
+        }} else {{
+          current.paragraphs.push(line);
+        }}
+      }}
+
+      return {{ intro, sections }};
+    }}
+
+    function renderBeautifulAppendix(content) {{
+      const parsed = parseAppendix(content);
+      let html = `<div class="appendix-shell">`;
+      html += `<span class="appendix-kicker">Interpretation Layer</span>`;
+      html += `<h2 class="appendix-title">Paper Comparison Appendix</h2>`;
+      const subtitle = parsed.intro.length > 0 ? parsed.intro.join(" ") : "Simple explanation of what these results mean.";
+      html += `<p class="appendix-subtitle">${{esc(subtitle)}}</p>`;
+      html += `<div class="appendix-grid">`;
+
+      for (const section of parsed.sections) {{
+        const tone = panelTone(section.title);
+        html += `<section class="appendix-panel ${{esc(tone)}}">`;
+        html += `<h3>${{esc(section.title)}}</h3>`;
+        for (const para of section.paragraphs || []) {{
+          html += `<p>${{esc(para)}}</p>`;
+        }}
+        if ((section.bullets || []).length > 0) {{
+          html += `<ul class="appendix-list">`;
+          for (const item of section.bullets) {{
+            html += `<li>${{esc(item)}}</li>`;
+          }}
+          html += `</ul>`;
+        }}
+        html += `</section>`;
+      }}
+
+      html += `</div></div>`;
+      return html;
+    }}
+
     function renderProject(project) {{
       const statusEl = document.getElementById("projectStatus");
       statusEl.textContent = project.status || "unknown";
@@ -1631,10 +1854,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       const appendix = texts.find((block) => (block.title || "") === "Paper Comparison Appendix (Simple)");
       const appendixEl = document.getElementById("appendix");
       if (appendix) {{
-        appendixEl.innerHTML = `
-          <h2>Paper Comparison Appendix (Simple)</h2>
-          <pre>${{esc(appendix.content || "")}}</pre>
-        `;
+        appendixEl.innerHTML = renderBeautifulAppendix(appendix.content || "");
       }} else {{
         appendixEl.innerHTML = "";
       }}
