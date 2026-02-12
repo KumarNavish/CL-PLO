@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-12T11:32:24.633822+00:00",
+  "generated_at_utc": "2026-02-12T11:34:41.715690+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -10,7 +10,7 @@
       "collector": "cnl",
       "status": "error",
       "error": "SSH probe failed (code 255) for fibonacci-cnl:\nssh: connect to host 131.152.56.23 port 22: Operation timed out",
-      "collected_at_utc": "2026-02-12T11:32:24.632451+00:00",
+      "collected_at_utc": "2026-02-12T11:34:41.715009+00:00",
       "remote_host": "kumar0002@131.152.56.23",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [],
