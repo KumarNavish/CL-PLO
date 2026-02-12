@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-12T17:53:45.434717+00:00",
+  "generated_at_utc": "2026-02-12T17:54:51.530162+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -10,7 +10,7 @@
       "collector": "cnl",
       "status": "ok",
       "error": "",
-      "collected_at_utc": "2026-02-12T17:53:44.008987+00:00",
+      "collected_at_utc": "2026-02-12T17:54:50.260826+00:00",
       "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [
@@ -24,7 +24,7 @@
         },
         {
           "label": "Collected At (UTC)",
-          "value": "2026-02-12T17:53:44.008987+00:00"
+          "value": "2026-02-12T17:54:50.260826+00:00"
         },
         {
           "label": "Model Tag",
@@ -396,8 +396,8 @@
             {
               "optimizer": "Momentum",
               "method": "CNL",
-              "mmlu_learned": "PENDING",
-              "mmlu_forgot": "PENDING",
+              "mmlu_learned": "54 (4.59%)",
+              "mmlu_forgot": "67 (17.77%)",
               "medqa_learned": "PENDING",
               "medqa_forgot": "PENDING",
               "arc_c_learned": "PENDING",
@@ -485,7 +485,7 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "14955 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "24 %"
+              "utilization": "18 %"
             },
             {
               "gpu": "1",
@@ -499,42 +499,42 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9174 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "25 %"
+              "utilization": "23 %"
             },
             {
               "gpu": "3",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "50 %"
+              "utilization": "49 %"
             },
             {
               "gpu": "4",
               "name": "NVIDIA GeForce RTX 3090",
-              "memory_used": "8296 MiB",
+              "memory_used": "6398 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "65 %"
+              "utilization": "80 %"
             },
             {
               "gpu": "5",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9726 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "91 %"
+              "utilization": "25 %"
             },
             {
               "gpu": "6",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "22 %"
+              "utilization": "49 %"
             },
             {
               "gpu": "7",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "52 %"
+              "utilization": "38 %"
             }
           ]
         },
@@ -673,7 +673,7 @@
         },
         {
           "title": "Table 4 Status",
-          "content": "Completed entries: 15/32 (target epoch 25).\nPending entries: 17\nPending preview: Momentum/CNL/MMLU, Momentum/CNL/MedQA, Momentum/CNL/ARC-C, Adam/FT/MMLU, Adam/FT/MedQA, Adam/FT/ARC-C, Adam/FT/CSQA, Adam/CNL/MMLU, +9 more"
+          "content": "Completed entries: 16/32 (target epoch 25).\nPending entries: 16\nPending preview: Momentum/CNL/MedQA, Momentum/CNL/ARC-C, Adam/FT/MMLU, Adam/FT/MedQA, Adam/FT/ARC-C, Adam/FT/CSQA, Adam/CNL/MMLU, Adam/CNL/MedQA, +8 more"
         },
         {
           "title": "Paper Comparison Appendix (Simple)",
@@ -685,7 +685,7 @@
         },
         {
           "title": "Runner Process",
-          "content": "1468702 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+          "content": "1469873 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
         },
         {
           "title": "Training Processes",
