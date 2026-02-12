@@ -324,15 +324,19 @@ def parse_pct_only(value):
 
 
 def build_simple_paper_comparison_text(table1, table2, table3):
-    lines = []
-    lines.append("Quick read (simple language):")
+    avg_ft_learn = None
+    avg_cnl_learn = None
+    avg_ft_forgot = None
+    avg_cnl_forgot = None
+    forgot_reduction = None
+    learn_change = None
+    has_t3 = False
 
     if table3 and table3.get("rows"):
         rows = table3.get("rows", [])
         ft_row = next((r for r in rows if str(r.get("method", "")).upper() == "FT"), None)
         cnl_row = next((r for r in rows if str(r.get("method", "")).upper() == "CNL"), None)
         ds_order = table3.get("dataset_order", [])
-
         if ft_row and cnl_row and ds_order:
             ft_learn = []
             cnl_learn = []
@@ -352,61 +356,35 @@ def build_simple_paper_comparison_text(table1, table2, table3):
             avg_cnl_learn = sum(cnl_learn) / len(cnl_learn)
             avg_ft_forgot = sum(ft_forgot) / len(ft_forgot)
             avg_cnl_forgot = sum(cnl_forgot) / len(cnl_forgot)
+            forgot_reduction = (avg_ft_forgot - avg_cnl_forgot) / avg_ft_forgot * 100.0 if avg_ft_forgot > 0 else 0.0
+            learn_change = (avg_cnl_learn - avg_ft_learn) / avg_ft_learn * 100.0 if avg_ft_learn > 0 else 0.0
+            has_t3 = True
 
-            forgot_reduction = (
-                (avg_ft_forgot - avg_cnl_forgot) / avg_ft_forgot * 100.0 if avg_ft_forgot > 0 else 0.0
-            )
-            learn_change = (
-                (avg_cnl_learn - avg_ft_learn) / avg_ft_learn * 100.0 if avg_ft_learn > 0 else 0.0
-            )
-
-            lines.append("")
-            lines.append("1) Table 3 (FT vs CNL): High-confidence comparison with the paper")
-            lines.append(
-                f"- Forgetting: FT {avg_ft_forgot:.2f}% -> CNL {avg_cnl_forgot:.2f}% "
-                f"(about {forgot_reduction:.1f}% lower)."
-            )
-            lines.append(
-                f"- New learning: FT {avg_ft_learn:.2f}% -> CNL {avg_cnl_learn:.2f}% "
-                f"(about {abs(learn_change):.1f}% {'lower' if learn_change < 0 else 'higher'})."
-            )
-            lines.append(
-                "- Meaning: In this SmolLM run, CNL protects old knowledge well, "
-                "but it also learns new knowledge more slowly than FT."
-            )
-        else:
-            lines.append("")
-            lines.append("1) Table 3 (FT vs CNL): Not enough completed data yet.")
-
+    stronger_sim = None
     if table1 and table1.get("rows"):
         row = table1["rows"][0]
         ds_order = table1.get("dataset_order", [])
-        stronger_sim = 0
+        sim_count = 0
         for ds in ds_order:
             _, dissim_pct = parse_count_pct(row.get(f"{ds}_dissimilar", "0 (0.00%)"))
             _, sim_pct = parse_count_pct(row.get(f"{ds}_similar", "0 (0.00%)"))
             if sim_pct > dissim_pct:
-                stronger_sim += 1
-        lines.append("")
-        lines.append("2) Table 1 (Sim vs Dissim): Directional comparison")
-        lines.append(
-            f"- Datasets where Sim has more forgetting than Dissim: {stronger_sim}/{len(ds_order) if ds_order else 0}."
-        )
-        lines.append(
-            "- Meaning: The paper finds a strong Sim concentration. "
-            "Here it appears weaker, so the pattern is only partially reproduced."
-        )
+                sim_count += 1
+        stronger_sim = (sim_count, len(ds_order))
 
+    conf_dom = None
+    totals_normalized = False
     if table2 and table2.get("rows"):
         ds_order = table2.get("dataset_order", [])
         by_metric = {str(r.get("metric", "")).upper(): r for r in table2.get("rows", [])}
         prop_row = by_metric.get("PROP", {})
-        conf_dom = 0
+        conf_count = 0
         for ds in ds_order:
             coll = parse_pct_only(prop_row.get(f"{ds}_coll", "0"))
             conf = parse_pct_only(prop_row.get(f"{ds}_conf", "0"))
             if conf > coll:
-                conf_dom += 1
+                conf_count += 1
+        conf_dom = (conf_count, len(ds_order))
 
         totals_normalized = True
         total_row = by_metric.get("TOTAL", {})
@@ -419,26 +397,64 @@ def build_simple_paper_comparison_text(table1, table2, table3):
                 totals_normalized = False
                 break
 
-        lines.append("")
-        lines.append("3) Table 2 (COLL vs CONF): Partial comparison only")
-        lines.append(f"- CONF proportion is larger than COLL in {conf_dom}/{len(ds_order) if ds_order else 0} datasets.")
-        lines.append("- Meaning: The direction matches the paper (conflict-heavy neurons).")
-        if totals_normalized:
-            lines.append(
-                "- Important caveat: This run stores normalized totals (around 100), "
-                "while the paper table reports signed gradient sums. So compare trend, not raw magnitude."
-            )
+    lines = []
+    lines.append("Quick read (simple language):")
+    lines.append("")
+
+    lines.append("1) What these results mean in practical and conceptual terms:")
+    if has_t3:
+        lines.append(
+            f"- Practical: Forgetting drops a lot with CNL (FT {avg_ft_forgot:.2f}% -> CNL {avg_cnl_forgot:.2f}%)."
+        )
+        lines.append(
+            f"- Practical: New learning is also much lower with CNL (FT {avg_ft_learn:.2f}% -> CNL {avg_cnl_learn:.2f}%)."
+        )
+        lines.append(
+            "- Conceptual: On this small model, CNL behaves like a strong stability control. "
+            "It protects old knowledge, but it also limits plasticity."
+        )
+    else:
+        lines.append("- Table 3 is incomplete, so practical meaning is not stable yet.")
+    if stronger_sim:
+        lines.append(
+            f"- Mechanism hint from Table 1: Sim has more forgetting in {stronger_sim[0]}/{stronger_sim[1]} datasets."
+        )
+    if conf_dom:
+        lines.append(
+            f"- Mechanism hint from Table 2: Conflicting neurons are more common in {conf_dom[0]}/{conf_dom[1]} datasets."
+        )
 
     lines.append("")
-    lines.append("What we can safely conclude:")
-    lines.append("- CNL still clearly reduces forgetting compared with FT on SmolLM.")
-    lines.append("- On SmolLM, CNL currently trades away a lot of new learning.")
-    lines.append("- Some mechanism signals from the paper are present, but weaker.")
+    lines.append("2) How this compares to the original paper (larger models):")
+    lines.append("- Direction matches: CNL still reduces forgetting compared with FT.")
+    if has_t3 and forgot_reduction is not None and learn_change is not None:
+        lines.append(
+            f"- In this SmolLM run, forgetting is about {forgot_reduction:.1f}% lower with CNL, "
+            f"but learning is about {abs(learn_change):.1f}% {'lower' if learn_change < 0 else 'higher'}."
+        )
+    lines.append(
+        "- Difference from paper trend: the large-model paper shows strong forgetting control "
+        "without such a large learning drop."
+    )
+    lines.append("- So this is a partial reproduction, not a full quantitative match.")
+
     lines.append("")
-    lines.append("What we cannot claim yet:")
-    lines.append("- We cannot claim full quantitative match to large-model paper results.")
-    lines.append("- We cannot claim final scalability from one small model and one config.")
-    lines.append("- We cannot claim exact mechanism parity until Table 2 metric definition is fully aligned.")
+    lines.append("3) Are trends consistent with the original findings? If not, why might they differ?")
+    lines.append("- Partly consistent: CNL < FT on forgetting.")
+    lines.append("- Partly inconsistent: CNL learning is much lower here than the paper suggests.")
+    lines.append("- Likely reasons:")
+    lines.append("- Small model has less spare capacity, so stability controls can block learning more strongly.")
+    lines.append("- Same training recipe from bigger models may not be optimal at this scale.")
+    lines.append("- One model size and one config are not enough to average out run variance.")
+    lines.append("- Table 2 values are normalized in this pipeline, while the paper reports signed sums.")
+
+    lines.append("")
+    lines.append("4) What we can and cannot conclude (scalability, robustness, mechanism):")
+    lines.append("- Can conclude (robustness): CNL robustly reduces forgetting versus FT in this run.")
+    lines.append("- Can conclude (mechanism, directional): conflict-heavy structure still appears (Table 2), but weaker.")
+    lines.append("- Cannot conclude (scalability): we cannot claim large-model behavior from one small-model setting.")
+    lines.append("- Cannot conclude (mechanism, strict): we need exact metric parity and multi-seed checks.")
+    lines.append("- Cannot conclude (final quality): this is a strong diagnostic result, not the final endpoint.")
 
     return "\n".join(lines)
 
