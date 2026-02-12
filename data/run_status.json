@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-12T11:34:41.715690+00:00",
+  "generated_at_utc": "2026-02-12T11:35:47.085510+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -8,20 +8,619 @@
       "project_id": "fibonacci-cnl",
       "project_name": "Fibonacci CNL SmolLM",
       "collector": "cnl",
-      "status": "error",
-      "error": "SSH probe failed (code 255) for fibonacci-cnl:\nssh: connect to host 131.152.56.23 port 22: Operation timed out",
-      "collected_at_utc": "2026-02-12T11:34:41.715009+00:00",
-      "remote_host": "kumar0002@131.152.56.23",
+      "status": "ok",
+      "error": "",
+      "collected_at_utc": "2026-02-12T11:35:45.869445+00:00",
+      "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
-      "cards": [],
-      "tables": [],
-      "texts": [
+      "cards": [
         {
-          "title": "Collection Error",
-          "content": "SSH probe failed (code 255) for fibonacci-cnl:\nssh: connect to host 131.152.56.23 port 22: Operation timed out"
+          "label": "Remote Host",
+          "value": "dmi-fibonacci"
+        },
+        {
+          "label": "Remote CWD",
+          "value": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning"
+        },
+        {
+          "label": "Collected At (UTC)",
+          "value": "2026-02-12T11:35:45.869445+00:00"
+        },
+        {
+          "label": "Model Tag",
+          "value": "SmolLM2-360M-Instruct"
+        },
+        {
+          "label": "Merged Summary",
+          "value": "results/smollm_full_baselines_summary.csv"
+        },
+        {
+          "label": "Coordinator Log",
+          "value": "logs/full_smollm_baselines_20260211_143202.out"
         }
       ],
-      "links": []
+      "tables": [
+        {
+          "title": "Training Jobs",
+          "columns": [
+            {
+              "key": "dataset",
+              "label": "dataset"
+            },
+            {
+              "key": "use_freeze",
+              "label": "use_freeze"
+            },
+            {
+              "key": "status",
+              "label": "status"
+            },
+            {
+              "key": "epoch",
+              "label": "epoch"
+            },
+            {
+              "key": "train_avg_loss",
+              "label": "train_avg_loss"
+            },
+            {
+              "key": "wrong_to_correct",
+              "label": "wrong_to_correct"
+            },
+            {
+              "key": "correct_to_wrong",
+              "label": "correct_to_wrong"
+            },
+            {
+              "key": "elapsed",
+              "label": "elapsed"
+            }
+          ],
+          "rows": [
+            {
+              "dataset": "arc_c",
+              "use_freeze": 1,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "2.585893348826598",
+              "wrong_to_correct": "38",
+              "correct_to_wrong": "40",
+              "elapsed": "1:07:37",
+              "log_path": "logs/train_arc_c_usefreeze1.log",
+              "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "arc_c",
+              "use_freeze": 0,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "1.3083139358742",
+              "wrong_to_correct": "298",
+              "correct_to_wrong": "254",
+              "elapsed": "44:40.38",
+              "log_path": "logs/train_arc_c_usefreeze0.log",
+              "summary_path": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            },
+            {
+              "dataset": "csqa",
+              "use_freeze": 1,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "2.4547550374364793",
+              "wrong_to_correct": "23",
+              "correct_to_wrong": "32",
+              "elapsed": "57:54.81",
+              "log_path": "logs/train_csqa_usefreeze1.log",
+              "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "csqa",
+              "use_freeze": 0,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "1.2850813132517158",
+              "wrong_to_correct": "236",
+              "correct_to_wrong": "257",
+              "elapsed": "37:33.90",
+              "log_path": "logs/train_csqa_usefreeze0.log",
+              "summary_path": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            },
+            {
+              "dataset": "medqa",
+              "use_freeze": 1,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "2.2436387252039323",
+              "wrong_to_correct": "83",
+              "correct_to_wrong": "82",
+              "elapsed": "1:17:30",
+              "log_path": "logs/train_medqa_usefreeze1.log",
+              "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "medqa",
+              "use_freeze": 0,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "1.4639859721219466",
+              "wrong_to_correct": "261",
+              "correct_to_wrong": "264",
+              "elapsed": "50:47.39",
+              "log_path": "logs/train_medqa_usefreeze0.log",
+              "summary_path": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            },
+            {
+              "dataset": "mmlu",
+              "use_freeze": 1,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "2.5952079296872324",
+              "wrong_to_correct": "54",
+              "correct_to_wrong": "68",
+              "elapsed": "1:21:03",
+              "log_path": "logs/train_mmlu_usefreeze1.log",
+              "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "mmlu",
+              "use_freeze": 0,
+              "status": "done",
+              "epoch": "25",
+              "train_avg_loss": "1.3213374216337592",
+              "wrong_to_correct": "347",
+              "correct_to_wrong": "331",
+              "elapsed": "1:01:46",
+              "log_path": "logs/train_mmlu_usefreeze0.log",
+              "summary_path": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            }
+          ]
+        },
+        {
+          "title": "Table 1 (SmolLM): Similar vs Dissimilar",
+          "columns": [
+            {
+              "key": "model",
+              "label": "MODEL"
+            },
+            {
+              "key": "arc_c_dissimilar",
+              "label": "Arc-c Dissimilar"
+            },
+            {
+              "key": "arc_c_similar",
+              "label": "Arc-c Similar"
+            },
+            {
+              "key": "csqa_dissimilar",
+              "label": "CSQA Dissimilar"
+            },
+            {
+              "key": "csqa_similar",
+              "label": "CSQA Similar"
+            },
+            {
+              "key": "medqa_dissimilar",
+              "label": "MEDQA Dissimilar"
+            },
+            {
+              "key": "medqa_similar",
+              "label": "MEDQA Similar"
+            },
+            {
+              "key": "mmlu_dissimilar",
+              "label": "MMLU Dissimilar"
+            },
+            {
+              "key": "mmlu_similar",
+              "label": "MMLU Similar"
+            }
+          ],
+          "rows": [
+            {
+              "model": "SmolLM-360M",
+              "arc_c_dissimilar": "81 (33.20%)",
+              "arc_c_similar": "81 (33.20%)",
+              "csqa_dissimilar": "83 (33.07%)",
+              "csqa_similar": "83 (33.07%)",
+              "medqa_dissimilar": "75 (27.68%)",
+              "medqa_similar": "90 (33.21%)",
+              "mmlu_dissimilar": "102 (33.12%)",
+              "mmlu_similar": "102 (33.12%)"
+            }
+          ]
+        },
+        {
+          "title": "Table 2 (SmolLM): Collaborative vs Conflicting",
+          "columns": [
+            {
+              "key": "model",
+              "label": "MODEL"
+            },
+            {
+              "key": "neuron_type",
+              "label": "Neuron Type"
+            },
+            {
+              "key": "arc_c_stats",
+              "label": "Arc-c (Prop/Grad/Total)"
+            },
+            {
+              "key": "csqa_stats",
+              "label": "CSQA (Prop/Grad/Total)"
+            },
+            {
+              "key": "medqa_stats",
+              "label": "MEDQA (Prop/Grad/Total)"
+            },
+            {
+              "key": "mmlu_stats",
+              "label": "MMLU (Prop/Grad/Total)"
+            }
+          ],
+          "rows": [
+            {
+              "model": "SmolLM-360M",
+              "neuron_type": "Collaborative",
+              "arc_c_stats": "18.95 / 0.16 / 9.55",
+              "csqa_stats": "22.67 / 0.51 / 11.59",
+              "medqa_stats": "39.49 / 4.92 / 22.21",
+              "mmlu_stats": "20.28 / 0.34 / 10.31"
+            },
+            {
+              "model": "",
+              "neuron_type": "Conflicting",
+              "arc_c_stats": "81.05 / 99.84 / 90.45",
+              "csqa_stats": "77.33 / 99.49 / 88.41",
+              "medqa_stats": "60.51 / 95.08 / 77.79",
+              "mmlu_stats": "79.72 / 99.66 / 89.69"
+            }
+          ]
+        },
+        {
+          "title": "Table 3 (SmolLM): LEARNED vs FORGOT",
+          "columns": [
+            {
+              "key": "model",
+              "label": "MODEL"
+            },
+            {
+              "key": "method",
+              "label": "METHOD"
+            },
+            {
+              "key": "arc_c_learned",
+              "label": "Arc-c LEARNED"
+            },
+            {
+              "key": "arc_c_forgot",
+              "label": "Arc-c FORGOT"
+            },
+            {
+              "key": "csqa_learned",
+              "label": "CSQA LEARNED"
+            },
+            {
+              "key": "csqa_forgot",
+              "label": "CSQA FORGOT"
+            },
+            {
+              "key": "medqa_learned",
+              "label": "MEDQA LEARNED"
+            },
+            {
+              "key": "medqa_forgot",
+              "label": "MEDQA FORGOT"
+            },
+            {
+              "key": "mmlu_learned",
+              "label": "MMLU LEARNED"
+            },
+            {
+              "key": "mmlu_forgot",
+              "label": "MMLU FORGOT"
+            }
+          ],
+          "rows": [
+            {
+              "model": "SmolLM2-360M-Instruct",
+              "method": "CNL",
+              "arc_c_learned": "38 (3.85%)",
+              "arc_c_forgot": "40 (14.08%)",
+              "csqa_learned": "23 (2.83%)",
+              "csqa_forgot": "32 (11.31%)",
+              "medqa_learned": "83 (8.63%)",
+              "medqa_forgot": "82 (26.45%)",
+              "mmlu_learned": "54 (4.59%)",
+              "mmlu_forgot": "68 (18.04%)"
+            },
+            {
+              "model": "",
+              "method": "FT",
+              "arc_c_learned": "298 (30.22%)",
+              "arc_c_forgot": "254 (89.44%)",
+              "csqa_learned": "236 (29.03%)",
+              "csqa_forgot": "257 (90.81%)",
+              "medqa_learned": "261 (27.13%)",
+              "medqa_forgot": "264 (85.16%)",
+              "mmlu_learned": "347 (29.51%)",
+              "mmlu_forgot": "331 (87.80%)"
+            }
+          ]
+        },
+        {
+          "title": "Table 4 (SmolLM): Ablation",
+          "columns": [
+            {
+              "key": "model",
+              "label": "MODEL"
+            },
+            {
+              "key": "status",
+              "label": "Status"
+            }
+          ],
+          "rows": [
+            {
+              "model": "SmolLM-360M",
+              "status": "Not available yet: Table 4 ablation artifacts are missing (lambda ablation runs are required)."
+            }
+          ]
+        },
+        {
+          "title": "GPU",
+          "columns": [
+            {
+              "key": "gpu",
+              "label": "gpu"
+            },
+            {
+              "key": "name",
+              "label": "name"
+            },
+            {
+              "key": "memory_used",
+              "label": "memory_used"
+            },
+            {
+              "key": "memory_total",
+              "label": "memory_total"
+            },
+            {
+              "key": "utilization",
+              "label": "utilization"
+            }
+          ],
+          "rows": [
+            {
+              "gpu": "0",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "22713 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "22 %"
+            },
+            {
+              "gpu": "1",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9174 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "23 %"
+            },
+            {
+              "gpu": "2",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9174 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "22 %"
+            },
+            {
+              "gpu": "3",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9172 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "19 %"
+            },
+            {
+              "gpu": "4",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9726 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "89 %"
+            },
+            {
+              "gpu": "5",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9726 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "93 %"
+            },
+            {
+              "gpu": "6",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9172 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "22 %"
+            },
+            {
+              "gpu": "7",
+              "name": "NVIDIA GeForce RTX 3090",
+              "memory_used": "9172 MiB",
+              "memory_total": "24576 MiB",
+              "utilization": "25 %"
+            }
+          ]
+        },
+        {
+          "title": "Merged Summary",
+          "columns": [
+            {
+              "key": "dataset",
+              "label": "dataset"
+            },
+            {
+              "key": "use_freeze",
+              "label": "use_freeze"
+            },
+            {
+              "key": "epoch",
+              "label": "epoch"
+            },
+            {
+              "key": "train_avg_loss",
+              "label": "train_avg_loss"
+            },
+            {
+              "key": "wrong_to_correct",
+              "label": "wrong_to_correct"
+            },
+            {
+              "key": "correct_to_wrong",
+              "label": "correct_to_wrong"
+            },
+            {
+              "key": "elapsed",
+              "label": "elapsed"
+            },
+            {
+              "key": "summary_csv",
+              "label": "summary_csv"
+            }
+          ],
+          "rows": [
+            {
+              "dataset": "arc_c",
+              "use_freeze": "1",
+              "epoch": "25",
+              "train_avg_loss": "2.585893348826598",
+              "wrong_to_correct": "38",
+              "correct_to_wrong": "40",
+              "elapsed": "1:07:37",
+              "summary_csv": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "arc_c",
+              "use_freeze": "0",
+              "epoch": "25",
+              "train_avg_loss": "1.3083139358742",
+              "wrong_to_correct": "298",
+              "correct_to_wrong": "254",
+              "elapsed": "44:40.38",
+              "summary_csv": "zero_ckpts/arc_c_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            },
+            {
+              "dataset": "csqa",
+              "use_freeze": "1",
+              "epoch": "25",
+              "train_avg_loss": "2.4547550374364793",
+              "wrong_to_correct": "23",
+              "correct_to_wrong": "32",
+              "elapsed": "57:54.81",
+              "summary_csv": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "csqa",
+              "use_freeze": "0",
+              "epoch": "25",
+              "train_avg_loss": "1.2850813132517158",
+              "wrong_to_correct": "236",
+              "correct_to_wrong": "257",
+              "elapsed": "37:33.90",
+              "summary_csv": "zero_ckpts/csqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            },
+            {
+              "dataset": "medqa",
+              "use_freeze": "1",
+              "epoch": "25",
+              "train_avg_loss": "2.2436387252039323",
+              "wrong_to_correct": "83",
+              "correct_to_wrong": "82",
+              "elapsed": "1:17:30",
+              "summary_csv": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "medqa",
+              "use_freeze": "0",
+              "epoch": "25",
+              "train_avg_loss": "1.4639859721219466",
+              "wrong_to_correct": "261",
+              "correct_to_wrong": "264",
+              "elapsed": "50:47.39",
+              "summary_csv": "zero_ckpts/medqa_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            },
+            {
+              "dataset": "mmlu",
+              "use_freeze": "1",
+              "epoch": "25",
+              "train_avg_loss": "2.5952079296872324",
+              "wrong_to_correct": "54",
+              "correct_to_wrong": "68",
+              "elapsed": "1:21:03",
+              "summary_csv": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze1/summary.csv"
+            },
+            {
+              "dataset": "mmlu",
+              "use_freeze": "0",
+              "epoch": "25",
+              "train_avg_loss": "1.3213374216337592",
+              "wrong_to_correct": "347",
+              "correct_to_wrong": "331",
+              "elapsed": "1:01:46",
+              "summary_csv": "zero_ckpts/mmlu_SmolLM2-360M-Instruct_lr1e-7_usefreeze0/summary.csv"
+            }
+          ]
+        }
+      ],
+      "texts": [
+        {
+          "title": "Table 1 Status",
+          "content": "Rendered datasets: Arc-c, CSQA, MEDQA, MMLU\nPending datasets: none\nNegative grad-dot totals: Arc-c=244, CSQA=251, MEDQA=271, MMLU=308"
+        },
+        {
+          "title": "Table 2 Status",
+          "content": "Rendered datasets: Arc-c, CSQA, MEDQA, MMLU\nPending datasets: none"
+        },
+        {
+          "title": "Table 3 Status",
+          "content": "Rendered datasets: Arc-c, CSQA, MEDQA, MMLU\nPending datasets (waiting for epoch 25 on all methods): none"
+        },
+        {
+          "title": "Table 4 Status",
+          "content": "Missing file: results/smollm_table4.csv"
+        },
+        {
+          "title": "Coordinator Log Tail (logs/full_smollm_baselines_20260211_143202.out)",
+          "content": "Using GPUs: 6, 7,\nModel: HuggingFaceTB/SmolLM2-360M-Instruct\nDatasets: arc_c csqa medqa mmlu\narc_c rows 1270\ncsqa rows 1096\nmedqa rows 1272\nmmlu rows 1553\nWROTE results/smollm_full_baselines_summary.csv\nCompleted full SmolLM CNL+vanilla batch."
+        },
+        {
+          "title": "Runner Process",
+          "content": "1204932 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+        },
+        {
+          "title": "Training Processes",
+          "content": "ERROR: Command 'pgrep -af python3\\ sft/sft.py' returned non-zero exit status 1."
+        },
+        {
+          "title": "Inference Processes",
+          "content": "ERROR: Command 'pgrep -af python3\\ infer/infer.py' returned non-zero exit status 1."
+        },
+        {
+          "title": "Dashboard Processes",
+          "content": "663829 bash -c cd ~/Collaborative-Neuron-Learning && . logs/dashboard_auth.env && nohup python3 scripts/live_dashboard.py --host 127.0.0.1 --port 18080 --base_dir . --auth_user \"$DASHBOARD_USER\" --auth_password *** > logs/live_dashboard_auth.out 2>&1 < /dev/null & echo DASH_PID:$!\n663830 python3 scripts/live_dashboard.py --host 127.0.0.1 --port 18080 --base_dir . --auth_user cnl --auth_password ***"
+        },
+        {
+          "title": "Cloudflared Processes",
+          "content": "664476 /users/staff/dmi-dmi/kumar0002/bin/cloudflared tunnel --no-autoupdate --url http://127.0.0.1:18080"
+        }
+      ],
+      "links": [
+        {
+          "label": "Public Live Dashboard",
+          "url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
+          "health": "auth_required",
+          "http_code": "401",
+          "source": "cloudflared_log",
+          "source_path": "logs/cloudflared_dashboard_20260211_144945.out"
+        }
+      ]
     }
   ]
 }
