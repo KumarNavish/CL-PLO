@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-12T13:16:33.025319+00:00",
+  "collected_at_utc": "2026-02-12T13:17:37.523739+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "ok",
@@ -16,7 +16,7 @@
     },
     {
       "label": "Collected At (UTC)",
-      "value": "2026-02-12T13:16:33.025319+00:00"
+      "value": "2026-02-12T13:17:37.523739+00:00"
     },
     {
       "label": "Model Tag",
@@ -327,21 +327,123 @@
       ]
     },
     {
-      "title": "Table 4 (SmolLM): Ablation",
+      "title": "Table 4",
+      "paper_table": "table4",
+      "caption": "Impact of different optimizers on catastrophic forgetting. Results are reported as Number of questions (Percentage).",
+      "dataset_order": [
+        "mmlu",
+        "medqa",
+        "arc_c",
+        "csqa"
+      ],
+      "model": "SmolLM 360M",
+      "target_epoch": 25,
       "columns": [
         {
-          "key": "model",
-          "label": "MODEL"
+          "key": "optimizer",
+          "label": "OPTIMIZER"
         },
         {
-          "key": "status",
-          "label": "Status"
+          "key": "method",
+          "label": "METHOD"
         }
       ],
       "rows": [
         {
-          "model": "SmolLM-360M",
-          "status": "Not available yet: Table 4 ablation artifacts are missing (lambda ablation runs are required)."
+          "optimizer": "SGD",
+          "method": "FT",
+          "mmlu_learned": "347 (29.51%)",
+          "mmlu_forgot": "331 (87.80%)",
+          "medqa_learned": "261 (27.13%)",
+          "medqa_forgot": "264 (85.16%)",
+          "arc_c_learned": "298 (30.22%)",
+          "arc_c_forgot": "254 (89.44%)",
+          "csqa_learned": "236 (29.03%)",
+          "csqa_forgot": "257 (90.81%)"
+        },
+        {
+          "optimizer": "SGD",
+          "method": "CNL",
+          "mmlu_learned": "54 (4.59%)",
+          "mmlu_forgot": "68 (18.04%)",
+          "medqa_learned": "83 (8.63%)",
+          "medqa_forgot": "82 (26.45%)",
+          "arc_c_learned": "38 (3.85%)",
+          "arc_c_forgot": "40 (14.08%)",
+          "csqa_learned": "23 (2.83%)",
+          "csqa_forgot": "32 (11.31%)"
+        },
+        {
+          "optimizer": "Momentum",
+          "method": "FT",
+          "mmlu_learned": "PENDING",
+          "mmlu_forgot": "PENDING",
+          "medqa_learned": "PENDING",
+          "medqa_forgot": "PENDING",
+          "arc_c_learned": "PENDING",
+          "arc_c_forgot": "PENDING",
+          "csqa_learned": "PENDING",
+          "csqa_forgot": "PENDING"
+        },
+        {
+          "optimizer": "Momentum",
+          "method": "CNL",
+          "mmlu_learned": "PENDING",
+          "mmlu_forgot": "PENDING",
+          "medqa_learned": "PENDING",
+          "medqa_forgot": "PENDING",
+          "arc_c_learned": "PENDING",
+          "arc_c_forgot": "PENDING",
+          "csqa_learned": "23 (2.83%)",
+          "csqa_forgot": "32 (11.31%)"
+        },
+        {
+          "optimizer": "Adam",
+          "method": "FT",
+          "mmlu_learned": "PENDING",
+          "mmlu_forgot": "PENDING",
+          "medqa_learned": "PENDING",
+          "medqa_forgot": "PENDING",
+          "arc_c_learned": "PENDING",
+          "arc_c_forgot": "PENDING",
+          "csqa_learned": "PENDING",
+          "csqa_forgot": "PENDING"
+        },
+        {
+          "optimizer": "Adam",
+          "method": "CNL",
+          "mmlu_learned": "PENDING",
+          "mmlu_forgot": "PENDING",
+          "medqa_learned": "PENDING",
+          "medqa_forgot": "PENDING",
+          "arc_c_learned": "PENDING",
+          "arc_c_forgot": "PENDING",
+          "csqa_learned": "23 (2.83%)",
+          "csqa_forgot": "31 (10.95%)"
+        },
+        {
+          "optimizer": "AdamW",
+          "method": "FT",
+          "mmlu_learned": "PENDING",
+          "mmlu_forgot": "PENDING",
+          "medqa_learned": "PENDING",
+          "medqa_forgot": "PENDING",
+          "arc_c_learned": "PENDING",
+          "arc_c_forgot": "PENDING",
+          "csqa_learned": "PENDING",
+          "csqa_forgot": "PENDING"
+        },
+        {
+          "optimizer": "AdamW",
+          "method": "CNL",
+          "mmlu_learned": "PENDING",
+          "mmlu_forgot": "PENDING",
+          "medqa_learned": "PENDING",
+          "medqa_forgot": "PENDING",
+          "arc_c_learned": "PENDING",
+          "arc_c_forgot": "PENDING",
+          "csqa_learned": "23 (2.83%)",
+          "csqa_forgot": "31 (10.95%)"
         }
       ]
     },
@@ -375,21 +477,21 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "22713 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "24 %"
+          "utilization": "23 %"
         },
         {
           "gpu": "1",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "22 %"
+          "utilization": "23 %"
         },
         {
           "gpu": "2",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9174 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "26 %"
+          "utilization": "23 %"
         },
         {
           "gpu": "3",
@@ -410,21 +512,21 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9726 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "23 %"
+          "utilization": "24 %"
         },
         {
           "gpu": "6",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "49 %"
+          "utilization": "51 %"
         },
         {
           "gpu": "7",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "17 %"
+          "utilization": "19 %"
         }
       ]
     },
@@ -563,7 +665,7 @@
     },
     {
       "title": "Table 4 Status",
-      "content": "Missing file: results/smollm_table4.csv"
+      "content": "Completed entries: 11/32 (target epoch 25).\nPending entries: 21\nPending preview: Momentum/FT/MMLU, Momentum/FT/MedQA, Momentum/FT/ARC-C, Momentum/FT/CSQA, Momentum/CNL/MMLU, Momentum/CNL/MedQA, Momentum/CNL/ARC-C, Adam/FT/MMLU, +13 more"
     },
     {
       "title": "Paper Comparison Appendix (Simple)",
@@ -575,7 +677,7 @@
     },
     {
       "title": "Runner Process",
-      "content": "1252985 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+      "content": "1253466 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
     },
     {
       "title": "Training Processes",
@@ -708,21 +810,21 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "22713 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "24 %"
+      "utilization": "23 %"
     },
     {
       "gpu": "1",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "22 %"
+      "utilization": "23 %"
     },
     {
       "gpu": "2",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9174 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "26 %"
+      "utilization": "23 %"
     },
     {
       "gpu": "3",
@@ -743,21 +845,21 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9726 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "23 %"
+      "utilization": "24 %"
     },
     {
       "gpu": "6",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "49 %"
+      "utilization": "51 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "17 %"
+      "utilization": "19 %"
     }
   ],
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
