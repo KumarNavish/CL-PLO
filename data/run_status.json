@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-12T13:46:36.191070+00:00",
+  "generated_at_utc": "2026-02-12T13:47:40.199650+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -10,7 +10,7 @@
       "collector": "cnl",
       "status": "ok",
       "error": "",
-      "collected_at_utc": "2026-02-12T13:46:35.041009+00:00",
+      "collected_at_utc": "2026-02-12T13:47:39.091193+00:00",
       "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [
@@ -24,7 +24,7 @@
         },
         {
           "label": "Collected At (UTC)",
-          "value": "2026-02-12T13:46:35.041009+00:00"
+          "value": "2026-02-12T13:47:39.091193+00:00"
         },
         {
           "label": "Model Tag",
@@ -485,7 +485,7 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "22713 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "87 %"
+              "utilization": "24 %"
             },
             {
               "gpu": "1",
@@ -499,42 +499,42 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9174 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "23 %"
+              "utilization": "90 %"
             },
             {
               "gpu": "3",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "36 %"
+              "utilization": "26 %"
             },
             {
               "gpu": "4",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "6898 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "89 %"
+              "utilization": "99 %"
             },
             {
               "gpu": "5",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9726 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "92 %"
+              "utilization": "25 %"
             },
             {
               "gpu": "6",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "23 %"
+              "utilization": "50 %"
             },
             {
               "gpu": "7",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "47 %"
+              "utilization": "31 %"
             }
           ]
         },
@@ -685,7 +685,7 @@
         },
         {
           "title": "Runner Process",
-          "content": "1269568 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+          "content": "1270725 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
         },
         {
           "title": "Training Processes",
