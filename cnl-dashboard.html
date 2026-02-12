@@ -309,13 +309,13 @@
 
       let html = `<div class="section paper-wrap">${paperCaption(table)}`;
       html += `<table class="paper-table"><thead><tr>`;
-      html += `<th class="left" rowspan="2">Model</th>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
       for (const ds of datasets) {
         html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
       }
       html += `</tr><tr>`;
       for (const _ds of datasets) {
-        html += `<th>Dissim</th><th>Sim</th>`;
+        html += `<th>DISSIM</th><th>SIM</th>`;
       }
       html += `</tr></thead><tbody><tr>`;
       html += `<td class="left italic">${esc(row.model || table.model || "")}</td>`;
@@ -342,14 +342,14 @@
 
       let html = `<div class="section paper-wrap">${paperCaption(table)}`;
       html += `<table class="paper-table"><thead><tr>`;
-      html += `<th class="left" rowspan="2">Model</th>`;
-      html += `<th class="left" rowspan="2">Metric</th>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      html += `<th class="left" rowspan="2">METRIC</th>`;
       for (const ds of datasets) {
         html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
       }
       html += `</tr><tr>`;
       for (const _ds of datasets) {
-        html += `<th>Coll</th><th>Conf</th>`;
+        html += `<th>COLL</th><th>CONF</th>`;
       }
       html += `</tr></thead><tbody>`;
 
@@ -400,14 +400,14 @@
       const model = table.model || ((orderedRows[0] || {}).model || "");
       let html = `<div class="section paper-wrap">${paperCaption(table)}`;
       html += `<table class="paper-table"><thead><tr>`;
-      html += `<th class="left" rowspan="2">Model</th>`;
-      html += `<th class="left" rowspan="2">Method</th>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      html += `<th class="left" rowspan="2">METHOD</th>`;
       for (const ds of datasets) {
         html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
       }
       html += `</tr><tr>`;
       for (const _ds of datasets) {
-        html += `<th>Learned</th><th>Forgot</th>`;
+        html += `<th>LEARNED</th><th>FORGOT</th>`;
       }
       html += `</tr></thead><tbody>`;
 
