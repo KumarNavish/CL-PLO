@@ -258,6 +258,291 @@ def collect_matrix_table(matrix_cfg, shared_values):
     return {"title": title, "columns": columns, "rows": rows}
 
 
+def to_int(value, default=0):
+    try:
+        return int(str(value).strip())
+    except Exception:  # noqa: BLE001
+        return default
+
+
+def to_float(value, default=0.0):
+    try:
+        return float(str(value).strip())
+    except Exception:  # noqa: BLE001
+        return default
+
+
+def count_nonempty_lines(path_obj):
+    path_obj = Path(path_obj)
+    if not path_obj.exists():
+        return 0
+    count = 0
+    with path_obj.open("r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            if line.strip():
+                count += 1
+    return count
+
+
+def dataset_title(dataset):
+    names = {
+        "arc_c": "Arc-c",
+        "csqa": "CSQA",
+        "mmlu": "MMLU",
+        "medqa": "MEDQA",
+    }
+    return names.get(dataset, dataset)
+
+
+def pct_text(numerator, denominator):
+    if denominator <= 0:
+        return "0.00%"
+    return f"{(100.0 * numerator / denominator):.2f}%"
+
+
+def read_jsonl_rows(path_obj):
+    path_obj = Path(path_obj)
+    if not path_obj.exists():
+        return []
+    rows = []
+    with path_obj.open("r", encoding="utf-8", errors="replace") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append(json.loads(line))
+            except Exception:  # noqa: BLE001
+                continue
+    return rows
+
+
+def build_cnl_table1(settings, jobs_rows, model_tag):
+    datasets = settings.get("datasets", ["arc_c", "csqa", "medqa", "mmlu"])
+    ft_use_freeze = int(settings.get("table1_ft_use_freeze", 0))
+    target_epoch = int(settings.get("table1_target_epoch", 25))
+
+    by_pair = {}
+    for row in jobs_rows:
+        ds = str(row.get("dataset", ""))
+        uf = to_int(row.get("use_freeze"), default=None)
+        if ds and uf is not None:
+            by_pair[(ds, uf)] = row
+
+    ready_datasets = []
+    pending_datasets = []
+    neg_totals = {}
+    values = {}
+
+    for ds in datasets:
+        ft_row = by_pair.get((ds, ft_use_freeze))
+        ft_epoch = to_int((ft_row or {}).get("epoch"), default=0)
+        if ft_epoch < target_epoch:
+            pending_datasets.append(ds)
+            continue
+
+        distance_jsonl = Path(f"distance/{ds}_{model_tag}/correct_with_grad_dot.jsonl")
+        ft_correct_jsonl = Path(
+            f"zero_ckpts/{ds}_{model_tag}_lr1e-7_usefreeze{ft_use_freeze}/jsonl/infer_correct_ep{target_epoch}.jsonl"
+        )
+        if not distance_jsonl.exists() or not ft_correct_jsonl.exists():
+            pending_datasets.append(ds)
+            continue
+
+        dist_rows = read_jsonl_rows(distance_jsonl)
+        neg_rows = [r for r in dist_rows if to_float(r.get("grad_dot"), default=0.0) < 0.0]
+        neg_rows.sort(key=lambda r: abs(to_float(r.get("grad_dot"), default=0.0)), reverse=True)
+        n_neg = len(neg_rows)
+        third = n_neg // 3
+        sim_rows = neg_rows[:third]
+        dissim_rows = neg_rows[-third:] if third > 0 else []
+
+        ft_rows = read_jsonl_rows(ft_correct_jsonl)
+        forgot_map = {}
+        for r in ft_rows:
+            q = str(r.get("question", ""))
+            forgot_map[q] = str(r.get("label", "")) != str(r.get("predict_label", ""))
+
+        sim_forgot = sum(1 for r in sim_rows if forgot_map.get(str(r.get("question", "")), False))
+        dissim_forgot = sum(1 for r in dissim_rows if forgot_map.get(str(r.get("question", "")), False))
+
+        values[ds] = {
+            "dissimilar": f"{dissim_forgot} ({pct_text(dissim_forgot, n_neg)})",
+            "similar": f"{sim_forgot} ({pct_text(sim_forgot, n_neg)})",
+        }
+        neg_totals[ds] = n_neg
+        ready_datasets.append(ds)
+
+    if not ready_datasets:
+        return None, ready_datasets, pending_datasets, neg_totals
+
+    columns = [{"key": "model", "label": "MODEL"}]
+    for ds in ready_datasets:
+        columns.append({"key": f"{ds}_dissimilar", "label": f"{dataset_title(ds)} Dissimilar"})
+        columns.append({"key": f"{ds}_similar", "label": f"{dataset_title(ds)} Similar"})
+
+    row = {"model": "SmolLM-360M"}
+    for ds in ready_datasets:
+        row[f"{ds}_dissimilar"] = values[ds]["dissimilar"]
+        row[f"{ds}_similar"] = values[ds]["similar"]
+
+    table = {
+        "title": "Table 1 (SmolLM): Similar vs Dissimilar",
+        "columns": columns,
+        "rows": [row],
+    }
+    return table, ready_datasets, pending_datasets, neg_totals
+
+
+def build_cnl_table2(settings, model_tag):
+    datasets = settings.get("datasets", ["arc_c", "csqa", "medqa", "mmlu"])
+    ready_datasets = []
+    pending_datasets = []
+    values = {}
+
+    for ds in datasets:
+        csv_path = Path(f"neuron/{ds}_{model_tag}/col_conf_distri.csv")
+        if not csv_path.exists():
+            pending_datasets.append(ds)
+            continue
+        rows = read_csv_rows(csv_path, limit=1)
+        if not rows:
+            pending_datasets.append(ds)
+            continue
+        values[ds] = rows[0]
+        ready_datasets.append(ds)
+
+    if not ready_datasets:
+        return None, ready_datasets, pending_datasets
+
+    columns = [
+        {"key": "model", "label": "MODEL"},
+        {"key": "neuron_type", "label": "Neuron Type"},
+    ]
+    for ds in ready_datasets:
+        columns.append({"key": f"{ds}_stats", "label": f"{dataset_title(ds)} (Prop/Grad/Total)"})
+
+    coll_row = {"model": "SmolLM-360M", "neuron_type": "Collaborative"}
+    conf_row = {"model": "", "neuron_type": "Conflicting"}
+    for ds in ready_datasets:
+        row = values[ds]
+        coll_row[f"{ds}_stats"] = (
+            f"{to_float(row.get('coll_prop')):.2f} / "
+            f"{to_float(row.get('coll_grad')):.2f} / "
+            f"{to_float(row.get('coll_total')):.2f}"
+        )
+        conf_row[f"{ds}_stats"] = (
+            f"{to_float(row.get('conf_prop')):.2f} / "
+            f"{to_float(row.get('conf_grad')):.2f} / "
+            f"{to_float(row.get('conf_total')):.2f}"
+        )
+
+    table = {
+        "title": "Table 2 (SmolLM): Collaborative vs Conflicting",
+        "columns": columns,
+        "rows": [coll_row, conf_row],
+    }
+    return table, ready_datasets, pending_datasets
+
+
+def build_cnl_table3(settings, jobs_rows, model_tag):
+    datasets = settings.get("datasets", ["arc_c", "csqa", "medqa", "mmlu"])
+    use_freeze_vals = settings.get("use_freeze", [1, 0])
+    target_epoch = int(settings.get("table3_target_epoch", 25))
+    method_labels = settings.get("table3_method_labels", {})
+    # Paper-style method naming for Table 3: CNL vs FT baseline.
+    default_method_labels = {1: "CNL", 0: "FT"}
+
+    by_pair = {}
+    for row in jobs_rows:
+        ds = row.get("dataset")
+        uf = to_int(row.get("use_freeze"), default=None)
+        if ds is None or uf is None:
+            continue
+        by_pair[(str(ds), uf)] = row
+
+    ready_datasets = []
+    pending_datasets = []
+    for ds in datasets:
+        complete = True
+        for uf in use_freeze_vals:
+            row = by_pair.get((ds, int(uf)))
+            if not row:
+                complete = False
+                break
+            if to_int(row.get("epoch"), default=0) < target_epoch:
+                complete = False
+                break
+        if complete:
+            ready_datasets.append(ds)
+        else:
+            pending_datasets.append(ds)
+
+    if not ready_datasets:
+        return None, ready_datasets, pending_datasets
+
+    columns = [
+        {"key": "model", "label": "MODEL"},
+        {"key": "method", "label": "METHOD"},
+    ]
+    for ds in ready_datasets:
+        columns.append({"key": f"{ds}_learned", "label": f"{dataset_title(ds)} LEARNED"})
+        columns.append({"key": f"{ds}_forgot", "label": f"{dataset_title(ds)} FORGOT"})
+
+    rows = []
+    for idx, uf_raw in enumerate(use_freeze_vals):
+        uf = int(uf_raw)
+        method = method_labels.get(str(uf), default_method_labels.get(uf, f"use_freeze={uf}"))
+        row = {"model": model_tag if idx == 0 else "", "method": method}
+        for ds in ready_datasets:
+            stats = by_pair.get((ds, uf), {})
+            wrong_total = count_nonempty_lines(Path(f"data/{ds}_wrong_{model_tag}.jsonl"))
+            correct_total = count_nonempty_lines(Path(f"data/{ds}_correct_{model_tag}.jsonl"))
+            learned = to_int(stats.get("wrong_to_correct"), default=0)
+            forgot = to_int(stats.get("correct_to_wrong"), default=0)
+            row[f"{ds}_learned"] = f"{learned} ({pct_text(learned, wrong_total)})"
+            row[f"{ds}_forgot"] = f"{forgot} ({pct_text(forgot, correct_total)})"
+        rows.append(row)
+
+    table = {
+        "title": "Table 3 (SmolLM): LEARNED vs FORGOT",
+        "columns": columns,
+        "rows": rows,
+    }
+    return table, ready_datasets, pending_datasets
+
+
+def build_cnl_table4(settings, model_tag):
+    table4_csv = settings.get("table4_csv_path", "results/smollm_table4.csv")
+    csv_path = Path(table4_csv)
+    if csv_path.exists():
+        rows = read_csv_rows(csv_path, limit=200)
+        if rows:
+            return {
+                "title": "Table 4 (SmolLM): Ablation",
+                "columns": [{"key": k, "label": k} for k in rows[0].keys()],
+                "rows": rows,
+            }, f"Loaded from {table4_csv}"
+
+    placeholder = {
+        "title": "Table 4 (SmolLM): Ablation",
+        "columns": [
+            {"key": "model", "label": "MODEL"},
+            {"key": "status", "label": "Status"},
+        ],
+        "rows": [
+            {
+                "model": "SmolLM-360M",
+                "status": (
+                    "Not available yet: Table 4 ablation artifacts are missing "
+                    "(lambda ablation runs are required)."
+                ),
+            }
+        ],
+    }
+    return placeholder, f"Missing file: {table4_csv}"
+
+
 def resolve_public_link(link_cfg):
     if not link_cfg:
         return None
@@ -343,8 +628,60 @@ def collect_cnl(project):
 
     cards = [{"label": "Model Tag", "value": model_tag}]
     texts = []
-    tables = [jobs_table, collect_gpu_table()]
+    tables = [jobs_table]
     links = []
+
+    table1, t1_ready, t1_pending, t1_neg_totals = build_cnl_table1(settings, jobs_table.get("rows", []), model_tag)
+    if table1:
+        tables.append(table1)
+    t1_ready_text = ", ".join(dataset_title(ds) for ds in t1_ready) or "none"
+    t1_pending_text = ", ".join(dataset_title(ds) for ds in t1_pending) or "none"
+    neg_details = ", ".join(f"{dataset_title(ds)}={t1_neg_totals.get(ds, 0)}" for ds in t1_ready) or "none"
+    texts.append(
+        {
+            "title": "Table 1 Status",
+            "content": (
+                f"Rendered datasets: {t1_ready_text}\n"
+                f"Pending datasets: {t1_pending_text}\n"
+                f"Negative grad-dot totals: {neg_details}"
+            ),
+        }
+    )
+
+    table2, t2_ready, t2_pending = build_cnl_table2(settings, model_tag)
+    if table2:
+        tables.append(table2)
+    t2_ready_text = ", ".join(dataset_title(ds) for ds in t2_ready) or "none"
+    t2_pending_text = ", ".join(dataset_title(ds) for ds in t2_pending) or "none"
+    texts.append(
+        {
+            "title": "Table 2 Status",
+            "content": f"Rendered datasets: {t2_ready_text}\nPending datasets: {t2_pending_text}",
+        }
+    )
+
+    table3, ready_datasets, pending_datasets = build_cnl_table3(settings, jobs_table.get("rows", []), model_tag)
+    if table3:
+        tables.append(table3)
+    target_epoch = int(settings.get("table3_target_epoch", 25))
+    ready_text = ", ".join(dataset_title(ds) for ds in ready_datasets) or "none"
+    pending_text = ", ".join(dataset_title(ds) for ds in pending_datasets) or "none"
+    texts.append(
+        {
+            "title": "Table 3 Status",
+            "content": (
+                f"Rendered datasets: {ready_text}\n"
+                f"Pending datasets (waiting for epoch {target_epoch} on all methods): {pending_text}"
+            ),
+        }
+    )
+
+    table4, table4_status = build_cnl_table4(settings, model_tag)
+    if table4:
+        tables.append(table4)
+    texts.append({"title": "Table 4 Status", "content": table4_status})
+
+    tables.append(collect_gpu_table())
 
     merged_summary_path = settings.get("merged_summary_path", "")
     if merged_summary_path:

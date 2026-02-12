@@ -5,7 +5,11 @@
     "default_project_id": "fibonacci-cnl",
     "ssh_options": [
       "-o",
-      "BatchMode=yes"
+      "BatchMode=yes",
+      "-o",
+      "StrictHostKeyChecking=no",
+      "-o",
+      "UserKnownHostsFile=/dev/null"
     ]
   },
   "projects": [
@@ -15,7 +19,7 @@
       "enabled": true,
       "collector": "cnl",
       "remote": {
-        "host": "fibonacci",
+        "host": "kumar0002@131.152.56.23",
         "workdir": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning"
       },
       "settings": {
