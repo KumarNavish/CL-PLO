@@ -922,12 +922,29 @@
 
     function renderEvolutionGradSvg(groups, epochMax) {
       const rows = [];
+      const datasetMap = new Map();
       for (const group of groups) {
-        for (const point of group.points || []) {
-          if (!Number.isFinite(point.avg_grad)) {
-            continue;
-          }
+        const points = (group.points || [])
+          .filter((point) => Number.isFinite(point.avg_grad) && Number.isFinite(point.epoch))
+          .sort((a, b) => a.epoch - b.epoch);
+        if (points.length === 0) {
+          continue;
+        }
+
+        if (!datasetMap.has(group.dataset)) {
+          datasetMap.set(group.dataset, {
+            dataset: group.dataset,
+            label: group.dataset_label,
+            color: group.color,
+            sim: [],
+            dissim: [],
+          });
+        }
+        datasetMap.get(group.dataset)[group.class_key] = points;
+
+        for (const point of points) {
           rows.push({
+            dataset: group.dataset,
             dataset_label: group.dataset_label,
             color: group.color,
             class_key: group.class_key,
@@ -939,6 +956,7 @@
       if (rows.length === 0) {
         return '<p class="evo-meta">No average-gradient points are available yet.</p>';
       }
+      const datasetEntries = Array.from(datasetMap.values());
 
       let gradMin = Math.min(...rows.map((row) => row.avg_grad));
       let gradMax = Math.max(...rows.map((row) => row.avg_grad));
@@ -954,8 +972,8 @@
 
       const epochCeil = Math.max(1, Math.round(Math.max(epochMax, ...rows.map((row) => row.epoch))));
       const width = 980;
-      const height = 390;
-      const margin = { top: 16, right: 16, bottom: 42, left: 62 };
+      const height = 360;
+      const margin = { top: 16, right: 128, bottom: 42, left: 62 };
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
       const mapX = (value) => scaleLinear(value, 1, epochCeil, margin.left, margin.left + plotWidth);
@@ -968,7 +986,7 @@
       if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
       const yTicks = buildLinearTicks(gradMin, gradMax, 6);
 
-      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Average gradient similarity over epochs for SIM and DISSIM classes">`;
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Average gradient similarity over training epochs with all datasets">`;
       for (const tick of yTicks) {
         const y = mapY(tick);
         svg += `<line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#e9f0f7" stroke-width="1"></line>`;
@@ -989,10 +1007,9 @@
       const yLabelAnchor = margin.top + (plotHeight / 2);
       svg += `<text x="15" y="${yLabelAnchor.toFixed(2)}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${yLabelAnchor.toFixed(2)})">avg gradient similarity</text>`;
 
+      const endLabels = [];
       for (const group of groups) {
-        const points = (group.points || [])
-          .filter((point) => Number.isFinite(point.avg_grad))
-          .sort((a, b) => a.epoch - b.epoch);
+        const points = (group.points || []).filter((point) => Number.isFinite(point.avg_grad)).sort((a, b) => a.epoch - b.epoch);
         if (points.length === 0) {
           continue;
         }
@@ -1001,21 +1018,115 @@
         const path = points
           .map((point, idx) => `${idx === 0 ? "M" : "L"} ${mapX(point.epoch).toFixed(2)} ${mapY(point.avg_grad).toFixed(2)}`)
           .join(" ");
-        svg += `<path d="${path}" fill="none" stroke="${esc(group.color)}" stroke-width="2"${dashAttr} stroke-linecap="round" opacity="0.92"></path>`;
+        svg += `<path d="${path}" fill="none" stroke="${esc(group.color)}" stroke-width="2.1"${dashAttr} stroke-linecap="round" opacity="0.95"></path>`;
 
         for (const point of points) {
           const x = mapX(point.epoch);
           const y = mapY(point.avg_grad);
           const tooltip = `${group.dataset_label} ${classLabel(group.class_key)} | epoch ${point.epoch} | avg grad ${point.avg_grad.toFixed(6)}`;
           if (group.class_key === "dissim") {
-            svg += `<rect x="${(x - 3.2).toFixed(2)}" y="${(y - 3.2).toFixed(2)}" width="6.4" height="6.4" fill="${esc(group.color)}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tooltip)}</title></rect>`;
+            svg += `<rect x="${(x - 2.7).toFixed(2)}" y="${(y - 2.7).toFixed(2)}" width="5.4" height="5.4" fill="${esc(group.color)}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tooltip)}</title></rect>`;
           } else {
-            svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.2" fill="${esc(group.color)}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tooltip)}</title></circle>`;
+            svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.7" fill="${esc(group.color)}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tooltip)}</title></circle>`;
           }
         }
+
+        const last = points[points.length - 1];
+        endLabels.push({
+          x: mapX(last.epoch),
+          y: mapY(last.avg_grad),
+          color: group.color,
+          class_key: group.class_key,
+          text: `${group.dataset_label} ${classLabel(group.class_key)}`,
+        });
+      }
+
+      endLabels.sort((a, b) => a.y - b.y);
+      const labelGap = 12;
+      const topBound = margin.top + 7;
+      const bottomBound = margin.top + plotHeight - 7;
+      let cursor = topBound;
+      for (const item of endLabels) {
+        item.y_adj = Math.max(item.y, cursor);
+        cursor = item.y_adj + labelGap;
+      }
+      for (let i = endLabels.length - 1; i >= 0; i -= 1) {
+        const maxY = bottomBound - ((endLabels.length - 1 - i) * labelGap);
+        endLabels[i].y_adj = Math.min(endLabels[i].y_adj, maxY);
+      }
+      const labelX = margin.left + plotWidth + 8;
+      for (const item of endLabels) {
+        const dash = classDash(item.class_key);
+        const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+        svg += `<line x1="${item.x.toFixed(2)}" y1="${item.y.toFixed(2)}" x2="${(labelX - 3).toFixed(2)}" y2="${item.y_adj.toFixed(2)}" stroke="${esc(item.color)}" stroke-width="1.2"${dashAttr} opacity="0.88"></line>`;
+        svg += `<text x="${labelX.toFixed(2)}" y="${(item.y_adj + 3).toFixed(2)}" font-size="10.5" fill="#25465f">${esc(item.text)}</text>`;
       }
       svg += `</svg>`;
-      return svg;
+
+      const facetCards = datasetEntries
+        .map((entry) => {
+          const fWidth = 410;
+          const fHeight = 168;
+          const fMargin = { top: 10, right: 10, bottom: 28, left: 44 };
+          const fPlotW = fWidth - fMargin.left - fMargin.right;
+          const fPlotH = fHeight - fMargin.top - fMargin.bottom;
+          const mapXF = (value) => scaleLinear(value, 1, epochCeil, fMargin.left, fMargin.left + fPlotW);
+          const mapYF = (value) => scaleLinear(value, gradMin, gradMax, fMargin.top + fPlotH, fMargin.top);
+          const fXTicks = Array.from(new Set([1, Math.max(1, Math.round(epochCeil / 2)), epochCeil])).sort((a, b) => a - b);
+          const fYTicks = [gradMin, (gradMin + gradMax) / 2, gradMax];
+
+          let mini = `<svg class="evo-grad-mini" viewBox="0 0 ${fWidth} ${fHeight}" role="img" aria-label="${esc(entry.label)} average gradient similarity">`;
+          for (const tick of fYTicks) {
+            const y = mapYF(tick);
+            mini += `<line x1="${fMargin.left}" y1="${y.toFixed(2)}" x2="${(fMargin.left + fPlotW).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#eef3f9" stroke-width="1"></line>`;
+            mini += `<text x="${(fMargin.left - 6).toFixed(2)}" y="${(y + 3.2).toFixed(2)}" font-size="9.2" fill="#60778d" text-anchor="end">${tick.toFixed(2)}</text>`;
+          }
+          for (const tick of fXTicks) {
+            const x = mapXF(tick);
+            mini += `<line x1="${x.toFixed(2)}" y1="${fMargin.top}" x2="${x.toFixed(2)}" y2="${(fMargin.top + fPlotH).toFixed(2)}" stroke="#f1f5fb" stroke-width="1"></line>`;
+            mini += `<text x="${x.toFixed(2)}" y="${(fHeight - 12).toFixed(2)}" font-size="9.4" fill="#60778d" text-anchor="middle">${tick}</text>`;
+          }
+          if (gradMin < 0 && gradMax > 0) {
+            const zy = mapYF(0);
+            mini += `<line x1="${fMargin.left}" y1="${zy.toFixed(2)}" x2="${(fMargin.left + fPlotW).toFixed(2)}" y2="${zy.toFixed(2)}" stroke="#b2c1d0" stroke-width="1" stroke-dasharray="3 3"></line>`;
+          }
+          mini += `<line x1="${fMargin.left}" y1="${fMargin.top}" x2="${fMargin.left}" y2="${(fMargin.top + fPlotH).toFixed(2)}" stroke="#6f879c" stroke-width="1.1"></line>`;
+          mini += `<line x1="${fMargin.left}" y1="${(fMargin.top + fPlotH).toFixed(2)}" x2="${(fMargin.left + fPlotW).toFixed(2)}" y2="${(fMargin.top + fPlotH).toFixed(2)}" stroke="#6f879c" stroke-width="1.1"></line>`;
+
+          for (const classKey of ["sim", "dissim"]) {
+            const points = (entry[classKey] || []).filter((point) => Number.isFinite(point.avg_grad)).sort((a, b) => a.epoch - b.epoch);
+            if (points.length === 0) {
+              continue;
+            }
+            const dash = classDash(classKey);
+            const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+            const path = points
+              .map((point, idx) => `${idx === 0 ? "M" : "L"} ${mapXF(point.epoch).toFixed(2)} ${mapYF(point.avg_grad).toFixed(2)}`)
+              .join(" ");
+            mini += `<path d="${path}" fill="none" stroke="${esc(entry.color)}" stroke-width="2"${dashAttr} stroke-linecap="round"></path>`;
+            for (const point of points) {
+              const x = mapXF(point.epoch);
+              const y = mapYF(point.avg_grad);
+              if (classKey === "dissim") {
+                mini += `<rect x="${(x - 2.3).toFixed(2)}" y="${(y - 2.3).toFixed(2)}" width="4.6" height="4.6" fill="${esc(entry.color)}" stroke="#ffffff" stroke-width="0.75"></rect>`;
+              } else {
+                mini += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="2.3" fill="${esc(entry.color)}" stroke="#ffffff" stroke-width="0.75"></circle>`;
+              }
+            }
+          }
+
+          mini += `<text x="${(fMargin.left + fPlotW - 4).toFixed(2)}" y="${(fMargin.top + 10).toFixed(2)}" font-size="9.4" fill="#49657d" text-anchor="end">SIM / DISSIM</text>`;
+          mini += `</svg>`;
+          return `<article class="evo-grad-facet"><h4>${esc(entry.label)}</h4>${mini}</article>`;
+        })
+        .join("");
+
+      let html = `<div class="evo-grad-deck">`;
+      html += `<div class="evo-grad-main">${svg}</div>`;
+      html += `<div class="evo-grad-facets">${facetCards}</div>`;
+      html += `<p class="evo-grad-note">Global overlay shows cross-dataset trend; small multiples isolate each dataset while preserving the same vertical scale.</p>`;
+      html += `</div>`;
+      return html;
     }
 
     function renderTable1Evolution(table) {
@@ -1077,7 +1188,7 @@
       }
       html += `<div class="evo-panels">`;
       html += `<section class="evo-panel"><h3>Forgetting Dynamics by Point Index</h3>${renderEvolutionPrimarySvg(groups, epochMax)}</section>`;
-      html += `<section class="evo-panel"><h3>Average Gradient Similarity Over Epochs</h3>${renderEvolutionGradSvg(groups, epochMax)}</section>`;
+      html += `<section class="evo-panel"><h3>Average Gradient Similarity: Global + Dataset Views</h3>${renderEvolutionGradSvg(groups, epochMax)}</section>`;
       html += `</div>`;
       html += `<div class="evo-legend">${datasetLegendHtml}</div>`;
       html += `<div class="evo-legend">${classLegendHtml}</div>`;
