@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-13T17:40:32.592981+00:00",
+  "generated_at_utc": "2026-02-13T17:53:59.540180+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -8,12 +8,16 @@
       "project_id": "fibonacci-cnl",
       "project_name": "Fibonacci CNL SmolLM",
       "collector": "cnl",
-      "status": "ok",
+      "status": "stale",
       "error": "",
-      "collected_at_utc": "2026-02-13T17:40:31.318102+00:00",
+      "collected_at_utc": "2026-02-13T17:48:22.236927+00:00",
       "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [
+        {
+          "label": "Collection Warning",
+          "value": "Live probe failed at 2026-02-13T17:53:59.537777+00:00. Showing last successful snapshot from 2026-02-13T17:48:22.236927+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+        },
         {
           "label": "Remote Host",
           "value": "dmi-fibonacci"
@@ -24,7 +28,7 @@
         },
         {
           "label": "Collected At (UTC)",
-          "value": "2026-02-13T17:40:31.318102+00:00"
+          "value": "2026-02-13T17:48:22.236927+00:00"
         },
         {
           "label": "Model Tag",
@@ -3169,7 +3173,7 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "50 %"
+              "utilization": "20 %"
             },
             {
               "gpu": "4",
@@ -3190,14 +3194,14 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "47 %"
+              "utilization": "37 %"
             },
             {
               "gpu": "7",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "51 %"
+              "utilization": "24 %"
             }
           ]
         },
@@ -3323,6 +3327,10 @@
       ],
       "texts": [
         {
+          "title": "Collection Warning",
+          "content": "Live probe failed at 2026-02-13T17:53:59.537777+00:00.\nShowing cached data from 2026-02-13T17:48:22.236927+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+        },
+        {
           "title": "Table 1 Status",
           "content": "Rendered datasets: MMLU, MedQA, ARC-C, CSQA\nPending datasets: none\nNegative grad-dot totals: MMLU=308, MedQA=271, ARC-C=244, CSQA=251"
         },
@@ -3352,7 +3360,7 @@
         },
         {
           "title": "Runner Process",
-          "content": "2053061 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+          "content": "2056093 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
         },
         {
           "title": "Training Processes",
@@ -3381,7 +3389,10 @@
           "source_path": "logs/cloudflared_dashboard_20260211_144945.out"
         }
       ],
-      "ssh_endpoint": "kumar0002@131.152.56.23"
+      "ssh_endpoint": "kumar0002@131.152.56.23",
+      "stale": true,
+      "stale_checked_at_utc": "2026-02-13T17:53:59.537777+00:00",
+      "fallback_reason": "SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
     }
   ]
 }

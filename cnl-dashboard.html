@@ -932,155 +932,197 @@
     }
 
     function renderEvolutionGradSvg(groups, epochMax) {
-      const classes = {
-        sim: { label: "SIM", color: "#0A6E6A", marker: "circle" },
-        dissim: { label: "DISSIM", color: "#B2571B", marker: "square" },
+      const classStyle = {
+        sim: {
+          label: "SIM",
+          color: "#0E5E5A",
+          band_fill: "rgba(14, 94, 90, 0.16)",
+          new_dash: "",
+          cum_dash: "7 5",
+        },
+        dissim: {
+          label: "DISSIM",
+          color: "#A34D1A",
+          band_fill: "rgba(163, 77, 26, 0.14)",
+          new_dash: "",
+          cum_dash: "7 5",
+        },
       };
-      const byClass = { sim: {}, dissim: {} };
+      const datasetMap = new Map();
       const epochSet = new Set();
+
+      function quantile(values, q) {
+        if (!values || values.length === 0) return null;
+        const sorted = values.slice().sort((a, b) => a - b);
+        if (sorted.length === 1) return sorted[0];
+        const pos = (sorted.length - 1) * q;
+        const lo = Math.floor(pos);
+        const hi = Math.ceil(pos);
+        if (lo === hi) return sorted[lo];
+        const w = pos - lo;
+        return sorted[lo] * (1 - w) + sorted[hi] * w;
+      }
 
       for (const group of groups) {
         const classKey = group.class_key;
-        if (!(classKey in classes)) {
+        if (!(classKey in classStyle)) {
           continue;
         }
+        const dsKey = String(group.dataset || group.dataset_label || "");
+        if (!datasetMap.has(dsKey)) {
+          datasetMap.set(dsKey, {
+            dataset: dsKey,
+            dataset_label: String(group.dataset_label || dsKey),
+            color: String(group.color || "#2f6ea2"),
+            sim_cum: [],
+            sim_new: [],
+            dissim_cum: [],
+            dissim_new: [],
+          });
+        }
+        const bucket = datasetMap.get(dsKey);
         for (const point of group.points || []) {
-          const epoch = Math.round(toFiniteNumber(point.epoch, 0));
-          if (!Number.isFinite(epoch) || epoch <= 0) {
-            continue;
+          const ep = Math.round(toFiniteNumber(point.epoch, 0));
+          if (!Number.isFinite(ep) || ep <= 0) continue;
+          epochSet.add(ep);
+          const forgotCount = Math.max(0, toFiniteNumber(point.forgot_count, 0));
+          if (Number.isFinite(point.cum_rank_pct) && forgotCount > 0) {
+            bucket[`${classKey}_cum`].push({ epoch: ep, value: point.cum_rank_pct, count: forgotCount });
           }
-          epochSet.add(epoch);
-          if (!byClass[classKey][epoch]) {
-            byClass[classKey][epoch] = {
-              new_rank_entries: [],
-              cum_rank_entries: [],
-              new_count_total: 0,
-            };
-          }
-          const slot = byClass[classKey][epoch];
           const newCount = Math.max(0, toFiniteNumber(point.new_forgot_count, 0));
           if (Number.isFinite(point.new_rank_pct) && newCount > 0) {
-            slot.new_rank_entries.push({ value: point.new_rank_pct, weight: newCount });
+            bucket[`${classKey}_new`].push({ epoch: ep, value: point.new_rank_pct, count: newCount });
           }
-          const cumCount = Math.max(0, toFiniteNumber(point.forgot_count, 0));
-          if (Number.isFinite(point.cum_rank_pct) && cumCount > 0) {
-            slot.cum_rank_entries.push({ value: point.cum_rank_pct, weight: cumCount });
-          }
-          slot.new_count_total += newCount;
         }
       }
 
-      function summarize(entriesMap, entryKey, countKey) {
-        function quantile(sortedValues, q) {
-          if (!sortedValues || sortedValues.length === 0) {
-            return null;
-          }
-          if (sortedValues.length === 1) {
-            return sortedValues[0];
-          }
-          const pos = (sortedValues.length - 1) * q;
-          const lo = Math.floor(pos);
-          const hi = Math.ceil(pos);
-          if (lo === hi) {
-            return sortedValues[lo];
-          }
-          const w = pos - lo;
-          return sortedValues[lo] * (1 - w) + sortedValues[hi] * w;
+      const datasets = Array.from(datasetMap.values());
+      for (const ds of datasets) {
+        for (const key of ["sim_cum", "sim_new", "dissim_cum", "dissim_new"]) {
+          ds[key].sort((a, b) => a.epoch - b.epoch);
         }
+      }
+      if (datasets.length === 0) {
+        return '<p class="evo-meta">No gradient-rank evolution data are available yet.</p>';
+      }
 
-        const epochs = Object.keys(entriesMap).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
-        const out = [];
-        for (const epoch of epochs) {
-          const slot = entriesMap[epoch] || {};
-          const entries = slot[entryKey] || [];
-          const values = entries.map((entry) => entry.value).filter((v) => Number.isFinite(v));
-          if (values.length === 0) {
-            continue;
+      const jitterSpreadPx = datasets.length > 1 ? Math.min(10, 2 + datasets.length * 1.4) : 0;
+      const jitterStartPx = -0.5 * jitterSpreadPx;
+      const jitterStepPx = datasets.length > 1 ? (jitterSpreadPx / (datasets.length - 1)) : 0;
+      for (let i = 0; i < datasets.length; i += 1) {
+        datasets[i].jitter_px = jitterStartPx + i * jitterStepPx;
+      }
+
+      function summarizeByClass(key) {
+        const perEpoch = {};
+        for (const ds of datasets) {
+          for (const point of ds[key] || []) {
+            const ep = point.epoch;
+            if (!perEpoch[ep]) perEpoch[ep] = [];
+            perEpoch[ep].push(point);
           }
-          const sortedVals = values.slice().sort((a, b) => a - b);
-          const minVal = Math.min(...values);
-          const maxVal = Math.max(...values);
-          const q25 = quantile(sortedVals, 0.25);
-          const q75 = quantile(sortedVals, 0.75);
-          let weightedSum = 0;
-          let totalWeight = 0;
-          for (const entry of entries) {
-            const w = Number.isFinite(entry.weight) ? Math.max(0, entry.weight) : 0;
-            weightedSum += entry.value * w;
-            totalWeight += w;
+        }
+        const epochs = Object.keys(perEpoch).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
+        const out = [];
+        for (const ep of epochs) {
+          const pts = perEpoch[ep] || [];
+          const vals = pts.map((p) => p.value).filter((v) => Number.isFinite(v));
+          if (vals.length === 0) continue;
+          let wsum = 0;
+          let wtot = 0;
+          for (const p of pts) {
+            const w = Math.max(0, toFiniteNumber(p.count, 0));
+            wsum += p.value * w;
+            wtot += w;
           }
           out.push({
-            epoch: epoch,
-            mean: totalWeight > 0 ? (weightedSum / totalWeight) : (values.reduce((a, b) => a + b, 0) / values.length),
-            min: minVal,
-            max: maxVal,
-            q25: q25,
-            q75: q75,
-            n: values.length,
-            count_total: toFiniteNumber(slot[countKey], 0),
+            epoch: ep,
+            mean: wtot > 0 ? (wsum / wtot) : (vals.reduce((a, b) => a + b, 0) / vals.length),
+            q25: quantile(vals, 0.25),
+            q75: quantile(vals, 0.75),
+            n: vals.length,
           });
         }
         return out;
       }
 
-      const simNewSeries = summarize(byClass.sim, "new_rank_entries", "new_count_total");
-      const dissimNewSeries = summarize(byClass.dissim, "new_rank_entries", "new_count_total");
-      const simCumSeries = summarize(byClass.sim, "cum_rank_entries", "new_count_total");
-      const dissimCumSeries = summarize(byClass.dissim, "cum_rank_entries", "new_count_total");
-
-      if (simNewSeries.length === 0 && dissimNewSeries.length === 0 && simCumSeries.length === 0 && dissimCumSeries.length === 0) {
-        return '<p class="evo-meta">No gradient-rank evolution data are available yet.</p>';
-      }
+      const simCumStats = summarizeByClass("sim_cum");
+      const dissimCumStats = summarizeByClass("dissim_cum");
+      const simNewStats = summarizeByClass("sim_new");
+      const dissimNewStats = summarizeByClass("dissim_new");
 
       const allEpochs = Array.from(epochSet).sort((a, b) => a - b);
       const epochCeil = Math.max(1, Math.round(Math.max(epochMax, ...allEpochs)));
-      const countMax = Math.max(
-        1,
-        ...simNewSeries.map((point) => point.count_total || 0),
-        ...dissimNewSeries.map((point) => point.count_total || 0),
-      );
-
       const width = 1280;
       const height = 560;
-      const margin = { top: 26, right: 28, bottom: 78, left: 96 };
+      const margin = { top: 26, right: 32, bottom: 78, left: 96 };
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
-      const mapX = (value) => scaleLinear(value, 1, epochCeil, margin.left, margin.left + plotWidth);
-      const mapY = (value) => scaleLinear(value, 0, 100, margin.top + plotHeight, margin.top);
+      const mapX = (v) => scaleLinear(v, 1, epochCeil, margin.left, margin.left + plotWidth);
+      const mapY = (v) => scaleLinear(v, 0, 100, margin.top + plotHeight, margin.top);
       const xTicksRaw = buildLinearTicks(1, epochCeil, Math.min(8, Math.max(4, epochCeil)));
-      const xTicks = Array.from(new Set(xTicksRaw.map((tick) => Math.round(tick))))
-        .filter((tick) => tick >= 1 && tick <= epochCeil)
-        .sort((a, b) => a - b);
+      const xTicks = Array.from(new Set(xTicksRaw.map((t) => Math.round(t)))).filter((t) => t >= 1 && t <= epochCeil).sort((a, b) => a - b);
       if (!xTicks.includes(1)) xTicks.unshift(1);
       if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
       const yTicks = [0, 20, 40, 60, 80, 100];
 
+      let maxNewCount = 1;
+      for (const ds of datasets) {
+        for (const p of [...ds.sim_new, ...ds.dissim_new]) {
+          maxNewCount = Math.max(maxNewCount, Math.max(0, toFiniteNumber(p.count, 0)));
+        }
+      }
       function markerRadius(countValue) {
         const c = Math.max(0, toFiniteNumber(countValue, 0));
-        const minR = 2.6;
-        const maxR = 8.2;
-        return minR + (Math.sqrt(c) / Math.sqrt(Math.max(1, countMax))) * (maxR - minR);
+        return 3.2 + (Math.sqrt(c) / Math.sqrt(maxNewCount)) * 5.4;
       }
 
-      function pathFromSeries(series, field) {
-        if (!series || series.length === 0) {
-          return "";
-        }
-        let path = "";
+      function linePath(series, valueKey, jitterPx = 0) {
+        if (!series || series.length === 0) return "";
+        let d = "";
         for (let i = 0; i < series.length; i += 1) {
-          const point = series[i];
-          const x = mapX(point.epoch);
-          const y = mapY(point[field]);
-          if (i === 0 || (point.epoch - series[i - 1].epoch) > 1) {
-            path += `M ${x.toFixed(2)} ${y.toFixed(2)} `;
+          const pt = series[i];
+          const x = mapX(pt.epoch) + jitterPx;
+          const y = mapY(pt[valueKey]);
+          if (i === 0 || (pt.epoch - series[i - 1].epoch) > 1) {
+            d += `M ${x.toFixed(2)} ${y.toFixed(2)} `;
           } else {
-            path += `L ${x.toFixed(2)} ${y.toFixed(2)} `;
+            d += `L ${x.toFixed(2)} ${y.toFixed(2)} `;
           }
         }
-        return path.trim();
+        return d.trim();
       }
 
-      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Epoch-wise gradient rank evolution for newly forgotten and cumulative forgotten questions">`;
+      function bandPaths(stats) {
+        const usable = (stats || [])
+          .filter((pt) => Number.isFinite(pt.epoch) && Number.isFinite(pt.q25) && Number.isFinite(pt.q75) && Number(pt.n || 0) >= 2)
+          .sort((a, b) => a.epoch - b.epoch);
+        if (usable.length === 0) return [];
+        const segments = [];
+        let seg = [usable[0]];
+        for (let i = 1; i < usable.length; i += 1) {
+          const prev = usable[i - 1];
+          const cur = usable[i];
+          if ((cur.epoch - prev.epoch) <= 1) {
+            seg.push(cur);
+          } else {
+            if (seg.length >= 2) segments.push(seg);
+            seg = [cur];
+          }
+        }
+        if (seg.length >= 2) segments.push(seg);
+        const paths = [];
+        for (const s of segments) {
+          const upper = s.map((pt) => `${mapX(pt.epoch).toFixed(2)} ${mapY(pt.q75).toFixed(2)}`);
+          const lower = s.slice().reverse().map((pt) => `${mapX(pt.epoch).toFixed(2)} ${mapY(pt.q25).toFixed(2)}`);
+          if (upper.length > 1 && lower.length > 1) {
+            paths.push(`M ${upper[0]} L ${upper.slice(1).join(" L ")} L ${lower.join(" L ")} Z`);
+          }
+        }
+        return paths;
+      }
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Gradient rank evolution across epochs with all dataset trajectories">`;
       for (const tick of yTicks) {
         const y = mapY(tick);
         svg += `<line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#e4edf6" stroke-width="1.2"></line>`;
@@ -1094,90 +1136,95 @@
       svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#5e7890" stroke-width="1.8"></line>`;
       svg += `<line x1="${margin.left}" y1="${(margin.top + plotHeight).toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#5e7890" stroke-width="1.8"></line>`;
       svg += `<text x="${(margin.left + (plotWidth / 2)).toFixed(2)}" y="${(height - 8).toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle">training epoch</text>`;
-      const yLabelAnchor = margin.top + (plotHeight / 2);
-      svg += `<text x="24" y="${yLabelAnchor.toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${yLabelAnchor.toFixed(2)})">gradient-magnitude percentile (0-100)</text>`;
+      const yAnchor = margin.top + (plotHeight / 2);
+      svg += `<text x="24" y="${yAnchor.toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${yAnchor.toFixed(2)})">gradient-magnitude percentile (0-100)</text>`;
 
-      const drawSpecs = [
-        { class_key: "sim", kind: "new", series: simNewSeries },
-        { class_key: "dissim", kind: "new", series: dissimNewSeries },
-        { class_key: "sim", kind: "cum", series: simCumSeries },
-        { class_key: "dissim", kind: "cum", series: dissimCumSeries },
+      const classSpecs = [
+        { cls: "sim", cum: simCumStats, newSeries: simNewStats },
+        { cls: "dissim", cum: dissimCumStats, newSeries: dissimNewStats },
       ];
-
-      const iqrOffset = { sim: -3.2, dissim: 3.2 };
-
-      for (const spec of drawSpecs) {
-        if (!spec.series || spec.series.length === 0) {
-          continue;
+      for (const spec of classSpecs) {
+        const tone = classStyle[spec.cls];
+        for (const d of bandPaths(spec.cum)) {
+          svg += `<path d="${d}" fill="${tone.band_fill}" stroke="none"></path>`;
         }
-        const tone = classes[spec.class_key];
-        const dash = spec.kind === "cum" ? "6 5" : "";
-        const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
-        const opacity = spec.kind === "cum" ? 0.56 : 1.0;
-        const strokeWidth = spec.kind === "cum" ? 2.6 : 3.6;
-        const path = pathFromSeries(spec.series, "mean");
-        if (path) {
-          svg += `<path d="${path}" fill="none" stroke="${tone.color}" stroke-width="${strokeWidth}"${dashAttr} stroke-linecap="round" opacity="${opacity}"></path>`;
+      }
+
+      for (const ds of datasets) {
+        for (const cls of ["sim", "dissim"]) {
+          const style = classStyle[cls];
+          const dashAttr = style.cum_dash ? ` stroke-dasharray="${style.cum_dash}"` : "";
+          const cumPath = linePath(ds[`${cls}_cum`], "value", ds.jitter_px || 0);
+          if (cumPath) {
+            svg += `<path d="${cumPath}" fill="none" stroke="${ds.color}" stroke-width="2.2"${dashAttr} stroke-linecap="round" opacity="0.75"></path>`;
+          }
+          const newPath = linePath(ds[`${cls}_new`], "value", ds.jitter_px || 0);
+          if (newPath) {
+            const newDashAttr = style.new_dash ? ` stroke-dasharray="${style.new_dash}"` : "";
+            svg += `<path d="${newPath}" fill="none" stroke="${ds.color}" stroke-width="2.8"${newDashAttr} stroke-linecap="round" opacity="0.95"></path>`;
+          }
         }
-        if (spec.kind === "new") {
-          for (const point of spec.series) {
-            const x = mapX(point.epoch);
-            const y = mapY(point.mean);
-            const r = markerRadius(point.count_total);
-            const tip = `${tone.label} new-forgotten | epoch ${point.epoch} | mean percentile=${point.mean.toFixed(2)} | new count=${Math.round(point.count_total)}`;
-            if (Number.isFinite(point.q25) && Number.isFinite(point.q75) && Number(point.n || 0) >= 3) {
-              const xw = x + (iqrOffset[spec.class_key] || 0);
-              const y1 = mapY(point.q25);
-              const y2 = mapY(point.q75);
-              svg += `<line x1="${xw.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${xw.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${tone.color}" stroke-width="2.2" opacity="0.45"></line>`;
-              svg += `<line x1="${(xw - 3.2).toFixed(2)}" y1="${y1.toFixed(2)}" x2="${(xw + 3.2).toFixed(2)}" y2="${y1.toFixed(2)}" stroke="${tone.color}" stroke-width="1.5" opacity="0.45"></line>`;
-              svg += `<line x1="${(xw - 3.2).toFixed(2)}" y1="${y2.toFixed(2)}" x2="${(xw + 3.2).toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${tone.color}" stroke-width="1.5" opacity="0.45"></line>`;
-            }
-            if (tone.marker === "square") {
-              svg += `<rect x="${(x - r).toFixed(2)}" y="${(y - r).toFixed(2)}" width="${(2 * r).toFixed(2)}" height="${(2 * r).toFixed(2)}" fill="${tone.color}" fill-opacity="0.92" stroke="#ffffff" stroke-width="0.9"><title>${esc(tip)}</title></rect>`;
+      }
+
+      for (const spec of classSpecs) {
+        const tone = classStyle[spec.cls];
+        const cumPath = linePath(spec.cum, "mean", 0);
+        if (cumPath) {
+          const dashAttr = tone.cum_dash ? ` stroke-dasharray="${tone.cum_dash}"` : "";
+          svg += `<path d="${cumPath}" fill="none" stroke="${tone.color}" stroke-width="3.2"${dashAttr} stroke-linecap="round" opacity="0.9"></path>`;
+        }
+        const newMeanPath = linePath(spec.newSeries, "mean", 0);
+        if (newMeanPath) {
+          svg += `<path d="${newMeanPath}" fill="none" stroke="${tone.color}" stroke-width="3.8" stroke-linecap="round"></path>`;
+        }
+      }
+
+      for (const ds of datasets) {
+        for (const cls of ["sim", "dissim"]) {
+          const tone = classStyle[cls];
+          for (const pt of ds[`${cls}_new`] || []) {
+            const x = mapX(pt.epoch) + (ds.jitter_px || 0);
+            const y = mapY(pt.value);
+            const r = markerRadius(pt.count);
+            const tip = `${ds.dataset_label} ${tone.label} new | epoch ${pt.epoch} | rank=${pt.value.toFixed(2)} | count=${Math.round(pt.count)}`;
+            if (cls === "dissim") {
+              svg += `<rect x="${(x - r).toFixed(2)}" y="${(y - r).toFixed(2)}" width="${(2 * r).toFixed(2)}" height="${(2 * r).toFixed(2)}" fill="${ds.color}" stroke="#ffffff" stroke-width="1.1"><title>${esc(tip)}</title></rect>`;
             } else {
-              svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${r.toFixed(2)}" fill="${tone.color}" fill-opacity="0.92" stroke="#ffffff" stroke-width="0.9"><title>${esc(tip)}</title></circle>`;
+              svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${r.toFixed(2)}" fill="${ds.color}" stroke="#ffffff" stroke-width="1.1"><title>${esc(tip)}</title></circle>`;
             }
           }
         }
       }
 
-      const endLabels = [];
-      for (const spec of drawSpecs) {
-        if (spec.kind !== "new" || !spec.series || spec.series.length === 0) {
-          continue;
-        }
-        const tone = classes[spec.class_key];
-        const last = spec.series[spec.series.length - 1];
-        endLabels.push({
-          x: mapX(last.epoch),
-          y: mapY(last.mean),
-          color: tone.color,
-          text: `${tone.label} new ${last.mean.toFixed(1)}`,
-        });
-      }
-      endLabels.sort((a, b) => a.y - b.y);
-      let cursor = margin.top + 8;
-      const gap = 12;
-      const labelX = margin.left + plotWidth - 120;
-      for (const item of endLabels) {
-        const ly = Math.max(cursor, item.y);
-        cursor = ly + gap;
-        svg += `<line x1="${item.x.toFixed(2)}" y1="${item.y.toFixed(2)}" x2="${(labelX - 4).toFixed(2)}" y2="${ly.toFixed(2)}" stroke="${item.color}" stroke-width="1.1" opacity="0.8"></line>`;
-        svg += `<text x="${labelX.toFixed(2)}" y="${(ly + 3).toFixed(2)}" font-size="10.4" fill="${item.color}" font-weight="700">${esc(item.text)}</text>`;
+      function firstLastText(series) {
+        if (!series || series.length < 2) return "insufficient data";
+        const first = series[0].mean;
+        const last = series[series.length - 1].mean;
+        const delta = last - first;
+        const dir = delta > 1.0 ? "up" : (delta < -1.0 ? "down" : "flat");
+        return `${first.toFixed(1)} -> ${last.toFixed(1)} (${dir}, ${Math.abs(delta).toFixed(1)})`;
       }
 
+      const simTrend = firstLastText(simNewStats);
+      const dissimTrend = firstLastText(dissimNewStats);
+      const datasetLabels = datasets.map((ds) => ds.dataset_label).filter((x) => x);
       svg += `</svg>`;
 
       let html = `<div class="evo-grad-deck"><div class="evo-grad-main">${svg}</div>`;
       html += `<div class="evo-legend">`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${classes.sim.color}"></span><span class="evo-marker-sample" style="background:${classes.sim.color}"></span>SIM newly forgotten rank</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${classes.dissim.color}"></span><span class="evo-marker-sample square" style="background:${classes.dissim.color}"></span>DISSIM newly forgotten rank</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${classes.sim.color}"></span>SIM cumulative rank (context)</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${classes.dissim.color}"></span>DISSIM cumulative rank (context)</span>`;
-      html += `<span class="evo-legend-item">IQR whiskers shown when at least 3 datasets contribute | marker size = newly forgotten count</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#0E5E5A"></span>SIM mean new-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#0E5E5A;border-top-style:dashed"></span>SIM mean cumulative-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#A34D1A"></span>DISSIM mean new-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#A34D1A;border-top-style:dashed"></span>DISSIM mean cumulative-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-chip" style="background:#6aa3cc"></span>Thin colored lines = each dataset trajectory (all datasets shown)</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-marker-sample"></span>SIM new-forgotten events</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-marker-sample square"></span>DISSIM new-forgotten events</span>`;
+      html += `<span class="evo-legend-item">Shaded band = IQR (q25-q75) across datasets</span>`;
       html += `</div>`;
-      html += `<p class="evo-grad-note"><strong>Interpretation:</strong> 100 means forgetting is concentrated on the strongest gradient-magnitude items in that class; decreasing values indicate forgetting is spreading to weaker-gradient items over epochs.</p>`;
+      html += `<p class="evo-grad-note"><strong>Datasets in this plot:</strong> ${esc(datasetLabels.join(", "))}</p>`;
+      html += `<p class="evo-grad-note"><strong>Rank (simple):</strong> inside each dataset and class, sort questions by <code>|g_i|</code> (absolute gradient similarity) from largest to smallest. Rank says where a forgotten question sits in that list: high rank = stronger-gradient region.</p>`;
+      html += `<p class="evo-grad-note"><strong>Math:</strong> with position <code>r(q)</code> among <code>N</code> class items, <code>rank_pct(q)=100*(1-(r(q)-1)/(N-1))</code>. So <code>100</code> is the top-gradient end and <code>0</code> is the bottom-gradient end.</p>`;
+      html += `<p class="evo-grad-note"><strong>Observed trend:</strong> SIM new-rank ${esc(simTrend)}; DISSIM new-rank ${esc(dissimTrend)}. Falling new-rank means new forgetting is moving from top-gradient items toward lower-gradient items as training proceeds.</p>`;
       html += `</div>`;
       return html;
     }
