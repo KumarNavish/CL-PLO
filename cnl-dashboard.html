@@ -70,6 +70,11 @@
       background: #fdecef;
       border-color: #f7c9d2;
     }
+    .status-warn {
+      color: var(--warn);
+      background: #fff4dc;
+      border-color: #f0d8a7;
+    }
     .grid {
       display: grid;
       gap: 12px;
@@ -750,11 +755,13 @@
 
     function renderProject(project) {
       const statusEl = document.getElementById("projectStatus");
-      statusEl.textContent = project.status || "unknown";
-      statusEl.className = `badge status-${project.status === "error" ? "error" : "ok"}`;
+      const status = String(project.status || "unknown").toLowerCase();
+      const badgeTone = status === "error" ? "error" : (status === "stale" ? "warn" : "ok");
+      statusEl.textContent = status;
+      statusEl.className = `badge status-${badgeTone}`;
 
       const errEl = document.getElementById("projectError");
-      if (project.status === "error") {
+      if (status === "error") {
         errEl.innerHTML = `<div class="card"><strong>Collection Error</strong><div class="value">${esc(project.error || "unknown")}</div></div>`;
       } else {
         errEl.innerHTML = "";

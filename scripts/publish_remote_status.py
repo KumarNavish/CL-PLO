@@ -1171,10 +1171,20 @@ def build_probe(project: dict[str, Any], max_log_lines: int) -> str:
 
 def collect_project_status(project: dict[str, Any], ssh_options: list[str], max_log_lines: int) -> dict[str, Any]:
     remote = project.get("remote", {})
-    host = str(remote.get("host", "")).strip()
+    primary_host = str(remote.get("host", "")).strip()
+    host_candidates_raw = remote.get("host_candidates", [])
+    host_candidates = []
+    if primary_host:
+        host_candidates.append(primary_host)
+    if isinstance(host_candidates_raw, list):
+        for item in host_candidates_raw:
+            value = str(item).strip()
+            if value and value not in host_candidates:
+                host_candidates.append(value)
+
     workdir = str(remote.get("workdir", "")).strip()
     remote_python = str(remote.get("python", "python3")).strip()
-    if not host or not workdir:
+    if not host_candidates or not workdir:
         raise RuntimeError(f"Project {project.get('id', '<unknown>')} missing remote host/workdir")
 
     probe = build_probe(project=project, max_log_lines=max_log_lines)
@@ -1186,28 +1196,37 @@ def collect_project_status(project: dict[str, Any], ssh_options: list[str], max_
         probe_path.write_text(probe, encoding="utf-8")
 
         ssh_opts = " ".join(shlex.quote(opt) for opt in ssh_options)
-        ssh_host = shlex.quote(host)
         remote_cmd = f"cd {shlex.quote(workdir)} && {shlex.quote(remote_python)} -"
-        shell_cmd = (
-            f"cat {shlex.quote(str(probe_path))} | "
-            f"ssh {ssh_opts} {ssh_host} "
-            f"\"{remote_cmd}\" "
-            f"> {shlex.quote(str(out_path))} 2> {shlex.quote(str(err_path))}"
-        )
-        proc = subprocess.run(
-            ["/bin/zsh", "-lc", shell_cmd],
-            text=True,
-            capture_output=False,
-            check=False,
-        )
-
-        stdout = out_path.read_text(encoding="utf-8", errors="replace")
-        stderr = err_path.read_text(encoding="utf-8", errors="replace")
-        if proc.returncode != 0:
-            raise RuntimeError(
-                f"SSH probe failed (code {proc.returncode}) for {project.get('id', host)}:\n{stderr.strip()}"
+        errors = []
+        for host in host_candidates:
+            ssh_host = shlex.quote(host)
+            shell_cmd = (
+                f"cat {shlex.quote(str(probe_path))} | "
+                f"ssh {ssh_opts} {ssh_host} "
+                f"\"{remote_cmd}\" "
+                f"> {shlex.quote(str(out_path))} 2> {shlex.quote(str(err_path))}"
             )
-        return extract_marked_json(stdout)
+            proc = subprocess.run(
+                ["/bin/zsh", "-lc", shell_cmd],
+                text=True,
+                capture_output=False,
+                check=False,
+            )
+
+            stdout = out_path.read_text(encoding="utf-8", errors="replace")
+            stderr = err_path.read_text(encoding="utf-8", errors="replace")
+            if proc.returncode == 0:
+                out = extract_marked_json(stdout)
+                out["ssh_endpoint"] = host
+                return out
+
+            err_text = stderr.strip() or "unknown ssh error"
+            errors.append(f"{host}: code {proc.returncode}: {err_text}")
+
+        raise RuntimeError(
+            f"SSH probe failed for {project.get('id', '<unknown>')} across {len(host_candidates)} host(s):\n"
+            + "\n".join(errors)
+        )
 
 
 def choose_projects(config: dict[str, Any], project_ids_raw: str) -> list[dict[str, Any]]:
@@ -1295,6 +1314,11 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       color: var(--bad);
       background: #fdecef;
       border-color: #f7c9d2;
+    }}
+    .status-warn {{
+      color: var(--warn);
+      background: #fff4dc;
+      border-color: #f0d8a7;
     }}
     .grid {{
       display: grid;
@@ -1976,11 +2000,13 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
     function renderProject(project) {{
       const statusEl = document.getElementById("projectStatus");
-      statusEl.textContent = project.status || "unknown";
-      statusEl.className = `badge status-${{project.status === "error" ? "error" : "ok"}}`;
+      const status = String(project.status || "unknown").toLowerCase();
+      const badgeTone = status === "error" ? "error" : (status === "stale" ? "warn" : "ok");
+      statusEl.textContent = status;
+      statusEl.className = `badge status-${{badgeTone}}`;
 
       const errEl = document.getElementById("projectError");
-      if (project.status === "error") {{
+      if (status === "error") {{
         errEl.innerHTML = `<div class="card"><strong>Collection Error</strong><div class="value">${{esc(project.error || "unknown")}}</div></div>`;
       }} else {{
         errEl.innerHTML = "";
@@ -2124,6 +2150,18 @@ def main() -> int:
     config = load_config(config_path)
     defaults = config.get("defaults", {})
     ssh_options = list(defaults.get("ssh_options", ["-o", "BatchMode=yes"]))
+    output_json = Path(args.output_json)
+
+    previous_projects: dict[str, dict[str, Any]] = {}
+    if output_json.exists():
+        try:
+            previous_payload = json.loads(output_json.read_text(encoding="utf-8"))
+            for prev in previous_payload.get("projects", []):
+                project_id = str(prev.get("project_id", "")).strip()
+                if project_id:
+                    previous_projects[project_id] = prev
+        except Exception:  # noqa: BLE001
+            previous_projects = {}
 
     projects = choose_projects(config=config, project_ids_raw=args.project_ids)
     if not projects:
@@ -2141,14 +2179,60 @@ def main() -> int:
             data["links"] = [x for x in data.get("links", []) if is_link_visible(x)]
             out_projects.append(data)
         except Exception as exc:  # noqa: BLE001
+            project_id = project.get("id", "unknown")
+            now = datetime.now(timezone.utc).isoformat()
+            previous = previous_projects.get(str(project_id))
+            if previous and str(previous.get("status", "")).lower() in {"ok", "stale"}:
+                stale = json.loads(json.dumps(previous))
+                stale["project_id"] = project_id
+                stale["project_name"] = project.get("name", project_id)
+                stale["collector"] = project.get("collector", "")
+                stale["status"] = "stale"
+                stale["error"] = ""
+                stale["stale"] = True
+                stale["stale_checked_at_utc"] = now
+                stale["fallback_reason"] = str(exc)
+                last_ok = stale.get("collected_at_utc", "unknown")
+
+                cards = [c for c in stale.get("cards", []) if str(c.get("label", "")) != "Collection Warning"]
+                cards.insert(
+                    0,
+                    {
+                        "label": "Collection Warning",
+                        "value": (
+                            f"Live probe failed at {now}. "
+                            f"Showing last successful snapshot from {last_ok}.\n"
+                            f"Reason: {exc}"
+                        ),
+                    },
+                )
+                stale["cards"] = cards
+
+                texts = [t for t in stale.get("texts", []) if str(t.get("title", "")) != "Collection Warning"]
+                texts.insert(
+                    0,
+                    {
+                        "title": "Collection Warning",
+                        "content": (
+                            f"Live probe failed at {now}.\n"
+                            f"Showing cached data from {last_ok}.\n\n"
+                            f"Reason:\n{exc}"
+                        ),
+                    },
+                )
+                stale["texts"] = texts
+                stale["links"] = [x for x in stale.get("links", []) if is_link_visible(x)]
+                out_projects.append(stale)
+                continue
+
             out_projects.append(
                 {
-                    "project_id": project.get("id", "unknown"),
-                    "project_name": project.get("name", project.get("id", "unknown")),
+                    "project_id": project_id,
+                    "project_name": project.get("name", project_id),
                     "collector": project.get("collector", ""),
                     "status": "error",
                     "error": str(exc),
-                    "collected_at_utc": datetime.now(timezone.utc).isoformat(),
+                    "collected_at_utc": now,
                     "remote_host": project.get("remote", {}).get("host", ""),
                     "remote_cwd": project.get("remote", {}).get("workdir", ""),
                     "cards": [],
@@ -2174,7 +2258,6 @@ def main() -> int:
         "projects": out_projects,
     }
 
-    output_json = Path(args.output_json)
     output_json.parent.mkdir(parents=True, exist_ok=True)
     output_json.write_text(json.dumps(payload, indent=2, ensure_ascii=True) + "\n", encoding="utf-8")
 

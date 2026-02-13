@@ -7,6 +7,8 @@
       "-o",
       "BatchMode=yes",
       "-o",
+      "ConnectTimeout=8",
+      "-o",
       "StrictHostKeyChecking=no",
       "-o",
       "UserKnownHostsFile=/dev/null"
@@ -20,6 +22,10 @@
       "collector": "cnl",
       "remote": {
         "host": "kumar0002@131.152.56.23",
+        "host_candidates": [
+          "kumar0002@131.152.56.23",
+          "kumar0002@fibonacci.dmi.unibas.ch"
+        ],
         "workdir": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning"
       },
       "settings": {
