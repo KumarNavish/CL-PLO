@@ -561,6 +561,168 @@ def build_cnl_table1(settings, jobs_rows, model_tag):
     return table, ordered_datasets, pending_datasets, neg_totals
 
 
+def build_cnl_table1_evolution(settings, jobs_rows, model_tag):
+    datasets = settings.get("datasets", ["arc_c", "csqa", "medqa", "mmlu"])
+    ft_use_freeze = int(settings.get("table1_ft_use_freeze", 0))
+    target_epoch = int(settings.get("table1_target_epoch", 25))
+    palette = settings.get(
+        "table1_evolution_palette",
+        {"mmlu": "#1772b7", "medqa": "#17a673", "arc_c": "#d46b08", "csqa": "#8d4ecf"},
+    )
+
+    by_pair = {}
+    for row in jobs_rows:
+        ds = str(row.get("dataset", ""))
+        uf = to_int(row.get("use_freeze"), default=None)
+        if ds and uf is not None:
+            by_pair[(ds, uf)] = row
+
+    series = []
+    ready_datasets = []
+    pending_datasets = []
+    max_epoch_global = 0
+
+    for ds in datasets:
+        ft_row = by_pair.get((ds, ft_use_freeze))
+        ft_epoch = to_int((ft_row or {}).get("epoch"), default=0)
+        if ft_epoch < 1:
+            pending_datasets.append(ds)
+            continue
+
+        distance_jsonl = Path(f"distance/{ds}_{model_tag}/correct_with_grad_dot.jsonl")
+        jsonl_dir = Path(f"zero_ckpts/{ds}_{model_tag}_lr1e-7_usefreeze{ft_use_freeze}/jsonl")
+        if not distance_jsonl.exists() or not jsonl_dir.exists():
+            pending_datasets.append(ds)
+            continue
+
+        dist_rows = read_jsonl_rows(distance_jsonl)
+        neg_rows = [r for r in dist_rows if to_float(r.get("grad_dot"), default=0.0) < 0.0]
+        neg_rows.sort(key=lambda r: abs(to_float(r.get("grad_dot"), default=0.0)), reverse=True)
+        n_neg = len(neg_rows)
+        third = n_neg // 3
+        if n_neg <= 0 or third <= 0:
+            pending_datasets.append(ds)
+            continue
+
+        sim_rows = neg_rows[:third]
+        dissim_rows = neg_rows[-third:]
+        sim_questions = [str(r.get("question", "")) for r in sim_rows]
+        dissim_questions = [str(r.get("question", "")) for r in dissim_rows]
+        sim_set = set(sim_questions)
+        dissim_set = set(dissim_questions)
+        grad_map = {str(r.get("question", "")): to_float(r.get("grad_dot"), default=0.0) for r in neg_rows}
+
+        epoch_files = []
+        for p in jsonl_dir.glob("infer_correct_ep*.jsonl"):
+            m = re.search(r"infer_correct_ep([0-9]+)\.jsonl$", p.name)
+            if not m:
+                continue
+            ep = to_int(m.group(1), default=0)
+            if ep > 0:
+                epoch_files.append((ep, p))
+        epoch_files.sort(key=lambda x: x[0])
+
+        sim_points = []
+        dissim_points = []
+        for ep, path_obj in epoch_files:
+            rows = read_jsonl_rows(path_obj)
+            forgot_questions = set()
+            for r in rows:
+                q = str(r.get("question", ""))
+                if str(r.get("label", "")) != str(r.get("predict_label", "")):
+                    forgot_questions.add(q)
+
+            sim_forgot_q = [q for q in sim_questions if q in forgot_questions]
+            dissim_forgot_q = [q for q in dissim_questions if q in forgot_questions]
+            sim_count = len(sim_forgot_q)
+            dissim_count = len(dissim_forgot_q)
+            sim_pct = 100.0 * sim_count / n_neg if n_neg > 0 else 0.0
+            dissim_pct = 100.0 * dissim_count / n_neg if n_neg > 0 else 0.0
+
+            sim_avg_grad = None
+            dissim_avg_grad = None
+            if sim_count > 0:
+                sim_avg_grad = sum(grad_map.get(q, 0.0) for q in sim_forgot_q) / sim_count
+            if dissim_count > 0:
+                dissim_avg_grad = sum(grad_map.get(q, 0.0) for q in dissim_forgot_q) / dissim_count
+
+            sim_points.append(
+                {
+                    "epoch": ep,
+                    "forgot_count": sim_count,
+                    "forgot_pct": round(sim_pct, 4),
+                    "avg_grad": None if sim_avg_grad is None else round(sim_avg_grad, 8),
+                }
+            )
+            dissim_points.append(
+                {
+                    "epoch": ep,
+                    "forgot_count": dissim_count,
+                    "forgot_pct": round(dissim_pct, 4),
+                    "avg_grad": None if dissim_avg_grad is None else round(dissim_avg_grad, 8),
+                }
+            )
+            if ep > max_epoch_global:
+                max_epoch_global = ep
+
+        if not sim_points or not dissim_points:
+            pending_datasets.append(ds)
+            continue
+
+        ready_datasets.append(ds)
+        series.append(
+            {
+                "dataset": ds,
+                "dataset_label": dataset_title(ds),
+                "color": str(palette.get(ds, "")),
+                "negative_total": n_neg,
+                "sim_pool_size": len(sim_set),
+                "dissim_pool_size": len(dissim_set),
+                "sim": sim_points,
+                "dissim": dissim_points,
+            }
+        )
+
+    if not series:
+        ready_text = ", ".join(dataset_title(ds) for ds in ready_datasets) if ready_datasets else "none"
+        pending_text = ", ".join(dataset_title(ds) for ds in pending_datasets) if pending_datasets else "none"
+        status = (
+            f"Rendered datasets: {ready_text}\n"
+            f"Pending datasets: {pending_text}\n"
+            "Max epoch observed: 0"
+        )
+        return None, ready_datasets, pending_datasets, status
+
+    ordered = order_datasets_for_paper(settings, [s["dataset"] for s in series])
+    idx = {ds: i for i, ds in enumerate(ordered)}
+    series.sort(key=lambda s: idx.get(s.get("dataset", ""), 999))
+
+    ready_text = ", ".join(dataset_title(ds) for ds in ordered) if ordered else "none"
+    pending_text = ", ".join(dataset_title(ds) for ds in pending_datasets) if pending_datasets else "none"
+
+    table = {
+        "title": "Table 1 Evolution",
+        "viz": "table1_evolution",
+        "caption": settings.get(
+            "table1_evolution_caption",
+            (
+                "Evolution of Table 1 over training epochs. Marker size encodes forgotten-question count "
+                "(#SIM/#DISSIM) while line height encodes forgotten-question percentage."
+            ),
+        ),
+        "dataset_order": ordered,
+        "target_epoch": target_epoch,
+        "max_epoch": max_epoch_global,
+        "series": series,
+    }
+    status = (
+        f"Rendered datasets: {ready_text}\n"
+        f"Pending datasets: {pending_text}\n"
+        f"Max epoch observed: {max_epoch_global}"
+    )
+    return table, ordered, pending_datasets, status
+
+
 def build_cnl_table2(settings, model_tag):
     datasets = settings.get("datasets", ["arc_c", "csqa", "medqa", "mmlu"])
     ready_datasets = []
@@ -908,6 +1070,18 @@ def collect_cnl(project):
                 f"Pending datasets: {t1_pending_text}\n"
                 f"Negative grad-dot totals: {neg_details}"
             ),
+        }
+    )
+
+    table1_evo, t1e_ready, t1e_pending, t1e_status = build_cnl_table1_evolution(
+        settings, jobs_table.get("rows", []), model_tag
+    )
+    if table1_evo:
+        tables.append(table1_evo)
+    texts.append(
+        {
+            "title": "Table 1 Evolution Status",
+            "content": t1e_status,
         }
     )
 
@@ -1586,6 +1760,97 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     .paper-sep td {{
       border-top: 1px solid #555;
     }}
+    .evo-wrap {{
+      background: #fff;
+      border: 1px solid #cfdceb;
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 10px 24px rgba(22, 47, 77, 0.08);
+    }}
+    .evo-caption {{
+      margin: 0 0 6px;
+      color: #1a3a54;
+      font-size: 13px;
+      line-height: 1.35;
+    }}
+    .evo-panels {{
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+    }}
+    .evo-panel {{
+      border: 1px solid #d5e0ec;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #fbfdff 0%, #f3f8fe 100%);
+      padding: 10px;
+    }}
+    .evo-panel h3 {{
+      margin: 0 0 8px;
+      color: #123650;
+      font-size: 15px;
+      letter-spacing: 0.2px;
+    }}
+    .evo-chart {{
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #d7e2ed;
+      border-radius: 10px;
+      background: #fff;
+    }}
+    .evo-legend {{
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+    }}
+    .evo-legend-item {{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #234a66;
+      font-size: 12px;
+      white-space: nowrap;
+    }}
+    .evo-chip {{
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid rgba(17, 37, 56, 0.2);
+    }}
+    .evo-line-sample {{
+      width: 26px;
+      border-top: 2px solid #243b53;
+      position: relative;
+      top: -1px;
+    }}
+    .evo-line-sample.dissim {{
+      border-top-style: dashed;
+    }}
+    .evo-marker-sample {{
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #243b53;
+    }}
+    .evo-marker-sample.square {{
+      border-radius: 2px;
+    }}
+    .evo-size-dot {{
+      display: inline-block;
+      border-radius: 999px;
+      background: rgba(35, 74, 102, 0.45);
+      border: 1px solid rgba(35, 74, 102, 0.55);
+      margin-right: 4px;
+      vertical-align: middle;
+    }}
+    .evo-meta {{
+      margin-top: 8px;
+      color: #3d5f79;
+      font-size: 12px;
+      line-height: 1.35;
+    }}
     @media (max-width: 800px) {{
       .wrap {{
         padding: 16px;
@@ -1610,6 +1875,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
       .appendix-grid {{
         grid-template-columns: 1fr;
+      }}
+      .evo-panel h3 {{
+        font-size: 14px;
       }}
     }}
   </style>
@@ -1869,6 +2137,349 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       return html;
     }}
 
+    function toFiniteNumber(value, fallback = null) {{
+      const num = Number(value);
+      return Number.isFinite(num) ? num : fallback;
+    }}
+
+    function buildLinearTicks(minValue, maxValue, steps = 6) {{
+      if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) {{
+        return [];
+      }}
+      if (steps <= 1 || minValue === maxValue) {{
+        return [minValue];
+      }}
+      const ticks = [];
+      for (let i = 0; i < steps; i += 1) {{
+        ticks.push(minValue + ((maxValue - minValue) * i) / (steps - 1));
+      }}
+      return ticks;
+    }}
+
+    function scaleLinear(value, domainMin, domainMax, rangeMin, rangeMax) {{
+      if (domainMax === domainMin) {{
+        return (rangeMin + rangeMax) / 2;
+      }}
+      const ratio = (value - domainMin) / (domainMax - domainMin);
+      return rangeMin + ratio * (rangeMax - rangeMin);
+    }}
+
+    function classLabel(classKey) {{
+      return classKey === "dissim" ? "DISSIM" : "SIM";
+    }}
+
+    function classDash(classKey) {{
+      return classKey === "dissim" ? "7 5" : "";
+    }}
+
+    function markerRadius(countValue, maxCount) {{
+      const count = Math.max(0, toFiniteNumber(countValue, 0));
+      const ref = Math.max(1, toFiniteNumber(maxCount, 1));
+      const minR = 2.8;
+      const maxR = 8.6;
+      return minR + (Math.sqrt(count) / Math.sqrt(ref)) * (maxR - minR);
+    }}
+
+    function collectEvolutionGroups(table) {{
+      const groups = [];
+      for (const entry of table.series || []) {{
+        const dataset = String(entry.dataset || "");
+        const datasetName = String(entry.dataset_label || datasetLabel(dataset));
+        const color = String(entry.color || "#2f6ea2");
+        for (const classKey of ["sim", "dissim"]) {{
+          const rawPoints = Array.isArray(entry[classKey]) ? entry[classKey] : [];
+          const points = rawPoints
+            .map((point) => ({{
+              epoch: toFiniteNumber(point.epoch, null),
+              forgot_count: toFiniteNumber(point.forgot_count, null),
+              forgot_pct: toFiniteNumber(point.forgot_pct, null),
+              avg_grad: toFiniteNumber(point.avg_grad, null),
+            }}))
+            .filter((point) => point.epoch !== null)
+            .sort((a, b) => a.epoch - b.epoch);
+          if (points.length > 0) {{
+            groups.push({{
+              dataset: dataset,
+              dataset_label: datasetName,
+              color: color,
+              class_key: classKey,
+              points: points,
+            }});
+          }}
+        }}
+      }}
+      return groups;
+    }}
+
+    function renderEvolutionPrimarySvg(groups, epochMax) {{
+      const rows = [];
+      for (const group of groups) {{
+        for (const point of group.points || []) {{
+          if (!Number.isFinite(point.forgot_pct) || !Number.isFinite(point.forgot_count)) {{
+            continue;
+          }}
+          rows.push({{
+            dataset_label: group.dataset_label,
+            color: group.color,
+            class_key: group.class_key,
+            epoch: point.epoch,
+            forgot_pct: point.forgot_pct,
+            forgot_count: point.forgot_count,
+          }});
+        }}
+      }}
+      if (rows.length === 0) {{
+        return '<p class="evo-meta">No forgotten-question points are available yet.</p>';
+      }}
+
+      const pctMax = Math.max(1, ...rows.map((row) => row.forgot_pct));
+      const countMax = Math.max(1, ...rows.map((row) => row.forgot_count));
+      const width = 980;
+      const height = 390;
+      const margin = {{ top: 16, right: 16, bottom: 42, left: 56 }};
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+      const mapX = (value) => scaleLinear(value, 0, pctMax, margin.left, margin.left + plotWidth);
+      const mapY = (value) => scaleLinear(value, 0, countMax, margin.top + plotHeight, margin.top);
+      const xTicks = buildLinearTicks(0, pctMax, 6);
+      const yTicks = buildLinearTicks(0, countMax, 6);
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Forgotten count vs forgotten percentage across epochs, grouped by dataset and SIM/DISSIM class">`;
+
+      for (const tick of yTicks) {{
+        const y = mapY(tick);
+        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e9f0f7" stroke-width="1"></line>`;
+        svg += `<text x="${{(margin.left - 7).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="end">${{tick.toFixed(0)}}</text>`;
+      }}
+      for (const tick of xTicks) {{
+        const x = mapX(tick);
+        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#edf3f9" stroke-width="1"></line>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="middle">${{tick.toFixed(1)}}%</text>`;
+      }}
+      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
+      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
+      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">% forgotten questions</text>`;
+      const yLabelAnchor = margin.top + (plotHeight / 2);
+      svg += `<text x="14" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 14 ${{yLabelAnchor.toFixed(2)}})"># forgotten questions</text>`;
+
+      for (const group of groups) {{
+        const points = (group.points || [])
+          .filter((point) => Number.isFinite(point.forgot_pct) && Number.isFinite(point.forgot_count))
+          .sort((a, b) => a.epoch - b.epoch);
+        if (points.length === 0) {{
+          continue;
+        }}
+        const dash = classDash(group.class_key);
+        const dashAttr = dash ? ` stroke-dasharray="${{dash}}"` : "";
+        const path = points
+          .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(point.forgot_pct).toFixed(2)}} ${{mapY(point.forgot_count).toFixed(2)}}`)
+          .join(" ");
+        svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="2"${{dashAttr}} stroke-linecap="round" opacity="0.92"></path>`;
+
+        const endEpoch = points[points.length - 1].epoch;
+        for (const point of points) {{
+          const x = mapX(point.forgot_pct);
+          const y = mapY(point.forgot_count);
+          const r = markerRadius(point.forgot_count, countMax);
+          const fade = 0.3 + 0.7 * (Math.max(1, point.epoch) / Math.max(1, epochMax));
+          const tooltip = `${{group.dataset_label}} ${{classLabel(group.class_key)}} | epoch ${{point.epoch}} | forgotten ${{point.forgot_count}} (${{point.forgot_pct.toFixed(2)}}%)`;
+          if (group.class_key === "dissim") {{
+            svg += `<rect x="${{(x - r).toFixed(2)}}" y="${{(y - r).toFixed(2)}}" width="${{(2 * r).toFixed(2)}}" height="${{(2 * r).toFixed(2)}}" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></rect>`;
+            if (point.epoch === endEpoch) {{
+              svg += `<rect x="${{(x - r - 1.4).toFixed(2)}}" y="${{(y - r - 1.4).toFixed(2)}}" width="${{(2 * r + 2.8).toFixed(2)}}" height="${{(2 * r + 2.8).toFixed(2)}}" fill="none" stroke="#0f1f2f" stroke-width="1.1"></rect>`;
+            }}
+          }} else {{
+            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{r.toFixed(2)}}" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></circle>`;
+            if (point.epoch === endEpoch) {{
+              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{(r + 1.4).toFixed(2)}}" fill="none" stroke="#0f1f2f" stroke-width="1.1"></circle>`;
+            }}
+          }}
+        }}
+      }}
+
+      svg += `</svg>`;
+      return svg;
+    }}
+
+    function renderEvolutionGradSvg(groups, epochMax) {{
+      const rows = [];
+      for (const group of groups) {{
+        for (const point of group.points || []) {{
+          if (!Number.isFinite(point.avg_grad)) {{
+            continue;
+          }}
+          rows.push({{
+            dataset_label: group.dataset_label,
+            color: group.color,
+            class_key: group.class_key,
+            epoch: point.epoch,
+            avg_grad: point.avg_grad,
+          }});
+        }}
+      }}
+      if (rows.length === 0) {{
+        return '<p class="evo-meta">No average-gradient points are available yet.</p>';
+      }}
+
+      let gradMin = Math.min(...rows.map((row) => row.avg_grad));
+      let gradMax = Math.max(...rows.map((row) => row.avg_grad));
+      if (gradMin === gradMax) {{
+        const pad = Math.max(Math.abs(gradMin) * 0.15, 0.0001);
+        gradMin -= pad;
+        gradMax += pad;
+      }} else {{
+        const pad = (gradMax - gradMin) * 0.08;
+        gradMin -= pad;
+        gradMax += pad;
+      }}
+
+      const epochCeil = Math.max(1, Math.round(Math.max(epochMax, ...rows.map((row) => row.epoch))));
+      const width = 980;
+      const height = 390;
+      const margin = {{ top: 16, right: 16, bottom: 42, left: 62 }};
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+      const mapX = (value) => scaleLinear(value, 1, epochCeil, margin.left, margin.left + plotWidth);
+      const mapY = (value) => scaleLinear(value, gradMin, gradMax, margin.top + plotHeight, margin.top);
+      const xTicksRaw = buildLinearTicks(1, epochCeil, Math.min(8, Math.max(4, epochCeil)));
+      const xTicks = Array.from(new Set(xTicksRaw.map((tick) => Math.round(tick))))
+        .filter((tick) => tick >= 1 && tick <= epochCeil)
+        .sort((a, b) => a - b);
+      if (!xTicks.includes(1)) xTicks.unshift(1);
+      if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
+      const yTicks = buildLinearTicks(gradMin, gradMax, 6);
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Average gradient similarity over epochs for SIM and DISSIM classes">`;
+      for (const tick of yTicks) {{
+        const y = mapY(tick);
+        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e9f0f7" stroke-width="1"></line>`;
+        svg += `<text x="${{(margin.left - 8).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="end">${{tick.toFixed(3)}}</text>`;
+      }}
+      for (const tick of xTicks) {{
+        const x = mapX(tick);
+        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#edf3f9" stroke-width="1"></line>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="middle">${{tick}}</text>`;
+      }}
+      if (gradMin < 0 && gradMax > 0) {{
+        const zeroY = mapY(0);
+        svg += `<line x1="${{margin.left}}" y1="${{zeroY.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{zeroY.toFixed(2)}}" stroke="#9db1c3" stroke-width="1.1" stroke-dasharray="4 4"></line>`;
+      }}
+      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
+      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
+      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">training epoch</text>`;
+      const yLabelAnchor = margin.top + (plotHeight / 2);
+      svg += `<text x="15" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${{yLabelAnchor.toFixed(2)}})">avg gradient similarity</text>`;
+
+      for (const group of groups) {{
+        const points = (group.points || [])
+          .filter((point) => Number.isFinite(point.avg_grad))
+          .sort((a, b) => a.epoch - b.epoch);
+        if (points.length === 0) {{
+          continue;
+        }}
+        const dash = classDash(group.class_key);
+        const dashAttr = dash ? ` stroke-dasharray="${{dash}}"` : "";
+        const path = points
+          .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(point.epoch).toFixed(2)}} ${{mapY(point.avg_grad).toFixed(2)}}`)
+          .join(" ");
+        svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="2"${{dashAttr}} stroke-linecap="round" opacity="0.92"></path>`;
+
+        for (const point of points) {{
+          const x = mapX(point.epoch);
+          const y = mapY(point.avg_grad);
+          const tooltip = `${{group.dataset_label}} ${{classLabel(group.class_key)}} | epoch ${{point.epoch}} | avg grad ${{point.avg_grad.toFixed(6)}}`;
+          if (group.class_key === "dissim") {{
+            svg += `<rect x="${{(x - 3.2).toFixed(2)}}" y="${{(y - 3.2).toFixed(2)}}" width="6.4" height="6.4" fill="${{esc(group.color)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></rect>`;
+          }} else {{
+            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="3.2" fill="${{esc(group.color)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></circle>`;
+          }}
+        }}
+      }}
+      svg += `</svg>`;
+      return svg;
+    }}
+
+    function renderTable1Evolution(table) {{
+      const groups = collectEvolutionGroups(table);
+      if (groups.length === 0) {{
+        return `<div class="section evo-wrap"><h2>${{esc(table.title || "Table 1 Evolution")}}</h2><p class="evo-caption">No epoch-wise data available yet.</p></div>`;
+      }}
+      const epochMax = Math.max(
+        1,
+        toFiniteNumber(table.max_epoch, 1),
+        ...groups.flatMap((group) => (group.points || []).map((point) => toFiniteNumber(point.epoch, 0))),
+      );
+
+      const byDataset = new Map();
+      for (const group of groups) {{
+        if (!byDataset.has(group.dataset)) {{
+          byDataset.set(group.dataset, {{
+            dataset: group.dataset,
+            label: group.dataset_label,
+            color: group.color,
+          }});
+        }}
+      }}
+      const orderedDatasets = (table.dataset_order || []).length > 0 ? (table.dataset_order || []) : Array.from(byDataset.keys());
+      const datasetLegend = [];
+      for (const ds of orderedDatasets) {{
+        const item = byDataset.get(ds);
+        if (item) datasetLegend.push(item);
+      }}
+      for (const [ds, item] of byDataset.entries()) {{
+        if (!orderedDatasets.includes(ds)) datasetLegend.push(item);
+      }}
+
+      const forgotCounts = groups.flatMap((group) =>
+        (group.points || []).map((point) => toFiniteNumber(point.forgot_count, null)).filter((value) => value !== null),
+      );
+      const countMax = Math.max(1, ...forgotCounts);
+      const sampleCounts = Array.from(
+        new Set([Math.max(1, Math.round(countMax * 0.25)), Math.max(1, Math.round(countMax * 0.6)), countMax]),
+      ).sort((a, b) => a - b);
+
+      const datasetLegendHtml = datasetLegend
+        .map(
+          (item) =>
+            `<span class="evo-legend-item"><span class="evo-chip" style="background:${{esc(item.color)}}"></span>${{esc(item.label)}}</span>`,
+        )
+        .join("");
+      const classLegendHtml = `
+        <span class="evo-legend-item"><span class="evo-line-sample"></span><span class="evo-marker-sample"></span>SIM (solid + circle)</span>
+        <span class="evo-legend-item"><span class="evo-line-sample dissim"></span><span class="evo-marker-sample square"></span>DISSIM (dashed + square)</span>
+      `;
+      const sizeLegendHtml = sampleCounts
+        .map((count) => {{
+          const diameter = 2 * markerRadius(count, countMax);
+          return `<span class="evo-legend-item"><span class="evo-size-dot" style="width:${{diameter.toFixed(1)}}px;height:${{diameter.toFixed(1)}}px"></span>${{esc(String(count))}}</span>`;
+        }})
+        .join("");
+
+      const targetEpoch = toFiniteNumber(table.target_epoch, null);
+      const metaParts = [
+        `${{datasetLegend.length}} dataset(s)`,
+        `max epoch seen: ${{Math.round(epochMax)}}`,
+      ];
+      if (targetEpoch !== null) {{
+        metaParts.push(`target epoch: ${{Math.round(targetEpoch)}}`);
+      }}
+
+      let html = `<div class="section evo-wrap"><h2>${{esc(table.title || "Table 1 Evolution")}}</h2>`;
+      if (table.caption) {{
+        html += `<p class="evo-caption">${{esc(table.caption)}}</p>`;
+      }}
+      html += `<div class="evo-panels">`;
+      html += `<section class="evo-panel"><h3>Forgetting Dynamics: #Questions vs %Forgotten</h3>${{renderEvolutionPrimarySvg(groups, epochMax)}}</section>`;
+      html += `<section class="evo-panel"><h3>Average Gradient Similarity Over Epochs</h3>${{renderEvolutionGradSvg(groups, epochMax)}}</section>`;
+      html += `</div>`;
+      html += `<div class="evo-legend">${{datasetLegendHtml}}</div>`;
+      html += `<div class="evo-legend">${{classLegendHtml}}</div>`;
+      html += `<div class="evo-legend"><span class="evo-legend-item"><strong>Marker size = # forgotten</strong></span>${{sizeLegendHtml}}</div>`;
+      html += `<p class="evo-meta">${{esc(metaParts.join(" | "))}}</p>`;
+      html += `</div>`;
+      return html;
+    }}
+
     function renderPaperTable(table) {{
       if (table.paper_table === "table1") {{
         return renderPaperTable1(table);
@@ -2045,7 +2656,14 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
 
       const tables = project.tables || [];
-      document.getElementById("tables").innerHTML = tables.map((t) => (t.paper_table ? renderPaperTable(t) : renderTable(t))).join("");
+      document.getElementById("tables").innerHTML = tables
+        .map((table) => {{
+          if (table.viz === "table1_evolution") {{
+            return renderTable1Evolution(table);
+          }}
+          return table.paper_table ? renderPaperTable(table) : renderTable(table);
+        }})
+        .join("");
 
       document.getElementById("texts").innerHTML = texts
         .filter((block) => (block.title || "") !== "Paper Comparison Appendix (Simple)")
