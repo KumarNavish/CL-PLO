@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-13T13:21:15.972850+00:00",
+  "generated_at_utc": "2026-02-13T13:22:19.813007+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -10,7 +10,7 @@
       "collector": "cnl",
       "status": "ok",
       "error": "",
-      "collected_at_utc": "2026-02-13T13:21:14.935512+00:00",
+      "collected_at_utc": "2026-02-13T13:22:18.860978+00:00",
       "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [
@@ -24,7 +24,7 @@
         },
         {
           "label": "Collected At (UTC)",
-          "value": "2026-02-13T13:21:14.935512+00:00"
+          "value": "2026-02-13T13:22:18.860978+00:00"
         },
         {
           "label": "Model Tag",
@@ -506,7 +506,7 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "50 %"
+              "utilization": "24 %"
             },
             {
               "gpu": "4",
@@ -527,14 +527,14 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "34 %"
+              "utilization": "21 %"
             },
             {
               "gpu": "7",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "50 %"
+              "utilization": "21 %"
             }
           ]
         },
@@ -685,7 +685,7 @@
         },
         {
           "title": "Runner Process",
-          "content": "1940277 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+          "content": "1940683 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
         },
         {
           "title": "Training Processes",
