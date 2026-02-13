@@ -2260,19 +2260,24 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
     function renderEvolutionPrimarySvg(groups, epochMax) {{
       const rows = [];
+      const epochSet = new Set();
       for (const group of groups) {{
         const sorted = (group.points || []).slice().sort((a, b) => a.epoch - b.epoch);
-        for (let idx = 0; idx < sorted.length; idx += 1) {{
-          const point = sorted[idx];
+        for (const point of sorted) {{
           if (!Number.isFinite(point.forgot_pct)) {{
             continue;
           }}
+          const epochInt = Math.round(toFiniteNumber(point.epoch, 0));
+          if (!Number.isFinite(epochInt) || epochInt <= 0) {{
+            continue;
+          }}
+          epochSet.add(epochInt);
           rows.push({{
             dataset_label: group.dataset_label,
             color: group.color,
             class_key: group.class_key,
-            point_idx: idx + 1,
-            epoch: point.epoch,
+            point_idx: 0,
+            epoch: epochInt,
             forgot_pct: point.forgot_pct,
             forgot_count: point.forgot_count,
           }});
@@ -2282,9 +2287,18 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         return '<p class="evo-meta">No forgotten-question points are available yet.</p>';
       }}
 
+      const orderedEpochs = Array.from(epochSet).sort((a, b) => a - b);
+      const epochToPoint = new Map();
+      for (let i = 0; i < orderedEpochs.length; i += 1) {{
+        epochToPoint.set(orderedEpochs[i], i + 1);
+      }}
+      for (const row of rows) {{
+        row.point_idx = epochToPoint.get(row.epoch) || 0;
+      }}
+
       const pctMaxRaw = Math.max(1, ...rows.map((row) => row.forgot_pct));
       const pctMax = Math.max(5, Math.ceil(pctMaxRaw / 5) * 5);
-      const pointMax = Math.max(1, ...rows.map((row) => row.point_idx));
+      const pointMax = Math.max(1, orderedEpochs.length);
       const width = 980;
       const height = 390;
       const margin = {{ top: 16, right: 16, bottom: 42, left: 56 }};
@@ -2319,21 +2333,32 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       svg += `<text x="14" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 14 ${{yLabelAnchor.toFixed(2)}})">forgotten questions (%)</text>`;
 
       for (const group of groups) {{
-        const points = (group.points || []).filter((point) => Number.isFinite(point.forgot_pct)).sort((a, b) => a.epoch - b.epoch);
+        const points = (group.points || [])
+          .filter((point) => Number.isFinite(point.forgot_pct) && Number.isFinite(point.epoch))
+          .map((point) => {{
+            const epochInt = Math.round(toFiniteNumber(point.epoch, 0));
+            return {{
+              epoch: epochInt,
+              point_idx: epochToPoint.get(epochInt) || 0,
+              forgot_pct: point.forgot_pct,
+              forgot_count: point.forgot_count,
+            }};
+          }})
+          .filter((point) => point.point_idx > 0)
+          .sort((a, b) => a.point_idx - b.point_idx);
         if (points.length === 0) {{
           continue;
         }}
         const dash = classDash(group.class_key);
         const dashAttr = dash ? ` stroke-dasharray="${{dash}}"` : "";
         const path = points
-          .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(idx + 1).toFixed(2)}} ${{mapY(point.forgot_pct).toFixed(2)}}`)
+          .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(point.point_idx).toFixed(2)}} ${{mapY(point.forgot_pct).toFixed(2)}}`)
           .join(" ");
         svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="2.1"${{dashAttr}} stroke-linecap="round" opacity="0.96"></path>`;
 
-        const endPointIdx = points.length;
-        for (let idx = 0; idx < points.length; idx += 1) {{
-          const point = points[idx];
-          const pointIdx = idx + 1;
+        const endPointIdx = points[points.length - 1].point_idx;
+        for (const point of points) {{
+          const pointIdx = point.point_idx;
           const x = mapX(pointIdx);
           const y = mapY(point.forgot_pct);
           const fade = 0.45 + 0.55 * (Math.max(1, pointIdx) / Math.max(1, pointMax));
@@ -2551,6 +2576,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         `${{datasetLegend.length}} dataset(s)`,
         `max epoch seen: ${{Math.round(epochMax)}}`,
         "x-axis: point index",
+        "left-to-right: increasing training iteration",
         "y-axis: forgotten questions (%)",
       ];
       if (targetEpoch !== null) {{
