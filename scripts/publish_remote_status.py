@@ -1838,21 +1838,22 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     }}
     .evo-panels {{
       display: grid;
-      gap: 12px;
-      grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+      gap: 18px;
+      grid-template-columns: 1fr;
     }}
     .evo-panel {{
       border: 1px solid #d0deec;
       border-radius: 12px;
       background: linear-gradient(160deg, #ffffff 0%, #f4f9ff 100%);
-      padding: 12px;
+      padding: 16px;
     }}
     .evo-panel h3 {{
-      margin: 0 0 10px;
-      color: #123650;
-      font-size: 15.5px;
-      letter-spacing: 0.18px;
+      margin: 0 0 12px;
+      color: #0f334d;
+      font-size: 22px;
+      letter-spacing: 0.15px;
       font-weight: 700;
+      line-height: 1.2;
     }}
     .evo-chart {{
       width: 100%;
@@ -1863,10 +1864,10 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       background: #ffffff;
     }}
     .evo-legend {{
-      margin-top: 10px;
+      margin-top: 14px;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px 12px;
+      gap: 10px 16px;
       align-items: center;
       justify-content: center;
     }}
@@ -1875,9 +1876,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       align-items: center;
       gap: 6px;
       color: #234a66;
-      font-size: 11.8px;
+      font-size: 15px;
       white-space: nowrap;
-      letter-spacing: 0.15px;
+      letter-spacing: 0.1px;
     }}
     .evo-chip {{
       width: 12px;
@@ -1886,8 +1887,8 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       border: 1px solid rgba(17, 37, 56, 0.2);
     }}
     .evo-line-sample {{
-      width: 26px;
-      border-top: 2px solid #243b53;
+      width: 34px;
+      border-top: 3px solid #243b53;
       position: relative;
       top: -1px;
     }}
@@ -1895,8 +1896,8 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       border-top-style: dashed;
     }}
     .evo-marker-sample {{
-      width: 9px;
-      height: 9px;
+      width: 12px;
+      height: 12px;
       border-radius: 999px;
       background: #243b53;
     }}
@@ -1906,8 +1907,8 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     .evo-meta {{
       margin-top: 10px;
       color: #3d5f79;
-      font-size: 11.8px;
-      line-height: 1.35;
+      font-size: 14px;
+      line-height: 1.45;
       text-align: center;
     }}
     .evo-grad-deck {{
@@ -1920,7 +1921,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     .evo-grad-note {{
       margin: 0;
       color: #2f526d;
-      font-size: 12px;
+      font-size: 16px;
       line-height: 1.45;
       text-align: center;
     }}
@@ -1950,6 +1951,12 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         grid-template-columns: 1fr;
       }}
       .evo-panel h3 {{
+        font-size: 18px;
+      }}
+      .evo-legend-item {{
+        font-size: 13px;
+      }}
+      .evo-grad-note {{
         font-size: 14px;
       }}
     }}
@@ -2324,9 +2331,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       const pctMaxRaw = Math.max(1, ...rows.map((row) => row.forgot_pct));
       const pctMax = Math.max(5, Math.ceil(pctMaxRaw / 5) * 5);
       const pointMax = Math.max(1, orderedEpochs.length);
-      const width = 980;
-      const height = 390;
-      const margin = {{ top: 16, right: 16, bottom: 42, left: 56 }};
+      const width = 1280;
+      const height = 560;
+      const margin = {{ top: 26, right: 28, bottom: 78, left: 96 }};
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
       const mapX = (value) => scaleLinear(value, 1, pointMax, margin.left, margin.left + plotWidth);
@@ -2343,19 +2350,19 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
       for (const tick of yTicks) {{
         const y = mapY(tick);
-        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e9f0f7" stroke-width="1"></line>`;
-        svg += `<text x="${{(margin.left - 7).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="end">${{tick.toFixed(1)}}%</text>`;
+        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e2ebf4" stroke-width="1.2"></line>`;
+        svg += `<text x="${{(margin.left - 10).toFixed(2)}}" y="${{(y + 4.6).toFixed(2)}}" font-size="15" fill="#4e677d" text-anchor="end">${{tick.toFixed(1)}}%</text>`;
       }}
       for (const tick of xTicks) {{
         const x = mapX(tick);
-        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#edf3f9" stroke-width="1"></line>`;
-        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="middle">${{tick}}</text>`;
+        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#eef4fa" stroke-width="1.1"></line>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 28).toFixed(2)}}" font-size="15" fill="#4e677d" text-anchor="middle">${{tick}}</text>`;
       }}
-      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
-      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
-      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">point index</text>`;
+      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 8).toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle">point index</text>`;
       const yLabelAnchor = margin.top + (plotHeight / 2);
-      svg += `<text x="14" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 14 ${{yLabelAnchor.toFixed(2)}})">forgotten questions (%)</text>`;
+      svg += `<text x="24" y="${{yLabelAnchor.toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${{yLabelAnchor.toFixed(2)}})">forgotten questions (%)</text>`;
 
       for (const group of groups) {{
         const points = (group.points || [])
@@ -2379,7 +2386,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         const path = points
           .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(point.point_idx).toFixed(2)}} ${{mapY(point.forgot_pct).toFixed(2)}}`)
           .join(" ");
-        svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="2.1"${{dashAttr}} stroke-linecap="round" opacity="0.96"></path>`;
+        svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="3.4"${{dashAttr}} stroke-linecap="round" opacity="0.97"></path>`;
 
         const endPointIdx = points[points.length - 1].point_idx;
         for (const point of points) {{
@@ -2389,14 +2396,14 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
           const fade = 0.45 + 0.55 * (Math.max(1, pointIdx) / Math.max(1, pointMax));
           const tooltip = `${{group.dataset_label}} ${{classLabel(group.class_key)}} | point ${{pointIdx}} | epoch ${{point.epoch}} | forgotten ${{point.forgot_count}} (${{point.forgot_pct.toFixed(2)}}%)`;
           if (group.class_key === "dissim") {{
-            svg += `<rect x="${{(x - 3.1).toFixed(2)}}" y="${{(y - 3.1).toFixed(2)}}" width="6.2" height="6.2" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></rect>`;
+            svg += `<rect x="${{(x - 5.0).toFixed(2)}}" y="${{(y - 5.0).toFixed(2)}}" width="10.0" height="10.0" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="1.1"><title>${{esc(tooltip)}}</title></rect>`;
             if (pointIdx === endPointIdx) {{
-              svg += `<rect x="${{(x - 4.7).toFixed(2)}}" y="${{(y - 4.7).toFixed(2)}}" width="9.4" height="9.4" fill="none" stroke="#10212f" stroke-width="1.1"></rect>`;
+              svg += `<rect x="${{(x - 7.0).toFixed(2)}}" y="${{(y - 7.0).toFixed(2)}}" width="14.0" height="14.0" fill="none" stroke="#10212f" stroke-width="1.2"></rect>`;
             }}
           }} else {{
-            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="3.1" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></circle>`;
+            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="5.0" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="1.1"><title>${{esc(tooltip)}}</title></circle>`;
             if (pointIdx === endPointIdx) {{
-              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="4.8" fill="none" stroke="#10212f" stroke-width="1.1"></circle>`;
+              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="7.2" fill="none" stroke="#10212f" stroke-width="1.2"></circle>`;
             }}
           }}
         }}
@@ -2515,9 +2522,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         ...dissimNewSeries.map((point) => point.count_total || 0),
       );
 
-      const width = 980;
-      const height = 390;
-      const margin = {{ top: 16, right: 18, bottom: 42, left: 62 }};
+      const width = 1280;
+      const height = 560;
+      const margin = {{ top: 26, right: 28, bottom: 78, left: 96 }};
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
       const mapX = (value) => scaleLinear(value, 1, epochCeil, margin.left, margin.left + plotWidth);
@@ -2555,48 +2562,22 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         return path.trim();
       }}
 
-      function splitContiguousSegments(series) {{
-        if (!series || series.length === 0) {{
-          return [];
-        }}
-        const segments = [];
-        let current = [];
-        for (let i = 0; i < series.length; i += 1) {{
-          const point = series[i];
-          if (current.length === 0) {{
-            current.push(point);
-            continue;
-          }}
-          const prev = current[current.length - 1];
-          if ((point.epoch - prev.epoch) > 1) {{
-            segments.push(current);
-            current = [point];
-          }} else {{
-            current.push(point);
-          }}
-        }}
-        if (current.length > 0) {{
-          segments.push(current);
-        }}
-        return segments;
-      }}
-
       let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Epoch-wise gradient rank evolution for newly forgotten and cumulative forgotten questions">`;
       for (const tick of yTicks) {{
         const y = mapY(tick);
-        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e7eef6" stroke-width="1"></line>`;
-        svg += `<text x="${{(margin.left - 8).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#5c7488" text-anchor="end">${{tick}}</text>`;
+        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e4edf6" stroke-width="1.2"></line>`;
+        svg += `<text x="${{(margin.left - 10).toFixed(2)}}" y="${{(y + 4.6).toFixed(2)}}" font-size="15" fill="#4e677d" text-anchor="end">${{tick}}</text>`;
       }}
       for (const tick of xTicks) {{
         const x = mapX(tick);
-        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#f0f5fb" stroke-width="1"></line>`;
-        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#5c7488" text-anchor="middle">${{tick}}</text>`;
+        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#eef4fa" stroke-width="1.1"></line>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 28).toFixed(2)}}" font-size="15" fill="#4e677d" text-anchor="middle">${{tick}}</text>`;
       }}
-      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#6a8399" stroke-width="1.25"></line>`;
-      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#6a8399" stroke-width="1.25"></line>`;
-      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">training epoch</text>`;
+      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 8).toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle">training epoch</text>`;
       const yLabelAnchor = margin.top + (plotHeight / 2);
-      svg += `<text x="15" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${{yLabelAnchor.toFixed(2)}})">gradient-magnitude percentile (0-100)</text>`;
+      svg += `<text x="24" y="${{yLabelAnchor.toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${{yLabelAnchor.toFixed(2)}})">gradient-magnitude percentile (0-100)</text>`;
 
       const drawSpecs = [
         {{ class_key: "sim", kind: "new", series: simNewSeries }},
@@ -2605,33 +2586,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         {{ class_key: "dissim", kind: "cum", series: dissimCumSeries }},
       ];
 
-      for (const spec of drawSpecs) {{
-        if (spec.kind !== "new" || !spec.series || spec.series.length === 0) {{
-          continue;
-        }}
-        const tone = classes[spec.class_key];
-        const segments = splitContiguousSegments(spec.series);
-        for (const seg of segments) {{
-          if (!seg || seg.length < 2) {{
-            continue;
-          }}
-          let d = "";
-          for (let i = 0; i < seg.length; i += 1) {{
-            const point = seg[i];
-            const x = mapX(point.epoch);
-            const y = mapY(point.q75);
-            d += `${{i === 0 ? "M" : "L"}} ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
-          }}
-          for (let i = seg.length - 1; i >= 0; i -= 1) {{
-            const point = seg[i];
-            const x = mapX(point.epoch);
-            const y = mapY(point.q25);
-            d += `L ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
-          }}
-          d += "Z";
-          svg += `<path d="${{d}}" fill="${{tone.color}}" fill-opacity="0.11" stroke="none"></path>`;
-        }}
-      }}
+      const iqrOffset = {{ sim: -3.2, dissim: 3.2 }};
 
       for (const spec of drawSpecs) {{
         if (!spec.series || spec.series.length === 0) {{
@@ -2640,8 +2595,8 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         const tone = classes[spec.class_key];
         const dash = spec.kind === "cum" ? "6 5" : "";
         const dashAttr = dash ? ` stroke-dasharray="${{dash}}"` : "";
-        const opacity = spec.kind === "cum" ? 0.58 : 0.98;
-        const strokeWidth = spec.kind === "cum" ? 1.9 : 2.5;
+        const opacity = spec.kind === "cum" ? 0.56 : 1.0;
+        const strokeWidth = spec.kind === "cum" ? 2.6 : 3.6;
         const path = pathFromSeries(spec.series, "mean");
         if (path) {{
           svg += `<path d="${{path}}" fill="none" stroke="${{tone.color}}" stroke-width="${{strokeWidth}}"${{dashAttr}} stroke-linecap="round" opacity="${{opacity}}"></path>`;
@@ -2652,6 +2607,14 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
             const y = mapY(point.mean);
             const r = markerRadius(point.count_total);
             const tip = `${{tone.label}} new-forgotten | epoch ${{point.epoch}} | mean percentile=${{point.mean.toFixed(2)}} | new count=${{Math.round(point.count_total)}}`;
+            if (Number.isFinite(point.q25) && Number.isFinite(point.q75) && Number(point.n || 0) >= 3) {{
+              const xw = x + (iqrOffset[spec.class_key] || 0);
+              const y1 = mapY(point.q25);
+              const y2 = mapY(point.q75);
+              svg += `<line x1="${{xw.toFixed(2)}}" y1="${{y1.toFixed(2)}}" x2="${{xw.toFixed(2)}}" y2="${{y2.toFixed(2)}}" stroke="${{tone.color}}" stroke-width="2.2" opacity="0.45"></line>`;
+              svg += `<line x1="${{(xw - 3.2).toFixed(2)}}" y1="${{y1.toFixed(2)}}" x2="${{(xw + 3.2).toFixed(2)}}" y2="${{y1.toFixed(2)}}" stroke="${{tone.color}}" stroke-width="1.5" opacity="0.45"></line>`;
+              svg += `<line x1="${{(xw - 3.2).toFixed(2)}}" y1="${{y2.toFixed(2)}}" x2="${{(xw + 3.2).toFixed(2)}}" y2="${{y2.toFixed(2)}}" stroke="${{tone.color}}" stroke-width="1.5" opacity="0.45"></line>`;
+            }}
             if (tone.marker === "square") {{
               svg += `<rect x="${{(x - r).toFixed(2)}}" y="${{(y - r).toFixed(2)}}" width="${{(2 * r).toFixed(2)}}" height="${{(2 * r).toFixed(2)}}" fill="${{tone.color}}" fill-opacity="0.92" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tip)}}</title></rect>`;
             }} else {{
@@ -2694,7 +2657,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${{classes.dissim.color}}"></span><span class="evo-marker-sample square" style="background:${{classes.dissim.color}}"></span>DISSIM newly forgotten rank</span>`;
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.sim.color}}"></span>SIM cumulative rank (context)</span>`;
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.dissim.color}}"></span>DISSIM cumulative rank (context)</span>`;
-      html += `<span class="evo-legend-item">Band = interquartile spread (q25-q75) across datasets | marker size = newly forgotten count</span>`;
+      html += `<span class="evo-legend-item">IQR whiskers shown when at least 3 datasets contribute | marker size = newly forgotten count</span>`;
       html += `</div>`;
       html += `<p class="evo-grad-note"><strong>Interpretation:</strong> 100 means forgetting is concentrated on the strongest gradient-magnitude items in that class; decreasing values indicate forgetting is spreading to weaker-gradient items over epochs.</p>`;
       html += `</div>`;
