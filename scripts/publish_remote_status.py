@@ -706,8 +706,8 @@ def build_cnl_table1_evolution(settings, jobs_rows, model_tag):
         "caption": settings.get(
             "table1_evolution_caption",
             (
-                "Evolution of Table 1 over training epochs. Marker size encodes forgotten-question count "
-                "(#SIM/#DISSIM) while line height encodes forgotten-question percentage."
+                "Evolution of Table 1 over training checkpoints. X-axis is checkpoint point index and "
+                "Y-axis is forgotten-question percentage; each dataset shows SIM and DISSIM curves."
             ),
         ),
         "dataset_order": ordered,
@@ -1799,11 +1799,12 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       background: #fff;
     }}
     .evo-legend {{
-      margin-top: 8px;
+      margin-top: 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px 12px;
       align-items: center;
+      justify-content: center;
     }}
     .evo-legend-item {{
       display: inline-flex;
@@ -1812,6 +1813,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       color: #234a66;
       font-size: 12px;
       white-space: nowrap;
+      letter-spacing: 0.15px;
     }}
     .evo-chip {{
       width: 12px;
@@ -1837,19 +1839,12 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     .evo-marker-sample.square {{
       border-radius: 2px;
     }}
-    .evo-size-dot {{
-      display: inline-block;
-      border-radius: 999px;
-      background: rgba(35, 74, 102, 0.45);
-      border: 1px solid rgba(35, 74, 102, 0.55);
-      margin-right: 4px;
-      vertical-align: middle;
-    }}
     .evo-meta {{
       margin-top: 8px;
       color: #3d5f79;
       font-size: 12px;
       line-height: 1.35;
+      text-align: center;
     }}
     @media (max-width: 800px) {{
       .wrap {{
@@ -2172,14 +2167,6 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       return classKey === "dissim" ? "7 5" : "";
     }}
 
-    function markerRadius(countValue, maxCount) {{
-      const count = Math.max(0, toFiniteNumber(countValue, 0));
-      const ref = Math.max(1, toFiniteNumber(maxCount, 1));
-      const minR = 2.8;
-      const maxR = 8.6;
-      return minR + (Math.sqrt(count) / Math.sqrt(ref)) * (maxR - minR);
-    }}
-
     function collectEvolutionGroups(table) {{
       const groups = [];
       for (const entry of table.series || []) {{
@@ -2214,14 +2201,17 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     function renderEvolutionPrimarySvg(groups, epochMax) {{
       const rows = [];
       for (const group of groups) {{
-        for (const point of group.points || []) {{
-          if (!Number.isFinite(point.forgot_pct) || !Number.isFinite(point.forgot_count)) {{
+        const sorted = (group.points || []).slice().sort((a, b) => a.epoch - b.epoch);
+        for (let idx = 0; idx < sorted.length; idx += 1) {{
+          const point = sorted[idx];
+          if (!Number.isFinite(point.forgot_pct)) {{
             continue;
           }}
           rows.push({{
             dataset_label: group.dataset_label,
             color: group.color,
             class_key: group.class_key,
+            point_idx: idx + 1,
             epoch: point.epoch,
             forgot_pct: point.forgot_pct,
             forgot_count: point.forgot_count,
@@ -2232,66 +2222,71 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         return '<p class="evo-meta">No forgotten-question points are available yet.</p>';
       }}
 
-      const pctMax = Math.max(1, ...rows.map((row) => row.forgot_pct));
-      const countMax = Math.max(1, ...rows.map((row) => row.forgot_count));
+      const pctMaxRaw = Math.max(1, ...rows.map((row) => row.forgot_pct));
+      const pctMax = Math.max(5, Math.ceil(pctMaxRaw / 5) * 5);
+      const pointMax = Math.max(1, ...rows.map((row) => row.point_idx));
       const width = 980;
       const height = 390;
       const margin = {{ top: 16, right: 16, bottom: 42, left: 56 }};
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
-      const mapX = (value) => scaleLinear(value, 0, pctMax, margin.left, margin.left + plotWidth);
-      const mapY = (value) => scaleLinear(value, 0, countMax, margin.top + plotHeight, margin.top);
-      const xTicks = buildLinearTicks(0, pctMax, 6);
-      const yTicks = buildLinearTicks(0, countMax, 6);
+      const mapX = (value) => scaleLinear(value, 1, pointMax, margin.left, margin.left + plotWidth);
+      const mapY = (value) => scaleLinear(value, 0, pctMax, margin.top + plotHeight, margin.top);
+      const xTicksRaw = buildLinearTicks(1, pointMax, Math.min(8, Math.max(4, pointMax)));
+      const xTicks = Array.from(new Set(xTicksRaw.map((tick) => Math.round(tick))))
+        .filter((tick) => tick >= 1 && tick <= pointMax)
+        .sort((a, b) => a - b);
+      if (!xTicks.includes(1)) xTicks.unshift(1);
+      if (!xTicks.includes(pointMax)) xTicks.push(pointMax);
+      const yTicks = buildLinearTicks(0, pctMax, 6);
 
-      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Forgotten count vs forgotten percentage across epochs, grouped by dataset and SIM/DISSIM class">`;
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Forgotten percentage versus checkpoint point index, grouped by dataset and SIM or DISSIM">`;
 
       for (const tick of yTicks) {{
         const y = mapY(tick);
         svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e9f0f7" stroke-width="1"></line>`;
-        svg += `<text x="${{(margin.left - 7).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="end">${{tick.toFixed(0)}}</text>`;
+        svg += `<text x="${{(margin.left - 7).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="end">${{tick.toFixed(1)}}%</text>`;
       }}
       for (const tick of xTicks) {{
         const x = mapX(tick);
         svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#edf3f9" stroke-width="1"></line>`;
-        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="middle">${{tick.toFixed(1)}}%</text>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="middle">${{tick}}</text>`;
       }}
       svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
       svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
-      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">% forgotten questions</text>`;
+      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">point index</text>`;
       const yLabelAnchor = margin.top + (plotHeight / 2);
-      svg += `<text x="14" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 14 ${{yLabelAnchor.toFixed(2)}})"># forgotten questions</text>`;
+      svg += `<text x="14" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 14 ${{yLabelAnchor.toFixed(2)}})">forgotten questions (%)</text>`;
 
       for (const group of groups) {{
-        const points = (group.points || [])
-          .filter((point) => Number.isFinite(point.forgot_pct) && Number.isFinite(point.forgot_count))
-          .sort((a, b) => a.epoch - b.epoch);
+        const points = (group.points || []).filter((point) => Number.isFinite(point.forgot_pct)).sort((a, b) => a.epoch - b.epoch);
         if (points.length === 0) {{
           continue;
         }}
         const dash = classDash(group.class_key);
         const dashAttr = dash ? ` stroke-dasharray="${{dash}}"` : "";
         const path = points
-          .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(point.forgot_pct).toFixed(2)}} ${{mapY(point.forgot_count).toFixed(2)}}`)
+          .map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(idx + 1).toFixed(2)}} ${{mapY(point.forgot_pct).toFixed(2)}}`)
           .join(" ");
-        svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="2"${{dashAttr}} stroke-linecap="round" opacity="0.92"></path>`;
+        svg += `<path d="${{path}}" fill="none" stroke="${{esc(group.color)}}" stroke-width="2.1"${{dashAttr}} stroke-linecap="round" opacity="0.96"></path>`;
 
-        const endEpoch = points[points.length - 1].epoch;
-        for (const point of points) {{
-          const x = mapX(point.forgot_pct);
-          const y = mapY(point.forgot_count);
-          const r = markerRadius(point.forgot_count, countMax);
-          const fade = 0.3 + 0.7 * (Math.max(1, point.epoch) / Math.max(1, epochMax));
-          const tooltip = `${{group.dataset_label}} ${{classLabel(group.class_key)}} | epoch ${{point.epoch}} | forgotten ${{point.forgot_count}} (${{point.forgot_pct.toFixed(2)}}%)`;
+        const endPointIdx = points.length;
+        for (let idx = 0; idx < points.length; idx += 1) {{
+          const point = points[idx];
+          const pointIdx = idx + 1;
+          const x = mapX(pointIdx);
+          const y = mapY(point.forgot_pct);
+          const fade = 0.45 + 0.55 * (Math.max(1, pointIdx) / Math.max(1, pointMax));
+          const tooltip = `${{group.dataset_label}} ${{classLabel(group.class_key)}} | point ${{pointIdx}} | epoch ${{point.epoch}} | forgotten ${{point.forgot_count}} (${{point.forgot_pct.toFixed(2)}}%)`;
           if (group.class_key === "dissim") {{
-            svg += `<rect x="${{(x - r).toFixed(2)}}" y="${{(y - r).toFixed(2)}}" width="${{(2 * r).toFixed(2)}}" height="${{(2 * r).toFixed(2)}}" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></rect>`;
-            if (point.epoch === endEpoch) {{
-              svg += `<rect x="${{(x - r - 1.4).toFixed(2)}}" y="${{(y - r - 1.4).toFixed(2)}}" width="${{(2 * r + 2.8).toFixed(2)}}" height="${{(2 * r + 2.8).toFixed(2)}}" fill="none" stroke="#0f1f2f" stroke-width="1.1"></rect>`;
+            svg += `<rect x="${{(x - 3.1).toFixed(2)}}" y="${{(y - 3.1).toFixed(2)}}" width="6.2" height="6.2" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></rect>`;
+            if (pointIdx === endPointIdx) {{
+              svg += `<rect x="${{(x - 4.7).toFixed(2)}}" y="${{(y - 4.7).toFixed(2)}}" width="9.4" height="9.4" fill="none" stroke="#10212f" stroke-width="1.1"></rect>`;
             }}
           }} else {{
-            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{r.toFixed(2)}}" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></circle>`;
-            if (point.epoch === endEpoch) {{
-              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{(r + 1.4).toFixed(2)}}" fill="none" stroke="#0f1f2f" stroke-width="1.1"></circle>`;
+            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="3.1" fill="${{esc(group.color)}}" fill-opacity="${{fade.toFixed(3)}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tooltip)}}</title></circle>`;
+            if (pointIdx === endPointIdx) {{
+              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="4.8" fill="none" stroke="#10212f" stroke-width="1.1"></circle>`;
             }}
           }}
         }}
@@ -2430,14 +2425,6 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         if (!orderedDatasets.includes(ds)) datasetLegend.push(item);
       }}
 
-      const forgotCounts = groups.flatMap((group) =>
-        (group.points || []).map((point) => toFiniteNumber(point.forgot_count, null)).filter((value) => value !== null),
-      );
-      const countMax = Math.max(1, ...forgotCounts);
-      const sampleCounts = Array.from(
-        new Set([Math.max(1, Math.round(countMax * 0.25)), Math.max(1, Math.round(countMax * 0.6)), countMax]),
-      ).sort((a, b) => a - b);
-
       const datasetLegendHtml = datasetLegend
         .map(
           (item) =>
@@ -2448,17 +2435,13 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         <span class="evo-legend-item"><span class="evo-line-sample"></span><span class="evo-marker-sample"></span>SIM (solid + circle)</span>
         <span class="evo-legend-item"><span class="evo-line-sample dissim"></span><span class="evo-marker-sample square"></span>DISSIM (dashed + square)</span>
       `;
-      const sizeLegendHtml = sampleCounts
-        .map((count) => {{
-          const diameter = 2 * markerRadius(count, countMax);
-          return `<span class="evo-legend-item"><span class="evo-size-dot" style="width:${{diameter.toFixed(1)}}px;height:${{diameter.toFixed(1)}}px"></span>${{esc(String(count))}}</span>`;
-        }})
-        .join("");
 
       const targetEpoch = toFiniteNumber(table.target_epoch, null);
       const metaParts = [
         `${{datasetLegend.length}} dataset(s)`,
         `max epoch seen: ${{Math.round(epochMax)}}`,
+        "x-axis: point index",
+        "y-axis: forgotten questions (%)",
       ];
       if (targetEpoch !== null) {{
         metaParts.push(`target epoch: ${{Math.round(targetEpoch)}}`);
@@ -2469,12 +2452,11 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         html += `<p class="evo-caption">${{esc(table.caption)}}</p>`;
       }}
       html += `<div class="evo-panels">`;
-      html += `<section class="evo-panel"><h3>Forgetting Dynamics: #Questions vs %Forgotten</h3>${{renderEvolutionPrimarySvg(groups, epochMax)}}</section>`;
+      html += `<section class="evo-panel"><h3>Forgetting Dynamics by Point Index</h3>${{renderEvolutionPrimarySvg(groups, epochMax)}}</section>`;
       html += `<section class="evo-panel"><h3>Average Gradient Similarity Over Epochs</h3>${{renderEvolutionGradSvg(groups, epochMax)}}</section>`;
       html += `</div>`;
       html += `<div class="evo-legend">${{datasetLegendHtml}}</div>`;
       html += `<div class="evo-legend">${{classLegendHtml}}</div>`;
-      html += `<div class="evo-legend"><span class="evo-legend-item"><strong>Marker size = # forgotten</strong></span>${{sizeLegendHtml}}</div>`;
       html += `<p class="evo-meta">${{esc(metaParts.join(" | "))}}</p>`;
       html += `</div>`;
       return html;

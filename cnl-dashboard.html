@@ -1006,14 +1006,6 @@
         if (!orderedDatasets.includes(ds)) datasetLegend.push(item);
       }
 
-      const forgotCounts = groups.flatMap((group) =>
-        (group.points || []).map((point) => toFiniteNumber(point.forgot_count, null)).filter((value) => value !== null),
-      );
-      const countMax = Math.max(1, ...forgotCounts);
-      const sampleCounts = Array.from(
-        new Set([Math.max(1, Math.round(countMax * 0.25)), Math.max(1, Math.round(countMax * 0.6)), countMax]),
-      ).sort((a, b) => a - b);
-
       const datasetLegendHtml = datasetLegend
         .map(
           (item) =>
@@ -1024,17 +1016,13 @@
         <span class="evo-legend-item"><span class="evo-line-sample"></span><span class="evo-marker-sample"></span>SIM (solid + circle)</span>
         <span class="evo-legend-item"><span class="evo-line-sample dissim"></span><span class="evo-marker-sample square"></span>DISSIM (dashed + square)</span>
       `;
-      const sizeLegendHtml = sampleCounts
-        .map((count) => {
-          const diameter = 2 * markerRadius(count, countMax);
-          return `<span class="evo-legend-item"><span class="evo-size-dot" style="width:${diameter.toFixed(1)}px;height:${diameter.toFixed(1)}px"></span>${esc(String(count))}</span>`;
-        })
-        .join("");
 
       const targetEpoch = toFiniteNumber(table.target_epoch, null);
       const metaParts = [
         `${datasetLegend.length} dataset(s)`,
         `max epoch seen: ${Math.round(epochMax)}`,
+        "x-axis: point index",
+        "y-axis: forgotten questions (%)",
       ];
       if (targetEpoch !== null) {
         metaParts.push(`target epoch: ${Math.round(targetEpoch)}`);
@@ -1045,12 +1033,11 @@
         html += `<p class="evo-caption">${esc(table.caption)}</p>`;
       }
       html += `<div class="evo-panels">`;
-      html += `<section class="evo-panel"><h3>Forgetting Dynamics: #Questions vs %Forgotten</h3>${renderEvolutionPrimarySvg(groups, epochMax)}</section>`;
+      html += `<section class="evo-panel"><h3>Forgetting Dynamics by Point Index</h3>${renderEvolutionPrimarySvg(groups, epochMax)}</section>`;
       html += `<section class="evo-panel"><h3>Average Gradient Similarity Over Epochs</h3>${renderEvolutionGradSvg(groups, epochMax)}</section>`;
       html += `</div>`;
       html += `<div class="evo-legend">${datasetLegendHtml}</div>`;
       html += `<div class="evo-legend">${classLegendHtml}</div>`;
-      html += `<div class="evo-legend"><span class="evo-legend-item"><strong>Marker size = # forgotten</strong></span>${sizeLegendHtml}</div>`;
       html += `<p class="evo-meta">${esc(metaParts.join(" | "))}</p>`;
       html += `</div>`;
       return html;
