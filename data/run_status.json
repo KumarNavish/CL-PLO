@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-13T18:01:20.975625+00:00",
+  "generated_at_utc": "2026-02-13T18:14:19.883106+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -16,7 +16,7 @@
       "cards": [
         {
           "label": "Collection Warning",
-          "value": "Live probe failed at 2026-02-13T18:01:20.973802+00:00. Showing last successful snapshot from 2026-02-13T17:48:22.236927+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+          "value": "Live probe failed at 2026-02-13T18:14:19.881146+00:00. Showing last successful snapshot from 2026-02-13T17:48:22.236927+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
         },
         {
           "label": "Remote Host",
@@ -3328,7 +3328,7 @@
       "texts": [
         {
           "title": "Collection Warning",
-          "content": "Live probe failed at 2026-02-13T18:01:20.973802+00:00.\nShowing cached data from 2026-02-13T17:48:22.236927+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+          "content": "Live probe failed at 2026-02-13T18:14:19.881146+00:00.\nShowing cached data from 2026-02-13T17:48:22.236927+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
         },
         {
           "title": "Table 1 Status",
@@ -3391,7 +3391,7 @@
       ],
       "ssh_endpoint": "kumar0002@131.152.56.23",
       "stale": true,
-      "stale_checked_at_utc": "2026-02-13T18:01:20.973802+00:00",
+      "stale_checked_at_utc": "2026-02-13T18:14:19.881146+00:00",
       "fallback_reason": "SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
     }
   ]

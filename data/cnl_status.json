@@ -8,7 +8,7 @@
   "cards": [
     {
       "label": "Collection Warning",
-      "value": "Live probe failed at 2026-02-13T18:01:20.973802+00:00. Showing last successful snapshot from 2026-02-13T17:48:22.236927+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+      "value": "Live probe failed at 2026-02-13T18:14:19.881146+00:00. Showing last successful snapshot from 2026-02-13T17:48:22.236927+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
     },
     {
       "label": "Remote Host",
@@ -3320,7 +3320,7 @@
   "texts": [
     {
       "title": "Collection Warning",
-      "content": "Live probe failed at 2026-02-13T18:01:20.973802+00:00.\nShowing cached data from 2026-02-13T17:48:22.236927+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+      "content": "Live probe failed at 2026-02-13T18:14:19.881146+00:00.\nShowing cached data from 2026-02-13T17:48:22.236927+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Operation not permitted\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
     },
     {
       "title": "Table 1 Status",

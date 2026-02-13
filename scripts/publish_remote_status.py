@@ -2332,7 +2332,14 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
     function renderEvolutionPrimarySvg(groups, epochMax) {{
       const rows = [];
       const epochSet = new Set();
+      const datasetLegend = [];
+      const datasetSeen = new Set();
       for (const group of groups) {{
+        const legendKey = `${{group.dataset_label}}||${{group.color}}`;
+        if (!datasetSeen.has(legendKey)) {{
+          datasetSeen.add(legendKey);
+          datasetLegend.push({{ label: group.dataset_label, color: group.color }});
+        }}
         const sorted = (group.points || []).slice().sort((a, b) => a.epoch - b.epoch);
         for (const point of sorted) {{
           if (!Number.isFinite(point.forgot_pct)) {{
@@ -2446,6 +2453,34 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
             }}
           }}
         }}
+      }}
+
+      const legendRows = 2 + datasetLegend.length;
+      const legendRowH = 19;
+      const legendPad = 10;
+      const legendW = 250;
+      const legendH = legendPad * 2 + legendRows * legendRowH;
+      const legendX = margin.left + plotWidth - legendW - 12;
+      const legendY = margin.top + 10;
+      svg += `<rect x="${{legendX.toFixed(2)}}" y="${{legendY.toFixed(2)}}" width="${{legendW.toFixed(2)}}" height="${{legendH.toFixed(2)}}" rx="8" ry="8" fill="rgba(255,255,255,0.92)" stroke="#c6d6e6" stroke-width="1.2"></rect>`;
+      svg += `<text x="${{(legendX + legendPad).toFixed(2)}}" y="${{(legendY + 14).toFixed(2)}}" font-size="12.8" fill="#21465f" font-weight="700">Legend</text>`;
+
+      const r0 = legendY + legendPad + 16;
+      const simY = r0;
+      svg += `<line x1="${{(legendX + legendPad).toFixed(2)}}" y1="${{simY.toFixed(2)}}" x2="${{(legendX + legendPad + 30).toFixed(2)}}" y2="${{simY.toFixed(2)}}" stroke="#243b53" stroke-width="2.4"></line>`;
+      svg += `<circle cx="${{(legendX + legendPad + 15).toFixed(2)}}" cy="${{simY.toFixed(2)}}" r="3.3" fill="#243b53"></circle>`;
+      svg += `<text x="${{(legendX + legendPad + 38).toFixed(2)}}" y="${{(simY + 4).toFixed(2)}}" font-size="12.6" fill="#2e516b">SIM (solid + circle)</text>`;
+
+      const dissimY = r0 + legendRowH;
+      svg += `<line x1="${{(legendX + legendPad).toFixed(2)}}" y1="${{dissimY.toFixed(2)}}" x2="${{(legendX + legendPad + 30).toFixed(2)}}" y2="${{dissimY.toFixed(2)}}" stroke="#243b53" stroke-width="2.4" stroke-dasharray="7 5"></line>`;
+      svg += `<rect x="${{(legendX + legendPad + 11.7).toFixed(2)}}" y="${{(dissimY - 3.3).toFixed(2)}}" width="6.6" height="6.6" fill="#243b53"></rect>`;
+      svg += `<text x="${{(legendX + legendPad + 38).toFixed(2)}}" y="${{(dissimY + 4).toFixed(2)}}" font-size="12.6" fill="#2e516b">DISSIM (dashed + square)</text>`;
+
+      for (let i = 0; i < datasetLegend.length; i += 1) {{
+        const rowY = r0 + (i + 2) * legendRowH;
+        const entry = datasetLegend[i];
+        svg += `<rect x="${{(legendX + legendPad).toFixed(2)}}" y="${{(rowY - 5.2).toFixed(2)}}" width="10.4" height="10.4" rx="2" ry="2" fill="${{esc(entry.color)}}" stroke="rgba(20,40,60,0.28)" stroke-width="0.8"></rect>`;
+        svg += `<text x="${{(legendX + legendPad + 16).toFixed(2)}}" y="${{(rowY + 4).toFixed(2)}}" font-size="12.6" fill="#2e516b">${{esc(entry.label)}}</text>`;
       }}
 
       svg += `</svg>`;
