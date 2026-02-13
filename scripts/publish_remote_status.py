@@ -2446,6 +2446,23 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
 
       function summarize(entriesMap, entryKey, countKey) {{
+        function quantile(sortedValues, q) {{
+          if (!sortedValues || sortedValues.length === 0) {{
+            return null;
+          }}
+          if (sortedValues.length === 1) {{
+            return sortedValues[0];
+          }}
+          const pos = (sortedValues.length - 1) * q;
+          const lo = Math.floor(pos);
+          const hi = Math.ceil(pos);
+          if (lo === hi) {{
+            return sortedValues[lo];
+          }}
+          const w = pos - lo;
+          return sortedValues[lo] * (1 - w) + sortedValues[hi] * w;
+        }}
+
         const epochs = Object.keys(entriesMap).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
         const out = [];
         for (const epoch of epochs) {{
@@ -2455,8 +2472,11 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
           if (values.length === 0) {{
             continue;
           }}
+          const sortedVals = values.slice().sort((a, b) => a - b);
           const minVal = Math.min(...values);
           const maxVal = Math.max(...values);
+          const q25 = quantile(sortedVals, 0.25);
+          const q75 = quantile(sortedVals, 0.75);
           let weightedSum = 0;
           let totalWeight = 0;
           for (const entry of entries) {{
@@ -2469,6 +2489,9 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
             mean: totalWeight > 0 ? (weightedSum / totalWeight) : (values.reduce((a, b) => a + b, 0) / values.length),
             min: minVal,
             max: maxVal,
+            q25: q25,
+            q75: q75,
+            n: values.length,
             count_total: toFiniteNumber(slot[countKey], 0),
           }});
         }}
@@ -2532,6 +2555,32 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         return path.trim();
       }}
 
+      function splitContiguousSegments(series) {{
+        if (!series || series.length === 0) {{
+          return [];
+        }}
+        const segments = [];
+        let current = [];
+        for (let i = 0; i < series.length; i += 1) {{
+          const point = series[i];
+          if (current.length === 0) {{
+            current.push(point);
+            continue;
+          }}
+          const prev = current[current.length - 1];
+          if ((point.epoch - prev.epoch) > 1) {{
+            segments.push(current);
+            current = [point];
+          }} else {{
+            current.push(point);
+          }}
+        }}
+        if (current.length > 0) {{
+          segments.push(current);
+        }}
+        return segments;
+      }}
+
       let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Epoch-wise gradient rank evolution for newly forgotten and cumulative forgotten questions">`;
       for (const tick of yTicks) {{
         const y = mapY(tick);
@@ -2561,10 +2610,26 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
           continue;
         }}
         const tone = classes[spec.class_key];
-        const upper = pathFromSeries(spec.series, "max");
-        const lower = pathFromSeries(spec.series.slice().reverse(), "min");
-        if (upper && lower) {{
-          svg += `<path d="${{upper}} ${{lower}} Z" fill="${{tone.color}}" fill-opacity="0.11" stroke="none"></path>`;
+        const segments = splitContiguousSegments(spec.series);
+        for (const seg of segments) {{
+          if (!seg || seg.length < 2) {{
+            continue;
+          }}
+          let d = "";
+          for (let i = 0; i < seg.length; i += 1) {{
+            const point = seg[i];
+            const x = mapX(point.epoch);
+            const y = mapY(point.q75);
+            d += `${{i === 0 ? "M" : "L"}} ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
+          }}
+          for (let i = seg.length - 1; i >= 0; i -= 1) {{
+            const point = seg[i];
+            const x = mapX(point.epoch);
+            const y = mapY(point.q25);
+            d += `L ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
+          }}
+          d += "Z";
+          svg += `<path d="${{d}}" fill="${{tone.color}}" fill-opacity="0.11" stroke="none"></path>`;
         }}
       }}
 
@@ -2629,7 +2694,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${{classes.dissim.color}}"></span><span class="evo-marker-sample square" style="background:${{classes.dissim.color}}"></span>DISSIM newly forgotten rank</span>`;
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.sim.color}}"></span>SIM cumulative rank (context)</span>`;
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.dissim.color}}"></span>DISSIM cumulative rank (context)</span>`;
-      html += `<span class="evo-legend-item">Band = dataset range | marker size = newly forgotten count</span>`;
+      html += `<span class="evo-legend-item">Band = interquartile spread (q25-q75) across datasets | marker size = newly forgotten count</span>`;
       html += `</div>`;
       html += `<p class="evo-grad-note"><strong>Interpretation:</strong> 100 means forgetting is concentrated on the strongest gradient-magnitude items in that class; decreasing values indicate forgetting is spreading to weaker-gradient items over epochs.</p>`;
       html += `</div>`;

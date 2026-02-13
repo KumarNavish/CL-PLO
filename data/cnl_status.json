@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-13T17:31:33.433593+00:00",
+  "collected_at_utc": "2026-02-13T17:34:47.301435+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "ok",
@@ -16,7 +16,7 @@
     },
     {
       "label": "Collected At (UTC)",
-      "value": "2026-02-13T17:31:33.433593+00:00"
+      "value": "2026-02-13T17:34:47.301435+00:00"
     },
     {
       "label": "Model Tag",
@@ -3161,7 +3161,7 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "46 %"
+          "utilization": "27 %"
         },
         {
           "gpu": "4",
@@ -3182,14 +3182,14 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "29 %"
+          "utilization": "42 %"
         },
         {
           "gpu": "7",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "17 %"
+          "utilization": "52 %"
         }
       ]
     },
@@ -3344,7 +3344,7 @@
     },
     {
       "title": "Runner Process",
-      "content": "2049790 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+      "content": "2051000 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
     },
     {
       "title": "Training Processes",
@@ -3498,7 +3498,7 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "46 %"
+      "utilization": "27 %"
     },
     {
       "gpu": "4",
@@ -3519,14 +3519,14 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "29 %"
+      "utilization": "42 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "17 %"
+      "utilization": "52 %"
     }
   ],
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",
