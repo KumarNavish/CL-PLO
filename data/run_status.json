@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at_utc": "2026-02-13T15:57:32.430538+00:00",
+  "generated_at_utc": "2026-02-13T15:58:36.482093+00:00",
   "dashboard_title": "Remote Training Status Dashboard",
   "default_project_id": "fibonacci-cnl",
   "projects": [
@@ -10,7 +10,7 @@
       "collector": "cnl",
       "status": "ok",
       "error": "",
-      "collected_at_utc": "2026-02-13T15:57:31.403367+00:00",
+      "collected_at_utc": "2026-02-13T15:58:35.383948+00:00",
       "remote_host": "dmi-fibonacci",
       "remote_cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
       "cards": [
@@ -24,7 +24,7 @@
         },
         {
           "label": "Collected At (UTC)",
-          "value": "2026-02-13T15:57:31.403367+00:00"
+          "value": "2026-02-13T15:58:35.383948+00:00"
         },
         {
           "label": "Model Tag",
@@ -230,151 +230,226 @@
                   "epoch": 1,
                   "forgot_count": 46,
                   "forgot_pct": 14.9351,
-                  "avg_grad": -2100.52640871
+                  "avg_grad": -2100.52640871,
+                  "forgot_abs_grad_sum": 96624.21480081,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 46.0243
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 83,
                   "forgot_pct": 26.9481,
-                  "avg_grad": -2078.190139
+                  "avg_grad": -2078.190139,
+                  "forgot_abs_grad_sum": 172489.78153715,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 82.1608
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 100,
                   "forgot_pct": 32.4675,
-                  "avg_grad": -2059.97078493
+                  "avg_grad": -2059.97078493,
+                  "forgot_abs_grad_sum": 205997.07849267,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 98.1211
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -2058.25243395
+                  "avg_grad": -2058.25243395,
+                  "forgot_abs_grad_sum": 209941.74826283,
+                  "class_abs_grad_total": 209941.74826283,
+                  "abs_grad_mass_pct": 100.0
                 }
               ],
               "dissim": [
@@ -382,151 +457,226 @@
                   "epoch": 1,
                   "forgot_count": 0,
                   "forgot_pct": 0.0,
-                  "avg_grad": null
+                  "avg_grad": null,
+                  "forgot_abs_grad_sum": 0,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 0.0
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 14,
                   "forgot_pct": 4.5455,
-                  "avg_grad": -1580.22609306
+                  "avg_grad": -1580.22609306,
+                  "forgot_abs_grad_sum": 22123.16530288,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 14.2046
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 39,
                   "forgot_pct": 12.6623,
-                  "avg_grad": -1565.14261341
+                  "avg_grad": -1565.14261341,
+                  "forgot_abs_grad_sum": 61040.561923,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 39.1924
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 63,
                   "forgot_pct": 20.4545,
-                  "avg_grad": -1554.69451321
+                  "avg_grad": -1554.69451321,
+                  "forgot_abs_grad_sum": 97945.75433194,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 62.8881
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 78,
                   "forgot_pct": 25.3247,
-                  "avg_grad": -1547.49638191
+                  "avg_grad": -1547.49638191,
+                  "forgot_abs_grad_sum": 120704.71778885,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 77.501
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 90,
                   "forgot_pct": 29.2208,
-                  "avg_grad": -1545.12991691
+                  "avg_grad": -1545.12991691,
+                  "forgot_abs_grad_sum": 139061.69252218,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 89.2875
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 98,
                   "forgot_pct": 31.8182,
-                  "avg_grad": -1538.12498908
+                  "avg_grad": -1538.12498908,
+                  "forgot_abs_grad_sum": 150736.24892973,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 96.7833
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 101,
                   "forgot_pct": 32.7922,
-                  "avg_grad": -1530.00458491
+                  "avg_grad": -1530.00458491,
+                  "forgot_abs_grad_sum": 154530.46307585,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 99.2195
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 102,
                   "forgot_pct": 33.1169,
-                  "avg_grad": -1526.92220773
+                  "avg_grad": -1526.92220773,
+                  "forgot_abs_grad_sum": 155746.06518835,
+                  "class_abs_grad_total": 155746.06518835,
+                  "abs_grad_mass_pct": 100.0
                 }
               ]
             },
@@ -542,151 +692,226 @@
                   "epoch": 1,
                   "forgot_count": 16,
                   "forgot_pct": 5.9041,
-                  "avg_grad": -703.63894108
+                  "avg_grad": -703.63894108,
+                  "forgot_abs_grad_sum": 11258.22305726,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 18.8955
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 28,
                   "forgot_pct": 10.3321,
-                  "avg_grad": -678.47823906
+                  "avg_grad": -678.47823906,
+                  "forgot_abs_grad_sum": 18997.39069377,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 31.8848
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 38,
                   "forgot_pct": 14.0221,
-                  "avg_grad": -669.82696183
+                  "avg_grad": -669.82696183,
+                  "forgot_abs_grad_sum": 25453.42454936,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 42.7204
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 53,
                   "forgot_pct": 19.5572,
-                  "avg_grad": -667.20839083
+                  "avg_grad": -667.20839083,
+                  "forgot_abs_grad_sum": 35362.0447139,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 59.3508
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 64,
                   "forgot_pct": 23.6162,
-                  "avg_grad": -669.75118139
+                  "avg_grad": -669.75118139,
+                  "forgot_abs_grad_sum": 42864.07560921,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 71.942
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 75,
                   "forgot_pct": 27.6753,
-                  "avg_grad": -666.71180913
+                  "avg_grad": -666.71180913,
+                  "forgot_abs_grad_sum": 50003.38568452,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 83.9245
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 82,
                   "forgot_pct": 30.2583,
-                  "avg_grad": -663.99268303
+                  "avg_grad": -663.99268303,
+                  "forgot_abs_grad_sum": 54447.40000816,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 91.3832
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 86,
                   "forgot_pct": 31.7343,
-                  "avg_grad": -663.82640988
+                  "avg_grad": -663.82640988,
+                  "forgot_abs_grad_sum": 57089.07124938,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 95.8169
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 89,
                   "forgot_pct": 32.8413,
-                  "avg_grad": -662.65406265
+                  "avg_grad": -662.65406265,
+                  "forgot_abs_grad_sum": 58976.21157625,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 98.9842
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 90,
                   "forgot_pct": 33.2103,
-                  "avg_grad": -662.01576832
+                  "avg_grad": -662.01576832,
+                  "forgot_abs_grad_sum": 59581.41914886,
+                  "class_abs_grad_total": 59581.41914886,
+                  "abs_grad_mass_pct": 100.0
                 }
               ],
               "dissim": [
@@ -694,151 +919,226 @@
                   "epoch": 1,
                   "forgot_count": 1,
                   "forgot_pct": 0.369,
-                  "avg_grad": -446.07491693
+                  "avg_grad": -446.07491693,
+                  "forgot_abs_grad_sum": 446.07491693,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 1.377
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 5,
                   "forgot_pct": 1.845,
-                  "avg_grad": -426.27750113
+                  "avg_grad": -426.27750113,
+                  "forgot_abs_grad_sum": 2131.38750566,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 6.5796
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 7,
                   "forgot_pct": 2.583,
-                  "avg_grad": -424.2531251
+                  "avg_grad": -424.2531251,
+                  "forgot_abs_grad_sum": 2969.77187568,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 9.1677
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 15,
                   "forgot_pct": 5.5351,
-                  "avg_grad": -405.31625099
+                  "avg_grad": -405.31625099,
+                  "forgot_abs_grad_sum": 6079.7437648,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 18.7683
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 16,
                   "forgot_pct": 5.9041,
-                  "avg_grad": -402.74431081
+                  "avg_grad": -402.74431081,
+                  "forgot_abs_grad_sum": 6443.90897291,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 19.8924
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 27,
                   "forgot_pct": 9.9631,
-                  "avg_grad": -379.69146129
+                  "avg_grad": -379.69146129,
+                  "forgot_abs_grad_sum": 10251.66945475,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 31.647
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 32,
                   "forgot_pct": 11.8081,
-                  "avg_grad": -383.570514
+                  "avg_grad": -383.570514,
+                  "forgot_abs_grad_sum": 12274.25644787,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 37.8908
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 36,
                   "forgot_pct": 13.2841,
-                  "avg_grad": -380.39704984
+                  "avg_grad": -380.39704984,
+                  "forgot_abs_grad_sum": 13694.29379431,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 42.2745
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 39,
                   "forgot_pct": 14.3911,
-                  "avg_grad": -380.55816252
+                  "avg_grad": -380.55816252,
+                  "forgot_abs_grad_sum": 14841.76833812,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 45.8167
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 45,
                   "forgot_pct": 16.6052,
-                  "avg_grad": -379.99708525
+                  "avg_grad": -379.99708525,
+                  "forgot_abs_grad_sum": 17099.86883647,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 52.7875
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 47,
                   "forgot_pct": 17.3432,
-                  "avg_grad": -379.61746644
+                  "avg_grad": -379.61746644,
+                  "forgot_abs_grad_sum": 17842.02092272,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 55.0786
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 53,
                   "forgot_pct": 19.5572,
-                  "avg_grad": -377.55178815
+                  "avg_grad": -377.55178815,
+                  "forgot_abs_grad_sum": 20010.24477219,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 61.7719
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 54,
                   "forgot_pct": 19.9262,
-                  "avg_grad": -377.80530713
+                  "avg_grad": -377.80530713,
+                  "forgot_abs_grad_sum": 20401.48658491,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 62.9797
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 57,
                   "forgot_pct": 21.0332,
-                  "avg_grad": -379.28978228
+                  "avg_grad": -379.28978228,
+                  "forgot_abs_grad_sum": 21619.51759002,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 66.7397
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 58,
                   "forgot_pct": 21.4022,
-                  "avg_grad": -378.80432795
+                  "avg_grad": -378.80432795,
+                  "forgot_abs_grad_sum": 21970.65102137,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 67.8237
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 62,
                   "forgot_pct": 22.8782,
-                  "avg_grad": -380.68734837
+                  "avg_grad": -380.68734837,
+                  "forgot_abs_grad_sum": 23602.6155991,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 72.8616
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 63,
                   "forgot_pct": 23.2472,
-                  "avg_grad": -380.81686367
+                  "avg_grad": -380.81686367,
+                  "forgot_abs_grad_sum": 23991.46241143,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 74.062
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 65,
                   "forgot_pct": 23.9852,
-                  "avg_grad": -378.64117926
+                  "avg_grad": -378.64117926,
+                  "forgot_abs_grad_sum": 24611.67665191,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 75.9766
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 67,
                   "forgot_pct": 24.7232,
-                  "avg_grad": -375.15701073
+                  "avg_grad": -375.15701073,
+                  "forgot_abs_grad_sum": 25135.51971879,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 77.5937
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 70,
                   "forgot_pct": 25.8303,
-                  "avg_grad": -374.08913717
+                  "avg_grad": -374.08913717,
+                  "forgot_abs_grad_sum": 26186.23960209,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 80.8373
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 73,
                   "forgot_pct": 26.9373,
-                  "avg_grad": -368.7234604
+                  "avg_grad": -368.7234604,
+                  "forgot_abs_grad_sum": 26916.81260939,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 83.0926
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 73,
                   "forgot_pct": 26.9373,
-                  "avg_grad": -368.7234604
+                  "avg_grad": -368.7234604,
+                  "forgot_abs_grad_sum": 26916.81260939,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 83.0926
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 74,
                   "forgot_pct": 27.3063,
-                  "avg_grad": -369.37672358
+                  "avg_grad": -369.37672358,
+                  "forgot_abs_grad_sum": 27333.87754463,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 84.38
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 75,
                   "forgot_pct": 27.6753,
-                  "avg_grad": -368.9523519
+                  "avg_grad": -368.9523519,
+                  "forgot_abs_grad_sum": 27671.42639244,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 85.4221
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 75,
                   "forgot_pct": 27.6753,
-                  "avg_grad": -368.9523519
+                  "avg_grad": -368.9523519,
+                  "forgot_abs_grad_sum": 27671.42639244,
+                  "class_abs_grad_total": 32393.76967507,
+                  "abs_grad_mass_pct": 85.4221
                 }
               ]
             },
@@ -854,151 +1154,226 @@
                   "epoch": 1,
                   "forgot_count": 35,
                   "forgot_pct": 14.3443,
-                  "avg_grad": -2494.26774447
+                  "avg_grad": -2494.26774447,
+                  "forgot_abs_grad_sum": 87299.37105655,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 44.2681
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 73,
                   "forgot_pct": 29.918,
-                  "avg_grad": -2449.86599189
+                  "avg_grad": -2449.86599189,
+                  "forgot_abs_grad_sum": 178840.21740764,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 90.687
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 79,
                   "forgot_pct": 32.377,
-                  "avg_grad": -2439.87654064
+                  "avg_grad": -2439.87654064,
+                  "forgot_abs_grad_sum": 192750.24671042,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 97.7406
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -2434.64204835
+                  "avg_grad": -2434.64204835,
+                  "forgot_abs_grad_sum": 197206.00591673,
+                  "class_abs_grad_total": 197206.00591673,
+                  "abs_grad_mass_pct": 100.0
                 }
               ],
               "dissim": [
@@ -1006,151 +1381,226 @@
                   "epoch": 1,
                   "forgot_count": 0,
                   "forgot_pct": 0.0,
-                  "avg_grad": null
+                  "avg_grad": null,
+                  "forgot_abs_grad_sum": 0,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 0.0
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 4,
                   "forgot_pct": 1.6393,
-                  "avg_grad": -1864.40939696
+                  "avg_grad": -1864.40939696,
+                  "forgot_abs_grad_sum": 7457.63758783,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 5.4286
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 12,
                   "forgot_pct": 4.918,
-                  "avg_grad": -1873.1445276
+                  "avg_grad": -1873.1445276,
+                  "forgot_abs_grad_sum": 22477.73433124,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 16.3622
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 23,
                   "forgot_pct": 9.4262,
-                  "avg_grad": -1841.04594708
+                  "avg_grad": -1841.04594708,
+                  "forgot_abs_grad_sum": 42344.0567829,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 30.8235
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 46,
                   "forgot_pct": 18.8525,
-                  "avg_grad": -1816.83660898
+                  "avg_grad": -1816.83660898,
+                  "forgot_abs_grad_sum": 83574.48401299,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 60.8363
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 56,
                   "forgot_pct": 22.9508,
-                  "avg_grad": -1801.08669092
+                  "avg_grad": -1801.08669092,
+                  "forgot_abs_grad_sum": 100860.85469136,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 73.4196
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 66,
                   "forgot_pct": 27.0492,
-                  "avg_grad": -1759.41772546
+                  "avg_grad": -1759.41772546,
+                  "forgot_abs_grad_sum": 116121.56988026,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 84.5283
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 72,
                   "forgot_pct": 29.5082,
-                  "avg_grad": -1740.3102336
+                  "avg_grad": -1740.3102336,
+                  "forgot_abs_grad_sum": 125302.33681911,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 91.2113
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 77,
                   "forgot_pct": 31.5574,
-                  "avg_grad": -1720.45846298
+                  "avg_grad": -1720.45846298,
+                  "forgot_abs_grad_sum": 132475.30164909,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 96.4327
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 77,
                   "forgot_pct": 31.5574,
-                  "avg_grad": -1720.45846298
+                  "avg_grad": -1720.45846298,
+                  "forgot_abs_grad_sum": 132475.30164909,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 96.4327
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 78,
                   "forgot_pct": 31.9672,
-                  "avg_grad": -1715.08058476
+                  "avg_grad": -1715.08058476,
+                  "forgot_abs_grad_sum": 133776.28561117,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 97.3797
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 80,
                   "forgot_pct": 32.7869,
-                  "avg_grad": -1703.11066483
+                  "avg_grad": -1703.11066483,
+                  "forgot_abs_grad_sum": 136248.85318624,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 99.1796
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 80,
                   "forgot_pct": 32.7869,
-                  "avg_grad": -1703.11066483
+                  "avg_grad": -1703.11066483,
+                  "forgot_abs_grad_sum": 136248.85318624,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 99.1796
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 80,
                   "forgot_pct": 32.7869,
-                  "avg_grad": -1703.11066483
+                  "avg_grad": -1703.11066483,
+                  "forgot_abs_grad_sum": 136248.85318624,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 99.1796
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 81,
                   "forgot_pct": 33.1967,
-                  "avg_grad": -1695.99889617
+                  "avg_grad": -1695.99889617,
+                  "forgot_abs_grad_sum": 137375.91058989,
+                  "class_abs_grad_total": 137375.91058989,
+                  "abs_grad_mass_pct": 100.0
                 }
               ]
             },
@@ -1166,151 +1616,226 @@
                   "epoch": 1,
                   "forgot_count": 29,
                   "forgot_pct": 11.5538,
-                  "avg_grad": -2733.31705188
+                  "avg_grad": -2733.31705188,
+                  "forgot_abs_grad_sum": 79266.19450446,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 34.72
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 61,
                   "forgot_pct": 24.3028,
-                  "avg_grad": -2783.78003206
+                  "avg_grad": -2783.78003206,
+                  "forgot_abs_grad_sum": 169810.58195542,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 74.38
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 78,
                   "forgot_pct": 31.0757,
-                  "avg_grad": -2756.84293092
+                  "avg_grad": -2756.84293092,
+                  "forgot_abs_grad_sum": 215033.748612,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 94.1886
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -2750.61831783
+                  "avg_grad": -2750.61831783,
+                  "forgot_abs_grad_sum": 228301.32037998,
+                  "class_abs_grad_total": 228301.32037998,
+                  "abs_grad_mass_pct": 100.0
                 }
               ],
               "dissim": [
@@ -1318,151 +1843,226 @@
                   "epoch": 1,
                   "forgot_count": 2,
                   "forgot_pct": 0.7968,
-                  "avg_grad": -1879.73782627
+                  "avg_grad": -1879.73782627,
+                  "forgot_abs_grad_sum": 3759.47565254,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 2.3722
                 },
                 {
                   "epoch": 2,
                   "forgot_count": 10,
                   "forgot_pct": 3.9841,
-                  "avg_grad": -2057.67979756
+                  "avg_grad": -2057.67979756,
+                  "forgot_abs_grad_sum": 20576.79797556,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 12.984
                 },
                 {
                   "epoch": 3,
                   "forgot_count": 18,
                   "forgot_pct": 7.1713,
-                  "avg_grad": -2043.55731482
+                  "avg_grad": -2043.55731482,
+                  "forgot_abs_grad_sum": 36784.03166667,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 23.2108
                 },
                 {
                   "epoch": 4,
                   "forgot_count": 34,
                   "forgot_pct": 13.5458,
-                  "avg_grad": -2069.00239477
+                  "avg_grad": -2069.00239477,
+                  "forgot_abs_grad_sum": 70346.08142235,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 44.3885
                 },
                 {
                   "epoch": 5,
                   "forgot_count": 52,
                   "forgot_pct": 20.7171,
-                  "avg_grad": -2058.58603478
+                  "avg_grad": -2058.58603478,
+                  "forgot_abs_grad_sum": 107046.47380843,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 67.5465
                 },
                 {
                   "epoch": 6,
                   "forgot_count": 58,
                   "forgot_pct": 23.1076,
-                  "avg_grad": -2048.30199187
+                  "avg_grad": -2048.30199187,
+                  "forgot_abs_grad_sum": 118801.51552823,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 74.9639
                 },
                 {
                   "epoch": 7,
                   "forgot_count": 69,
                   "forgot_pct": 27.49,
-                  "avg_grad": -1985.48121471
+                  "avg_grad": -1985.48121471,
+                  "forgot_abs_grad_sum": 136998.20381491,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 86.446
                 },
                 {
                   "epoch": 8,
                   "forgot_count": 71,
                   "forgot_pct": 28.2869,
-                  "avg_grad": -1976.95691339
+                  "avg_grad": -1976.95691339,
+                  "forgot_abs_grad_sum": 140363.94085087,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 88.5698
                 },
                 {
                   "epoch": 9,
                   "forgot_count": 77,
                   "forgot_pct": 30.6773,
-                  "avg_grad": -1946.24858904
+                  "avg_grad": -1946.24858904,
+                  "forgot_abs_grad_sum": 149861.14135596,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 94.5626
                 },
                 {
                   "epoch": 10,
                   "forgot_count": 79,
                   "forgot_pct": 31.4741,
-                  "avg_grad": -1934.10401258
+                  "avg_grad": -1934.10401258,
+                  "forgot_abs_grad_sum": 152794.21699377,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 96.4133
                 },
                 {
                   "epoch": 11,
                   "forgot_count": 82,
                   "forgot_pct": 32.6693,
-                  "avg_grad": -1916.1439687
+                  "avg_grad": -1916.1439687,
+                  "forgot_abs_grad_sum": 157123.80543366,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 99.1453
                 },
                 {
                   "epoch": 12,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 13,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 14,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 15,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 16,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 17,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 18,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 19,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 20,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 21,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 22,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 23,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 24,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 },
                 {
                   "epoch": 25,
                   "forgot_count": 83,
                   "forgot_pct": 33.0677,
-                  "avg_grad": -1909.37714288
+                  "avg_grad": -1909.37714288,
+                  "forgot_abs_grad_sum": 158478.3028592,
+                  "class_abs_grad_total": 158478.3028592,
+                  "abs_grad_mass_pct": 100.0
                 }
               ]
             }
@@ -1769,7 +2369,7 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "44 %"
+              "utilization": "22 %"
             },
             {
               "gpu": "4",
@@ -1790,14 +2390,14 @@
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "47 %"
+              "utilization": "17 %"
             },
             {
               "gpu": "7",
               "name": "NVIDIA GeForce RTX 3090",
               "memory_used": "9172 MiB",
               "memory_total": "24576 MiB",
-              "utilization": "49 %"
+              "utilization": "26 %"
             }
           ]
         },
@@ -1952,7 +2552,7 @@
         },
         {
           "title": "Runner Process",
-          "content": "2008985 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+          "content": "2009432 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
         },
         {
           "title": "Training Processes",

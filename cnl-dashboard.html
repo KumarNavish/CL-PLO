@@ -805,6 +805,9 @@
               forgot_count: toFiniteNumber(point.forgot_count, null),
               forgot_pct: toFiniteNumber(point.forgot_pct, null),
               avg_grad: toFiniteNumber(point.avg_grad, null),
+              abs_grad_mass_pct: toFiniteNumber(point.abs_grad_mass_pct, null),
+              forgot_abs_grad_sum: toFiniteNumber(point.forgot_abs_grad_sum, null),
+              class_abs_grad_total: toFiniteNumber(point.class_abs_grad_total, null),
             }))
             .filter((point) => point.epoch !== null)
             .sort((a, b) => a.epoch - b.epoch);
