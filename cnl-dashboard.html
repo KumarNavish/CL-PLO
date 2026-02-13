@@ -342,17 +342,17 @@
       border-top: 1px solid #555;
     }
     .evo-wrap {
-      background: #fff;
-      border: 1px solid #cfdceb;
+      background: linear-gradient(165deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #c8d8e8;
       border-radius: 14px;
-      padding: 12px;
-      box-shadow: 0 10px 24px rgba(22, 47, 77, 0.08);
+      padding: 14px;
+      box-shadow: 0 14px 30px rgba(22, 47, 77, 0.08);
     }
     .evo-caption {
-      margin: 0 0 6px;
-      color: #1a3a54;
-      font-size: 13px;
-      line-height: 1.35;
+      margin: 0 0 10px;
+      color: #1f425f;
+      font-size: 13.5px;
+      line-height: 1.4;
     }
     .evo-panels {
       display: grid;
@@ -360,24 +360,25 @@
       grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
     }
     .evo-panel {
-      border: 1px solid #d5e0ec;
+      border: 1px solid #d0deec;
       border-radius: 12px;
-      background: linear-gradient(160deg, #fbfdff 0%, #f3f8fe 100%);
-      padding: 10px;
+      background: linear-gradient(160deg, #ffffff 0%, #f4f9ff 100%);
+      padding: 12px;
     }
     .evo-panel h3 {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       color: #123650;
-      font-size: 15px;
-      letter-spacing: 0.2px;
+      font-size: 15.5px;
+      letter-spacing: 0.18px;
+      font-weight: 700;
     }
     .evo-chart {
       width: 100%;
       height: auto;
       display: block;
-      border: 1px solid #d7e2ed;
+      border: 1px solid #d4e0ec;
       border-radius: 10px;
-      background: #fff;
+      background: #ffffff;
     }
     .evo-legend {
       margin-top: 10px;
@@ -392,7 +393,7 @@
       align-items: center;
       gap: 6px;
       color: #234a66;
-      font-size: 12px;
+      font-size: 11.8px;
       white-space: nowrap;
       letter-spacing: 0.15px;
     }
@@ -421,50 +422,24 @@
       border-radius: 2px;
     }
     .evo-meta {
-      margin-top: 8px;
+      margin-top: 10px;
       color: #3d5f79;
-      font-size: 12px;
+      font-size: 11.8px;
       line-height: 1.35;
       text-align: center;
     }
     .evo-grad-deck {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
     .evo-grad-main {
       display: block;
     }
-    .evo-grad-facets {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    }
-    .evo-grad-facet {
-      border: 1px solid #d6e2ef;
-      border-radius: 10px;
-      background: linear-gradient(155deg, #ffffff 0%, #f6fafe 100%);
-      padding: 8px;
-    }
-    .evo-grad-facet h4 {
-      margin: 0 0 6px;
-      color: #173d5a;
-      font-size: 12px;
-      letter-spacing: 0.2px;
-      font-weight: 700;
-    }
-    .evo-grad-mini {
-      width: 100%;
-      height: auto;
-      display: block;
-      border: 1px solid #dbe6f1;
-      border-radius: 8px;
-      background: #fff;
-    }
     .evo-grad-note {
-      margin: 2px 2px 0;
-      color: #3b607b;
+      margin: 0;
+      color: #2f526d;
       font-size: 12px;
-      line-height: 1.35;
+      line-height: 1.45;
       text-align: center;
     }
     @media (max-width: 800px) {
@@ -494,9 +469,6 @@
       }
       .evo-panel h3 {
         font-size: 14px;
-      }
-      .evo-grad-facets {
-        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -808,6 +780,8 @@
               abs_grad_mass_pct: toFiniteNumber(point.abs_grad_mass_pct, null),
               forgot_abs_grad_sum: toFiniteNumber(point.forgot_abs_grad_sum, null),
               class_abs_grad_total: toFiniteNumber(point.class_abs_grad_total, null),
+              new_forgot_count: toFiniteNumber(point.new_forgot_count, null),
+              new_abs_grad_mass_pct: toFiniteNumber(point.new_abs_grad_mass_pct, null),
             }))
             .filter((point) => point.epoch !== null)
             .sort((a, b) => a.epoch - b.epoch);
@@ -950,8 +924,18 @@
 
     function renderEvolutionGradSvg(groups, epochMax) {
       const classes = {
-        sim: { label: "SIM", color: "#157F7A", dash: "" },
-        dissim: { label: "DISSIM", color: "#B35C1E", dash: "7 5" },
+        sim: {
+          label: "SIM",
+          color: "#0B6E69",
+          cum_dash: "",
+          inc_dash: "4 4",
+        },
+        dissim: {
+          label: "DISSIM",
+          color: "#B04E13",
+          cum_dash: "7 5",
+          inc_dash: "2 4",
+        },
       };
       const byClass = { sim: {}, dissim: {} };
 
@@ -961,7 +945,13 @@
           continue;
         }
         const points = (group.points || [])
-          .filter((point) => Number.isFinite(point.epoch) && Number.isFinite(point.abs_grad_mass_pct) && Number.isFinite(point.class_abs_grad_total))
+          .filter(
+            (point) =>
+              Number.isFinite(point.epoch) &&
+              Number.isFinite(point.abs_grad_mass_pct) &&
+              Number.isFinite(point.new_abs_grad_mass_pct) &&
+              Number.isFinite(point.class_abs_grad_total),
+          )
           .sort((a, b) => a.epoch - b.epoch);
         for (const point of points) {
           const epoch = Math.round(point.epoch);
@@ -969,17 +959,18 @@
             byClass[classKey][epoch] = [];
           }
           byClass[classKey][epoch].push({
-            value: point.abs_grad_mass_pct,
+            cum: point.abs_grad_mass_pct,
+            inc: point.new_abs_grad_mass_pct,
             weight: Math.max(0, point.class_abs_grad_total),
           });
         }
       }
 
-      function summarizeClass(epochMap) {
+      function summarizeClass(epochMap, valueKey) {
         const epochs = Object.keys(epochMap).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
         return epochs.map((epoch) => {
           const entries = epochMap[epoch] || [];
-          const values = entries.map((entry) => entry.value).filter((v) => Number.isFinite(v));
+          const values = entries.map((entry) => entry[valueKey]).filter((v) => Number.isFinite(v));
           if (values.length === 0) {
             return null;
           }
@@ -989,7 +980,7 @@
           let totalWeight = 0;
           for (const entry of entries) {
             const w = Number.isFinite(entry.weight) ? Math.max(0, entry.weight) : 0;
-            weightedSum += entry.value * w;
+            weightedSum += entry[valueKey] * w;
             totalWeight += w;
           }
           const meanVal = totalWeight > 0 ? (weightedSum / totalWeight) : (values.reduce((a, b) => a + b, 0) / values.length);
@@ -1002,13 +993,15 @@
         }).filter(Boolean);
       }
 
-      const simSeries = summarizeClass(byClass.sim);
-      const dissimSeries = summarizeClass(byClass.dissim);
-      if (simSeries.length === 0 && dissimSeries.length === 0) {
+      const simCumSeries = summarizeClass(byClass.sim, "cum");
+      const dissimCumSeries = summarizeClass(byClass.dissim, "cum");
+      const simIncSeries = summarizeClass(byClass.sim, "inc");
+      const dissimIncSeries = summarizeClass(byClass.dissim, "inc");
+      if (simCumSeries.length === 0 && dissimCumSeries.length === 0) {
         return '<p class="evo-meta">No gradient-mass data are available yet.</p>';
       }
 
-      const allSeries = [...simSeries, ...dissimSeries];
+      const allSeries = [...simCumSeries, ...dissimCumSeries, ...simIncSeries, ...dissimIncSeries];
       const epochCeil = Math.max(
         1,
         Math.round(Math.max(epochMax, ...allSeries.map((point) => point.epoch))),
@@ -1017,7 +1010,7 @@
       const yMax = Math.max(5, Math.ceil(yMaxRaw / 5) * 5);
 
       const width = 980;
-      const height = 360;
+      const height = 390;
       const margin = { top: 16, right: 16, bottom: 42, left: 62 };
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
@@ -1031,10 +1024,10 @@
       if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
       const yTicks = buildLinearTicks(0, yMax, 6);
 
-      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Gradient-similarity mass captured by forgotten questions over training epochs">`;
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Gradient-similarity mass captured by forgotten and newly forgotten questions over training epochs">`;
       for (const tick of yTicks) {
         const y = mapY(tick);
-        svg += `<line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#e9f0f7" stroke-width="1"></line>`;
+        svg += `<line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#e5edf6" stroke-width="1"></line>`;
         svg += `<text x="${(margin.left - 8).toFixed(2)}" y="${(y + 3.5).toFixed(2)}" font-size="10" fill="#597086" text-anchor="end">${tick.toFixed(1)}%</text>`;
       }
       for (const tick of xTicks) {
@@ -1046,52 +1039,100 @@
       svg += `<line x1="${margin.left}" y1="${(margin.top + plotHeight).toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#668198" stroke-width="1.25"></line>`;
       svg += `<text x="${(margin.left + (plotWidth / 2)).toFixed(2)}" y="${(height - 5).toFixed(2)}" font-size="11" fill="#35536c" text-anchor="middle">training epoch</text>`;
       const yLabelAnchor = margin.top + (plotHeight / 2);
-      svg += `<text x="15" y="${yLabelAnchor.toFixed(2)}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${yLabelAnchor.toFixed(2)})">forgotten gradient-mass share (%)</text>`;
+      svg += `<text x="15" y="${yLabelAnchor.toFixed(2)}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${yLabelAnchor.toFixed(2)})">gradient-mass share (%)</text>`;
 
       function pathFrom(series, field) {
         return series.map((point, idx) => `${idx === 0 ? "M" : "L"} ${mapX(point.epoch).toFixed(2)} ${mapY(point[field]).toFixed(2)}`).join(" ");
       }
 
-      for (const [classKey, series] of [["sim", simSeries], ["dissim", dissimSeries]]) {
+      const lineSpecs = [
+        { key: "sim", kind: "cum", series: simCumSeries },
+        { key: "dissim", kind: "cum", series: dissimCumSeries },
+        { key: "sim", kind: "inc", series: simIncSeries },
+        { key: "dissim", kind: "inc", series: dissimIncSeries },
+      ];
+
+      for (const spec of lineSpecs) {
+        const tone = classes[spec.key];
+        const series = spec.series || [];
         if (series.length === 0) {
           continue;
         }
-        const tone = classes[classKey];
-        const upper = pathFrom(series, "max");
-        const lower = pathFrom(series.slice().reverse(), "min");
-        const bandPath = `${upper} ${lower} Z`;
-        svg += `<path d="${bandPath}" fill="${tone.color}" fill-opacity="0.14" stroke="none"></path>`;
+        if (spec.kind === "cum") {
+          const upper = pathFrom(series, "max");
+          const lower = pathFrom(series.slice().reverse(), "min");
+          const bandPath = `${upper} ${lower} Z`;
+          svg += `<path d="${bandPath}" fill="${tone.color}" fill-opacity="0.10" stroke="none"></path>`;
+        }
+      }
 
-        const dashAttr = tone.dash ? ` stroke-dasharray="${tone.dash}"` : "";
+      for (const spec of lineSpecs) {
+        const tone = classes[spec.key];
+        const series = spec.series || [];
+        if (series.length === 0) {
+          continue;
+        }
+        const dash = spec.kind === "cum" ? tone.cum_dash : tone.inc_dash;
+        const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+        const opacity = spec.kind === "cum" ? 1.0 : 0.72;
+        const widthStroke = spec.kind === "cum" ? 2.5 : 1.9;
         const meanPath = pathFrom(series, "mean");
-        svg += `<path d="${meanPath}" fill="none" stroke="${tone.color}" stroke-width="2.4"${dashAttr} stroke-linecap="round"></path>`;
+        svg += `<path d="${meanPath}" fill="none" stroke="${tone.color}" stroke-width="${widthStroke}"${dashAttr} stroke-linecap="round" opacity="${opacity}"></path>`;
 
-        for (const point of series) {
-          const x = mapX(point.epoch);
-          const y = mapY(point.mean);
-          const tip = `${tone.label} | epoch ${point.epoch} | mean=${point.mean.toFixed(2)}% | range=${point.min.toFixed(2)}% to ${point.max.toFixed(2)}%`;
-          if (classKey === "dissim") {
-            svg += `<rect x="${(x - 3.1).toFixed(2)}" y="${(y - 3.1).toFixed(2)}" width="6.2" height="6.2" fill="${tone.color}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tip)}</title></rect>`;
-          } else {
-            svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.1" fill="${tone.color}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tip)}</title></circle>`;
+        if (spec.kind === "cum") {
+          for (const point of series) {
+            const x = mapX(point.epoch);
+            const y = mapY(point.mean);
+            const tip = `${tone.label} cumulative | epoch ${point.epoch} | mean=${point.mean.toFixed(2)}% | range=${point.min.toFixed(2)}% to ${point.max.toFixed(2)}%`;
+            if (spec.key === "dissim") {
+              svg += `<rect x="${(x - 3.0).toFixed(2)}" y="${(y - 3.0).toFixed(2)}" width="6.0" height="6.0" fill="${tone.color}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tip)}</title></rect>`;
+            } else {
+              svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.0" fill="${tone.color}" stroke="#ffffff" stroke-width="0.9"><title>${esc(tip)}</title></circle>`;
+            }
           }
         }
+      }
 
-        const last = series[series.length - 1];
-        const lx = mapX(last.epoch);
-        const ly = mapY(last.mean);
-        const label = `${tone.label} ${last.mean.toFixed(1)}%`;
-        svg += `<text x="${(lx + 8).toFixed(2)}" y="${(ly + (classKey === "sim" ? -8 : 14)).toFixed(2)}" font-size="11" fill="${tone.color}" font-weight="700">${esc(label)}</text>`;
+      const endLabels = [];
+      for (const spec of lineSpecs) {
+        if (!spec.series || spec.series.length === 0) {
+          continue;
+        }
+        const last = spec.series[spec.series.length - 1];
+        const tone = classes[spec.key];
+        const suffix = spec.kind === "cum" ? "cum" : "new";
+        endLabels.push({
+          x: mapX(last.epoch),
+          y: mapY(last.mean),
+          color: tone.color,
+          dash: spec.kind === "cum" ? tone.cum_dash : tone.inc_dash,
+          text: `${tone.label} ${suffix} ${last.mean.toFixed(1)}%`,
+        });
+      }
+      endLabels.sort((a, b) => a.y - b.y);
+      const gap = 12;
+      let cursor = margin.top + 8;
+      for (const label of endLabels) {
+        label.yl = Math.max(cursor, label.y);
+        cursor = label.yl + gap;
+      }
+      const labelX = margin.left + plotWidth - 130;
+      for (const label of endLabels) {
+        const dashAttr = label.dash ? ` stroke-dasharray="${label.dash}"` : "";
+        svg += `<line x1="${label.x.toFixed(2)}" y1="${label.y.toFixed(2)}" x2="${(labelX - 4).toFixed(2)}" y2="${label.yl.toFixed(2)}" stroke="${label.color}" stroke-width="1.2"${dashAttr} opacity="0.8"></line>`;
+        svg += `<text x="${labelX.toFixed(2)}" y="${(label.yl + 3).toFixed(2)}" font-size="10.4" fill="${label.color}" font-weight="700">${esc(label.text)}</text>`;
       }
       svg += `</svg>`;
 
       let html = `<div class="evo-grad-deck"><div class="evo-grad-main">${svg}</div>`;
       html += `<div class="evo-legend">`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${classes.sim.color}"></span><span class="evo-marker-sample" style="background:${classes.sim.color}"></span>SIM mean</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:${classes.dissim.color}"></span><span class="evo-marker-sample square" style="background:${classes.dissim.color}"></span>DISSIM mean</span>`;
-      html += `<span class="evo-legend-item">Shaded band = min-to-max across datasets</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${classes.sim.color}"></span><span class="evo-marker-sample" style="background:${classes.sim.color}"></span>SIM cumulative</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:${classes.dissim.color}"></span><span class="evo-marker-sample square" style="background:${classes.dissim.color}"></span>DISSIM cumulative</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${classes.sim.color}"></span>SIM newly forgotten</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dotted;border-top-color:${classes.dissim.color}"></span>DISSIM newly forgotten</span>`;
+      html += `<span class="evo-legend-item">Shaded band = min-to-max cumulative across datasets</span>`;
       html += `</div>`;
-      html += `<p class="evo-grad-note"><strong>Metric:</strong> forgotten gradient-mass share = 100 * sum(|grad_similarity| on forgotten questions) / sum(|grad_similarity| in class pool).</p>`;
+      html += `<p class="evo-grad-note"><strong>Why flat-lining happens:</strong> cumulative curves can saturate once the forgotten set stabilizes. The dashed/dotted lines track <strong>newly forgotten</strong> gradient-mass each epoch, which preserves dynamic signal.</p>`;
       html += `</div>`;
       return html;
     }
@@ -1156,7 +1197,7 @@
       }
       html += `<div class="evo-panels">`;
       html += `<section class="evo-panel"><h3>Forgetting Dynamics by Point Index</h3>${renderEvolutionPrimarySvg(groups, epochMax)}</section>`;
-      html += `<section class="evo-panel"><h3>Gradient Similarity Signal: Forgotten Mass Capture</h3>${renderEvolutionGradSvg(groups, epochMax)}</section>`;
+      html += `<section class="evo-panel"><h3>Gradient Similarity Dynamics (Cumulative + Newly Forgotten)</h3>${renderEvolutionGradSvg(groups, epochMax)}</section>`;
       html += `</div>`;
       html += `<div class="evo-legend">${datasetLegendHtml}</div>`;
       html += `<div class="evo-legend">${classLegendHtml}</div>`;
