@@ -1237,7 +1237,14 @@
       }
 
       const tables = project.tables || [];
-      document.getElementById("tables").innerHTML = tables.map((t) => (t.paper_table ? renderPaperTable(t) : renderTable(t))).join("");
+      document.getElementById("tables").innerHTML = tables
+        .map((table) => {
+          if (table.viz === "table1_evolution") {
+            return renderTable1Evolution(table);
+          }
+          return table.paper_table ? renderPaperTable(table) : renderTable(table);
+        })
+        .join("");
 
       document.getElementById("texts").innerHTML = texts
         .filter((block) => (block.title || "") !== "Paper Comparison Appendix (Simple)")
