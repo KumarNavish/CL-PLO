@@ -8,7 +8,7 @@
   "cards": [
     {
       "label": "Collection Warning",
-      "value": "Live probe failed at 2026-02-13T16:15:43.382363+00:00. Showing last successful snapshot from 2026-02-13T16:14:39.400516+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Network is unreachable\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+      "value": "Live probe failed at 2026-02-13T16:16:43.920155+00:00. Showing last successful snapshot from 2026-02-13T16:14:39.400516+00:00.\nReason: SSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Network is unreachable\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
     },
     {
       "label": "Remote Host",
@@ -2520,7 +2520,7 @@
   "texts": [
     {
       "title": "Collection Warning",
-      "content": "Live probe failed at 2026-02-13T16:15:43.382363+00:00.\nShowing cached data from 2026-02-13T16:14:39.400516+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Network is unreachable\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
+      "content": "Live probe failed at 2026-02-13T16:16:43.920155+00:00.\nShowing cached data from 2026-02-13T16:14:39.400516+00:00.\n\nReason:\nSSH probe failed for fibonacci-cnl across 2 host(s):\nkumar0002@131.152.56.23: code 255: ssh: connect to host 131.152.56.23 port 22: Network is unreachable\nkumar0002@fibonacci.dmi.unibas.ch: code 255: ssh: Could not resolve hostname fibonacci.dmi.unibas.ch: nodename nor servname provided, or not known"
     },
     {
       "title": "Table 1 Status",
