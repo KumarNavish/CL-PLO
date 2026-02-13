@@ -1925,6 +1925,39 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       line-height: 1.45;
       text-align: center;
     }}
+    .evo-small-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }}
+    .evo-mini-panel {{
+      border: 1px solid #d4e0ec;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+    }}
+    .evo-mini-title {{
+      margin: 0 0 6px;
+      color: #173c58;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+    }}
+    .evo-mini-chart {{
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #e4edf5;
+      border-radius: 8px;
+      background: #ffffff;
+    }}
+    .evo-mini-note {{
+      margin: 2px 0 0;
+      color: #48657d;
+      font-size: 12px;
+      text-align: center;
+    }}
     @media (max-width: 800px) {{
       .wrap {{
         padding: 16px;
@@ -1958,6 +1991,12 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
       .evo-grad-note {{
         font-size: 14px;
+      }}
+      .evo-mini-title {{
+        font-size: 13px;
+      }}
+      .evo-mini-note {{
+        font-size: 11px;
       }}
     }}
   </style>
@@ -2415,20 +2454,8 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
     function renderEvolutionGradSvg(groups, epochMax) {{
       const classStyle = {{
-        sim: {{
-          label: "SIM",
-          color: "#0E5E5A",
-          band_fill: "rgba(14, 94, 90, 0.16)",
-          new_dash: "",
-          cum_dash: "7 5",
-        }},
-        dissim: {{
-          label: "DISSIM",
-          color: "#A34D1A",
-          band_fill: "rgba(163, 77, 26, 0.14)",
-          new_dash: "",
-          cum_dash: "7 5",
-        }},
+        sim: {{ label: "SIM", color: "#0E5E5A", band_fill: "rgba(14, 94, 90, 0.18)" }},
+        dissim: {{ label: "DISSIM", color: "#A34D1A", band_fill: "rgba(163, 77, 26, 0.15)" }},
       }};
       const datasetMap = new Map();
       const epochSet = new Set();
@@ -2447,9 +2474,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
       for (const group of groups) {{
         const classKey = group.class_key;
-        if (!(classKey in classStyle)) {{
-          continue;
-        }}
+        if (!(classKey in classStyle)) continue;
         const dsKey = String(group.dataset || group.dataset_label || "");
         if (!datasetMap.has(dsKey)) {{
           datasetMap.set(dsKey, {{
@@ -2468,10 +2493,10 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
           if (!Number.isFinite(ep) || ep <= 0) continue;
           epochSet.add(ep);
           const forgotCount = Math.max(0, toFiniteNumber(point.forgot_count, 0));
+          const newCount = Math.max(0, toFiniteNumber(point.new_forgot_count, 0));
           if (Number.isFinite(point.cum_rank_pct) && forgotCount > 0) {{
             bucket[`${{classKey}}_cum`].push({{ epoch: ep, value: point.cum_rank_pct, count: forgotCount }});
           }}
-          const newCount = Math.max(0, toFiniteNumber(point.new_forgot_count, 0));
           if (Number.isFinite(point.new_rank_pct) && newCount > 0) {{
             bucket[`${{classKey}}_new`].push({{ epoch: ep, value: point.new_rank_pct, count: newCount }});
           }}
@@ -2486,13 +2511,6 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
       if (datasets.length === 0) {{
         return '<p class="evo-meta">No gradient-rank evolution data are available yet.</p>';
-      }}
-
-      const jitterSpreadPx = datasets.length > 1 ? Math.min(10, 2 + datasets.length * 1.4) : 0;
-      const jitterStartPx = -0.5 * jitterSpreadPx;
-      const jitterStepPx = datasets.length > 1 ? (jitterSpreadPx / (datasets.length - 1)) : 0;
-      for (let i = 0; i < datasets.length; i += 1) {{
-        datasets[i].jitter_px = jitterStartPx + i * jitterStepPx;
       }}
 
       function summarizeByClass(key) {{
@@ -2523,6 +2541,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
             q25: quantile(vals, 0.25),
             q75: quantile(vals, 0.75),
             n: vals.length,
+            count_sum: wtot,
           }});
         }}
         return out;
@@ -2535,37 +2554,16 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
       const allEpochs = Array.from(epochSet).sort((a, b) => a - b);
       const epochCeil = Math.max(1, Math.round(Math.max(epochMax, ...allEpochs)));
-      const width = 1280;
-      const height = 560;
-      const margin = {{ top: 26, right: 32, bottom: 78, left: 96 }};
-      const plotWidth = width - margin.left - margin.right;
-      const plotHeight = height - margin.top - margin.bottom;
-      const mapX = (v) => scaleLinear(v, 1, epochCeil, margin.left, margin.left + plotWidth);
-      const mapY = (v) => scaleLinear(v, 0, 100, margin.top + plotHeight, margin.top);
-      const xTicksRaw = buildLinearTicks(1, epochCeil, Math.min(8, Math.max(4, epochCeil)));
-      const xTicks = Array.from(new Set(xTicksRaw.map((t) => Math.round(t)))).filter((t) => t >= 1 && t <= epochCeil).sort((a, b) => a - b);
-      if (!xTicks.includes(1)) xTicks.unshift(1);
-      if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
-      const yTicks = [0, 20, 40, 60, 80, 100];
 
-      let maxNewCount = 1;
-      for (const ds of datasets) {{
-        for (const p of [...ds.sim_new, ...ds.dissim_new]) {{
-          maxNewCount = Math.max(maxNewCount, Math.max(0, toFiniteNumber(p.count, 0)));
-        }}
-      }}
-      function markerRadius(countValue) {{
-        const c = Math.max(0, toFiniteNumber(countValue, 0));
-        return 3.2 + (Math.sqrt(c) / Math.sqrt(maxNewCount)) * 5.4;
-      }}
-
-      function linePath(series, valueKey, jitterPx = 0) {{
+      function pathFromSeries(series, mapXFn, mapYFn, valueKey = "mean") {{
         if (!series || series.length === 0) return "";
         let d = "";
         for (let i = 0; i < series.length; i += 1) {{
           const pt = series[i];
-          const x = mapX(pt.epoch) + jitterPx;
-          const y = mapY(pt[valueKey]);
+          const val = toFiniteNumber(pt[valueKey], null);
+          if (!Number.isFinite(val)) continue;
+          const x = mapXFn(pt.epoch);
+          const y = mapYFn(val);
           if (i === 0 || (pt.epoch - series[i - 1].epoch) > 1) {{
             d += `M ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
           }} else {{
@@ -2575,11 +2573,11 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
         return d.trim();
       }}
 
-      function bandPaths(stats) {{
+      function bandPaths(stats, mapXFn, mapYFn) {{
         const usable = (stats || [])
           .filter((pt) => Number.isFinite(pt.epoch) && Number.isFinite(pt.q25) && Number.isFinite(pt.q75) && Number(pt.n || 0) >= 2)
           .sort((a, b) => a.epoch - b.epoch);
-        if (usable.length === 0) return [];
+        if (usable.length < 2) return [];
         const segments = [];
         let seg = [usable[0]];
         for (let i = 1; i < usable.length; i += 1) {{
@@ -2593,18 +2591,37 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
           }}
         }}
         if (seg.length >= 2) segments.push(seg);
-        const paths = [];
-        for (const s of segments) {{
-          const upper = s.map((pt) => `${{mapX(pt.epoch).toFixed(2)}} ${{mapY(pt.q75).toFixed(2)}}`);
-          const lower = s.slice().reverse().map((pt) => `${{mapX(pt.epoch).toFixed(2)}} ${{mapY(pt.q25).toFixed(2)}}`);
-          if (upper.length > 1 && lower.length > 1) {{
-            paths.push(`M ${{upper[0]}} L ${{upper.slice(1).join(" L ")}} L ${{lower.join(" L ")}} Z`);
-          }}
-        }}
-        return paths;
+        return segments.map((segment) => {{
+          const upper = segment.map((pt) => `${{mapXFn(pt.epoch).toFixed(2)}} ${{mapYFn(pt.q75).toFixed(2)}}`);
+          const lower = segment.slice().reverse().map((pt) => `${{mapXFn(pt.epoch).toFixed(2)}} ${{mapYFn(pt.q25).toFixed(2)}}`);
+          return `M ${{upper[0]}} L ${{upper.slice(1).join(" L ")}} L ${{lower.join(" L ")}} Z`;
+        }});
       }}
 
-      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Gradient rank evolution across epochs with all dataset trajectories">`;
+      const width = 1280;
+      const height = 500;
+      const margin = {{ top: 24, right: 40, bottom: 70, left: 92 }};
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+      const mapX = (v) => scaleLinear(v, 1, epochCeil, margin.left, margin.left + plotWidth);
+      const mapY = (v) => scaleLinear(v, 0, 100, margin.top + plotHeight, margin.top);
+      const xTicksRaw = buildLinearTicks(1, epochCeil, Math.min(8, Math.max(4, epochCeil)));
+      const xTicks = Array.from(new Set(xTicksRaw.map((t) => Math.round(t)))).filter((t) => t >= 1 && t <= epochCeil).sort((a, b) => a - b);
+      if (!xTicks.includes(1)) xTicks.unshift(1);
+      if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
+      const yTicks = [0, 20, 40, 60, 80, 100];
+
+      const maxAggCount = Math.max(
+        1,
+        ...simNewStats.map((x) => Math.max(0, toFiniteNumber(x.count_sum, 0))),
+        ...dissimNewStats.map((x) => Math.max(0, toFiniteNumber(x.count_sum, 0))),
+      );
+      function aggMarkerRadius(countValue) {{
+        const c = Math.max(0, toFiniteNumber(countValue, 0));
+        return 3.4 + (Math.sqrt(c) / Math.sqrt(maxAggCount)) * 4.4;
+      }}
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Gradient rank evolution aggregate chart">`;
       for (const tick of yTicks) {{
         const y = mapY(tick);
         svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e4edf6" stroke-width="1.2"></line>`;
@@ -2613,100 +2630,137 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       for (const tick of xTicks) {{
         const x = mapX(tick);
         svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#eef4fa" stroke-width="1.1"></line>`;
-        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 28).toFixed(2)}}" font-size="15" fill="#4e677d" text-anchor="middle">${{tick}}</text>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 26).toFixed(2)}}" font-size="15" fill="#4e677d" text-anchor="middle">${{tick}}</text>`;
       }}
       svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#5e7890" stroke-width="1.8"></line>`;
       svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#5e7890" stroke-width="1.8"></line>`;
-      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 8).toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle">training epoch</text>`;
+      svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 6).toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle">training epoch</text>`;
       const yAnchor = margin.top + (plotHeight / 2);
       svg += `<text x="24" y="${{yAnchor.toFixed(2)}}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${{yAnchor.toFixed(2)}})">gradient-magnitude percentile (0-100)</text>`;
 
       const classSpecs = [
-        {{ cls: "sim", cum: simCumStats, newSeries: simNewStats }},
-        {{ cls: "dissim", cum: dissimCumStats, newSeries: dissimNewStats }},
+        {{ cls: "sim", cum_stats: simCumStats, new_stats: simNewStats }},
+        {{ cls: "dissim", cum_stats: dissimCumStats, new_stats: dissimNewStats }},
       ];
       for (const spec of classSpecs) {{
-        const tone = classStyle[spec.cls];
-        for (const d of bandPaths(spec.cum)) {{
-          svg += `<path d="${{d}}" fill="${{tone.band_fill}}" stroke="none"></path>`;
+        const style = classStyle[spec.cls];
+        for (const d of bandPaths(spec.new_stats, mapX, mapY)) {{
+          svg += `<path d="${{d}}" fill="${{style.band_fill}}" stroke="none"></path>`;
         }}
       }}
-
-      for (const ds of datasets) {{
-        for (const cls of ["sim", "dissim"]) {{
-          const style = classStyle[cls];
-          const dashAttr = style.cum_dash ? ` stroke-dasharray="${{style.cum_dash}}"` : "";
-          const cumPath = linePath(ds[`${{cls}}_cum`], "value", ds.jitter_px || 0);
-          if (cumPath) {{
-            svg += `<path d="${{cumPath}}" fill="none" stroke="${{ds.color}}" stroke-width="2.2"${{dashAttr}} stroke-linecap="round" opacity="0.75"></path>`;
-          }}
-          const newPath = linePath(ds[`${{cls}}_new`], "value", ds.jitter_px || 0);
-          if (newPath) {{
-            const newDashAttr = style.new_dash ? ` stroke-dasharray="${{style.new_dash}}"` : "";
-            svg += `<path d="${{newPath}}" fill="none" stroke="${{ds.color}}" stroke-width="2.8"${{newDashAttr}} stroke-linecap="round" opacity="0.95"></path>`;
-          }}
-        }}
-      }}
-
       for (const spec of classSpecs) {{
-        const tone = classStyle[spec.cls];
-        const cumPath = linePath(spec.cum, "mean", 0);
+        const style = classStyle[spec.cls];
+        const cumPath = pathFromSeries(spec.cum_stats, mapX, mapY, "mean");
         if (cumPath) {{
-          const dashAttr = tone.cum_dash ? ` stroke-dasharray="${{tone.cum_dash}}"` : "";
-          svg += `<path d="${{cumPath}}" fill="none" stroke="${{tone.color}}" stroke-width="3.2"${{dashAttr}} stroke-linecap="round" opacity="0.9"></path>`;
-        }}
-        const newMeanPath = linePath(spec.newSeries, "mean", 0);
-        if (newMeanPath) {{
-          svg += `<path d="${{newMeanPath}}" fill="none" stroke="${{tone.color}}" stroke-width="3.8" stroke-linecap="round"></path>`;
+          svg += `<path d="${{cumPath}}" fill="none" stroke="${{style.color}}" stroke-width="2.4" stroke-dasharray="7 5" stroke-linecap="round" opacity="0.82"></path>`;
         }}
       }}
-
-      for (const ds of datasets) {{
-        for (const cls of ["sim", "dissim"]) {{
-          const tone = classStyle[cls];
-          for (const pt of ds[`${{cls}}_new`] || []) {{
-            const x = mapX(pt.epoch) + (ds.jitter_px || 0);
-            const y = mapY(pt.value);
-            const r = markerRadius(pt.count);
-            const tip = `${{ds.dataset_label}} ${{tone.label}} new | epoch ${{pt.epoch}} | rank=${{pt.value.toFixed(2)}} | count=${{Math.round(pt.count)}}`;
-            if (cls === "dissim") {{
-              svg += `<rect x="${{(x - r).toFixed(2)}}" y="${{(y - r).toFixed(2)}}" width="${{(2 * r).toFixed(2)}}" height="${{(2 * r).toFixed(2)}}" fill="${{ds.color}}" stroke="#ffffff" stroke-width="1.1"><title>${{esc(tip)}}</title></rect>`;
-            }} else {{
-              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{r.toFixed(2)}}" fill="${{ds.color}}" stroke="#ffffff" stroke-width="1.1"><title>${{esc(tip)}}</title></circle>`;
-            }}
+      for (const spec of classSpecs) {{
+        const style = classStyle[spec.cls];
+        const newPath = pathFromSeries(spec.new_stats, mapX, mapY, "mean");
+        if (newPath) {{
+          svg += `<path d="${{newPath}}" fill="none" stroke="${{style.color}}" stroke-width="4.2" stroke-linecap="round"></path>`;
+        }}
+        for (const pt of spec.new_stats) {{
+          const x = mapX(pt.epoch);
+          const y = mapY(pt.mean);
+          const r = aggMarkerRadius(pt.count_sum);
+          const tip = `${{style.label}} mean new | epoch ${{pt.epoch}} | rank=${{pt.mean.toFixed(2)}} | newly-forgotten=${{Math.round(pt.count_sum)}}`;
+          if (spec.cls === "dissim") {{
+            svg += `<rect x="${{(x - r).toFixed(2)}}" y="${{(y - r).toFixed(2)}}" width="${{(2 * r).toFixed(2)}}" height="${{(2 * r).toFixed(2)}}" fill="${{style.color}}" stroke="#ffffff" stroke-width="1.1"><title>${{esc(tip)}}</title></rect>`;
+          }} else {{
+            svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{r.toFixed(2)}}" fill="${{style.color}}" stroke="#ffffff" stroke-width="1.1"><title>${{esc(tip)}}</title></circle>`;
           }}
         }}
+        const last = spec.new_stats.length > 0 ? spec.new_stats[spec.new_stats.length - 1] : null;
+        if (last) {{
+          const lx = mapX(last.epoch) + 8;
+          const ly = mapY(last.mean) - 5;
+          svg += `<text x="${{lx.toFixed(2)}}" y="${{ly.toFixed(2)}}" font-size="14" fill="${{style.color}}" font-weight="700">${{style.label}} new ${{last.mean.toFixed(1)}}</text>`;
+        }}
       }}
+      svg += `</svg>`;
 
       function firstLastText(series) {{
         if (!series || series.length < 2) return "insufficient data";
         const first = series[0].mean;
         const last = series[series.length - 1].mean;
         const delta = last - first;
-        const dir = delta > 1.0 ? "up" : (delta < -1.0 ? "down" : "flat");
-        return `${{first.toFixed(1)}} -> ${{last.toFixed(1)}} (${{dir}}, ${{Math.abs(delta).toFixed(1)}})`;
+        const dir = delta < -1.0 ? "down" : (delta > 1.0 ? "up" : "flat");
+        return `${{first.toFixed(1)}} -> ${{last.toFixed(1)}} (${{dir}} by ${{Math.abs(delta).toFixed(1)}})`;
+      }}
+
+      function nRangeText(series) {{
+        if (!series || series.length === 0) return "n/a";
+        const ns = series.map((x) => Math.max(0, Math.round(toFiniteNumber(x.n, 0))));
+        return `${{Math.min(...ns)}}-${{Math.max(...ns)}}`;
+      }}
+
+      function seriesPathMini(series, mapXMini, mapYMini) {{
+        return pathFromSeries(series, mapXMini, mapYMini, "value");
+      }}
+
+      function firstLastDataset(series) {{
+        if (!series || series.length === 0) return "no events";
+        const first = series[0].value;
+        const last = series[series.length - 1].value;
+        return `${{first.toFixed(1)}} -> ${{last.toFixed(1)}}`;
+      }}
+
+      function renderMiniDataset(ds) {{
+        const w = 520;
+        const h = 220;
+        const m = {{ top: 12, right: 10, bottom: 26, left: 34 }};
+        const pw = w - m.left - m.right;
+        const ph = h - m.top - m.bottom;
+        const mapXMini = (v) => scaleLinear(v, 1, epochCeil, m.left, m.left + pw);
+        const mapYMini = (v) => scaleLinear(v, 0, 100, m.top + ph, m.top);
+        const xMid = Math.max(1, Math.round((epochCeil + 1) / 2));
+        const miniXTicks = Array.from(new Set([1, xMid, epochCeil])).sort((a, b) => a - b);
+        let inner = `<svg class="evo-mini-chart" viewBox="0 0 ${{w}} ${{h}}" role="img" aria-label="${{esc(ds.dataset_label)}} rank evolution">`;
+        for (const t of [0, 50, 100]) {{
+          const y = mapYMini(t);
+          inner += `<line x1="${{m.left}}" y1="${{y.toFixed(2)}}" x2="${{(m.left + pw).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#edf3f8" stroke-width="1"></line>`;
+        }}
+        for (const t of miniXTicks) {{
+          const x = mapXMini(t);
+          inner += `<line x1="${{x.toFixed(2)}}" y1="${{m.top}}" x2="${{x.toFixed(2)}}" y2="${{(m.top + ph).toFixed(2)}}" stroke="#f2f6fb" stroke-width="1"></line>`;
+          inner += `<text x="${{x.toFixed(2)}}" y="${{(h - 7).toFixed(2)}}" font-size="10.5" fill="#5d7488" text-anchor="middle">${{t}}</text>`;
+        }}
+        inner += `<line x1="${{m.left}}" y1="${{m.top}}" x2="${{m.left}}" y2="${{(m.top + ph).toFixed(2)}}" stroke="#708ba3" stroke-width="1.2"></line>`;
+        inner += `<line x1="${{m.left}}" y1="${{(m.top + ph).toFixed(2)}}" x2="${{(m.left + pw).toFixed(2)}}" y2="${{(m.top + ph).toFixed(2)}}" stroke="#708ba3" stroke-width="1.2"></line>`;
+
+        const simCum = seriesPathMini(ds.sim_cum, mapXMini, mapYMini);
+        if (simCum) inner += `<path d="${{simCum}}" fill="none" stroke="${{classStyle.sim.color}}" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.75"></path>`;
+        const dissimCum = seriesPathMini(ds.dissim_cum, mapXMini, mapYMini);
+        if (dissimCum) inner += `<path d="${{dissimCum}}" fill="none" stroke="${{classStyle.dissim.color}}" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.75"></path>`;
+        const simNew = seriesPathMini(ds.sim_new, mapXMini, mapYMini);
+        if (simNew) inner += `<path d="${{simNew}}" fill="none" stroke="${{classStyle.sim.color}}" stroke-width="2.2"></path>`;
+        const dissimNew = seriesPathMini(ds.dissim_new, mapXMini, mapYMini);
+        if (dissimNew) inner += `<path d="${{dissimNew}}" fill="none" stroke="${{classStyle.dissim.color}}" stroke-width="2.2"></path>`;
+        inner += `</svg>`;
+        const trendTxt = `SIM ${{firstLastDataset(ds.sim_new)}} | DISSIM ${{firstLastDataset(ds.dissim_new)}}`;
+        return `<section class="evo-mini-panel"><h4 class="evo-mini-title">${{esc(ds.dataset_label)}}</h4>${{inner}}<p class="evo-mini-note">${{esc(trendTxt)}}</p></section>`;
       }}
 
       const simTrend = firstLastText(simNewStats);
       const dissimTrend = firstLastText(dissimNewStats);
       const datasetLabels = datasets.map((ds) => ds.dataset_label).filter((x) => x);
-      svg += `</svg>`;
+      const miniPanels = datasets.map((ds) => renderMiniDataset(ds)).join("");
 
       let html = `<div class="evo-grad-deck"><div class="evo-grad-main">${{svg}}</div>`;
       html += `<div class="evo-legend">`;
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#0E5E5A"></span>SIM mean new-rank</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#0E5E5A;border-top-style:dashed"></span>SIM mean cumulative-rank</span>`;
       html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#A34D1A"></span>DISSIM mean new-rank</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#A34D1A;border-top-style:dashed"></span>DISSIM mean cumulative-rank</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-chip" style="background:#6aa3cc"></span>Thin colored lines = each dataset trajectory (all datasets shown)</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-marker-sample"></span>SIM new-forgotten events</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-marker-sample square"></span>DISSIM new-forgotten events</span>`;
-      html += `<span class="evo-legend-item">Shaded band = IQR (q25-q75) across datasets</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:#0E5E5A"></span>SIM mean cumulative-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:#A34D1A"></span>DISSIM mean cumulative-rank</span>`;
+      html += `<span class="evo-legend-item">Shaded bands = IQR across datasets</span>`;
       html += `</div>`;
-      html += `<p class="evo-grad-note"><strong>Datasets in this plot:</strong> ${{esc(datasetLabels.join(", "))}}</p>`;
-      html += `<p class="evo-grad-note"><strong>Rank (simple):</strong> inside each dataset and class, sort questions by <code>|g_i|</code> (absolute gradient similarity) from largest to smallest. Rank says where a forgotten question sits in that list: high rank = stronger-gradient region.</p>`;
-      html += `<p class="evo-grad-note"><strong>Math:</strong> with position <code>r(q)</code> among <code>N</code> class items, <code>rank_pct(q)=100*(1-(r(q)-1)/(N-1))</code>. So <code>100</code> is the top-gradient end and <code>0</code> is the bottom-gradient end.</p>`;
-      html += `<p class="evo-grad-note"><strong>Observed trend:</strong> SIM new-rank ${{esc(simTrend)}}; DISSIM new-rank ${{esc(dissimTrend)}}. Falling new-rank means new forgetting is moving from top-gradient items toward lower-gradient items as training proceeds.</p>`;
+      html += `<div class="evo-legend">` + datasets.map((ds) => `<span class="evo-legend-item"><span class="evo-chip" style="background:${{esc(ds.color)}}"></span>${{esc(ds.dataset_label)}}</span>`).join("") + `</div>`;
+      html += `<div class="evo-small-grid">${{miniPanels}}</div>`;
+      html += `<p class="evo-grad-note"><strong>Rank (simple):</strong> inside each dataset/class, sort questions by <code>|g_i|</code> from largest to smallest. High rank means forgetting is still concentrated on stronger-gradient items.</p>`;
+      html += `<p class="evo-grad-note"><strong>Math:</strong> <code>rank_pct(q)=100*(1-(r(q)-1)/(N-1))</code>, where <code>r(q)</code> is position in that sorted list and <code>N</code> is class size.</p>`;
+      html += `<p class="evo-grad-note"><strong>Observed trend:</strong> SIM ${{esc(simTrend)}}; DISSIM ${{esc(dissimTrend)}}. Coverage per epoch (datasets): SIM ${{esc(nRangeText(simNewStats))}}, DISSIM ${{esc(nRangeText(dissimNewStats))}}. Datasets: ${{esc(datasetLabels.join(", "))}}.</p>`;
       html += `</div>`;
       return html;
     }}
