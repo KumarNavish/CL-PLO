@@ -1,5 +1,5 @@
 {
-  "collected_at_utc": "2026-02-13T17:18:46.563248+00:00",
+  "collected_at_utc": "2026-02-13T17:31:33.433593+00:00",
   "host": "dmi-fibonacci",
   "cwd": "/users/staff/dmi-dmi/kumar0002/Collaborative-Neuron-Learning",
   "status": "ok",
@@ -16,7 +16,7 @@
     },
     {
       "label": "Collected At (UTC)",
-      "value": "2026-02-13T17:18:46.563248+00:00"
+      "value": "2026-02-13T17:31:33.433593+00:00"
     },
     {
       "label": "Model Tag",
@@ -227,7 +227,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 46.0243,
               "new_forgot_count": 46,
-              "new_abs_grad_mass_pct": 46.0243
+              "new_abs_grad_mass_pct": 46.0243,
+              "cum_rank_pct": 57.4903,
+              "new_rank_pct": 57.4903
             },
             {
               "epoch": 2,
@@ -238,7 +240,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 82.1608,
               "new_forgot_count": 37,
-              "new_abs_grad_mass_pct": 36.1365
+              "new_abs_grad_mass_pct": 36.1365,
+              "cum_rank_pct": 54.3123,
+              "new_rank_pct": 50.3613
             },
             {
               "epoch": 3,
@@ -249,7 +253,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 98.1211,
               "new_forgot_count": 17,
-              "new_abs_grad_mass_pct": 15.9603
+              "new_abs_grad_mass_pct": 15.9603,
+              "cum_rank_pct": 50.4059,
+              "new_rank_pct": 31.3337
             },
             {
               "epoch": 4,
@@ -260,7 +266,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 1.8789
+              "new_abs_grad_mass_pct": 1.8789,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 29.703
             },
             {
               "epoch": 5,
@@ -271,7 +279,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 6,
@@ -282,7 +292,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 7,
@@ -293,7 +305,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 8,
@@ -304,7 +318,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 9,
@@ -315,7 +331,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 10,
@@ -326,7 +344,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 11,
@@ -337,7 +357,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 12,
@@ -348,7 +370,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 13,
@@ -359,7 +383,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -370,7 +396,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -381,7 +409,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 16,
@@ -392,7 +422,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -403,7 +435,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -414,7 +448,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -425,7 +461,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -436,7 +474,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -447,7 +487,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -458,7 +500,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -469,7 +513,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -480,7 +526,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -491,7 +539,9 @@
               "class_abs_grad_total": 209941.74826283,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ],
           "dissim": [
@@ -504,7 +554,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 0.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": null,
+              "new_rank_pct": null
             },
             {
               "epoch": 2,
@@ -515,7 +567,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 14.2046,
               "new_forgot_count": 14,
-              "new_abs_grad_mass_pct": 14.2046
+              "new_abs_grad_mass_pct": 14.2046,
+              "cum_rank_pct": 70.7921,
+              "new_rank_pct": 70.7921
             },
             {
               "epoch": 3,
@@ -526,7 +580,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 39.1924,
               "new_forgot_count": 25,
-              "new_abs_grad_mass_pct": 24.9877
+              "new_abs_grad_mass_pct": 24.9877,
+              "cum_rank_pct": 60.3453,
+              "new_rank_pct": 54.495
             },
             {
               "epoch": 4,
@@ -537,7 +593,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 62.8881,
               "new_forgot_count": 24,
-              "new_abs_grad_mass_pct": 23.6957
+              "new_abs_grad_mass_pct": 23.6957,
+              "cum_rank_pct": 56.2785,
+              "new_rank_pct": 49.67
             },
             {
               "epoch": 5,
@@ -548,7 +606,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 77.501,
               "new_forgot_count": 15,
-              "new_abs_grad_mass_pct": 14.6129
+              "new_abs_grad_mass_pct": 14.6129,
+              "cum_rank_pct": 54.7601,
+              "new_rank_pct": 48.3828
             },
             {
               "epoch": 6,
@@ -559,7 +619,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 89.2875,
               "new_forgot_count": 12,
-              "new_abs_grad_mass_pct": 11.7865
+              "new_abs_grad_mass_pct": 11.7865,
+              "cum_rank_pct": 54.2684,
+              "new_rank_pct": 51.0726
             },
             {
               "epoch": 7,
@@ -570,7 +632,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 96.7833,
               "new_forgot_count": 8,
-              "new_abs_grad_mass_pct": 7.4959
+              "new_abs_grad_mass_pct": 7.4959,
+              "cum_rank_pct": 51.8287,
+              "new_rank_pct": 24.3812
             },
             {
               "epoch": 8,
@@ -581,7 +645,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 99.2195,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 2.4362
+              "new_abs_grad_mass_pct": 2.4362,
+              "cum_rank_pct": 50.4558,
+              "new_rank_pct": 5.6106
             },
             {
               "epoch": 9,
@@ -592,7 +658,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 0.7805
+              "new_abs_grad_mass_pct": 0.7805,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 3.9604
             },
             {
               "epoch": 10,
@@ -603,7 +671,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 11,
@@ -614,7 +684,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 12,
@@ -625,7 +697,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 13,
@@ -636,7 +710,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -647,7 +723,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -658,7 +736,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 16,
@@ -669,7 +749,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -680,7 +762,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -691,7 +775,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -702,7 +788,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -713,7 +801,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -724,7 +814,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -735,7 +827,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -746,7 +840,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -757,7 +853,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -768,7 +866,9 @@
               "class_abs_grad_total": 155746.06518835,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ]
         },
@@ -789,7 +889,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 18.8955,
               "new_forgot_count": 16,
-              "new_abs_grad_mass_pct": 18.8955
+              "new_abs_grad_mass_pct": 18.8955,
+              "cum_rank_pct": 70.6461,
+              "new_rank_pct": 70.6461
             },
             {
               "epoch": 2,
@@ -800,7 +902,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 31.8848,
               "new_forgot_count": 12,
-              "new_abs_grad_mass_pct": 12.9892
+              "new_abs_grad_mass_pct": 12.9892,
+              "cum_rank_pct": 57.2632,
+              "new_rank_pct": 39.4195
             },
             {
               "epoch": 3,
@@ -811,7 +915,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 42.7204,
               "new_forgot_count": 10,
-              "new_abs_grad_mass_pct": 10.8356
+              "new_abs_grad_mass_pct": 10.8356,
+              "cum_rank_pct": 53.3708,
+              "new_rank_pct": 42.4719
             },
             {
               "epoch": 4,
@@ -822,7 +928,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 59.3508,
               "new_forgot_count": 15,
-              "new_abs_grad_mass_pct": 16.6304
+              "new_abs_grad_mass_pct": 16.6304,
+              "cum_rank_pct": 52.7878,
+              "new_rank_pct": 51.3109
             },
             {
               "epoch": 5,
@@ -833,7 +941,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 71.942,
               "new_forgot_count": 11,
-              "new_abs_grad_mass_pct": 12.5912
+              "new_abs_grad_mass_pct": 12.5912,
+              "cum_rank_pct": 55.3722,
+              "new_rank_pct": 67.8243
             },
             {
               "epoch": 6,
@@ -844,7 +954,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 83.9245,
               "new_forgot_count": 11,
-              "new_abs_grad_mass_pct": 11.9824
+              "new_abs_grad_mass_pct": 11.9824,
+              "cum_rank_pct": 53.3483,
+              "new_rank_pct": 41.573
             },
             {
               "epoch": 7,
@@ -855,7 +967,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 91.3832,
               "new_forgot_count": 7,
-              "new_abs_grad_mass_pct": 7.4587
+              "new_abs_grad_mass_pct": 7.4587,
+              "cum_rank_pct": 51.7265,
+              "new_rank_pct": 34.3499
             },
             {
               "epoch": 8,
@@ -866,7 +980,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 95.8169,
               "new_forgot_count": 4,
-              "new_abs_grad_mass_pct": 4.4337
+              "new_abs_grad_mass_pct": 4.4337,
+              "cum_rank_pct": 51.0975,
+              "new_rank_pct": 38.2022
             },
             {
               "epoch": 9,
@@ -877,7 +993,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 98.9842,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 3.1673
+              "new_abs_grad_mass_pct": 3.1673,
+              "cum_rank_pct": 50.4229,
+              "new_rank_pct": 31.0861
             },
             {
               "epoch": 10,
@@ -888,7 +1006,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.0158
+              "new_abs_grad_mass_pct": 1.0158,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 12.3596
             },
             {
               "epoch": 11,
@@ -899,7 +1019,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 12,
@@ -910,7 +1032,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 13,
@@ -921,7 +1045,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -932,7 +1058,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -943,7 +1071,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 16,
@@ -954,7 +1084,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -965,7 +1097,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -976,7 +1110,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -987,7 +1123,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -998,7 +1136,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -1009,7 +1149,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -1020,7 +1162,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -1031,7 +1175,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -1042,7 +1188,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -1053,7 +1201,9 @@
               "class_abs_grad_total": 59581.41914886,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ],
           "dissim": [
@@ -1066,7 +1216,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 1.377,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.377
+              "new_abs_grad_mass_pct": 1.377,
+              "cum_rank_pct": 97.7528,
+              "new_rank_pct": 97.7528
             },
             {
               "epoch": 2,
@@ -1077,7 +1229,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 6.5796,
               "new_forgot_count": 4,
-              "new_abs_grad_mass_pct": 5.2026
+              "new_abs_grad_mass_pct": 5.2026,
+              "cum_rank_pct": 82.6966,
+              "new_rank_pct": 78.9326
             },
             {
               "epoch": 3,
@@ -1088,7 +1242,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 9.1677,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 2.5881
+              "new_abs_grad_mass_pct": 2.5881,
+              "cum_rank_pct": 81.2199,
+              "new_rank_pct": 77.5281
             },
             {
               "epoch": 4,
@@ -1099,7 +1255,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 18.7683,
               "new_forgot_count": 8,
-              "new_abs_grad_mass_pct": 9.6005
+              "new_abs_grad_mass_pct": 9.6005,
+              "cum_rank_pct": 72.1348,
+              "new_rank_pct": 64.1854
             },
             {
               "epoch": 5,
@@ -1110,7 +1268,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 19.8924,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.1242
+              "new_abs_grad_mass_pct": 1.1242,
+              "cum_rank_pct": 70.5056,
+              "new_rank_pct": 46.0674
             },
             {
               "epoch": 6,
@@ -1121,7 +1281,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 31.647,
               "new_forgot_count": 11,
-              "new_abs_grad_mass_pct": 11.7546
+              "new_abs_grad_mass_pct": 11.7546,
+              "cum_rank_pct": 57.7611,
+              "new_rank_pct": 39.2237
             },
             {
               "epoch": 7,
@@ -1132,7 +1294,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 37.8908,
               "new_forgot_count": 5,
-              "new_abs_grad_mass_pct": 6.2438
+              "new_abs_grad_mass_pct": 6.2438,
+              "cum_rank_pct": 59.5857,
+              "new_rank_pct": 69.4382
             },
             {
               "epoch": 8,
@@ -1143,7 +1307,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 42.2745,
               "new_forgot_count": 4,
-              "new_abs_grad_mass_pct": 4.3837
+              "new_abs_grad_mass_pct": 4.3837,
+              "cum_rank_pct": 59.0512,
+              "new_rank_pct": 54.7753
             },
             {
               "epoch": 9,
@@ -1154,7 +1320,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 45.8167,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 3.5423
+              "new_abs_grad_mass_pct": 3.5423,
+              "cum_rank_pct": 59.2048,
+              "new_rank_pct": 61.0487
             },
             {
               "epoch": 10,
@@ -1165,7 +1333,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 52.7875,
               "new_forgot_count": 6,
-              "new_abs_grad_mass_pct": 6.9708
+              "new_abs_grad_mass_pct": 6.9708,
+              "cum_rank_pct": 58.427,
+              "new_rank_pct": 53.3708
             },
             {
               "epoch": 11,
@@ -1176,7 +1346,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 55.0786,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 2.291
+              "new_abs_grad_mass_pct": 2.291,
+              "cum_rank_pct": 58.164,
+              "new_rank_pct": 52.2472
             },
             {
               "epoch": 12,
@@ -1187,7 +1359,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 61.7719,
               "new_forgot_count": 6,
-              "new_abs_grad_mass_pct": 6.6933
+              "new_abs_grad_mass_pct": 6.6933,
+              "cum_rank_pct": 56.9218,
+              "new_rank_pct": 47.191
             },
             {
               "epoch": 13,
@@ -1198,7 +1372,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 62.9797,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.2078
+              "new_abs_grad_mass_pct": 1.2078,
+              "cum_rank_pct": 57.0329,
+              "new_rank_pct": 62.9213
             },
             {
               "epoch": 14,
@@ -1209,7 +1385,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 66.7397,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 3.7601
+              "new_abs_grad_mass_pct": 3.7601,
+              "cum_rank_pct": 57.7765,
+              "new_rank_pct": 71.161
             },
             {
               "epoch": 15,
@@ -1220,7 +1398,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 67.8237,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.084
+              "new_abs_grad_mass_pct": 1.084,
+              "cum_rank_pct": 57.439,
+              "new_rank_pct": 38.2022
             },
             {
               "epoch": 16,
@@ -1231,7 +1411,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 72.8616,
               "new_forgot_count": 4,
-              "new_abs_grad_mass_pct": 5.0379
+              "new_abs_grad_mass_pct": 5.0379,
+              "cum_rank_pct": 58.427,
+              "new_rank_pct": 72.7528
             },
             {
               "epoch": 17,
@@ -1242,7 +1424,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 74.062,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.2004
+              "new_abs_grad_mass_pct": 1.2004,
+              "cum_rank_pct": 58.4091,
+              "new_rank_pct": 57.3034
             },
             {
               "epoch": 18,
@@ -1253,7 +1437,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 75.9766,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 1.9146
+              "new_abs_grad_mass_pct": 1.9146,
+              "cum_rank_pct": 57.4417,
+              "new_rank_pct": 26.9663
             },
             {
               "epoch": 19,
@@ -1264,7 +1450,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 77.5937,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 1.6171
+              "new_abs_grad_mass_pct": 1.6171,
+              "cum_rank_pct": 56.0624,
+              "new_rank_pct": 11.236
             },
             {
               "epoch": 20,
@@ -1275,7 +1463,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 80.8373,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 3.2436
+              "new_abs_grad_mass_pct": 3.2436,
+              "cum_rank_pct": 55.6661,
+              "new_rank_pct": 46.8165
             },
             {
               "epoch": 21,
@@ -1286,7 +1476,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 83.0926,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 2.2553
+              "new_abs_grad_mass_pct": 2.2553,
+              "cum_rank_pct": 54.1173,
+              "new_rank_pct": 17.9775
             },
             {
               "epoch": 22,
@@ -1297,7 +1489,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 83.0926,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 54.1173,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -1308,7 +1502,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 84.38,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.2875
+              "new_abs_grad_mass_pct": 1.2875,
+              "cum_rank_pct": 54.4185,
+              "new_rank_pct": 76.4045
             },
             {
               "epoch": 24,
@@ -1319,7 +1515,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 85.4221,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 1.042
+              "new_abs_grad_mass_pct": 1.042,
+              "cum_rank_pct": 54.1573,
+              "new_rank_pct": 34.8315
             },
             {
               "epoch": 25,
@@ -1330,7 +1528,9 @@
               "class_abs_grad_total": 32393.76967507,
               "abs_grad_mass_pct": 85.4221,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 54.1573,
+              "new_rank_pct": null
             }
           ]
         },
@@ -1351,7 +1551,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 44.2681,
               "new_forgot_count": 35,
-              "new_abs_grad_mass_pct": 44.2681
+              "new_abs_grad_mass_pct": 44.2681,
+              "cum_rank_pct": 60.2857,
+              "new_rank_pct": 60.2857
             },
             {
               "epoch": 2,
@@ -1362,7 +1564,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 90.687,
               "new_forgot_count": 38,
-              "new_abs_grad_mass_pct": 46.4189
+              "new_abs_grad_mass_pct": 46.4189,
+              "cum_rank_pct": 52.8938,
+              "new_rank_pct": 46.0855
             },
             {
               "epoch": 3,
@@ -1373,7 +1577,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 97.7406,
               "new_forgot_count": 6,
-              "new_abs_grad_mass_pct": 7.0536
+              "new_abs_grad_mass_pct": 7.0536,
+              "cum_rank_pct": 51.0443,
+              "new_rank_pct": 28.5417
             },
             {
               "epoch": 4,
@@ -1384,7 +1590,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 2.2594
+              "new_abs_grad_mass_pct": 2.2594,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 8.75
             },
             {
               "epoch": 5,
@@ -1395,7 +1603,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 6,
@@ -1406,7 +1616,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 7,
@@ -1417,7 +1629,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 8,
@@ -1428,7 +1642,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 9,
@@ -1439,7 +1655,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 10,
@@ -1450,7 +1668,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 11,
@@ -1461,7 +1681,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 12,
@@ -1472,7 +1694,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 13,
@@ -1483,7 +1707,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -1494,7 +1720,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -1505,7 +1733,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 16,
@@ -1516,7 +1746,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -1527,7 +1759,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -1538,7 +1772,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -1549,7 +1785,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -1560,7 +1798,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -1571,7 +1811,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -1582,7 +1824,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -1593,7 +1837,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -1604,7 +1850,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -1615,7 +1863,9 @@
               "class_abs_grad_total": 197206.00591673,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ],
           "dissim": [
@@ -1628,7 +1878,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 0.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": null,
+              "new_rank_pct": null
             },
             {
               "epoch": 2,
@@ -1639,7 +1891,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 5.4286,
               "new_forgot_count": 4,
-              "new_abs_grad_mass_pct": 5.4286
+              "new_abs_grad_mass_pct": 5.4286,
+              "cum_rank_pct": 76.875,
+              "new_rank_pct": 76.875
             },
             {
               "epoch": 3,
@@ -1650,7 +1904,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 16.3622,
               "new_forgot_count": 8,
-              "new_abs_grad_mass_pct": 10.9336
+              "new_abs_grad_mass_pct": 10.9336,
+              "cum_rank_pct": 78.8542,
+              "new_rank_pct": 79.8438
             },
             {
               "epoch": 4,
@@ -1661,7 +1917,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 30.8235,
               "new_forgot_count": 11,
-              "new_abs_grad_mass_pct": 14.4613
+              "new_abs_grad_mass_pct": 14.4613,
+              "cum_rank_pct": 72.8261,
+              "new_rank_pct": 66.25
             },
             {
               "epoch": 5,
@@ -1672,7 +1930,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 60.8363,
               "new_forgot_count": 23,
-              "new_abs_grad_mass_pct": 30.0129
+              "new_abs_grad_mass_pct": 30.0129,
+              "cum_rank_pct": 68.0435,
+              "new_rank_pct": 63.2609
             },
             {
               "epoch": 6,
@@ -1683,7 +1943,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 73.4196,
               "new_forgot_count": 10,
-              "new_abs_grad_mass_pct": 12.5833
+              "new_abs_grad_mass_pct": 12.5833,
+              "cum_rank_pct": 64.8884,
+              "new_rank_pct": 50.375
             },
             {
               "epoch": 7,
@@ -1694,7 +1956,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 84.5283,
               "new_forgot_count": 10,
-              "new_abs_grad_mass_pct": 11.1087
+              "new_abs_grad_mass_pct": 11.1087,
+              "cum_rank_pct": 58.447,
+              "new_rank_pct": 22.375
             },
             {
               "epoch": 8,
@@ -1705,7 +1969,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 91.2113,
               "new_forgot_count": 6,
-              "new_abs_grad_mass_pct": 6.683
+              "new_abs_grad_mass_pct": 6.683,
+              "cum_rank_pct": 55.2083,
+              "new_rank_pct": 19.5833
             },
             {
               "epoch": 9,
@@ -1716,7 +1982,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 96.4327,
               "new_forgot_count": 5,
-              "new_abs_grad_mass_pct": 5.2214
+              "new_abs_grad_mass_pct": 5.2214,
+              "cum_rank_pct": 52.4351,
+              "new_rank_pct": 12.5
             },
             {
               "epoch": 10,
@@ -1727,7 +1995,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 96.4327,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 52.4351,
+              "new_rank_pct": null
             },
             {
               "epoch": 11,
@@ -1738,7 +2008,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 97.3797,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 0.947
+              "new_abs_grad_mass_pct": 0.947,
+              "cum_rank_pct": 51.8429,
+              "new_rank_pct": 6.25
             },
             {
               "epoch": 12,
@@ -1749,7 +2021,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 99.1796,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 1.7999
+              "new_abs_grad_mass_pct": 1.7999,
+              "cum_rank_pct": 50.625,
+              "new_rank_pct": 3.125
             },
             {
               "epoch": 13,
@@ -1760,7 +2034,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 99.1796,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.625,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -1771,7 +2047,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 99.1796,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.625,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -1782,7 +2060,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 0.8204
+              "new_abs_grad_mass_pct": 0.8204,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 0.0
             },
             {
               "epoch": 16,
@@ -1793,7 +2073,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -1804,7 +2086,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -1815,7 +2099,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -1826,7 +2112,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -1837,7 +2125,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -1848,7 +2138,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -1859,7 +2151,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -1870,7 +2164,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -1881,7 +2177,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -1892,7 +2190,9 @@
               "class_abs_grad_total": 137375.91058989,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ]
         },
@@ -1913,7 +2213,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 34.72,
               "new_forgot_count": 29,
-              "new_abs_grad_mass_pct": 34.72
+              "new_abs_grad_mass_pct": 34.72,
+              "cum_rank_pct": 48.9907,
+              "new_rank_pct": 48.9907
             },
             {
               "epoch": 2,
@@ -1924,7 +2226,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 74.38,
               "new_forgot_count": 32,
-              "new_abs_grad_mass_pct": 39.66
+              "new_abs_grad_mass_pct": 39.66,
+              "cum_rank_pct": 56.2175,
+              "new_rank_pct": 62.7668
             },
             {
               "epoch": 3,
@@ -1935,7 +2239,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 94.1886,
               "new_forgot_count": 17,
-              "new_abs_grad_mass_pct": 19.8085
+              "new_abs_grad_mass_pct": 19.8085,
+              "cum_rank_pct": 51.2508,
+              "new_rank_pct": 33.429
             },
             {
               "epoch": 4,
@@ -1946,7 +2252,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 5,
-              "new_abs_grad_mass_pct": 5.8114
+              "new_abs_grad_mass_pct": 5.8114,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 30.4878
             },
             {
               "epoch": 5,
@@ -1957,7 +2265,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 6,
@@ -1968,7 +2278,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 7,
@@ -1979,7 +2291,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 8,
@@ -1990,7 +2304,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 9,
@@ -2001,7 +2317,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 10,
@@ -2012,7 +2330,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 11,
@@ -2023,7 +2343,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 12,
@@ -2034,7 +2356,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 13,
@@ -2045,7 +2369,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -2056,7 +2382,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -2067,7 +2395,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 16,
@@ -2078,7 +2408,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -2089,7 +2421,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -2100,7 +2434,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -2111,7 +2447,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -2122,7 +2460,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -2133,7 +2473,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -2144,7 +2486,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -2155,7 +2499,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -2166,7 +2512,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -2177,7 +2525,9 @@
               "class_abs_grad_total": 228301.32037998,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ],
           "dissim": [
@@ -2190,7 +2540,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 2.3722,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 2.3722
+              "new_abs_grad_mass_pct": 2.3722,
+              "cum_rank_pct": 45.122,
+              "new_rank_pct": 45.122
             },
             {
               "epoch": 2,
@@ -2201,7 +2553,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 12.984,
               "new_forgot_count": 8,
-              "new_abs_grad_mass_pct": 10.6118
+              "new_abs_grad_mass_pct": 10.6118,
+              "cum_rank_pct": 63.4146,
+              "new_rank_pct": 67.9878
             },
             {
               "epoch": 3,
@@ -2212,7 +2566,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 23.2108,
               "new_forgot_count": 8,
-              "new_abs_grad_mass_pct": 10.2268
+              "new_abs_grad_mass_pct": 10.2268,
+              "cum_rank_pct": 63.6856,
+              "new_rank_pct": 64.0244
             },
             {
               "epoch": 4,
@@ -2223,7 +2579,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 44.3885,
               "new_forgot_count": 16,
-              "new_abs_grad_mass_pct": 21.1777
+              "new_abs_grad_mass_pct": 21.1777,
+              "cum_rank_pct": 66.1406,
+              "new_rank_pct": 68.9024
             },
             {
               "epoch": 5,
@@ -2234,7 +2592,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 67.5465,
               "new_forgot_count": 18,
-              "new_abs_grad_mass_pct": 23.158
+              "new_abs_grad_mass_pct": 23.158,
+              "cum_rank_pct": 65.6426,
+              "new_rank_pct": 64.7019
             },
             {
               "epoch": 6,
@@ -2245,7 +2605,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 74.9639,
               "new_forgot_count": 6,
-              "new_abs_grad_mass_pct": 7.4174
+              "new_abs_grad_mass_pct": 7.4174,
+              "cum_rank_pct": 63.7931,
+              "new_rank_pct": 47.7642
             },
             {
               "epoch": 7,
@@ -2256,7 +2618,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 86.446,
               "new_forgot_count": 11,
-              "new_abs_grad_mass_pct": 11.4821
+              "new_abs_grad_mass_pct": 11.4821,
+              "cum_rank_pct": 57.1934,
+              "new_rank_pct": 22.3947
             },
             {
               "epoch": 8,
@@ -2267,7 +2631,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 88.5698,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 2.1238
+              "new_abs_grad_mass_pct": 2.1238,
+              "cum_rank_pct": 56.1834,
+              "new_rank_pct": 21.3415
             },
             {
               "epoch": 9,
@@ -2278,7 +2644,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 94.5626,
               "new_forgot_count": 6,
-              "new_abs_grad_mass_pct": 5.9927
+              "new_abs_grad_mass_pct": 5.9927,
+              "cum_rank_pct": 53.1359,
+              "new_rank_pct": 17.0732
             },
             {
               "epoch": 10,
@@ -2289,7 +2657,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 96.4133,
               "new_forgot_count": 2,
-              "new_abs_grad_mass_pct": 1.8508
+              "new_abs_grad_mass_pct": 1.8508,
+              "cum_rank_pct": 52.084,
+              "new_rank_pct": 11.5854
             },
             {
               "epoch": 11,
@@ -2300,7 +2670,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 99.1453,
               "new_forgot_count": 3,
-              "new_abs_grad_mass_pct": 2.732
+              "new_abs_grad_mass_pct": 2.732,
+              "cum_rank_pct": 50.5354,
+              "new_rank_pct": 9.7561
             },
             {
               "epoch": 12,
@@ -2311,7 +2683,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 1,
-              "new_abs_grad_mass_pct": 0.8547
+              "new_abs_grad_mass_pct": 0.8547,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": 6.0976
             },
             {
               "epoch": 13,
@@ -2322,7 +2696,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 14,
@@ -2333,7 +2709,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 15,
@@ -2344,7 +2722,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 16,
@@ -2355,7 +2735,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 17,
@@ -2366,7 +2748,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 18,
@@ -2377,7 +2761,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 19,
@@ -2388,7 +2774,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 20,
@@ -2399,7 +2787,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 21,
@@ -2410,7 +2800,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 22,
@@ -2421,7 +2813,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 23,
@@ -2432,7 +2826,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 24,
@@ -2443,7 +2839,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             },
             {
               "epoch": 25,
@@ -2454,7 +2852,9 @@
               "class_abs_grad_total": 158478.3028592,
               "abs_grad_mass_pct": 100.0,
               "new_forgot_count": 0,
-              "new_abs_grad_mass_pct": 0.0
+              "new_abs_grad_mass_pct": 0.0,
+              "cum_rank_pct": 50.0,
+              "new_rank_pct": null
             }
           ]
         }
@@ -2761,7 +3161,7 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "49 %"
+          "utilization": "46 %"
         },
         {
           "gpu": "4",
@@ -2782,14 +3182,14 @@
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "21 %"
+          "utilization": "29 %"
         },
         {
           "gpu": "7",
           "name": "NVIDIA GeForce RTX 3090",
           "memory_used": "9172 MiB",
           "memory_total": "24576 MiB",
-          "utilization": "51 %"
+          "utilization": "17 %"
         }
       ]
     },
@@ -2944,7 +3344,7 @@
     },
     {
       "title": "Runner Process",
-      "content": "2044537 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
+      "content": "2049790 /bin/sh -c pgrep -af run_full_smollm_baselines_remote.sh"
     },
     {
       "title": "Training Processes",
@@ -3098,7 +3498,7 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "49 %"
+      "utilization": "46 %"
     },
     {
       "gpu": "4",
@@ -3119,14 +3519,14 @@
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "21 %"
+      "utilization": "29 %"
     },
     {
       "gpu": "7",
       "name": "NVIDIA GeForce RTX 3090",
       "memory_used": "9172 MiB",
       "memory_total": "24576 MiB",
-      "utilization": "51 %"
+      "utilization": "17 %"
     }
   ],
   "public_dashboard_url": "https://romance-auditor-spots-kijiji.trycloudflare.com",

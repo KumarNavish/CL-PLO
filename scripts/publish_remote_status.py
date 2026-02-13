@@ -613,6 +613,17 @@ def build_cnl_table1_evolution(settings, jobs_rows, model_tag):
         grad_map = {str(r.get("question", "")): to_float(r.get("grad_dot"), default=0.0) for r in neg_rows}
         sim_total_abs_grad = sum(abs(grad_map.get(q, 0.0)) for q in sim_questions)
         dissim_total_abs_grad = sum(abs(grad_map.get(q, 0.0)) for q in dissim_questions)
+        sim_sorted_by_abs = sorted(sim_questions, key=lambda q: abs(grad_map.get(q, 0.0)), reverse=True)
+        dissim_sorted_by_abs = sorted(dissim_questions, key=lambda q: abs(grad_map.get(q, 0.0)), reverse=True)
+
+        def build_rank_map(sorted_questions):
+            size = len(sorted_questions)
+            if size <= 1:
+                return {q: 100.0 for q in sorted_questions}
+            return {q: 100.0 * (1.0 - (idx / (size - 1))) for idx, q in enumerate(sorted_questions)}
+
+        sim_rank_map = build_rank_map(sim_sorted_by_abs)
+        dissim_rank_map = build_rank_map(dissim_sorted_by_abs)
 
         epoch_files = []
         for p in jsonl_dir.glob("infer_correct_ep*.jsonl"):
@@ -661,6 +672,22 @@ def build_cnl_table1_evolution(settings, jobs_rows, model_tag):
             dissim_new_abs_mass_pct = (
                 100.0 * dissim_new_abs_grad / dissim_total_abs_grad if dissim_total_abs_grad > 0 else 0.0
             )
+            sim_cum_rank_pct = (
+                sum(sim_rank_map.get(q, 0.0) for q in sim_forgot_q) / sim_count if sim_count > 0 else None
+            )
+            dissim_cum_rank_pct = (
+                sum(dissim_rank_map.get(q, 0.0) for q in dissim_forgot_q) / dissim_count if dissim_count > 0 else None
+            )
+            sim_new_rank_pct = (
+                sum(sim_rank_map.get(q, 0.0) for q in sim_new_forgot_q) / len(sim_new_forgot_q)
+                if len(sim_new_forgot_q) > 0
+                else None
+            )
+            dissim_new_rank_pct = (
+                sum(dissim_rank_map.get(q, 0.0) for q in dissim_new_forgot_q) / len(dissim_new_forgot_q)
+                if len(dissim_new_forgot_q) > 0
+                else None
+            )
             if sim_count > 0:
                 sim_avg_grad = sum(grad_map.get(q, 0.0) for q in sim_forgot_q) / sim_count
             if dissim_count > 0:
@@ -677,6 +704,8 @@ def build_cnl_table1_evolution(settings, jobs_rows, model_tag):
                     "abs_grad_mass_pct": round(sim_abs_mass_pct, 4),
                     "new_forgot_count": len(sim_new_forgot_q),
                     "new_abs_grad_mass_pct": round(sim_new_abs_mass_pct, 4),
+                    "cum_rank_pct": None if sim_cum_rank_pct is None else round(sim_cum_rank_pct, 4),
+                    "new_rank_pct": None if sim_new_rank_pct is None else round(sim_new_rank_pct, 4),
                 }
             )
             dissim_points.append(
@@ -690,6 +719,8 @@ def build_cnl_table1_evolution(settings, jobs_rows, model_tag):
                     "abs_grad_mass_pct": round(dissim_abs_mass_pct, 4),
                     "new_forgot_count": len(dissim_new_forgot_q),
                     "new_abs_grad_mass_pct": round(dissim_new_abs_mass_pct, 4),
+                    "cum_rank_pct": None if dissim_cum_rank_pct is None else round(dissim_cum_rank_pct, 4),
+                    "new_rank_pct": None if dissim_new_rank_pct is None else round(dissim_new_rank_pct, 4),
                 }
             )
             prev_sim_forgot_set = sim_forgot_set
@@ -2233,6 +2264,8 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
               class_abs_grad_total: toFiniteNumber(point.class_abs_grad_total, null),
               new_forgot_count: toFiniteNumber(point.new_forgot_count, null),
               new_abs_grad_mass_pct: toFiniteNumber(point.new_abs_grad_mass_pct, null),
+              cum_rank_pct: toFiniteNumber(point.cum_rank_pct, null),
+              new_rank_pct: toFiniteNumber(point.new_rank_pct, null),
             }}))
             .filter((point) => point.epoch !== null)
             .sort((a, b) => a.epoch - b.epoch);
@@ -2375,55 +2408,52 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
 
     function renderEvolutionGradSvg(groups, epochMax) {{
       const classes = {{
-        sim: {{
-          label: "SIM",
-          color: "#0B6E69",
-          cum_dash: "",
-          inc_dash: "4 4",
-        }},
-        dissim: {{
-          label: "DISSIM",
-          color: "#B04E13",
-          cum_dash: "7 5",
-          inc_dash: "2 4",
-        }},
+        sim: {{ label: "SIM", color: "#0A6E6A", marker: "circle" }},
+        dissim: {{ label: "DISSIM", color: "#B2571B", marker: "square" }},
       }};
       const byClass = {{ sim: {{}}, dissim: {{}} }};
+      const epochSet = new Set();
 
       for (const group of groups) {{
         const classKey = group.class_key;
         if (!(classKey in classes)) {{
           continue;
         }}
-        const points = (group.points || [])
-          .filter(
-            (point) =>
-              Number.isFinite(point.epoch) &&
-              Number.isFinite(point.abs_grad_mass_pct) &&
-              Number.isFinite(point.new_abs_grad_mass_pct) &&
-              Number.isFinite(point.class_abs_grad_total),
-          )
-          .sort((a, b) => a.epoch - b.epoch);
-        for (const point of points) {{
-          const epoch = Math.round(point.epoch);
-          if (!byClass[classKey][epoch]) {{
-            byClass[classKey][epoch] = [];
+        for (const point of group.points || []) {{
+          const epoch = Math.round(toFiniteNumber(point.epoch, 0));
+          if (!Number.isFinite(epoch) || epoch <= 0) {{
+            continue;
           }}
-          byClass[classKey][epoch].push({{
-            cum: point.abs_grad_mass_pct,
-            inc: point.new_abs_grad_mass_pct,
-            weight: Math.max(0, point.class_abs_grad_total),
-          }});
+          epochSet.add(epoch);
+          if (!byClass[classKey][epoch]) {{
+            byClass[classKey][epoch] = {{
+              new_rank_entries: [],
+              cum_rank_entries: [],
+              new_count_total: 0,
+            }};
+          }}
+          const slot = byClass[classKey][epoch];
+          const newCount = Math.max(0, toFiniteNumber(point.new_forgot_count, 0));
+          if (Number.isFinite(point.new_rank_pct) && newCount > 0) {{
+            slot.new_rank_entries.push({{ value: point.new_rank_pct, weight: newCount }});
+          }}
+          const cumCount = Math.max(0, toFiniteNumber(point.forgot_count, 0));
+          if (Number.isFinite(point.cum_rank_pct) && cumCount > 0) {{
+            slot.cum_rank_entries.push({{ value: point.cum_rank_pct, weight: cumCount }});
+          }}
+          slot.new_count_total += newCount;
         }}
       }}
 
-      function summarizeClass(epochMap, valueKey) {{
-        const epochs = Object.keys(epochMap).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
-        return epochs.map((epoch) => {{
-          const entries = epochMap[epoch] || [];
-          const values = entries.map((entry) => entry[valueKey]).filter((v) => Number.isFinite(v));
+      function summarize(entriesMap, entryKey, countKey) {{
+        const epochs = Object.keys(entriesMap).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
+        const out = [];
+        for (const epoch of epochs) {{
+          const slot = entriesMap[epoch] || {{}};
+          const entries = slot[entryKey] || [];
+          const values = entries.map((entry) => entry.value).filter((v) => Number.isFinite(v));
           if (values.length === 0) {{
-            return null;
+            continue;
           }}
           const minVal = Math.min(...values);
           const maxVal = Math.max(...values);
@@ -2431,159 +2461,177 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
           let totalWeight = 0;
           for (const entry of entries) {{
             const w = Number.isFinite(entry.weight) ? Math.max(0, entry.weight) : 0;
-            weightedSum += entry[valueKey] * w;
+            weightedSum += entry.value * w;
             totalWeight += w;
           }}
-          const meanVal = totalWeight > 0 ? (weightedSum / totalWeight) : (values.reduce((a, b) => a + b, 0) / values.length);
-          return {{
+          out.push({{
             epoch: epoch,
-            mean: meanVal,
+            mean: totalWeight > 0 ? (weightedSum / totalWeight) : (values.reduce((a, b) => a + b, 0) / values.length),
             min: minVal,
             max: maxVal,
-          }};
-        }}).filter(Boolean);
+            count_total: toFiniteNumber(slot[countKey], 0),
+          }});
+        }}
+        return out;
       }}
 
-      const simCumSeries = summarizeClass(byClass.sim, "cum");
-      const dissimCumSeries = summarizeClass(byClass.dissim, "cum");
-      const simIncSeries = summarizeClass(byClass.sim, "inc");
-      const dissimIncSeries = summarizeClass(byClass.dissim, "inc");
-      if (simCumSeries.length === 0 && dissimCumSeries.length === 0) {{
-        return '<p class="evo-meta">No gradient-mass data are available yet.</p>';
+      const simNewSeries = summarize(byClass.sim, "new_rank_entries", "new_count_total");
+      const dissimNewSeries = summarize(byClass.dissim, "new_rank_entries", "new_count_total");
+      const simCumSeries = summarize(byClass.sim, "cum_rank_entries", "new_count_total");
+      const dissimCumSeries = summarize(byClass.dissim, "cum_rank_entries", "new_count_total");
+
+      if (simNewSeries.length === 0 && dissimNewSeries.length === 0 && simCumSeries.length === 0 && dissimCumSeries.length === 0) {{
+        return '<p class="evo-meta">No gradient-rank evolution data are available yet.</p>';
       }}
 
-      const allSeries = [...simCumSeries, ...dissimCumSeries, ...simIncSeries, ...dissimIncSeries];
-      const epochCeil = Math.max(
+      const allEpochs = Array.from(epochSet).sort((a, b) => a - b);
+      const epochCeil = Math.max(1, Math.round(Math.max(epochMax, ...allEpochs)));
+      const countMax = Math.max(
         1,
-        Math.round(Math.max(epochMax, ...allSeries.map((point) => point.epoch))),
+        ...simNewSeries.map((point) => point.count_total || 0),
+        ...dissimNewSeries.map((point) => point.count_total || 0),
       );
-      const yMaxRaw = Math.max(1, ...allSeries.map((point) => Math.max(point.max, point.mean)));
-      const yMax = Math.max(5, Math.ceil(yMaxRaw / 5) * 5);
 
       const width = 980;
       const height = 390;
-      const margin = {{ top: 16, right: 16, bottom: 42, left: 62 }};
+      const margin = {{ top: 16, right: 18, bottom: 42, left: 62 }};
       const plotWidth = width - margin.left - margin.right;
       const plotHeight = height - margin.top - margin.bottom;
       const mapX = (value) => scaleLinear(value, 1, epochCeil, margin.left, margin.left + plotWidth);
-      const mapY = (value) => scaleLinear(value, 0, yMax, margin.top + plotHeight, margin.top);
+      const mapY = (value) => scaleLinear(value, 0, 100, margin.top + plotHeight, margin.top);
       const xTicksRaw = buildLinearTicks(1, epochCeil, Math.min(8, Math.max(4, epochCeil)));
       const xTicks = Array.from(new Set(xTicksRaw.map((tick) => Math.round(tick))))
         .filter((tick) => tick >= 1 && tick <= epochCeil)
         .sort((a, b) => a - b);
       if (!xTicks.includes(1)) xTicks.unshift(1);
       if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
-      const yTicks = buildLinearTicks(0, yMax, 6);
+      const yTicks = [0, 20, 40, 60, 80, 100];
 
-      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Gradient-similarity mass captured by forgotten and newly forgotten questions over training epochs">`;
+      function markerRadius(countValue) {{
+        const c = Math.max(0, toFiniteNumber(countValue, 0));
+        const minR = 2.6;
+        const maxR = 8.2;
+        return minR + (Math.sqrt(c) / Math.sqrt(Math.max(1, countMax))) * (maxR - minR);
+      }}
+
+      function pathFromSeries(series, field) {{
+        if (!series || series.length === 0) {{
+          return "";
+        }}
+        let path = "";
+        for (let i = 0; i < series.length; i += 1) {{
+          const point = series[i];
+          const x = mapX(point.epoch);
+          const y = mapY(point[field]);
+          if (i === 0 || (point.epoch - series[i - 1].epoch) > 1) {{
+            path += `M ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
+          }} else {{
+            path += `L ${{x.toFixed(2)}} ${{y.toFixed(2)}} `;
+          }}
+        }}
+        return path.trim();
+      }}
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${{width}} ${{height}}" role="img" aria-label="Epoch-wise gradient rank evolution for newly forgotten and cumulative forgotten questions">`;
       for (const tick of yTicks) {{
         const y = mapY(tick);
-        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e5edf6" stroke-width="1"></line>`;
-        svg += `<text x="${{(margin.left - 8).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="end">${{tick.toFixed(1)}}%</text>`;
+        svg += `<line x1="${{margin.left}}" y1="${{y.toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{y.toFixed(2)}}" stroke="#e7eef6" stroke-width="1"></line>`;
+        svg += `<text x="${{(margin.left - 8).toFixed(2)}}" y="${{(y + 3.5).toFixed(2)}}" font-size="10" fill="#5c7488" text-anchor="end">${{tick}}</text>`;
       }}
       for (const tick of xTicks) {{
         const x = mapX(tick);
-        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#edf3f9" stroke-width="1"></line>`;
-        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#597086" text-anchor="middle">${{tick}}</text>`;
+        svg += `<line x1="${{x.toFixed(2)}}" y1="${{margin.top}}" x2="${{x.toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#f0f5fb" stroke-width="1"></line>`;
+        svg += `<text x="${{x.toFixed(2)}}" y="${{(height - 17).toFixed(2)}}" font-size="10" fill="#5c7488" text-anchor="middle">${{tick}}</text>`;
       }}
-      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
-      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#668198" stroke-width="1.25"></line>`;
+      svg += `<line x1="${{margin.left}}" y1="${{margin.top}}" x2="${{margin.left}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#6a8399" stroke-width="1.25"></line>`;
+      svg += `<line x1="${{margin.left}}" y1="${{(margin.top + plotHeight).toFixed(2)}}" x2="${{(margin.left + plotWidth).toFixed(2)}}" y2="${{(margin.top + plotHeight).toFixed(2)}}" stroke="#6a8399" stroke-width="1.25"></line>`;
       svg += `<text x="${{(margin.left + (plotWidth / 2)).toFixed(2)}}" y="${{(height - 5).toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle">training epoch</text>`;
       const yLabelAnchor = margin.top + (plotHeight / 2);
-      svg += `<text x="15" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${{yLabelAnchor.toFixed(2)}})">gradient-mass share (%)</text>`;
+      svg += `<text x="15" y="${{yLabelAnchor.toFixed(2)}}" font-size="11" fill="#35536c" text-anchor="middle" transform="rotate(-90 15 ${{yLabelAnchor.toFixed(2)}})">gradient-magnitude percentile (0-100)</text>`;
 
-      function pathFrom(series, field) {{
-        return series.map((point, idx) => `${{idx === 0 ? "M" : "L"}} ${{mapX(point.epoch).toFixed(2)}} ${{mapY(point[field]).toFixed(2)}}`).join(" ");
-      }}
-
-      const lineSpecs = [
-        {{ key: "sim", kind: "cum", series: simCumSeries }},
-        {{ key: "dissim", kind: "cum", series: dissimCumSeries }},
-        {{ key: "sim", kind: "inc", series: simIncSeries }},
-        {{ key: "dissim", kind: "inc", series: dissimIncSeries }},
+      const drawSpecs = [
+        {{ class_key: "sim", kind: "new", series: simNewSeries }},
+        {{ class_key: "dissim", kind: "new", series: dissimNewSeries }},
+        {{ class_key: "sim", kind: "cum", series: simCumSeries }},
+        {{ class_key: "dissim", kind: "cum", series: dissimCumSeries }},
       ];
 
-      for (const spec of lineSpecs) {{
-        const tone = classes[spec.key];
-        const series = spec.series || [];
-        if (series.length === 0) {{
+      for (const spec of drawSpecs) {{
+        if (spec.kind !== "new" || !spec.series || spec.series.length === 0) {{
           continue;
         }}
-        if (spec.kind === "cum") {{
-          const upper = pathFrom(series, "max");
-          const lower = pathFrom(series.slice().reverse(), "min");
-          const bandPath = `${{upper}} ${{lower}} Z`;
-          svg += `<path d="${{bandPath}}" fill="${{tone.color}}" fill-opacity="0.10" stroke="none"></path>`;
+        const tone = classes[spec.class_key];
+        const upper = pathFromSeries(spec.series, "max");
+        const lower = pathFromSeries(spec.series.slice().reverse(), "min");
+        if (upper && lower) {{
+          svg += `<path d="${{upper}} ${{lower}} Z" fill="${{tone.color}}" fill-opacity="0.11" stroke="none"></path>`;
         }}
       }}
 
-      for (const spec of lineSpecs) {{
-        const tone = classes[spec.key];
-        const series = spec.series || [];
-        if (series.length === 0) {{
+      for (const spec of drawSpecs) {{
+        if (!spec.series || spec.series.length === 0) {{
           continue;
         }}
-        const dash = spec.kind === "cum" ? tone.cum_dash : tone.inc_dash;
+        const tone = classes[spec.class_key];
+        const dash = spec.kind === "cum" ? "6 5" : "";
         const dashAttr = dash ? ` stroke-dasharray="${{dash}}"` : "";
-        const opacity = spec.kind === "cum" ? 1.0 : 0.72;
-        const widthStroke = spec.kind === "cum" ? 2.5 : 1.9;
-        const meanPath = pathFrom(series, "mean");
-        svg += `<path d="${{meanPath}}" fill="none" stroke="${{tone.color}}" stroke-width="${{widthStroke}}"${{dashAttr}} stroke-linecap="round" opacity="${{opacity}}"></path>`;
-
-        if (spec.kind === "cum") {{
-          for (const point of series) {{
+        const opacity = spec.kind === "cum" ? 0.58 : 0.98;
+        const strokeWidth = spec.kind === "cum" ? 1.9 : 2.5;
+        const path = pathFromSeries(spec.series, "mean");
+        if (path) {{
+          svg += `<path d="${{path}}" fill="none" stroke="${{tone.color}}" stroke-width="${{strokeWidth}}"${{dashAttr}} stroke-linecap="round" opacity="${{opacity}}"></path>`;
+        }}
+        if (spec.kind === "new") {{
+          for (const point of spec.series) {{
             const x = mapX(point.epoch);
             const y = mapY(point.mean);
-            const tip = `${{tone.label}} cumulative | epoch ${{point.epoch}} | mean=${{point.mean.toFixed(2)}}% | range=${{point.min.toFixed(2)}}% to ${{point.max.toFixed(2)}}%`;
-            if (spec.key === "dissim") {{
-              svg += `<rect x="${{(x - 3.0).toFixed(2)}}" y="${{(y - 3.0).toFixed(2)}}" width="6.0" height="6.0" fill="${{tone.color}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tip)}}</title></rect>`;
+            const r = markerRadius(point.count_total);
+            const tip = `${{tone.label}} new-forgotten | epoch ${{point.epoch}} | mean percentile=${{point.mean.toFixed(2)}} | new count=${{Math.round(point.count_total)}}`;
+            if (tone.marker === "square") {{
+              svg += `<rect x="${{(x - r).toFixed(2)}}" y="${{(y - r).toFixed(2)}}" width="${{(2 * r).toFixed(2)}}" height="${{(2 * r).toFixed(2)}}" fill="${{tone.color}}" fill-opacity="0.92" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tip)}}</title></rect>`;
             }} else {{
-              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="3.0" fill="${{tone.color}}" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tip)}}</title></circle>`;
+              svg += `<circle cx="${{x.toFixed(2)}}" cy="${{y.toFixed(2)}}" r="${{r.toFixed(2)}}" fill="${{tone.color}}" fill-opacity="0.92" stroke="#ffffff" stroke-width="0.9"><title>${{esc(tip)}}</title></circle>`;
             }}
           }}
         }}
       }}
 
       const endLabels = [];
-      for (const spec of lineSpecs) {{
-        if (!spec.series || spec.series.length === 0) {{
+      for (const spec of drawSpecs) {{
+        if (spec.kind !== "new" || !spec.series || spec.series.length === 0) {{
           continue;
         }}
+        const tone = classes[spec.class_key];
         const last = spec.series[spec.series.length - 1];
-        const tone = classes[spec.key];
-        const suffix = spec.kind === "cum" ? "cum" : "new";
         endLabels.push({{
           x: mapX(last.epoch),
           y: mapY(last.mean),
           color: tone.color,
-          dash: spec.kind === "cum" ? tone.cum_dash : tone.inc_dash,
-          text: `${{tone.label}} ${{suffix}} ${{last.mean.toFixed(1)}}%`,
+          text: `${{tone.label}} new ${{last.mean.toFixed(1)}}`,
         }});
       }}
       endLabels.sort((a, b) => a.y - b.y);
-      const gap = 12;
       let cursor = margin.top + 8;
-      for (const label of endLabels) {{
-        label.yl = Math.max(cursor, label.y);
-        cursor = label.yl + gap;
+      const gap = 12;
+      const labelX = margin.left + plotWidth - 120;
+      for (const item of endLabels) {{
+        const ly = Math.max(cursor, item.y);
+        cursor = ly + gap;
+        svg += `<line x1="${{item.x.toFixed(2)}}" y1="${{item.y.toFixed(2)}}" x2="${{(labelX - 4).toFixed(2)}}" y2="${{ly.toFixed(2)}}" stroke="${{item.color}}" stroke-width="1.1" opacity="0.8"></line>`;
+        svg += `<text x="${{labelX.toFixed(2)}}" y="${{(ly + 3).toFixed(2)}}" font-size="10.4" fill="${{item.color}}" font-weight="700">${{esc(item.text)}}</text>`;
       }}
-      const labelX = margin.left + plotWidth - 130;
-      for (const label of endLabels) {{
-        const dashAttr = label.dash ? ` stroke-dasharray="${{label.dash}}"` : "";
-        svg += `<line x1="${{label.x.toFixed(2)}}" y1="${{label.y.toFixed(2)}}" x2="${{(labelX - 4).toFixed(2)}}" y2="${{label.yl.toFixed(2)}}" stroke="${{label.color}}" stroke-width="1.2"${{dashAttr}} opacity="0.8"></line>`;
-        svg += `<text x="${{labelX.toFixed(2)}}" y="${{(label.yl + 3).toFixed(2)}}" font-size="10.4" fill="${{label.color}}" font-weight="700">${{esc(label.text)}}</text>`;
-      }}
+
       svg += `</svg>`;
 
       let html = `<div class="evo-grad-deck"><div class="evo-grad-main">${{svg}}</div>`;
       html += `<div class="evo-legend">`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${{classes.sim.color}}"></span><span class="evo-marker-sample" style="background:${{classes.sim.color}}"></span>SIM cumulative</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:${{classes.dissim.color}}"></span><span class="evo-marker-sample square" style="background:${{classes.dissim.color}}"></span>DISSIM cumulative</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.sim.color}}"></span>SIM newly forgotten</span>`;
-      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dotted;border-top-color:${{classes.dissim.color}}"></span>DISSIM newly forgotten</span>`;
-      html += `<span class="evo-legend-item">Shaded band = min-to-max cumulative across datasets</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${{classes.sim.color}}"></span><span class="evo-marker-sample" style="background:${{classes.sim.color}}"></span>SIM newly forgotten rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:${{classes.dissim.color}}"></span><span class="evo-marker-sample square" style="background:${{classes.dissim.color}}"></span>DISSIM newly forgotten rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.sim.color}}"></span>SIM cumulative rank (context)</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-style:dashed;border-top-color:${{classes.dissim.color}}"></span>DISSIM cumulative rank (context)</span>`;
+      html += `<span class="evo-legend-item">Band = dataset range | marker size = newly forgotten count</span>`;
       html += `</div>`;
-      html += `<p class="evo-grad-note"><strong>Why flat-lining happens:</strong> cumulative curves can saturate once the forgotten set stabilizes. The dashed/dotted lines track <strong>newly forgotten</strong> gradient-mass each epoch, which preserves dynamic signal.</p>`;
+      html += `<p class="evo-grad-note"><strong>Interpretation:</strong> 100 means forgetting is concentrated on the strongest gradient-magnitude items in that class; decreasing values indicate forgetting is spreading to weaker-gradient items over epochs.</p>`;
       html += `</div>`;
       return html;
     }}
@@ -2648,7 +2696,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       }}
       html += `<div class="evo-panels">`;
       html += `<section class="evo-panel"><h3>Forgetting Dynamics by Point Index</h3>${{renderEvolutionPrimarySvg(groups, epochMax)}}</section>`;
-      html += `<section class="evo-panel"><h3>Gradient Similarity Dynamics (Cumulative + Newly Forgotten)</h3>${{renderEvolutionGradSvg(groups, epochMax)}}</section>`;
+      html += `<section class="evo-panel"><h3>Gradient Similarity Evolution: Rank of Newly Forgotten Samples</h3>${{renderEvolutionGradSvg(groups, epochMax)}}</section>`;
       html += `</div>`;
       html += `<div class="evo-legend">${{datasetLegendHtml}}</div>`;
       html += `<div class="evo-legend">${{classLegendHtml}}</div>`;
