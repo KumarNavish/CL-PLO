@@ -2461,7 +2461,7 @@ def write_dashboard_html(path: Path, json_path: str, title: str) -> None:
       const legendW = 250;
       const legendH = legendPad * 2 + legendRows * legendRowH;
       const legendX = margin.left + plotWidth - legendW - 12;
-      const legendY = margin.top + 10;
+      const legendY = Math.max(margin.top + 8, margin.top + plotHeight - legendH - 10);
       svg += `<rect x="${{legendX.toFixed(2)}}" y="${{legendY.toFixed(2)}}" width="${{legendW.toFixed(2)}}" height="${{legendH.toFixed(2)}}" rx="8" ry="8" fill="rgba(255,255,255,0.92)" stroke="#c6d6e6" stroke-width="1.2"></rect>`;
       svg += `<text x="${{(legendX + legendPad).toFixed(2)}}" y="${{(legendY + 14).toFixed(2)}}" font-size="12.8" fill="#21465f" font-weight="700">Legend</text>`;
 
