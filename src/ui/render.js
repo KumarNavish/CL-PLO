@@ -1,5 +1,5 @@
-import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
-import { DEMO_RESULTS } from "../content/demo-results.js";
+import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js?v=20260216r4";
+import { DEMO_RESULTS } from "../content/demo-results.js?v=20260216r4";
 import {
   drawAllocationProfiles,
   drawCostAttribution,
@@ -10,7 +10,7 @@ import {
   drawQualificationGate,
   drawRebalanceSweep,
   drawRegimeRisk,
-} from "./charts.js";
+} from "./charts.js?v=20260216r4";
 
 const FIELD_MAP = [
   "seed",
@@ -525,6 +525,25 @@ function setStatus(msg, isError = false) {
   status.classList.toggle("error", isError);
 }
 
+function renderErrorMessage(error) {
+  if (!error) {
+    return "Unknown error.";
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  if (typeof error.message === "string" && error.message.trim()) {
+    return error.message;
+  }
+  return "Unknown error.";
+}
+
+function pushRenderError(errors, label, error) {
+  const message = `${label}: ${renderErrorMessage(error)}`;
+  errors.push(message);
+  console.error(`[CL-PLO render] ${message}`, error);
+}
+
 function setProgress(value) {
   const pct = Math.max(0, Math.min(100, value));
   const bar = document.getElementById("progress-fill");
@@ -544,13 +563,32 @@ function renderAll(result) {
   applyExecutionRealism(methodRows, regimeInfo, result.config || DEFAULT_CONFIG);
   attachDeployScores(methodRows, activePreset);
 
-  setStatus(`${mode.label} run complete. ${mode.lens}`);
+  const errors = [];
+  const safeRender = (label, renderFn) => {
+    try {
+      renderFn();
+    } catch (error) {
+      pushRenderError(errors, label, error);
+    }
+  };
 
-  renderDecisionCard(methodRows);
-  renderKpis(methodRows);
-  renderCharts(methodRows, regimeInfo);
-  renderChartReadouts(methodRows);
-  renderTakeaway(methodRows);
+  safeRender("Decision card", () => renderDecisionCard(methodRows));
+  safeRender("Impact KPIs", () => renderKpis(methodRows));
+
+  const chartErrors = renderCharts(methodRows, regimeInfo);
+  if (Array.isArray(chartErrors) && chartErrors.length > 0) {
+    errors.push(...chartErrors);
+  }
+
+  safeRender("Chart readouts", () => renderChartReadouts(methodRows));
+  safeRender("Takeaway", () => renderTakeaway(methodRows));
+
+  if (errors.length === 0) {
+    setStatus(`${mode.label} run complete. ${mode.lens}`);
+    return;
+  }
+
+  setStatus(`${mode.label} run complete with ${errors.length} render issue(s). Check console.`, true);
 }
 
 function renderDecisionCard(rows) {
@@ -656,6 +694,7 @@ function renderKpis(rows) {
 }
 
 function renderCharts(rows, regimeInfo) {
+  const errors = [];
   const pnlCanvas = document.getElementById("pnl-chart");
   const drawdownCanvas = document.getElementById("drawdown-chart");
   const allocationCanvas = document.getElementById("allocation-chart");
@@ -667,8 +706,17 @@ function renderCharts(rows, regimeInfo) {
   const rebalanceSweepCanvas = document.getElementById("rebalance-sweep-chart");
 
   if (!pnlCanvas || !drawdownCanvas || !allocationCanvas || !regimeRiskCanvas || !portfolioStateCanvas) {
-    return;
+    errors.push("Core chart canvases are missing from the page.");
+    return errors;
   }
+
+  const safeDraw = (label, drawFn) => {
+    try {
+      drawFn();
+    } catch (error) {
+      pushRenderError(errors, label, error);
+    }
+  };
 
   const visible = getVisibleMethodIds(rows);
 
@@ -693,89 +741,112 @@ function renderCharts(rows, regimeInfo) {
     lineWidth: lineWidth(row.id, visible),
   }));
 
-  drawEquity(pnlCanvas, lineSeries, regimeInfo.timelineStates);
-  drawDrawdown(drawdownCanvas, lineSeries, regimeInfo.timelineStates);
-  drawAllocationProfiles(allocationCanvas, allocationSeries, regimeInfo.timelineStates);
-  renderAllocationLegend(allocationSeries);
+  safeDraw("Q1 portfolio value", () => {
+    drawEquity(pnlCanvas, lineSeries, regimeInfo.timelineStates);
+  });
+  safeDraw("Q2 drawdown", () => {
+    drawDrawdown(drawdownCanvas, lineSeries, regimeInfo.timelineStates);
+  });
+  safeDraw("Q3 allocation and turnover", () => {
+    drawAllocationProfiles(allocationCanvas, allocationSeries, regimeInfo.timelineStates);
+  });
+  safeDraw("Allocation legend", () => {
+    renderAllocationLegend(allocationSeries);
+  });
 
-  drawRegimeRisk(
-    regimeRiskCanvas,
-    regimeInfo.regimes,
-    rows.map((row) => ({
-      id: row.id,
-      label: row.style.short,
-      color: row.style.color,
-      alpha: lineAlpha(row.id, visible),
-      sharpe: row.sharpeByRegime,
-    })),
-  );
-
-  drawPortfolioState(
-    portfolioStateCanvas,
-    rows.map((row) => ({
-      id: row.id,
-      label: row.style.short,
-      color: row.style.color,
-      alpha: lineAlpha(row.id, visible),
-      calmWeight: row.calmWeight,
-      stressWeight: row.stressWeight,
-      turnover: row.turnover,
-      maxDrawdown: row.maxDrawdown,
-      recoveryDays: row.recoveryDays,
-    })),
-  );
-
-  const primary = findRow(rows, getPrimaryStrategyId()) || findRow(rows, "anchor_proj") || rows[0];
-  if (!primary) {
-    return;
-  }
-
-  if (grossNetCanvas) {
-    drawGrossNet(
-      grossNetCanvas,
-      {
-        label: primary.style.short,
-        gross: primary.grossEquity,
-        net: primary.equity,
-      },
-      regimeInfo.timelineStates,
-    );
-  }
-
-  if (costAttrCanvas) {
-    drawCostAttribution(
-      costAttrCanvas,
+  safeDraw("Q4 regime split", () => {
+    drawRegimeRisk(
+      regimeRiskCanvas,
+      regimeInfo.regimes,
       rows.map((row) => ({
         id: row.id,
         label: row.style.short,
         color: row.style.color,
         alpha: lineAlpha(row.id, visible),
-        grossReturn: row.grossTotalReturn,
-        netReturn: row.totalReturn,
-        costDrag: row.costDrag,
+        sharpe: row.sharpeByRegime,
       })),
     );
+  });
+
+  safeDraw("Q5 deployment state", () => {
+    drawPortfolioState(
+      portfolioStateCanvas,
+      rows.map((row) => ({
+        id: row.id,
+        label: row.style.short,
+        color: row.style.color,
+        alpha: lineAlpha(row.id, visible),
+        calmWeight: row.calmWeight,
+        stressWeight: row.stressWeight,
+        turnover: row.turnover,
+        maxDrawdown: row.maxDrawdown,
+        recoveryDays: row.recoveryDays,
+      })),
+    );
+  });
+
+  const primary = findRow(rows, getPrimaryStrategyId()) || findRow(rows, "anchor_proj") || rows[0];
+  if (!primary) {
+    errors.push("No strategy row is available for detail charts.");
+    return errors;
+  }
+
+  if (grossNetCanvas) {
+    safeDraw("Q6 gross vs net", () => {
+      drawGrossNet(
+        grossNetCanvas,
+        {
+          label: primary.style.short,
+          gross: primary.grossEquity,
+          net: primary.equity,
+        },
+        regimeInfo.timelineStates,
+      );
+    });
+  }
+
+  if (costAttrCanvas) {
+    safeDraw("Q7 cost attribution", () => {
+      drawCostAttribution(
+        costAttrCanvas,
+        rows.map((row) => ({
+          id: row.id,
+          label: row.style.short,
+          color: row.style.color,
+          alpha: lineAlpha(row.id, visible),
+          grossReturn: row.grossTotalReturn,
+          netReturn: row.totalReturn,
+          costDrag: row.costDrag,
+        })),
+      );
+    });
   }
 
   if (qualificationCanvas) {
-    drawQualificationGate(
-      qualificationCanvas,
-      {
-        signalW: primary.signalMagnitudeW,
-        threshold: Number(latestResult?.config?.qualTauW || 0),
-        trades: primary.tradeFlags,
-        fundamentals: primary.fundamentalFlags,
-      },
-      regimeInfo.timelineStates,
-    );
+    safeDraw("Q8 qualification gate", () => {
+      drawQualificationGate(
+        qualificationCanvas,
+        {
+          signalW: primary.signalMagnitudeW,
+          threshold: Number(latestResult?.config?.qualTauW || 0),
+          trades: primary.tradeFlags,
+          fundamentals: primary.fundamentalFlags,
+        },
+        regimeInfo.timelineStates,
+      );
+    });
   }
 
   if (rebalanceSweepCanvas) {
-    drawRebalanceSweep(
-      rebalanceSweepCanvas,
-      buildRebalanceSweep(rows, latestResult?.config || DEFAULT_CONFIG),
-    );
+    safeDraw("Q9 rebalance sweep", () => {
+      drawRebalanceSweep(
+        rebalanceSweepCanvas,
+        buildRebalanceSweep(rows, latestResult?.config || DEFAULT_CONFIG),
+      );
+    });
   }
+
+  return errors;
 }
 
 function renderAllocationLegend(series) {

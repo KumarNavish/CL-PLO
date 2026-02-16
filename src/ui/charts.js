@@ -1,4 +1,8 @@
 function setupCanvas(canvas) {
+  if (!canvas) {
+    return null;
+  }
+
   const rect = canvas.getBoundingClientRect();
   const dpr = window.devicePixelRatio || 1;
 
@@ -6,6 +10,9 @@ function setupCanvas(canvas) {
   canvas.height = Math.max(1, Math.floor(rect.height * dpr));
 
   const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return null;
+  }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   return {
@@ -293,7 +300,11 @@ function shortMethod(label) {
 }
 
 export function drawEquity(canvas, series, regimeStates) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -352,7 +363,11 @@ export function drawEquity(canvas, series, regimeStates) {
 }
 
 export function drawDrawdown(canvas, series, regimeStates) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -433,7 +448,11 @@ export function drawDrawdown(canvas, series, regimeStates) {
 }
 
 export function drawAllocationProfiles(canvas, profiles, regimeStates) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -558,7 +577,11 @@ export function drawAllocationProfiles(canvas, profiles, regimeStates) {
 }
 
 export function drawRegimeRisk(canvas, regimes, rows) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -649,7 +672,11 @@ export function drawRegimeRisk(canvas, regimes, rows) {
 }
 
 export function drawPortfolioState(canvas, rows) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -774,7 +801,11 @@ function drawStackBarVertical(ctx, x, y, width, height, riskyWeight, color, patt
 }
 
 export function drawGrossNet(canvas, series, regimeStates) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -838,7 +869,11 @@ export function drawGrossNet(canvas, series, regimeStates) {
 }
 
 export function drawCostAttribution(canvas, rows) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -924,7 +959,11 @@ export function drawCostAttribution(canvas, rows) {
 }
 
 export function drawQualificationGate(canvas, data, regimeStates) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
@@ -1019,7 +1058,11 @@ export function drawQualificationGate(canvas, data, regimeStates) {
 }
 
 export function drawRebalanceSweep(canvas, sweepRows) {
-  const { ctx, width, height } = setupCanvas(canvas);
+  const setup = setupCanvas(canvas);
+  if (!setup) {
+    return;
+  }
+  const { ctx, width, height } = setup;
   ctx.clearRect(0, 0, width, height);
   applyLineQuality(ctx);
 
