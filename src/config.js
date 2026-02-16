@@ -29,6 +29,23 @@ export const DEFAULT_CONFIG = {
   pStress: 0.35,
   wMaxRisky: 0.35,
   turnoverEta: 0.2,
+  turnoverPenalty: 0,
+
+  costModel: "off",
+  cLin: 0,
+  cQuad: 0,
+  aumScale: 1,
+
+  rebalancePolicy: "daily",
+  rebalanceEveryK: 5,
+  rebalanceThreshold: 0.04,
+
+  qualificationEnabled: false,
+  qualificationAdvanced: false,
+  qualTauW: 0.04,
+  qualTauMu: 0.01,
+  qualTauRank: 0.2,
+  qualRequireFundamental: false,
 
   noiseStd: 0.1,
   returnScale: 0.02,
@@ -47,6 +64,17 @@ export const PRESETS = {
       simT: 150,
       pStress: 0.24,
       noiseStd: 0.12,
+      costModel: "linear",
+      cLin: 0.0008,
+      cQuad: 0,
+      aumScale: 1,
+      rebalancePolicy: "threshold",
+      rebalanceThreshold: 0.03,
+      qualificationEnabled: true,
+      qualificationAdvanced: false,
+      qualTauW: 0.03,
+      qualRequireFundamental: false,
+      turnoverPenalty: 1.2,
     },
   },
   proposal_like: {
@@ -63,6 +91,17 @@ export const PRESETS = {
       anchorBatchSize: 128,
       anchorBeta: 0.06,
       pStress: 0.36,
+      costModel: "linear",
+      cLin: 0.0012,
+      cQuad: 0,
+      aumScale: 1,
+      rebalancePolicy: "threshold",
+      rebalanceThreshold: 0.04,
+      qualificationEnabled: true,
+      qualificationAdvanced: false,
+      qualTauW: 0.04,
+      qualRequireFundamental: false,
+      turnoverPenalty: 1.6,
     },
   },
   stress_heavy: {
@@ -76,9 +115,34 @@ export const PRESETS = {
       noiseStd: 0.16,
       nAnchorStress: 640,
       nTestStress: 1400,
+      costModel: "linear_quadratic",
+      cLin: 0.0018,
+      cQuad: 0.01,
+      aumScale: 2,
+      rebalancePolicy: "event",
+      qualificationEnabled: true,
+      qualificationAdvanced: true,
+      qualTauW: 0.05,
+      qualTauMu: 0.012,
+      qualTauRank: 0.3,
+      qualRequireFundamental: true,
+      turnoverPenalty: 2.2,
     },
   },
 };
+
+function parseBool(value) {
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return value !== 0;
+  }
+  if (typeof value === "string") {
+    return ["1", "true", "yes", "on"].includes(value.toLowerCase());
+  }
+  return false;
+}
 
 export function clampConfig(input) {
   const cfg = { ...DEFAULT_CONFIG, ...input };
@@ -107,6 +171,27 @@ export function clampConfig(input) {
   cfg.pStress = Math.min(0.9, Math.max(0.05, Number(cfg.pStress)));
   cfg.wMaxRisky = Math.min(1.0, Math.max(0.05, Number(cfg.wMaxRisky)));
   cfg.turnoverEta = Math.min(1.0, Math.max(0.01, Number(cfg.turnoverEta)));
+  cfg.turnoverPenalty = Math.min(20, Math.max(0, Number(cfg.turnoverPenalty)));
+
+  const costModel = String(cfg.costModel || "off");
+  cfg.costModel = ["off", "linear", "linear_quadratic"].includes(costModel) ? costModel : "off";
+  cfg.cLin = Math.min(0.05, Math.max(0, Number(cfg.cLin)));
+  cfg.cQuad = Math.min(0.5, Math.max(0, Number(cfg.cQuad)));
+  cfg.aumScale = Math.min(25, Math.max(0, Number(cfg.aumScale)));
+
+  const rebalancePolicy = String(cfg.rebalancePolicy || "daily");
+  cfg.rebalancePolicy = ["daily", "periodic", "event", "threshold"].includes(rebalancePolicy)
+    ? rebalancePolicy
+    : "daily";
+  cfg.rebalanceEveryK = Math.max(1, Math.floor(Number(cfg.rebalanceEveryK) || 1));
+  cfg.rebalanceThreshold = Math.min(2, Math.max(0, Number(cfg.rebalanceThreshold)));
+
+  cfg.qualificationEnabled = parseBool(cfg.qualificationEnabled);
+  cfg.qualificationAdvanced = parseBool(cfg.qualificationAdvanced);
+  cfg.qualTauW = Math.min(2, Math.max(0, Number(cfg.qualTauW)));
+  cfg.qualTauMu = Math.min(1, Math.max(0, Number(cfg.qualTauMu)));
+  cfg.qualTauRank = Math.min(2, Math.max(0, Number(cfg.qualTauRank)));
+  cfg.qualRequireFundamental = parseBool(cfg.qualRequireFundamental);
 
   cfg.noiseStd = Math.min(0.8, Math.max(0.0, Number(cfg.noiseStd)));
   cfg.returnScale = Math.min(0.2, Math.max(0.001, Number(cfg.returnScale)));

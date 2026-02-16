@@ -1,8 +1,36 @@
 import { clampConfig, DEFAULT_CONFIG, PRESETS } from "../config.js";
 import { DEMO_RESULTS } from "../content/demo-results.js";
-import { drawAllocationProfiles, drawDrawdown, drawEquity, drawPortfolioState, drawRegimeRisk } from "./charts.js";
+import {
+  drawAllocationProfiles,
+  drawCostAttribution,
+  drawDrawdown,
+  drawEquity,
+  drawGrossNet,
+  drawPortfolioState,
+  drawQualificationGate,
+  drawRebalanceSweep,
+  drawRegimeRisk,
+} from "./charts.js";
 
-const FIELD_MAP = ["seed", "steps", "anchorBeta", "pStress", "loraRank"];
+const FIELD_MAP = [
+  "seed",
+  "steps",
+  "anchorBeta",
+  "pStress",
+  "loraRank",
+  "cLin",
+  "cQuad",
+  "aumScale",
+  "rebalanceEveryK",
+  "rebalanceThreshold",
+  "qualTauW",
+  "qualTauMu",
+  "qualTauRank",
+  "turnoverPenalty",
+];
+
+const SELECT_FIELDS = ["costModel", "rebalancePolicy"];
+const CHECKBOX_FIELDS = ["qualificationEnabled", "qualificationAdvanced", "qualRequireFundamental"];
 
 const METHOD_STYLES = {
   naive: {
@@ -210,13 +238,25 @@ function bindControls() {
   });
 
   document.getElementById("reset-form")?.addEventListener("click", () => {
-    applyPreset("proposal_like", false);
+    const baseline = clampConfig({ ...DEFAULT_CONFIG, ...(PRESETS.proposal_like?.values || {}) });
+    fillForm(baseline);
+    setActiveMode("proposal_like");
     setActiveFocus("all", false);
     syncComponentFromStrategy("anchor_proj", false);
     setStatus("Reset to Default.");
     if (latestResult) {
       renderAll(latestResult);
     }
+  });
+
+  document.querySelectorAll("#implementation-form input, #implementation-form select").forEach((node) => {
+    node.addEventListener("change", () => {
+      setStatus("Implementation realism settings updated. Run Demo to refresh.");
+    });
+  });
+
+  document.getElementById("apply-realism-off")?.addEventListener("click", () => {
+    applyRealismBaseline();
   });
 
 }
@@ -260,6 +300,22 @@ function readConfigFromForm() {
     cfg[key] = Number(input.value);
   }
 
+  for (const key of SELECT_FIELDS) {
+    const input = document.querySelector(`[name="${key}"]`);
+    if (!input) {
+      continue;
+    }
+    cfg[key] = String(input.value || "");
+  }
+
+  for (const key of CHECKBOX_FIELDS) {
+    const input = document.querySelector(`[name="${key}"]`);
+    if (!input) {
+      continue;
+    }
+    cfg[key] = Boolean(input.checked);
+  }
+
   return cfg;
 }
 
@@ -270,6 +326,22 @@ function fillForm(cfg) {
       continue;
     }
     input.value = String(cfg[key]);
+  }
+
+  for (const key of SELECT_FIELDS) {
+    const input = document.querySelector(`[name="${key}"]`);
+    if (!input || cfg[key] === undefined) {
+      continue;
+    }
+    input.value = String(cfg[key]);
+  }
+
+  for (const key of CHECKBOX_FIELDS) {
+    const input = document.querySelector(`[name="${key}"]`);
+    if (!input || cfg[key] === undefined) {
+      continue;
+    }
+    input.checked = Boolean(cfg[key]);
   }
 }
 
@@ -285,6 +357,36 @@ function applyPreset(name, announce = true) {
 
   if (announce) {
     setStatus(`${preset.label} mode selected. Run Demo to refresh plots.`);
+  }
+}
+
+function applyRealismBaseline(announce = true) {
+  const patch = {
+    costModel: "off",
+    cLin: 0,
+    cQuad: 0,
+    aumScale: 1,
+    rebalancePolicy: "daily",
+    rebalanceEveryK: 5,
+    rebalanceThreshold: 0.04,
+    qualificationEnabled: false,
+    qualificationAdvanced: false,
+    qualTauW: 0.04,
+    qualTauMu: 0.01,
+    qualTauRank: 0.2,
+    qualRequireFundamental: false,
+    turnoverPenalty: 0,
+  };
+
+  const merged = clampConfig({ ...DEFAULT_CONFIG, ...readConfigFromForm(), ...patch });
+  fillForm(merged);
+
+  if (announce) {
+    setStatus("Implementation realism set to baseline: daily, zero cost, no qualification gate.");
+  }
+
+  if (latestResult) {
+    renderAll(latestResult);
   }
 }
 
@@ -439,6 +541,7 @@ function renderAll(result) {
   const regimeInfo = buildRegimeInfo(result);
   const baseRows = buildMethodRows(result, regimeInfo);
   const methodRows = applyModeShaping(baseRows, activePreset, regimeInfo);
+  applyExecutionRealism(methodRows, regimeInfo, result.config || DEFAULT_CONFIG);
   attachDeployScores(methodRows, activePreset);
 
   setStatus(`${mode.label} run complete. ${mode.lens}`);
@@ -470,6 +573,7 @@ function renderDecisionCard(rows) {
   const lead = winner.deployScore - runnerUp.deployScore;
   const stressGain = naive && hybrid ? improvement(naive.stressMse, hybrid.stressMse) : 0;
   const drawLift = naive && hybrid ? hybrid.maxDrawdown - naive.maxDrawdown : 0;
+  const costLift = naive && hybrid ? naive.costDrag - hybrid.costDrag : 0;
 
   let level = "caution";
   let title = `${winner.style.short} leads this gate`;
@@ -490,7 +594,8 @@ function renderDecisionCard(rows) {
     <h4>${title}</h4>
     <p>
       Deployment score: <strong>${winner.deployScore.toFixed(1)}</strong> vs <strong>${runnerUp.deployScore.toFixed(1)}</strong>.
-      Stress memory gain: <strong>${pct(stressGain)}</strong>. Drawdown gain: <strong>${pp(drawLift)}</strong>. ${next}
+      Stress memory gain: <strong>${pct(stressGain)}</strong>. Drawdown gain: <strong>${pp(drawLift)}</strong>.
+      Cost drag gain: <strong>${pp(costLift)}</strong>. ${next}
     </p>
   `;
 }
@@ -513,6 +618,8 @@ function renderKpis(rows) {
   const ddLift = hybrid.maxDrawdown - naive.maxDrawdown;
   const stressSharpeLift = (hybrid.sharpeByRegime.stress || 0) - (naive.sharpeByRegime.stress || 0);
   const turnoverDelta = replay.turnover - hybrid.turnover;
+  const costDelta = naive.costDrag - hybrid.costDrag;
+  const tradeRateDelta = naive.tradeRate - hybrid.tradeRate;
 
   host.innerHTML = `
     <article class="${classBySign(stressGain)}">
@@ -535,6 +642,16 @@ function renderKpis(rows) {
       <div class="value">${pp(turnoverDelta)}</div>
       <div class="note">replay minus hybrid</div>
     </article>
+    <article class="${classBySign(costDelta)}">
+      <div class="label">Cost Drag Reduction</div>
+      <div class="value">${pp(costDelta)}</div>
+      <div class="note">naive minus hybrid</div>
+    </article>
+    <article class="${classBySign(tradeRateDelta)}">
+      <div class="label">Trade-Rate Reduction</div>
+      <div class="value">${pp(tradeRateDelta)}</div>
+      <div class="note">naive minus hybrid</div>
+    </article>
   `;
 }
 
@@ -544,6 +661,10 @@ function renderCharts(rows, regimeInfo) {
   const allocationCanvas = document.getElementById("allocation-chart");
   const regimeRiskCanvas = document.getElementById("regime-risk-chart");
   const portfolioStateCanvas = document.getElementById("portfolio-state-chart");
+  const grossNetCanvas = document.getElementById("gross-net-chart");
+  const costAttrCanvas = document.getElementById("cost-attribution-chart");
+  const qualificationCanvas = document.getElementById("qualification-chart");
+  const rebalanceSweepCanvas = document.getElementById("rebalance-sweep-chart");
 
   if (!pnlCanvas || !drawdownCanvas || !allocationCanvas || !regimeRiskCanvas || !portfolioStateCanvas) {
     return;
@@ -603,6 +724,58 @@ function renderCharts(rows, regimeInfo) {
       recoveryDays: row.recoveryDays,
     })),
   );
+
+  const primary = findRow(rows, getPrimaryStrategyId()) || findRow(rows, "anchor_proj") || rows[0];
+  if (!primary) {
+    return;
+  }
+
+  if (grossNetCanvas) {
+    drawGrossNet(
+      grossNetCanvas,
+      {
+        label: primary.style.short,
+        gross: primary.grossEquity,
+        net: primary.equity,
+      },
+      regimeInfo.timelineStates,
+    );
+  }
+
+  if (costAttrCanvas) {
+    drawCostAttribution(
+      costAttrCanvas,
+      rows.map((row) => ({
+        id: row.id,
+        label: row.style.short,
+        color: row.style.color,
+        alpha: lineAlpha(row.id, visible),
+        grossReturn: row.grossTotalReturn,
+        netReturn: row.totalReturn,
+        costDrag: row.costDrag,
+      })),
+    );
+  }
+
+  if (qualificationCanvas) {
+    drawQualificationGate(
+      qualificationCanvas,
+      {
+        signalW: primary.signalMagnitudeW,
+        threshold: Number(latestResult?.config?.qualTauW || 0),
+        trades: primary.tradeFlags,
+        fundamentals: primary.fundamentalFlags,
+      },
+      regimeInfo.timelineStates,
+    );
+  }
+
+  if (rebalanceSweepCanvas) {
+    drawRebalanceSweep(
+      rebalanceSweepCanvas,
+      buildRebalanceSweep(rows, latestResult?.config || DEFAULT_CONFIG),
+    );
+  }
 }
 
 function renderAllocationLegend(series) {
@@ -631,6 +804,10 @@ function renderChartReadouts(rows) {
   const allocationHost = document.getElementById("allocation-reading");
   const regimeHost = document.getElementById("regime-risk-reading");
   const portfolioHost = document.getElementById("portfolio-state-reading");
+  const grossNetHost = document.getElementById("gross-net-reading");
+  const costHost = document.getElementById("cost-attribution-reading");
+  const qualHost = document.getElementById("qualification-reading");
+  const sweepHost = document.getElementById("rebalance-sweep-reading");
   if (!pnlHost || !drawdownHost || !allocationHost || !regimeHost || !portfolioHost) {
     return;
   }
@@ -663,6 +840,26 @@ function renderChartReadouts(rows) {
   const calmGap = selected.calmWeight - naive.calmWeight;
   const stressGap = selected.stressWeight - naive.stressWeight;
   portfolioHost.textContent = `Compare calm and stress risky sleeves for each strategy. ${selectedLabel}: calm risky ${pp(calmGap)}, stress risky ${pp(stressGap)} vs Naive.`;
+
+  if (grossNetHost) {
+    const grossNetGap = selected.grossTotalReturn - selected.totalReturn;
+    grossNetHost.textContent = `Gross vs net isolates implementation drag. ${selectedLabel}: gross ${pp(selected.grossTotalReturn)}, net ${pp(selected.totalReturn)}, cost drag ${pp(grossNetGap)}.`;
+  }
+
+  if (costHost) {
+    const selectedCost = selected.costDrag;
+    const naiveCost = naive.costDrag;
+    costHost.textContent = `Cost attribution compares each strategy's gross and net outcome. ${selectedLabel}: cost drag ${pp(naiveCost - selectedCost)} better than Naive.`;
+  }
+
+  if (qualHost) {
+    const ignoredNoise = 1 - selected.qualifiedRate;
+    qualHost.textContent = `Qualification gate: signal changes above threshold trigger trades. ${selectedLabel}: trade rate ${pct(selected.tradeRate)}, skipped noisy updates ${pct(ignoredNoise)}.`;
+  }
+
+  if (sweepHost) {
+    sweepHost.textContent = "Mini sweep compares Daily, Weekly, Event, and Threshold policies using current run outputs. Read left-to-right as responsiveness vs implementation drag.";
+  }
 }
 
 function renderTakeaway(rows) {
@@ -684,7 +881,7 @@ function renderTakeaway(rows) {
     <h4>Decision Summary</h4>
     <p>
       ${MODE_META[activePreset]?.label || "Default"} ranks <strong>${winner.style.short}</strong> first.
-      Hybrid vs Naive: stress memory <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>.
+      Hybrid vs Naive: stress memory <strong>${pct(improvement(naive.stressMse, hybrid.stressMse))}</strong>, drawdown <strong>${pp(hybrid.maxDrawdown - naive.maxDrawdown)}</strong>, cost drag <strong>${pp(naive.costDrag - hybrid.costDrag)}</strong>.
       Next steps: rerun alternate seeds, move to paper trading, then release only if ordering and risk limits hold.
     </p>
   `;
@@ -776,6 +973,8 @@ function buildMethodRows(result, regimeInfo) {
       driftMse: metrics.driftMse ?? 0,
       maxDrawdown: metrics.maxDrawdown ?? 0,
       totalReturn: metrics.totalReturn ?? 0,
+      grossTotalReturn: metrics.grossTotalReturn ?? metrics.totalReturn ?? 0,
+      netTotalReturn: metrics.netTotalReturn ?? metrics.totalReturn ?? 0,
       stressRetention: improvement(naiveStress, metrics.stressMse ?? naiveStress),
       stressWeight:
         metrics.avgRiskyWeightStress ??
@@ -791,9 +990,25 @@ function buildMethodRows(result, regimeInfo) {
       worstStressDay: metrics.worstStressDay ?? minByIndices(diag.returns, regimeInfo.indexByRegime.stress),
       turnover: mean(diag.turnovers),
       recoveryDays: computeRecoveryDays(diag.equity),
+      tradeRate: metrics.tradeRate ?? 0,
+      qualifiedRate: metrics.qualifiedRate ?? 0,
+      precisionProxy: metrics.precisionProxy ?? 0,
+      recallProxy: metrics.recallProxy ?? 0,
+      costDrag: metrics.costDrag ?? 0,
       sharpeByRegime,
       equity: diag.equity,
       returns: diag.returns,
+      grossEquity: diag.grossEquity || diag.equity,
+      grossReturns: diag.grossReturns || diag.returns,
+      costs: diag.costs || Array(diag.returns.length).fill(0),
+      tradeFlags: diag.tradeFlags || Array(diag.returns.length).fill(1),
+      qualifiedFlags: diag.qualifiedFlags || Array(diag.returns.length).fill(1),
+      fundamentalFlags: diag.fundamentalFlags || Array(diag.returns.length).fill(0),
+      signalMagnitudeW: diag.signalMagnitudeW || Array(diag.returns.length).fill(0),
+      signalMagnitudeMu: diag.signalMagnitudeMu || Array(diag.returns.length).fill(0),
+      signalRank: diag.signalRank || Array(diag.returns.length).fill(0),
+      targetRiskyWeights: diag.targetRiskyWeights || diag.riskyWeights,
+      proposedTurnovers: diag.proposedTurnovers || diag.turnovers,
       riskyWeights: diag.riskyWeights,
       turnovers: diag.turnovers,
     };
@@ -861,6 +1076,197 @@ function applyModeShaping(rows, modeName, regimeInfo) {
   return shaped;
 }
 
+function applyExecutionRealism(rows, regimeInfo, cfg) {
+  for (const row of rows) {
+    const sourceReturns = (row.returns || []).slice();
+    const sourceRiskyWeights = (row.riskyWeights || []).slice();
+    const sourceTurnovers = (row.turnovers || []).slice();
+    const length = Math.min(sourceReturns.length, sourceRiskyWeights.length);
+    if (length === 0) {
+      continue;
+    }
+
+    const grossReturns = [];
+    const netReturns = [];
+    const costs = [];
+    const turnovers = [];
+    const executedRisky = [];
+    const targetRisky = [];
+    const tradeFlags = [];
+    const qualifiedFlags = [];
+    const fundamentalFlags = [];
+    const signalMagnitudeW = [];
+    const signalMagnitudeMu = [];
+    const signalRank = [];
+    const grossEquity = [1];
+    const netEquity = [1];
+
+    let prevRisk = Math.max(0, Math.min(1, sourceRiskyWeights[0] || 0));
+    let prevTarget = prevRisk;
+    let prevSignal = sourceReturns[0] || 0;
+    let prevState = regimeInfo.timelineStates[0] || "calm";
+
+    let tradeCount = 0;
+    let qualifyCount = 0;
+    let fundamentalCount = 0;
+    let tradeOnFundamental = 0;
+
+    for (let t = 0; t < length; t += 1) {
+      const state = regimeInfo.timelineStates[Math.min(t, regimeInfo.timelineStates.length - 1)] || "calm";
+      const proposedRisk = Math.max(0, Math.min(1, sourceRiskyWeights[t] || 0));
+      const gross = sourceReturns[t] || 0;
+      const baseTurn = Math.max(0, sourceTurnovers[t] || 0);
+
+      const signalW = Math.abs(proposedRisk - prevTarget);
+      const signalMu = Math.abs(gross - prevSignal);
+      const signFlip = Math.sign(gross) !== Math.sign(prevSignal) ? 1 : 0;
+      const rankProxy = Math.min(1.5, signFlip * 0.6 + Math.min(0.9, signalMu * 25));
+      const fundamental = state === "shift" || state !== prevState;
+
+      const rebalanceAllowed = shouldRebalanceLocal(cfg, t, signalW, fundamental);
+      const qualified = passesQualificationLocal(cfg, signalW, signalMu, rankProxy, fundamental);
+      const doTrade = rebalanceAllowed && qualified;
+      const penalty = Number(cfg.turnoverPenalty || 0);
+      const damp = doTrade ? 1 / (1 + penalty * baseTurn) : 0;
+      const nextRisk = doTrade
+        ? Math.max(0, Math.min(1, prevRisk + (proposedRisk - prevRisk) * damp))
+        : prevRisk;
+
+      const turnover = doTrade ? baseTurn * damp : 0;
+      const missedAdaptation = doTrade ? 0 : missedAdaptationPenalty(signalW, state);
+      const adjustedGross = gross - missedAdaptation;
+      const cost = executionCostLocal(turnover, cfg);
+      const net = adjustedGross - cost;
+
+      grossReturns.push(adjustedGross);
+      netReturns.push(net);
+      costs.push(cost);
+      turnovers.push(turnover);
+      executedRisky.push(nextRisk);
+      targetRisky.push(proposedRisk);
+      tradeFlags.push(doTrade ? 1 : 0);
+      qualifiedFlags.push(qualified ? 1 : 0);
+      fundamentalFlags.push(fundamental ? 1 : 0);
+      signalMagnitudeW.push(signalW);
+      signalMagnitudeMu.push(signalMu);
+      signalRank.push(rankProxy);
+
+      grossEquity.push(Math.max(0.005, grossEquity[grossEquity.length - 1] * (1 + adjustedGross)));
+      netEquity.push(Math.max(0.005, netEquity[netEquity.length - 1] * (1 + net)));
+
+      if (doTrade) {
+        tradeCount += 1;
+      }
+      if (qualified) {
+        qualifyCount += 1;
+      }
+      if (fundamental) {
+        fundamentalCount += 1;
+      }
+      if (doTrade && fundamental) {
+        tradeOnFundamental += 1;
+      }
+
+      prevRisk = nextRisk;
+      prevTarget = proposedRisk;
+      prevSignal = gross;
+      prevState = state;
+    }
+
+    row.grossReturns = grossReturns;
+    row.baseGrossReturns = sourceReturns;
+    row.baseRiskyWeights = sourceRiskyWeights;
+    row.baseTurnovers = sourceTurnovers;
+    row.returns = netReturns;
+    row.costs = costs;
+    row.turnovers = turnovers;
+    row.riskyWeights = executedRisky;
+    row.targetRiskyWeights = targetRisky;
+    row.tradeFlags = tradeFlags;
+    row.qualifiedFlags = qualifiedFlags;
+    row.fundamentalFlags = fundamentalFlags;
+    row.signalMagnitudeW = signalMagnitudeW;
+    row.signalMagnitudeMu = signalMagnitudeMu;
+    row.signalRank = signalRank;
+    row.grossEquity = grossEquity;
+    row.netEquity = netEquity;
+    row.equity = netEquity;
+    row.totalReturn = computeTotalReturn(netEquity);
+    row.grossTotalReturn = computeTotalReturn(grossEquity);
+    row.netTotalReturn = row.totalReturn;
+    row.maxDrawdown = computeMaxDrawdown(netEquity);
+    row.recoveryDays = computeRecoveryDays(netEquity);
+    row.turnover = mean(turnovers);
+    row.stressWeight = meanByIndices(executedRisky, regimeInfo.indexByRegime.stress);
+    row.calmWeight = meanByIndices(executedRisky, regimeInfo.indexByRegime.calm);
+    row.driftWeight = meanByIndices(executedRisky, regimeInfo.indexByRegime.calm.concat(regimeInfo.indexByRegime.volatile));
+    row.sharpeByRegime = computeRegimeSharpe(netReturns, regimeInfo.indexByRegime);
+    row.tradeRate = tradeCount / Math.max(1, length);
+    row.qualifiedRate = qualifyCount / Math.max(1, length);
+    row.precisionProxy = tradeOnFundamental / Math.max(1, tradeCount);
+    row.recallProxy = tradeOnFundamental / Math.max(1, fundamentalCount);
+    row.totalCost = sum(costs);
+    const grossMagnitude = sum(row.grossReturns.map((v) => Math.abs(v)));
+    row.costDrag = Math.min(2, row.totalCost / Math.max(1e-6, grossMagnitude));
+  }
+}
+
+function shouldRebalanceLocal(cfg, t, signalW, fundamental) {
+  const policy = String(cfg.rebalancePolicy || "daily");
+  if (policy === "daily") {
+    return true;
+  }
+  if (policy === "periodic") {
+    const k = Math.max(1, Math.floor(Number(cfg.rebalanceEveryK) || 1));
+    return t % k === 0;
+  }
+  if (policy === "event") {
+    return fundamental || signalW >= Number(cfg.qualTauW || 0);
+  }
+  if (policy === "threshold") {
+    return signalW >= Number(cfg.rebalanceThreshold || 0);
+  }
+  return true;
+}
+
+function passesQualificationLocal(cfg, signalW, signalMu, signalRank, fundamental) {
+  if (!cfg.qualificationEnabled) {
+    return true;
+  }
+  let pass = signalW >= Number(cfg.qualTauW || 0);
+  if (cfg.qualificationAdvanced) {
+    pass = pass &&
+      signalMu >= Number(cfg.qualTauMu || 0) &&
+      signalRank >= Number(cfg.qualTauRank || 0);
+  }
+  if (cfg.qualRequireFundamental) {
+    pass = pass && fundamental;
+  }
+  return pass;
+}
+
+function executionCostLocal(turnover, cfg) {
+  const model = String(cfg.costModel || "off");
+  if (model === "off") {
+    return 0;
+  }
+  const lin = Number(cfg.cLin || 0);
+  const quad = Number(cfg.cQuad || 0) * Number(cfg.aumScale || 1);
+  const linearCost = lin * turnover;
+  if (model === "linear") {
+    return linearCost;
+  }
+  return linearCost + quad * turnover * turnover;
+}
+
+function missedAdaptationPenalty(signalW, state) {
+  if (!Number.isFinite(signalW) || signalW <= 0) {
+    return 0;
+  }
+  const regimeMultiplier = state === "shift" ? 1.3 : state === "stress" ? 1.1 : 0.55;
+  return Math.min(0.05, signalW * 0.12 * regimeMultiplier);
+}
+
 function attachDeployScores(rows, modeName = "proposal_like") {
   const stressRetention = normalizeHigherBetter(rows.map((row) => row.stressRetention));
   const drawdownControl = normalizeHigherBetter(rows.map((row) => row.maxDrawdown));
@@ -868,13 +1274,15 @@ function attachDeployScores(rows, modeName = "proposal_like") {
   const shiftSharpe = normalizeHigherBetter(rows.map((row) => row.sharpeByRegime.shift || 0));
   const turnoverControl = normalizeLowerBetter(rows.map((row) => row.turnover));
   const recoveryControl = normalizeLowerBetter(rows.map((row) => row.recoveryDays));
+  const costControl = normalizeLowerBetter(rows.map((row) => row.costDrag));
+  const qualifyPrecision = normalizeHigherBetter(rows.map((row) => row.precisionProxy || 0));
 
   const weights =
     modeName === "quick_check"
-      ? { stress: 0.5, drawdown: 0.16, stressSharpe: 0.2, shiftSharpe: 0.06, turnover: 0.04, recovery: 0.04 }
+      ? { stress: 0.4, drawdown: 0.14, stressSharpe: 0.16, shiftSharpe: 0.06, turnover: 0.06, recovery: 0.06, cost: 0.07, qualify: 0.05 }
       : modeName === "stress_heavy"
-        ? { stress: 0.46, drawdown: 0.26, stressSharpe: 0.16, shiftSharpe: 0.07, turnover: 0.03, recovery: 0.02 }
-        : { stress: 0.4, drawdown: 0.24, stressSharpe: 0.18, shiftSharpe: 0.08, turnover: 0.06, recovery: 0.04 };
+        ? { stress: 0.38, drawdown: 0.24, stressSharpe: 0.14, shiftSharpe: 0.06, turnover: 0.04, recovery: 0.03, cost: 0.07, qualify: 0.04 }
+        : { stress: 0.33, drawdown: 0.19, stressSharpe: 0.15, shiftSharpe: 0.07, turnover: 0.07, recovery: 0.06, cost: 0.08, qualify: 0.05 };
 
   for (let i = 0; i < rows.length; i += 1) {
     rows[i].deployScore =
@@ -884,7 +1292,9 @@ function attachDeployScores(rows, modeName = "proposal_like") {
         weights.stressSharpe * stressSharpe[i] +
         weights.shiftSharpe * shiftSharpe[i] +
         weights.turnover * turnoverControl[i] +
-        weights.recovery * recoveryControl[i]);
+        weights.recovery * recoveryControl[i] +
+        weights.cost * costControl[i] +
+        weights.qualify * qualifyPrecision[i]);
   }
 }
 
@@ -894,12 +1304,34 @@ function getDiagnostics(result, methodId) {
   const returns = cloneArray(diag.returns || computeReturns(equity));
   const riskyWeights = cloneArray(diag.riskyWeights || []);
   const turnovers = cloneArray(diag.turnovers || []);
+  const grossEquity = cloneArray(diag.grossEquity || []);
+  const grossReturns = cloneArray(diag.grossReturns || []);
+  const costs = cloneArray(diag.costs || []);
+  const tradeFlags = cloneArray(diag.tradeFlags || []);
+  const qualifiedFlags = cloneArray(diag.qualifiedFlags || []);
+  const fundamentalFlags = cloneArray(diag.fundamentalFlags || []);
+  const signalMagnitudeW = cloneArray(diag.signalMagnitudeW || []);
+  const signalMagnitudeMu = cloneArray(diag.signalMagnitudeMu || []);
+  const signalRank = cloneArray(diag.signalRank || []);
+  const targetRiskyWeights = cloneArray(diag.targetRiskyWeights || []);
+  const proposedTurnovers = cloneArray(diag.proposedTurnovers || []);
 
   return {
     equity: equity.length > 0 ? equity : [1],
     returns: returns.length > 0 ? returns : [0],
     riskyWeights: riskyWeights.length > 0 ? riskyWeights : Array(Math.max(1, equity.length)).fill(0),
     turnovers: turnovers.length > 0 ? turnovers : Array(Math.max(1, equity.length)).fill(0),
+    grossEquity: grossEquity.length > 0 ? grossEquity : equity,
+    grossReturns: grossReturns.length > 0 ? grossReturns : returns,
+    costs: costs.length > 0 ? costs : Array(Math.max(1, returns.length)).fill(0),
+    tradeFlags: tradeFlags.length > 0 ? tradeFlags : Array(Math.max(1, returns.length)).fill(1),
+    qualifiedFlags: qualifiedFlags.length > 0 ? qualifiedFlags : Array(Math.max(1, returns.length)).fill(1),
+    fundamentalFlags: fundamentalFlags.length > 0 ? fundamentalFlags : Array(Math.max(1, returns.length)).fill(0),
+    signalMagnitudeW: signalMagnitudeW.length > 0 ? signalMagnitudeW : Array(Math.max(1, returns.length)).fill(0),
+    signalMagnitudeMu: signalMagnitudeMu.length > 0 ? signalMagnitudeMu : Array(Math.max(1, returns.length)).fill(0),
+    signalRank: signalRank.length > 0 ? signalRank : Array(Math.max(1, returns.length)).fill(0),
+    targetRiskyWeights: targetRiskyWeights.length > 0 ? targetRiskyWeights : riskyWeights,
+    proposedTurnovers: proposedTurnovers.length > 0 ? proposedTurnovers : turnovers,
   };
 }
 
@@ -1044,6 +1476,72 @@ function findRow(rows, id) {
   return rows.find((row) => row.id === id) || null;
 }
 
+function buildRebalanceSweep(rows, cfg) {
+  const policies = [
+    { id: "daily", label: "Daily" },
+    { id: "periodic", label: "Weekly" },
+    { id: "event", label: "Event" },
+    { id: "threshold", label: "Threshold" },
+  ];
+
+  return policies.map((policy) => {
+    const methods = rows.map((row) => {
+      const grossReturns = row.baseGrossReturns || row.grossReturns || row.returns || [];
+      const baseRisky = row.baseRiskyWeights || row.riskyWeights || [];
+      const fundamentals = row.fundamentalFlags || [];
+      const proposedTurn = row.baseTurnovers || row.proposedTurnovers || row.turnovers || [];
+
+      let equity = 1;
+      let grossEquity = 1;
+      let trades = 0;
+      let totalCost = 0;
+      let prevRisk = baseRisky[0] || 0;
+      let prevGross = grossReturns[0] || 0;
+
+      for (let t = 0; t < grossReturns.length; t += 1) {
+        const currentRisk = baseRisky[t] || prevRisk;
+        const sw = Math.abs(currentRisk - prevRisk);
+        const fundamental = (fundamentals[t] || 0) === 1;
+        const gross = grossReturns[t] || 0;
+        const sm = Math.abs(gross - prevGross);
+        const sr = Math.min(1.5, (Math.sign(gross) !== Math.sign(prevGross) ? 0.6 : 0) + Math.min(0.9, sm * 25));
+        const turn = proposedTurn[t] || 0;
+        const state = fundamental ? "shift" : "calm";
+
+        const rebalanceAllowed = shouldRebalanceLocal({ ...cfg, rebalancePolicy: policy.id }, t, sw, fundamental);
+        const qualified = passesQualificationLocal(cfg, sw, sm, sr, fundamental);
+        const doTrade = rebalanceAllowed && qualified;
+        const turnover = doTrade ? turn : 0;
+        const adjustedGross = doTrade ? gross : gross - missedAdaptationPenalty(sw, state);
+        const cost = executionCostLocal(turnover, cfg);
+        const net = adjustedGross - cost;
+
+        grossEquity *= 1 + adjustedGross;
+        equity *= 1 + net;
+        totalCost += cost;
+        if (doTrade) {
+          trades += 1;
+        }
+        prevRisk = currentRisk;
+        prevGross = gross;
+      }
+
+      const grossMagnitude = sum(grossReturns.map((v) => Math.abs(v)));
+      return {
+        id: row.id,
+        label: row.style.short,
+        color: row.style.color,
+        dash: row.style.dash,
+        netReturn: equity - 1,
+        tradeRate: trades / Math.max(1, grossReturns.length),
+        costDrag: Math.min(2, totalCost / Math.max(1e-6, grossMagnitude)),
+      };
+    });
+
+    return { ...policy, methods };
+  });
+}
+
 function quantile(values, q) {
   if (!values || values.length === 0) {
     return 0;
@@ -1087,6 +1585,17 @@ function mean(values) {
     sum += Number(v) || 0;
   }
   return sum / values.length;
+}
+
+function sum(values) {
+  if (!values || values.length === 0) {
+    return 0;
+  }
+  let out = 0;
+  for (const value of values) {
+    out += Number(value) || 0;
+  }
+  return out;
 }
 
 function meanByIndices(values, indices) {

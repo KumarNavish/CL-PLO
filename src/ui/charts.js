@@ -772,3 +772,346 @@ function drawStackBarVertical(ctx, x, y, width, height, riskyWeight, color, patt
     ctx.restore();
   }
 }
+
+export function drawGrossNet(canvas, series, regimeStates) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+  applyLineQuality(ctx);
+
+  if (!series || !series.gross || !series.net) {
+    return;
+  }
+
+  const dims = {
+    left: 62,
+    right: width - 20,
+    top: 30,
+    bottom: height - 48,
+  };
+
+  drawAxes(ctx, dims, "Time", "Equity");
+
+  const allY = [...series.gross, ...series.net];
+  const [yMin, yMax] = extent(allY, 0.08);
+  const maxT = Math.max((series.gross.length || 1) - 1, (series.net.length || 1) - 1, 1);
+
+  function xToPx(t) {
+    return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
+  }
+
+  function yToPx(y) {
+    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
+  }
+
+  drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
+
+  const lines = [
+    { label: `${series.label} gross`, color: "#5b6f87", dash: [7, 5], values: series.gross },
+    { label: `${series.label} net`, color: "#111827", dash: [], values: series.net },
+  ];
+
+  for (const line of lines) {
+    ctx.save();
+    ctx.strokeStyle = line.color;
+    ctx.lineWidth = 2.2;
+    ctx.setLineDash(line.dash || []);
+    ctx.beginPath();
+    for (let t = 0; t < line.values.length; t += 1) {
+      const x = xToPx(t);
+      const y = yToPx(line.values[t]);
+      if (t === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawLegend(
+    ctx,
+    lines.map((line) => ({ label: line.label, color: line.color, dash: line.dash })),
+    10,
+    width - 14,
+  );
+}
+
+export function drawCostAttribution(canvas, rows) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+  applyLineQuality(ctx);
+
+  if (!rows || rows.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 66,
+    right: width - 20,
+    top: 32,
+    bottom: height - 54,
+  };
+
+  const allVals = [];
+  for (const row of rows) {
+    allVals.push(row.grossReturn || 0);
+    allVals.push(row.netReturn || 0);
+  }
+  const [rawMin, rawMax] = extent(allVals, 0.2);
+  const yMin = Math.min(rawMin, -0.2);
+  const yMax = Math.max(rawMax, 0.2);
+
+  function yToPx(y) {
+    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
+  }
+
+  const zeroY = yToPx(0);
+  drawGrid(ctx, dims, 4);
+  drawAxes(ctx, dims, "Strategy", "Return");
+
+  ctx.strokeStyle = CHART_THEME.zero;
+  ctx.lineWidth = 1.3;
+  ctx.beginPath();
+  ctx.moveTo(dims.left, zeroY);
+  ctx.lineTo(dims.right, zeroY);
+  ctx.stroke();
+
+  const groupWidth = (dims.right - dims.left) / rows.length;
+  const barWidth = Math.max(14, Math.min(24, groupWidth * 0.24));
+
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = rows[i];
+    const alpha = row.alpha === undefined ? 1 : row.alpha;
+    const centerX = dims.left + groupWidth * (i + 0.5);
+    const gross = row.grossReturn || 0;
+    const net = row.netReturn || 0;
+
+    const bars = [
+      { x: centerX - barWidth - 4, value: gross, fill: "#d6dfeb", stroke: "#8a97a8", label: "G" },
+      { x: centerX + 4, value: net, fill: row.color, stroke: row.color, label: "N" },
+    ];
+
+    for (const bar of bars) {
+      const y = yToPx(bar.value);
+      const top = Math.min(y, zeroY);
+      const h = Math.max(1, Math.abs(y - zeroY));
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = bar.fill;
+      ctx.fillRect(bar.x, top, barWidth, h);
+      ctx.strokeStyle = bar.stroke;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(bar.x, top, barWidth, h);
+      ctx.restore();
+    }
+
+    ctx.fillStyle = "#1f2e44";
+    ctx.font = "600 11px 'IBM Plex Sans', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(shortMethod(row.label), centerX, dims.bottom + 16);
+  }
+
+  drawLegend(
+    ctx,
+    [
+      { label: "Gross return", color: "#8a97a8", dash: [] },
+      { label: "Net return", color: "#111827", dash: [] },
+    ],
+    10,
+    width - 14,
+  );
+}
+
+export function drawQualificationGate(canvas, data, regimeStates) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+  applyLineQuality(ctx);
+
+  if (!data || !Array.isArray(data.signalW) || data.signalW.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 64,
+    right: width - 20,
+    top: 30,
+    bottom: height - 50,
+  };
+
+  const allY = [...data.signalW, Number(data.threshold || 0)];
+  const [rawMin, rawMax] = extent(allY, 0.12);
+  const yMin = Math.min(0, rawMin);
+  const yMax = Math.max(rawMax, Number(data.threshold || 0) * 1.2 + 1e-6);
+  const maxT = Math.max(data.signalW.length - 1, 1);
+
+  function xToPx(t) {
+    return dims.left + (t / Math.max(1, maxT)) * (dims.right - dims.left);
+  }
+
+  function yToPx(y) {
+    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
+  }
+
+  drawAxes(ctx, dims, "Time", "Signal change");
+  drawGrid(ctx, dims, 4);
+  drawRegimeBackdrop(ctx, dims, regimeStates, xToPx, maxT);
+
+  if (Array.isArray(data.fundamentals)) {
+    ctx.fillStyle = "rgba(194, 217, 201, 0.28)";
+    for (let t = 0; t < data.fundamentals.length; t += 1) {
+      if (data.fundamentals[t] !== 1) {
+        continue;
+      }
+      const x = xToPx(t);
+      ctx.fillRect(x - 1.5, dims.top, 3, dims.bottom - dims.top);
+    }
+  }
+
+  ctx.save();
+  ctx.strokeStyle = "#335c8a";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let t = 0; t < data.signalW.length; t += 1) {
+    const x = xToPx(t);
+    const y = yToPx(data.signalW[t]);
+    if (t === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  const threshold = Number(data.threshold || 0);
+  ctx.save();
+  ctx.strokeStyle = "#8f3c2d";
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 5]);
+  ctx.beginPath();
+  ctx.moveTo(dims.left, yToPx(threshold));
+  ctx.lineTo(dims.right, yToPx(threshold));
+  ctx.stroke();
+  ctx.restore();
+
+  if (Array.isArray(data.trades)) {
+    ctx.fillStyle = "#111827";
+    for (let t = 0; t < data.trades.length; t += 1) {
+      if (data.trades[t] !== 1) {
+        continue;
+      }
+      const x = xToPx(t);
+      ctx.fillRect(x - 1, dims.bottom + 4, 2, 8);
+    }
+  }
+
+  drawLegend(
+    ctx,
+    [
+      { label: "Signal magnitude", color: "#335c8a", dash: [] },
+      { label: "Threshold", color: "#8f3c2d", dash: [6, 5] },
+      { label: "Trade markers", color: "#111827", dash: [] },
+    ],
+    10,
+    width - 14,
+  );
+}
+
+export function drawRebalanceSweep(canvas, sweepRows) {
+  const { ctx, width, height } = setupCanvas(canvas);
+  ctx.clearRect(0, 0, width, height);
+  applyLineQuality(ctx);
+
+  if (!sweepRows || sweepRows.length === 0) {
+    return;
+  }
+
+  const dims = {
+    left: 64,
+    right: width - 20,
+    top: 30,
+    bottom: height - 54,
+  };
+
+  const allVals = [];
+  for (const row of sweepRows) {
+    for (const method of row.methods || []) {
+      allVals.push(method.netReturn || 0);
+    }
+  }
+  const [rawMin, rawMax] = extent(allVals, 0.15);
+  const yMin = Math.min(rawMin, -0.2);
+  const yMax = Math.max(rawMax, 0.2);
+
+  function xToPx(t) {
+    return dims.left + (t / Math.max(1, sweepRows.length - 1)) * (dims.right - dims.left);
+  }
+
+  function yToPx(y) {
+    return dims.bottom - ((y - yMin) / (yMax - yMin)) * (dims.bottom - dims.top);
+  }
+
+  drawGrid(ctx, dims, 4);
+  drawAxes(ctx, dims, "Rebalance policy", "Net return");
+
+  const methodIds = [];
+  for (const row of sweepRows) {
+    for (const method of row.methods || []) {
+      if (!methodIds.includes(method.id)) {
+        methodIds.push(method.id);
+      }
+    }
+  }
+
+  for (const id of methodIds) {
+    const samples = sweepRows.map((row) => (row.methods || []).find((m) => m.id === id)).filter(Boolean);
+    if (samples.length === 0) {
+      continue;
+    }
+    const style = samples[0];
+
+    ctx.save();
+    ctx.strokeStyle = style.color;
+    ctx.lineWidth = 2.1;
+    ctx.setLineDash(style.dash || []);
+    ctx.beginPath();
+    for (let i = 0; i < sweepRows.length; i += 1) {
+      const sample = (sweepRows[i].methods || []).find((m) => m.id === id);
+      if (!sample) {
+        continue;
+      }
+      const x = xToPx(i);
+      const y = yToPx(sample.netReturn || 0);
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  for (let i = 0; i < sweepRows.length; i += 1) {
+    ctx.fillStyle = "#1f2e44";
+    ctx.font = "500 10px 'IBM Plex Sans', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(sweepRows[i].label, xToPx(i), dims.bottom + 16);
+  }
+
+  const legendItems = [];
+  for (const id of methodIds) {
+    const sample = sweepRows[0].methods.find((m) => m.id === id) || sweepRows.find((row) => row.methods.find((m) => m.id === id))?.methods.find((m) => m.id === id);
+    if (!sample) {
+      continue;
+    }
+    legendItems.push({
+      label: shortMethod(sample.label),
+      color: sample.color,
+      dash: sample.dash || [],
+    });
+  }
+
+  drawLegend(ctx, legendItems, 10, width - 14);
+}

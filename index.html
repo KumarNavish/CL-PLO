@@ -412,6 +412,16 @@
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
         <h2>2. Deployment Decision Dashboard</h2>
         <p class="section-note">Use this as a release gate. Each chart answers one deployment question: value, drawdown, stability, and regime robustness.</p>
+        <div class="realism-note-block">
+          <article>
+            <h3>Why we do not assume daily rebalancing</h3>
+            <p>At short horizons, turnover can absorb most of the edge. Switch frequency and costs to see when implementation drag dominates.</p>
+          </article>
+          <article>
+            <h3>Qualification gate (deployment realism)</h3>
+            <p>A model update becomes a trade only when signal change is meaningful, not when output jitters inside the same market state.</p>
+          </article>
+        </div>
 
         <div class="metric-primer" aria-label="Metric primer">
           <article><strong>Portfolio value</strong><span>Total capital after transaction costs.</span></article>
@@ -453,6 +463,80 @@
                   <span>Projection gate</span>
                   <input id="toggle-projection" type="checkbox" checked />
                 </label>
+              </article>
+
+              <article class="realism-panel" aria-label="Implementation realism controls">
+                <h3>Implementation realism</h3>
+                <form id="implementation-form" class="knob-grid">
+                  <label>
+                    Rebalance policy
+                    <select name="rebalancePolicy">
+                      <option value="daily">Daily</option>
+                      <option value="periodic">Periodic (k-step)</option>
+                      <option value="event">Event-driven</option>
+                      <option value="threshold">Threshold-based</option>
+                    </select>
+                  </label>
+                  <label>
+                    Rebalance every k
+                    <input name="rebalanceEveryK" type="number" step="1" />
+                  </label>
+                  <label>
+                    Rebalance threshold
+                    <input name="rebalanceThreshold" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Cost model
+                    <select name="costModel">
+                      <option value="off">Off</option>
+                      <option value="linear">Linear</option>
+                      <option value="linear_quadratic">Linear + impact</option>
+                    </select>
+                  </label>
+                  <label>
+                    Linear cost
+                    <input name="cLin" type="number" step="0.0001" />
+                  </label>
+                  <label>
+                    Quadratic impact
+                    <input name="cQuad" type="number" step="0.0001" />
+                  </label>
+                  <label>
+                    AUM scale
+                    <input name="aumScale" type="number" step="0.1" />
+                  </label>
+                  <label>
+                    Turnover penalty
+                    <input name="turnoverPenalty" type="number" step="0.1" />
+                  </label>
+                  <label class="switch-row" for="qual-enabled">
+                    <span>Qualification gate</span>
+                    <input id="qual-enabled" name="qualificationEnabled" type="checkbox" />
+                  </label>
+                  <label class="switch-row" for="qual-advanced">
+                    <span>Advanced qualification</span>
+                    <input id="qual-advanced" name="qualificationAdvanced" type="checkbox" />
+                  </label>
+                  <label class="switch-row" for="qual-fundamental">
+                    <span>Require info change</span>
+                    <input id="qual-fundamental" name="qualRequireFundamental" type="checkbox" />
+                  </label>
+                  <label>
+                    Qual threshold (\(\Delta w\))
+                    <input name="qualTauW" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Qual threshold (\(\Delta \mu\))
+                    <input name="qualTauMu" type="number" step="0.001" />
+                  </label>
+                  <label>
+                    Qual threshold (rank)
+                    <input name="qualTauRank" type="number" step="0.01" />
+                  </label>
+                </form>
+                <div class="realism-actions">
+                  <button id="apply-realism-off" class="btn btn-ghost" type="button">Baseline (realism off)</button>
+                </div>
               </article>
 
               <details class="advanced-panel">
@@ -530,6 +614,34 @@
                 <p class="plot-caption">For each strategy: risky sleeve in calm versus stress regimes. Lower stress sleeve means tighter risk control.</p>
                 <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
                 <p class="chart-reading" id="portfolio-state-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q6. Gross vs Net Equity</h3>
+                <p class="plot-caption">Gross path is alpha before trading costs. Net path subtracts implementation friction from every accepted rebalance.</p>
+                <canvas id="gross-net-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="gross-net-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q7. Cost Attribution</h3>
+                <p class="plot-caption">Side-by-side gross and net return by strategy. Gap size is implementation drag under the current policy.</p>
+                <canvas id="cost-attribution-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="cost-attribution-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q8. Qualification Gate View</h3>
+                <p class="plot-caption">Signal-change magnitude vs threshold. Trade markers appear only when rebalance policy and qualification both pass.</p>
+                <canvas id="qualification-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="qualification-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q9. Rebalance Policy Sweep</h3>
+                <p class="plot-caption">Net return under Daily, Weekly, Event, and Threshold policies using the same strategy outputs and cost assumptions.</p>
+                <canvas id="rebalance-sweep-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="rebalance-sweep-reading"></p>
               </article>
             </div>
           </div>

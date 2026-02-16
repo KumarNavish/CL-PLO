@@ -743,6 +743,32 @@ a {
   gap: 0.5rem;
 }
 
+.realism-note-block {
+  margin: 0 0 0.84rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.realism-note-block article {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  padding: 0.5rem 0.58rem;
+  display: grid;
+  gap: 0.14rem;
+}
+
+.realism-note-block h3 {
+  margin: 0;
+  font-size: 0.82rem;
+}
+
+.realism-note-block p {
+  font-size: 0.76rem;
+  line-height: 1.36;
+  color: #435269;
+}
+
 .metric-primer article {
   border: 1px solid var(--line);
   background: var(--panel);
@@ -810,6 +836,28 @@ a {
 
 .component-panel h3 {
   font-size: 0.84rem;
+}
+
+.realism-panel {
+  margin-top: 0.48rem;
+  border: 1px solid var(--line-strong);
+  background: #ffffff;
+  padding: 0.62rem;
+  display: grid;
+  gap: 0.44rem;
+}
+
+.realism-panel h3 {
+  font-size: 0.84rem;
+}
+
+.realism-panel .knob-grid {
+  margin-top: 0.04rem;
+}
+
+.realism-actions {
+  margin-top: 0.2rem;
+  display: grid;
 }
 
 .switch-row {
@@ -915,6 +963,14 @@ input {
   padding: 0.4rem 0.48rem;
 }
 
+select {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--ink);
+  padding: 0.4rem 0.48rem;
+  font-family: inherit;
+}
+
 .run-status p {
   font-size: 0.82rem;
 }
@@ -962,7 +1018,7 @@ input {
 }
 
 .kpi-row {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.74rem;
 }
 
@@ -1220,6 +1276,10 @@ input {
   }
 
   .metric-primer {
+    grid-template-columns: 1fr;
+  }
+
+  .realism-note-block {
     grid-template-columns: 1fr;
   }
 

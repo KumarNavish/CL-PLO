@@ -105,10 +105,17 @@ export function runExperiment(cfg, onProgress) {
       driftMse,
       stressMse,
       totalReturn: sim.totalReturn,
+      grossTotalReturn: sim.grossTotalReturn ?? sim.totalReturn,
+      netTotalReturn: sim.netTotalReturn ?? sim.totalReturn,
       maxDrawdown: sim.maxDrawdown,
       worstStressDay: sim.worstStressDay,
       avgRiskyWeightStress: sim.avgRiskyWeightStress,
       avgRiskyWeightDrift: sim.avgRiskyWeightDrift,
+      costDrag: sim.costDrag ?? 0,
+      tradeRate: sim.tradeRate ?? 0,
+      qualifiedRate: sim.qualifiedRate ?? 0,
+      precisionProxy: sim.precisionProxy ?? 0,
+      recallProxy: sim.recallProxy ?? 0,
     };
   }
 
