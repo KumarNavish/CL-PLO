@@ -15,20 +15,20 @@
       <div class="shell">
         <article class="hero-insight" aria-label="Decision summary">
           <p class="hero-kicker">CL-PLO Decision Spine</p>
-          <h1>Keep the portfolio model learning without forgetting stress behavior.</h1>
+          <h1>Keep the portfolio model learning without forgetting stress behavior — without paying it away in turnover and costs.</h1>
 
           <div class="hero-grid">
             <article class="hero-mini">
               <p class="hero-mini-title">Problem</p>
-              <p>Market regimes change. A model tuned only to recent flow can forget stress patterns.</p>
+              <p>Market regimes change. A model tuned only to recent flow can forget stress patterns. And at short horizons, small output jitter can drive turnover that costs more than it earns.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Why It Matters</p>
-              <p>When that memory fades, allocations can look fine in calm periods and fail in shocks.</p>
+              <p>When memory fades, allocations can look fine in calm periods and fail in shocks. When turnover is driven by noise, costs can erase short-horizon gains.</p>
             </article>
             <article class="hero-mini">
               <p class="hero-mini-title">Core Idea</p>
-              <p>Freeze the transformer. Improve only the update rule with replay and a risk projection.</p>
+              <p>Freeze the transformer. Improve the updater (replay + projection). Then trade only when the signal change is worth paying for (qualification + rebalance policy).</p>
             </article>
           </div>
 
@@ -40,7 +40,7 @@
 
           <div class="hero-result">
             <p class="hero-signal">
-              <strong>Decision signal:</strong> choose the updater that adapts, keeps stress memory, and respects risk limits.
+              <strong>Decision signal:</strong> choose the updater that adapts, keeps stress memory, respects risk limits, and stays tradeable after costs.
             </p>
             <article class="hero-proof" aria-label="One-screen check">
               <h3>30-Second Decision Check</h3>
@@ -411,23 +411,16 @@
 
       <section class="section" id="workspace" aria-label="Interactive validation workspace">
         <h2>2. Deployment Decision Dashboard</h2>
-        <p class="section-note">Use this as a release gate. Each chart answers one deployment question: value, drawdown, stability, and regime robustness.</p>
-        <div class="realism-note-block">
-          <article>
-            <h3>Why we do not assume daily rebalancing</h3>
-            <p>At short horizons, turnover can absorb most of the edge. Switch frequency and costs to see when implementation drag dominates.</p>
-          </article>
-          <article>
-            <h3>Qualification gate (deployment realism)</h3>
-            <p>A model update becomes a trade only when signal change is meaningful, not when output jitters inside the same market state.</p>
-          </article>
-        </div>
+        <p class="section-note">Use this as a release gate. Start with costs and rebalance, then churn control, then stress behavior, then the scorecard.</p>
 
         <div class="metric-primer" aria-label="Metric primer">
-          <article><strong>Portfolio value</strong><span>Total capital after transaction costs.</span></article>
-          <article><strong>Drawdown</strong><span>Loss from the latest peak. Smaller is safer.</span></article>
-          <article><strong>Turnover</strong><span>How much weights change each step. Lower is easier to trade.</span></article>
-          <article><strong>Regime Sharpe</strong><span>Risk-adjusted return measured separately by regime.</span></article>
+          <p>
+            Metrics used below:<br />
+            • Portfolio value: total capital after transaction costs.<br />
+            • Drawdown: loss from the latest peak (smaller is safer).<br />
+            • Turnover: how much weights change each step (lower is easier to trade).<br />
+            • Regime Sharpe: risk-adjusted return measured separately by regime.
+          </p>
         </div>
 
         <div class="experiment-layout">
@@ -579,42 +572,13 @@
             <div id="impact-kpis" class="kpi-row"></div>
 
             <div class="plot-stack">
-              <article class="chart-card">
-                <h3>Q1. Portfolio Value Through Regimes</h3>
-                <p class="plot-caption">Same market path and cost model for every strategy. Start with stress windows, then compare ending value.</p>
-                <canvas id="pnl-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="pnl-reading"></p>
-              </article>
-
-              <article class="chart-card">
-                <h3>Q2. Drawdown and Recovery</h3>
-                <p class="plot-caption">Depth is worst peak-to-trough loss. Recovery is time to regain that peak.</p>
-                <canvas id="drawdown-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="drawdown-reading"></p>
-              </article>
-
-              <article class="chart-card">
-                <h3>Q3. Allocation vs Turnover</h3>
-                <p class="plot-caption">Top: risky allocation path. Bottom: turnover response. Read both together to see stability versus responsiveness.</p>
-                <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
-                <p class="plot-legend-note">Color identifies strategy. Solid = allocation, dotted = turnover.</p>
-                <canvas id="allocation-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="allocation-reading"></p>
-              </article>
-
-              <article class="chart-card">
-                <h3>Q4. Regime Sharpe</h3>
-                <p class="plot-caption">Each bar is annualized Sharpe by regime. This shows where each strategy earns return per unit risk.</p>
-                <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="regime-risk-reading"></p>
-              </article>
-
-              <article class="chart-card chart-card-wide">
-                <h3>Q5. Portfolio Policy View</h3>
-                <p class="plot-caption">For each strategy: risky sleeve in calm versus stress regimes. Lower stress sleeve means tighter risk control.</p>
-                <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
-                <p class="chart-reading" id="portfolio-state-reading"></p>
-              </article>
+              <h3>Gate A — Tradeable after costs</h3>
+              <div class="realism-note-block">
+                <article>
+                  <h3>Why we do not assume daily rebalancing</h3>
+                  <p>Start here. If turnover is high, costs can wipe out the edge. These plots show when net collapses even if gross looks fine.</p>
+                </article>
+              </div>
 
               <article class="chart-card">
                 <h3>Q6. Gross vs Net Equity</h3>
@@ -631,6 +595,21 @@
               </article>
 
               <article class="chart-card">
+                <h3>Q9. Rebalance Policy Sweep</h3>
+                <p class="plot-caption">Net return under Daily, Weekly, Event, and Threshold policies using the same strategy outputs and cost assumptions.</p>
+                <canvas id="rebalance-sweep-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="rebalance-sweep-reading"></p>
+              </article>
+
+              <h3>Gate B — Don’t trade on jitter</h3>
+              <div class="realism-note-block">
+                <article>
+                  <h3>Qualification gate (deployment realism)</h3>
+                  <p>Trade only when the signal change is meaningful. The qualification gate blocks trades when output jitters inside the same market state.</p>
+                </article>
+              </div>
+
+              <article class="chart-card">
                 <h3>Q8. Qualification Gate View</h3>
                 <p class="plot-caption">Signal-change magnitude vs threshold. Trade markers appear only when rebalance policy and qualification both pass.</p>
                 <canvas id="qualification-chart" class="chart-canvas"></canvas>
@@ -638,10 +617,42 @@
               </article>
 
               <article class="chart-card">
-                <h3>Q9. Rebalance Policy Sweep</h3>
-                <p class="plot-caption">Net return under Daily, Weekly, Event, and Threshold policies using the same strategy outputs and cost assumptions.</p>
-                <canvas id="rebalance-sweep-chart" class="chart-canvas"></canvas>
-                <p class="chart-reading" id="rebalance-sweep-reading"></p>
+                <h3>Q3. Allocation vs Turnover</h3>
+                <p class="plot-caption">Top: risky allocation path. Bottom: turnover response. Read both together to see stability versus responsiveness.</p>
+                <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
+                <p class="plot-legend-note">Color identifies strategy. Solid = allocation, dotted = turnover.</p>
+                <canvas id="allocation-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="allocation-reading"></p>
+              </article>
+
+              <h3>Gate C — Stress behavior stays controlled</h3>
+              <article class="chart-card">
+                <h3>Q2. Drawdown and Recovery</h3>
+                <p class="plot-caption">Depth is worst peak-to-trough loss. Recovery is time to regain that peak.</p>
+                <canvas id="drawdown-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="drawdown-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q4. Regime Sharpe</h3>
+                <p class="plot-caption">Each bar is annualized Sharpe by regime. This shows where each strategy earns return per unit risk.</p>
+                <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="regime-risk-reading"></p>
+              </article>
+
+              <article class="chart-card chart-card-wide">
+                <h3>Q5. Portfolio Policy View</h3>
+                <p class="plot-caption">For each strategy: risky sleeve in calm versus stress regimes. Lower stress sleeve means tighter risk control.</p>
+                <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
+                <p class="chart-reading" id="portfolio-state-reading"></p>
+              </article>
+
+              <h3>Scorecard</h3>
+              <article class="chart-card">
+                <h3>Q1. Portfolio Value Through Regimes</h3>
+                <p class="plot-caption">Final scorecard: net equity on the same market path and cost model for every strategy.</p>
+                <canvas id="pnl-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="pnl-reading"></p>
               </article>
             </div>
           </div>
@@ -663,13 +674,13 @@
             <article class="deploy-node">
               <p class="deploy-step">Step 2</p>
               <h3>Replay the path</h3>
-              <p>Run the same timeline with transaction costs and regime tags.</p>
+              <p>Run the same timeline with transaction costs and regime tags (see Gate C).</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node proposed">
               <p class="deploy-step">Step 3</p>
               <h3>Pass the gate</h3>
-              <p>Approve only if drawdown, turnover, and stress Sharpe stay inside the release band.</p>
+              <p>Approve only if drawdown, turnover, costs, and stress Sharpe stay inside the release band (see Gates A–C).</p>
             </article>
             <div class="deploy-arrow">→</div>
             <article class="deploy-node">
