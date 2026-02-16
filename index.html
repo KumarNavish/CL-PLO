@@ -572,7 +572,7 @@
             <div id="impact-kpis" class="kpi-row"></div>
 
             <div class="plot-stack">
-              <h3>Gate A — Tradeable after costs</h3>
+              <h3 class="gate-heading">Gate A — Tradeable after costs</h3>
               <div class="realism-note-block">
                 <article>
                   <h3>Why we do not assume daily rebalancing</h3>
@@ -581,27 +581,27 @@
               </div>
 
               <article class="chart-card">
-                <h3>Q6. Gross vs Net Equity</h3>
+                <h3>Q1. Gross vs Net Equity</h3>
                 <p class="plot-caption">Gross path is alpha before trading costs. Net path subtracts implementation friction from every accepted rebalance.</p>
                 <canvas id="gross-net-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="gross-net-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q7. Cost Attribution</h3>
+                <h3>Q2. Cost Attribution</h3>
                 <p class="plot-caption">Side-by-side gross and net return by strategy. Gap size is implementation drag under the current policy.</p>
                 <canvas id="cost-attribution-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="cost-attribution-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q9. Rebalance Policy Sweep</h3>
+                <h3>Q3. Rebalance Policy Sweep</h3>
                 <p class="plot-caption">Net return under Daily, Weekly, Event, and Threshold policies using the same strategy outputs and cost assumptions.</p>
                 <canvas id="rebalance-sweep-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="rebalance-sweep-reading"></p>
               </article>
 
-              <h3>Gate B — Don’t trade on jitter</h3>
+              <h3 class="gate-heading">Gate B — Don’t trade on jitter</h3>
               <div class="realism-note-block">
                 <article>
                   <h3>Qualification gate (deployment realism)</h3>
@@ -610,14 +610,14 @@
               </div>
 
               <article class="chart-card">
-                <h3>Q8. Qualification Gate View</h3>
+                <h3>Q4. Qualification Gate View</h3>
                 <p class="plot-caption">Signal-change magnitude vs threshold. Trade markers appear only when rebalance policy and qualification both pass.</p>
                 <canvas id="qualification-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="qualification-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q3. Allocation vs Turnover</h3>
+                <h3>Q5. Allocation vs Turnover</h3>
                 <p class="plot-caption">Top: risky allocation path. Bottom: turnover response. Read both together to see stability versus responsiveness.</p>
                 <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
                 <p class="plot-legend-note">Color identifies strategy. Solid = allocation, dotted = turnover.</p>
@@ -625,31 +625,31 @@
                 <p class="chart-reading" id="allocation-reading"></p>
               </article>
 
-              <h3>Gate C — Stress behavior stays controlled</h3>
+              <h3 class="gate-heading">Gate C — Stress behavior stays controlled</h3>
               <article class="chart-card">
-                <h3>Q2. Drawdown and Recovery</h3>
+                <h3>Q6. Drawdown and Recovery</h3>
                 <p class="plot-caption">Depth is worst peak-to-trough loss. Recovery is time to regain that peak.</p>
                 <canvas id="drawdown-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="drawdown-reading"></p>
               </article>
 
               <article class="chart-card">
-                <h3>Q4. Regime Sharpe</h3>
+                <h3>Q7. Regime Sharpe</h3>
                 <p class="plot-caption">Each bar is annualized Sharpe by regime. This shows where each strategy earns return per unit risk.</p>
                 <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="regime-risk-reading"></p>
               </article>
 
               <article class="chart-card chart-card-wide">
-                <h3>Q5. Portfolio Policy View</h3>
+                <h3>Q8. Portfolio Policy View</h3>
                 <p class="plot-caption">For each strategy: risky sleeve in calm versus stress regimes. Lower stress sleeve means tighter risk control.</p>
                 <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
                 <p class="chart-reading" id="portfolio-state-reading"></p>
               </article>
 
-              <h3>Scorecard</h3>
+              <h3 class="gate-heading">Scorecard</h3>
               <article class="chart-card">
-                <h3>Q1. Portfolio Value Through Regimes</h3>
+                <h3>Q9. Portfolio Value Through Regimes</h3>
                 <p class="plot-caption">Final scorecard: net equity on the same market path and cost model for every strategy.</p>
                 <canvas id="pnl-chart" class="chart-canvas"></canvas>
                 <p class="chart-reading" id="pnl-reading"></p>

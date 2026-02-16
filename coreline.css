@@ -724,7 +724,7 @@ a {
 
 .experiment-layout {
   display: grid;
-  grid-template-columns: 268px 1fr;
+  grid-template-columns: minmax(296px, 332px) minmax(0, 1fr);
   gap: 1.2rem;
   align-items: start;
 }
@@ -733,14 +733,24 @@ a {
   position: sticky;
   top: 1rem;
   display: grid;
-  gap: 0.84rem;
+  gap: 0.72rem;
 }
 
 .metric-primer {
   margin: 0 0 0.96rem;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 0.5rem;
+}
+
+.metric-primer p {
+  margin: 0;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.76rem;
+  line-height: 1.42;
+  color: #334155;
 }
 
 .realism-note-block {
@@ -748,6 +758,10 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.5rem;
+}
+
+.plot-stack .realism-note-block {
+  grid-template-columns: 1fr;
 }
 
 .realism-note-block article {
@@ -961,6 +975,8 @@ input {
   background: #ffffff;
   color: var(--ink);
   padding: 0.4rem 0.48rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 select {
@@ -969,10 +985,20 @@ select {
   color: var(--ink);
   padding: 0.4rem 0.48rem;
   font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.run-status {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  padding: 0.55rem 0.62rem 0.62rem;
 }
 
 .run-status p {
+  margin: 0;
   font-size: 0.82rem;
+  color: #334155;
 }
 
 .run-status p.error {
@@ -1057,6 +1083,14 @@ select {
 .plot-stack {
   grid-template-columns: 1fr;
   gap: 0.98rem;
+}
+
+.plot-stack .gate-heading {
+  margin: 0.15rem 0 -0.08rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #223045;
 }
 
 .chart-card h3 {
