@@ -2,9 +2,12 @@
   --bg: #ffffff;
   --ink: #111827;
   --muted: #4b5563;
-  --line: #d9e0ea;
-  --line-strong: #c3cedd;
+  --line: #d9e1ec;
+  --line-strong: #c5d1e0;
   --panel: #f7f9fc;
+  --surface: #ffffff;
+  --accent: #1f4a72;
+  --accent-soft: #eaf1f8;
 
   --role-data-bg: #edf4fb;
   --role-data-stroke: #587491;
@@ -340,8 +343,27 @@ a {
 .chart-card,
 .takeaway {
   border: 1px solid var(--line);
-  background: #ffffff;
+  background: var(--surface);
   padding: 0.9rem;
+}
+
+.control-stack {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.protocol-board,
+.focus-panel,
+.component-panel,
+.realism-panel,
+.advanced-panel,
+.run-status,
+.chart-card,
+.decision-card,
+.kpi-row article,
+.takeaway {
+  border-radius: 10px;
 }
 
 .method-tag {
@@ -816,6 +838,10 @@ a {
   min-height: 2em;
 }
 
+.protocol-board {
+  border-left: 3px solid var(--accent);
+}
+
 .preset-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -829,7 +855,7 @@ a {
 }
 
 .focus-panel {
-  margin-top: 0.52rem;
+  margin-top: 0;
   border: 1px solid var(--line-strong);
   background: #ffffff;
   padding: 0.62rem;
@@ -840,7 +866,7 @@ a {
 }
 
 .component-panel {
-  margin-top: 0.48rem;
+  margin-top: 0;
   border: 1px solid var(--line-strong);
   background: #ffffff;
   padding: 0.62rem;
@@ -853,7 +879,7 @@ a {
 }
 
 .realism-panel {
-  margin-top: 0.48rem;
+  margin-top: 0;
   border: 1px solid var(--line-strong);
   background: #ffffff;
   padding: 0.62rem;
@@ -884,9 +910,7 @@ a {
 }
 
 .switch-row input {
-  width: 16px;
-  height: 16px;
-  accent-color: #1f2937;
+  accent-color: var(--accent);
 }
 
 .focus-grid {
@@ -908,9 +932,14 @@ a {
   cursor: pointer;
 }
 
+.focus-btn:hover {
+  border-color: #b8c6d8;
+  background: #f9fbfe;
+}
+
 .focus-btn.active {
-  border-color: var(--ink);
-  background: #1b1b1b;
+  border-color: var(--accent);
+  background: var(--accent);
   color: #ffffff;
 }
 
@@ -925,13 +954,20 @@ a {
   cursor: pointer;
 }
 
+.btn:hover {
+  border-color: #b8c6d8;
+  background: #f9fbfe;
+}
+
 .btn-primary {
-  background: var(--ink);
+  border-color: var(--accent);
+  background: var(--accent);
   color: #ffffff;
 }
 
 .btn.active {
-  background: #222222;
+  border-color: var(--accent);
+  background: var(--accent);
   color: #ffffff;
 }
 
@@ -941,7 +977,7 @@ a {
 }
 
 .advanced-panel {
-  margin-top: 0.44rem;
+  margin-top: 0;
   border: 1px solid var(--line-strong);
   background: #ffffff;
   padding: 0.48rem 0.56rem 0.58rem;
@@ -970,7 +1006,7 @@ label {
   font-size: 0.78rem;
 }
 
-input {
+input:not([type="checkbox"]):not([type="radio"]) {
   border: 1px solid var(--line);
   background: #ffffff;
   color: var(--ink);
@@ -992,6 +1028,7 @@ select {
 .run-status {
   border: 1px solid var(--line);
   background: #ffffff;
+  border-left: 3px solid var(--accent);
   padding: 0.55rem 0.62rem 0.62rem;
 }
 
@@ -999,6 +1036,14 @@ select {
   margin: 0;
   font-size: 0.82rem;
   color: #334155;
+}
+
+.switch-row input {
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
 }
 
 .run-status p.error {
@@ -1090,7 +1135,7 @@ select {
   font-size: 0.9rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: #223045;
+  color: var(--accent);
 }
 
 .chart-card h3 {
