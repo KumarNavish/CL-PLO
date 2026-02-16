@@ -1185,6 +1185,134 @@ select {
   border-top-style: solid;
 }
 
+/* Dashboard polish overrides */
+#workspace .experiment-layout {
+  grid-template-columns: minmax(344px, 384px) minmax(0, 1fr);
+  gap: 1.35rem;
+}
+
+#workspace .control-panel {
+  background: #f8fbff;
+  border: 1px solid #d5e0ee;
+  border-radius: 14px;
+  padding: 0.72rem;
+  gap: 0.62rem;
+}
+
+#workspace .control-stack {
+  gap: 0.56rem;
+}
+
+#workspace .protocol-board,
+#workspace .focus-panel,
+#workspace .component-panel,
+#workspace .realism-panel,
+#workspace .advanced-panel,
+#workspace .run-status {
+  border: 1px solid #d7e1ef;
+  border-radius: 11px;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+#workspace .protocol-board {
+  border-left: 4px solid var(--accent);
+}
+
+#workspace .focus-panel h3,
+#workspace .component-panel h3,
+#workspace .realism-panel h3 {
+  color: #1f3249;
+}
+
+#workspace .knob-grid label {
+  padding: 0.34rem 0.38rem;
+  border: 1px solid #e8eef6;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+#workspace .switch-row {
+  padding: 0.34rem 0.38rem;
+  border: 1px solid #e8eef6;
+  border-radius: 8px;
+  background: #fbfdff;
+}
+
+#workspace .focus-btn {
+  border-color: #ced9e8;
+  border-radius: 8px;
+  color: #223045;
+}
+
+#workspace .focus-btn:hover {
+  border-color: #a9bbd3;
+  background: #f2f7fc;
+}
+
+#workspace .focus-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+#workspace .btn {
+  border-color: #c4d3e5;
+  border-radius: 8px;
+  color: #223045;
+}
+
+#workspace .btn:hover {
+  border-color: #9db4cf;
+  background: #f4f8fd;
+}
+
+#workspace .btn-primary,
+#workspace .btn.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+}
+
+#workspace .run-status {
+  border-left: 4px solid var(--accent);
+  padding: 0.62rem 0.68rem 0.66rem;
+}
+
+#workspace .progress-track {
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid #d7e1ef;
+  background: #eef3f9;
+  overflow: hidden;
+}
+
+#workspace #progress-fill {
+  background: linear-gradient(90deg, var(--accent), #3f6b95);
+}
+
+#workspace .chart-card,
+#workspace .decision-card,
+#workspace .kpi-row article {
+  border-color: #d7e1ef;
+  background: #ffffff;
+}
+
+#workspace .plot-caption,
+#workspace .chart-reading,
+#workspace .mode-readout {
+  color: #374151;
+}
+
+#workspace .plot-stack .gate-heading {
+  color: var(--accent);
+}
+
+#workspace .legend-chip {
+  border-color: #d7e1ef;
+  color: #2b3d52;
+}
+
 .chart-canvas {
   width: 100%;
   height: 338px;
