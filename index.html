@@ -435,6 +435,11 @@
               <p id="mode-readout" class="mode-readout"></p>
             </article>
 
+            <div class="action-row">
+              <button id="run-demo" class="btn btn-primary" type="button">Run Demo</button>
+              <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
+            </div>
+
             <div class="control-stack">
               <article class="focus-panel" aria-label="Strategy focus selector">
                 <h3>Strategy</h3>
@@ -515,11 +520,11 @@
                     <input id="qual-fundamental" name="qualRequireFundamental" type="checkbox" />
                   </label>
                   <label>
-                    Qual threshold (\(\Delta w\))
+                    Qual threshold (Δw)
                     <input name="qualTauW" type="number" step="0.01" />
                   </label>
                   <label>
-                    Qual threshold (\(\Delta \mu\))
+                    Qual threshold (Δμ)
                     <input name="qualTauMu" type="number" step="0.001" />
                   </label>
                   <label>
@@ -553,11 +558,6 @@
                   </label>
                 </form>
               </details>
-
-              <div class="action-row">
-                <button id="run-demo" class="btn btn-primary" type="button">Run Demo</button>
-                <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
-              </div>
             </div>
 
             <div class="run-status">
