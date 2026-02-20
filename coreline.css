@@ -1469,6 +1469,8 @@ select {
 .footer-inner {
   display: flex;
   justify-content: flex-end;
+  gap: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .inline-link {
