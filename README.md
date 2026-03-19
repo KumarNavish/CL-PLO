@@ -1,6 +1,5 @@
-# Constraint-Aligned Continual PEFT: Internship Proposal Artifact
+# Constraint-Aligned Continual PEFT (Parameter-Efficient Fine Tuning)
 
-This repository is a submission-ready project proposal package for quant/AI internship applications.
 
 It is built from a single existing mechanism and provides:
 - an interactive research website (live demo + math + evidence + deployment pathway),
