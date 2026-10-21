@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 336" role="img" aria-label="Replay strategy pipeline">
+  <defs>
+    <style>
+      .title { font: 600 21px 'IBM Plex Sans', sans-serif; fill: #101722; }
+      .meta { font: 500 12px 'IBM Plex Sans', sans-serif; fill: #4f5b6a; }
+      .cap { font: 600 10px 'IBM Plex Sans', sans-serif; letter-spacing: 0.09em; text-transform: uppercase; fill: #5b6675; }
+      .node { font: 600 14px 'IBM Plex Sans', sans-serif; fill: #1f2a37; }
+      .sub { font: 500 11px 'IBM Plex Sans', sans-serif; fill: #445064; }
+      .aux { font: 500 11px 'IBM Plex Sans', sans-serif; fill: #644d36; }
+      .foot { font: 600 11px 'IBM Plex Sans', sans-serif; fill: #2a3646; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2e3c4f"/>
+    </marker>
+    <marker id="mem" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"/>
+    </marker>
+  </defs>
+
+  <rect width="1320" height="336" fill="#ffffff"/>
+  <rect x="10" y="10" width="1300" height="316" rx="12" fill="#ffffff" stroke="#d4dce6"/>
+
+  <text x="34" y="40" class="title">B. Replay-regularized update</text>
+  <text x="34" y="60" class="meta">Anchor fixtures are replayed during every update, but the mixed step is not projected.</text>
+
+  <g transform="translate(36,108)">
+    <text x="14" y="-14" class="cap">Stream</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#eaf1f8" stroke="#4f6b88"/>
+    <text x="110" y="52" text-anchor="middle" class="node">LLM market stream</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">tokens plus returns</text>
+  </g>
+
+  <line x1="256" y1="168" x2="276" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(284,108)">
+    <text x="14" y="-14" class="cap">Frozen core</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f8fafc" stroke="#7a8798"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Transformer backbone</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">weights fixed</text>
+  </g>
+
+  <line x1="504" y1="168" x2="524" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(532,108)">
+    <text x="14" y="-14" class="cap">Anchor memory</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f6efe6" stroke="#7a6245"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Anchor store A<tspan baseline-shift="sub" font-size="10">t</tspan></text>
+    <text x="110" y="72" text-anchor="middle" class="sub">stress fixtures replayed</text>
+  </g>
+
+  <line x1="752" y1="168" x2="772" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(780,108)">
+    <text x="14" y="-14" class="cap">Update operator</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f8f2ea" stroke="#915f2c"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Replay-mixed step</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">g = g<tspan baseline-shift="sub" font-size="10">d</tspan> + beta g<tspan baseline-shift="sub" font-size="10">a</tspan></text>
+  </g>
+
+  <path d="M642 228 C 712 260, 804 260, 874 228" fill="none" stroke="#7a6245" stroke-width="2.1" marker-end="url(#mem)"/>
+  <text x="758" y="262" text-anchor="middle" class="aux">replay gradient g<tspan baseline-shift="sub" font-size="10">a</tspan></text>
+
+  <line x1="1000" y1="168" x2="1020" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(1028,108)">
+    <text x="14" y="-14" class="cap">Decision layer</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#eef5ef" stroke="#40634d"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Portfolio optimizer</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">weights and costs</text>
+  </g>
+
+  <rect x="36" y="258" width="404" height="44" rx="22" fill="#f8fafc" stroke="#d4dce6"/>
+  <text x="56" y="284" class="foot">Preserves: anchor stress fixtures</text>
+
+  <rect x="454" y="258" width="348" height="44" rx="22" fill="#f8fafc" stroke="#d4dce6"/>
+  <text x="474" y="284" class="foot">Changes: drift plus replay mix</text>
+
+  <rect x="816" y="258" width="432" height="44" rx="22" fill="#f2f7fc" stroke="#c5d6e8"/>
+  <text x="836" y="284" class="foot">Control point: soft replay regularization</text>
+</svg>

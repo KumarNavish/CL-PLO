@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Remote Training Status Dashboard</title>
+  <style>
+    :root {
+      --bg: #f2f8fc;
+      --ink: #112538;
+      --muted: #516a80;
+      --card: #ffffff;
+      --line: #d4e1eb;
+      --ok: #13652b;
+      --warn: #936200;
+      --bad: #a71f32;
+    }
+    body {
+      margin: 0;
+      background: linear-gradient(160deg, #eaf3fa 0%, #f8fbff 62%);
+      color: var(--ink);
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+    }
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      letter-spacing: 0.3px;
+    }
+    .muted {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0 0 14px;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    select {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--ink);
+      min-width: 260px;
+      font-size: 14px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 12px;
+      border: 1px solid transparent;
+    }
+    .status-ok {
+      color: var(--ok);
+      background: #e6f5ea;
+      border-color: #bfe3c8;
+    }
+    .status-error {
+      color: var(--bad);
+      background: #fdecef;
+      border-color: #f7c9d2;
+    }
+    .status-warn {
+      color: var(--warn);
+      background: #fff4dc;
+      border-color: #f0d8a7;
+    }
+    .grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      margin: 12px 0 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 8px 20px rgba(23, 50, 76, 0.07);
+    }
+    .card .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .card .value {
+      margin-top: 5px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .section {
+      margin-bottom: 16px;
+    }
+    .section h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 7px 8px;
+      text-align: left;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    th {
+      background: #e8f1f8;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .status-running { color: var(--warn); font-weight: 700; }
+    .status-done { color: var(--ok); font-weight: 700; }
+    .status-error { color: var(--bad); font-weight: 700; }
+    .status-pending { color: #607689; font-weight: 700; }
+    pre {
+      margin: 0;
+      padding: 12px;
+      border-radius: 10px;
+      background: #0f172a;
+      color: #d9e4f0;
+      font-size: 12px;
+      line-height: 1.35;
+      overflow: auto;
+      max-height: 330px;
+    }
+    a {
+      color: #005cc5;
+      text-decoration: none;
+      font-weight: 700;
+    }
+    .appendix-shell {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #c9d7e5;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 6% 12%, rgba(209, 233, 251, 0.75), rgba(209, 233, 251, 0) 45%),
+        radial-gradient(circle at 92% 0%, rgba(255, 238, 210, 0.72), rgba(255, 238, 210, 0) 40%),
+        linear-gradient(155deg, #ffffff 0%, #f6fbff 52%, #fffaf3 100%);
+      box-shadow: 0 18px 34px rgba(16, 50, 81, 0.13);
+      padding: 18px;
+    }
+    .appendix-shell::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(110deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0));
+    }
+    .appendix-kicker {
+      position: relative;
+      z-index: 1;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.9px;
+      text-transform: uppercase;
+      color: #114061;
+      background: rgba(213, 232, 247, 0.78);
+      border: 1px solid rgba(108, 151, 184, 0.3);
+      font-weight: 700;
+    }
+    .appendix-title {
+      position: relative;
+      z-index: 1;
+      margin: 10px 0 2px;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      font-size: 30px;
+      line-height: 1.1;
+      letter-spacing: 0.2px;
+      color: #0f2f48;
+    }
+    .appendix-subtitle {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 16px;
+      color: #36566f;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+    .appendix-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+    .appendix-panel {
+      border-radius: 12px;
+      border: 1px solid #d4e2ee;
+      background: rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(1px);
+      padding: 12px;
+    }
+    .appendix-panel h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: #0f3049;
+      letter-spacing: 0.2px;
+    }
+    .appendix-panel p {
+      margin: 0 0 8px;
+      color: #24465f;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .appendix-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+    }
+    .appendix-list li {
+      position: relative;
+      padding-left: 16px;
+      color: #1f415a;
+      font-size: 13px;
+      line-height: 1.42;
+    }
+    .appendix-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.56em;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #2d7fb5;
+      box-shadow: 0 0 0 3px rgba(45, 127, 181, 0.12);
+    }
+    .appendix-panel.tone-good {
+      border-color: #c7e3d1;
+      background: linear-gradient(150deg, rgba(241, 252, 245, 0.95), rgba(255, 255, 255, 0.84));
+    }
+    .appendix-panel.tone-good h3 {
+      color: #0f4a2b;
+    }
+    .appendix-panel.tone-good .appendix-list li::before {
+      background: #2f9553;
+      box-shadow: 0 0 0 3px rgba(47, 149, 83, 0.13);
+    }
+    .appendix-panel.tone-caution {
+      border-color: #ead8bf;
+      background: linear-gradient(150deg, rgba(255, 249, 237, 0.95), rgba(255, 255, 255, 0.84));
+    }
+    .appendix-panel.tone-caution h3 {
+      color: #6b4f14;
+    }
+    .appendix-panel.tone-caution .appendix-list li::before {
+      background: #b98721;
+      box-shadow: 0 0 0 3px rgba(185, 135, 33, 0.15);
+    }
+    .paper-wrap {
+      background: #fff;
+      border: 1px solid #cfd7de;
+      border-radius: 10px;
+      padding: 10px 12px 12px;
+      overflow-x: auto;
+    }
+    .paper-caption {
+      margin: 0 0 8px;
+      font-family: "Times New Roman", Georgia, serif;
+      font-size: 18px;
+      line-height: 1.15;
+      color: #111;
+    }
+    .paper-caption .paper-title {
+      font-weight: 700;
+    }
+    .paper-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: none;
+      border-radius: 0;
+      font-family: "Times New Roman", Georgia, serif;
+      background: #fff;
+    }
+    .paper-table thead tr:first-child th {
+      border-top: 2px solid #333;
+    }
+    .paper-table thead th {
+      background: #fff;
+      border-bottom: 1px solid #555;
+      color: #111;
+      font-size: 13px;
+      font-variant: small-caps;
+      letter-spacing: 0.2px;
+      padding: 5px 6px 3px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .paper-table td {
+      border-bottom: 1px solid #666;
+      color: #111;
+      font-size: 14px;
+      line-height: 1.02;
+      padding: 4px 7px;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .paper-table tbody tr:last-child td {
+      border-bottom: 2px solid #333;
+    }
+    .paper-table .left {
+      text-align: left;
+    }
+    .paper-table .italic {
+      font-style: italic;
+    }
+    .paper-table .sub {
+      display: block;
+      font-size: 0.92em;
+      margin-top: 1px;
+    }
+    .paper-sep td {
+      border-top: 1px solid #555;
+    }
+    .evo-wrap {
+      background: linear-gradient(165deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid #c8d8e8;
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 14px 30px rgba(22, 47, 77, 0.08);
+    }
+    .evo-caption {
+      margin: 0 0 10px;
+      color: #1f425f;
+      font-size: 13.5px;
+      line-height: 1.4;
+    }
+    .evo-panels {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1fr;
+    }
+    .evo-panel {
+      border: 1px solid #d0deec;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #ffffff 0%, #f4f9ff 100%);
+      padding: 16px;
+    }
+    .evo-panel h3 {
+      margin: 0 0 12px;
+      color: #0f334d;
+      font-size: 22px;
+      letter-spacing: 0.15px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .evo-chart {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #d4e0ec;
+      border-radius: 10px;
+      background: #ffffff;
+    }
+    .evo-legend {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      justify-content: center;
+    }
+    .evo-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #234a66;
+      font-size: 15px;
+      white-space: nowrap;
+      letter-spacing: 0.1px;
+    }
+    .evo-chip {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      border: 1px solid rgba(17, 37, 56, 0.2);
+    }
+    .evo-line-sample {
+      width: 34px;
+      border-top: 3px solid #243b53;
+      position: relative;
+      top: -1px;
+    }
+    .evo-line-sample.dissim {
+      border-top-style: dashed;
+    }
+    .evo-marker-sample {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #243b53;
+    }
+    .evo-marker-sample.square {
+      border-radius: 2px;
+    }
+    .evo-meta {
+      margin-top: 10px;
+      color: #3d5f79;
+      font-size: 14px;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .evo-grad-deck {
+      display: grid;
+      gap: 12px;
+    }
+    .evo-grad-main {
+      display: block;
+    }
+    .evo-grad-note {
+      margin: 0;
+      color: #2f526d;
+      font-size: 16px;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .evo-small-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .evo-mini-panel {
+      border: 1px solid #d4e0ec;
+      border-radius: 10px;
+      background: #ffffff;
+      padding: 10px;
+    }
+    .evo-mini-title {
+      margin: 0 0 6px;
+      color: #173c58;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.1px;
+    }
+    .evo-mini-chart {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #e4edf5;
+      border-radius: 8px;
+      background: #ffffff;
+    }
+    .evo-mini-note {
+      margin: 2px 0 0;
+      color: #48657d;
+      font-size: 12px;
+      text-align: center;
+    }
+    @media (max-width: 800px) {
+      .wrap {
+        padding: 16px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .paper-caption {
+        font-size: 16px;
+      }
+      .paper-table thead th {
+        font-size: 17px;
+      }
+      .paper-table td {
+        font-size: 16px;
+      }
+      .appendix-title {
+        font-size: 24px;
+      }
+      .appendix-shell {
+        padding: 14px;
+      }
+      .appendix-grid {
+        grid-template-columns: 1fr;
+      }
+      .evo-panel h3 {
+        font-size: 18px;
+      }
+      .evo-legend-item {
+        font-size: 13px;
+      }
+      .evo-grad-note {
+        font-size: 14px;
+      }
+      .evo-mini-title {
+        font-size: 13px;
+      }
+      .evo-mini-note {
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Remote Training Status Dashboard</h1>
+    <p class="muted" id="meta">Loading dashboard snapshot...</p>
+
+    <div class="toolbar">
+      <label for="projectSelect"><strong>Project</strong></label>
+      <select id="projectSelect"></select>
+      <span id="projectStatus" class="badge status-ok">-</span>
+    </div>
+
+    <div id="projectError" class="section"></div>
+    <div id="cards" class="grid"></div>
+    <div id="links" class="section"></div>
+    <div id="tables"></div>
+    <div id="appendix" class="section"></div>
+    <div id="texts"></div>
+  </div>
+
+  <script>
+    const JSON_PATH = 'data/run_status.json';
+    let payload = null;
+
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>]/g, (ch) => {
+        if (ch === "&") return "&amp;";
+        if (ch === "<") return "&lt;";
+        return "&gt;";
+      });
+    }
+
+    function datasetLabel(dataset) {
+      const names = {
+        mmlu: "MMLU",
+        medqa: "MedQA",
+        arc_c: "ARC-C",
+        csqa: "CSQA",
+      };
+      return names[dataset] || dataset || "";
+    }
+
+    function splitMainSub(rawValue) {
+      const text = String(rawValue ?? "").trim();
+      const m = text.match(/^(.+?)\s*\(([^)]*)\)$/);
+      if (!m) {
+        return { main: text, sub: "" };
+      }
+      return { main: m[1].trim(), sub: `(${m[2].trim()})` };
+    }
+
+    function renderMainSubCell(rawValue) {
+      const parts = splitMainSub(rawValue);
+      if (!parts.sub) {
+        return esc(parts.main);
+      }
+      return `${esc(parts.main)}<span class="sub">${esc(parts.sub)}</span>`;
+    }
+
+    function paperCaption(table) {
+      const title = table.title || "Table";
+      const caption = table.caption || "";
+      if (!caption) {
+        return `<p class="paper-caption"><span class="paper-title">${esc(title)}.</span></p>`;
+      }
+      const prefix = `${title}:`;
+      let text = caption;
+      if (text.startsWith(prefix)) {
+        text = text.slice(prefix.length).trim();
+      }
+      return `<p class="paper-caption"><span class="paper-title">${esc(prefix)}</span> ${esc(text)}</p>`;
+    }
+
+    function renderPaperTable1(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const row = rows[0] || {};
+
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>DISSIM</th><th>SIM</th>`;
+      }
+      html += `</tr></thead><tbody><tr>`;
+      html += `<td class="left italic">${esc(row.model || table.model || "")}</td>`;
+      for (const ds of datasets) {
+        html += `<td>${renderMainSubCell(row[`${ds}_dissimilar`])}</td>`;
+        html += `<td>${renderMainSubCell(row[`${ds}_similar`])}</td>`;
+      }
+      html += `</tr></tbody></table></div>`;
+      return html;
+    }
+
+    function renderPaperTable2(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const byMetric = {};
+      for (const row of rows) {
+        byMetric[String(row.metric || "").toUpperCase()] = row;
+      }
+
+      const model = table.model || "";
+      const prop = byMetric.PROP || {};
+      const grad = byMetric.GRAD || {};
+      const total = byMetric.TOTAL || {};
+
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      html += `<th class="left" rowspan="2">METRIC</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>COLL</th><th>CONF</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      html += `<tr>`;
+      html += `<td class="left italic" rowspan="3">${esc(model)}</td>`;
+      html += `<td class="left">PROP</td>`;
+      for (const ds of datasets) {
+        html += `<td>${esc(prop[`${ds}_coll`] || "")}</td>`;
+        html += `<td>${esc(prop[`${ds}_conf`] || "")}</td>`;
+      }
+      html += `</tr>`;
+
+      html += `<tr>`;
+      html += `<td class="left">GRAD</td>`;
+      for (const ds of datasets) {
+        html += `<td>${esc(grad[`${ds}_coll`] || "")}</td>`;
+        html += `<td>${esc(grad[`${ds}_conf`] || "")}</td>`;
+      }
+      html += `</tr>`;
+
+      html += `<tr>`;
+      html += `<td class="left">TOTAL</td>`;
+      for (const ds of datasets) {
+        html += `<td colspan="2">${esc(total[`${ds}_total`] || "")}</td>`;
+      }
+      html += `</tr>`;
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    function renderPaperTable3(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      const orderedRows = [];
+      const seen = new Set();
+      for (const method of ["FT", "CNL"]) {
+        const idx = rows.findIndex((row) => String(row.method || "").toUpperCase() === method);
+        if (idx >= 0) {
+          orderedRows.push(rows[idx]);
+          seen.add(idx);
+        }
+      }
+      rows.forEach((row, idx) => {
+        if (!seen.has(idx)) orderedRows.push(row);
+      });
+
+      const model = table.model || ((orderedRows[0] || {}).model || "");
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">MODEL</th>`;
+      html += `<th class="left" rowspan="2">METHOD</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>LEARNED</th><th>FORGOT</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      orderedRows.forEach((row, idx) => {
+        const sepClass = idx > 0 ? " paper-sep" : "";
+        html += `<tr class="${sepClass.trim()}">`;
+        if (idx === 0) {
+          html += `<td class="left italic" rowspan="${orderedRows.length}">${esc(model)}</td>`;
+        }
+        html += `<td class="left">${esc(row.method || "")}</td>`;
+        for (const ds of datasets) {
+          html += `<td>${renderMainSubCell(row[`${ds}_learned`])}</td>`;
+          html += `<td>${renderMainSubCell(row[`${ds}_forgot`])}</td>`;
+        }
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    function renderPaperValue(rawValue) {
+      const text = String(rawValue ?? "");
+      if (text.trim().toUpperCase() === "PENDING") {
+        return `<span class="status-pending">PENDING</span>`;
+      }
+      if (text.includes("(") && text.includes("%")) {
+        return renderMainSubCell(text);
+      }
+      return esc(text);
+    }
+
+    function renderPaperTable4(table) {
+      const datasets = table.dataset_order || [];
+      const rows = table.rows || [];
+      let html = `<div class="section paper-wrap">${paperCaption(table)}`;
+      html += `<table class="paper-table"><thead><tr>`;
+      html += `<th class="left" rowspan="2">OPTIMIZER</th>`;
+      html += `<th class="left" rowspan="2">METHOD</th>`;
+      for (const ds of datasets) {
+        html += `<th colspan="2">${esc(datasetLabel(ds))}</th>`;
+      }
+      html += `</tr><tr>`;
+      for (const _ds of datasets) {
+        html += `<th>LEARNED</th><th>FORGOT</th>`;
+      }
+      html += `</tr></thead><tbody>`;
+
+      const groupSizes = {};
+      for (const row of rows) {
+        const key = String(row.optimizer || "");
+        groupSizes[key] = (groupSizes[key] || 0) + 1;
+      }
+
+      let prevOpt = null;
+      for (let i = 0; i < rows.length; i += 1) {
+        const row = rows[i] || {};
+        const opt = String(row.optimizer || "");
+        const isNewGroup = i === 0 || opt !== prevOpt;
+        const sepClass = isNewGroup && i > 0 ? " paper-sep" : "";
+        html += `<tr class="${sepClass.trim()}">`;
+        if (isNewGroup) {
+          html += `<td class="left" rowspan="${groupSizes[opt] || 1}">${esc(opt)}</td>`;
+        }
+        html += `<td class="left">${esc(row.method || "")}</td>`;
+        for (const ds of datasets) {
+          html += `<td>${renderPaperValue(row[`${ds}_learned`])}</td>`;
+          html += `<td>${renderPaperValue(row[`${ds}_forgot`])}</td>`;
+        }
+        html += `</tr>`;
+        prevOpt = opt;
+      }
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    function toFiniteNumber(value, fallback = null) {
+      const num = Number(value);
+      return Number.isFinite(num) ? num : fallback;
+    }
+
+    function buildLinearTicks(minValue, maxValue, steps = 6) {
+      if (!Number.isFinite(minValue) || !Number.isFinite(maxValue)) {
+        return [];
+      }
+      if (steps <= 1 || minValue === maxValue) {
+        return [minValue];
+      }
+      const ticks = [];
+      for (let i = 0; i < steps; i += 1) {
+        ticks.push(minValue + ((maxValue - minValue) * i) / (steps - 1));
+      }
+      return ticks;
+    }
+
+    function scaleLinear(value, domainMin, domainMax, rangeMin, rangeMax) {
+      if (domainMax === domainMin) {
+        return (rangeMin + rangeMax) / 2;
+      }
+      const ratio = (value - domainMin) / (domainMax - domainMin);
+      return rangeMin + ratio * (rangeMax - rangeMin);
+    }
+
+    function classLabel(classKey) {
+      return classKey === "dissim" ? "DISSIM" : "SIM";
+    }
+
+    function classDash(classKey) {
+      return classKey === "dissim" ? "7 5" : "";
+    }
+
+    function collectEvolutionGroups(table) {
+      const groups = [];
+      for (const entry of table.series || []) {
+        const dataset = String(entry.dataset || "");
+        const datasetName = String(entry.dataset_label || datasetLabel(dataset));
+        const color = String(entry.color || "#2f6ea2");
+        for (const classKey of ["sim", "dissim"]) {
+          const rawPoints = Array.isArray(entry[classKey]) ? entry[classKey] : [];
+          const points = rawPoints
+            .map((point) => ({
+              epoch: toFiniteNumber(point.epoch, null),
+              forgot_count: toFiniteNumber(point.forgot_count, null),
+              forgot_pct: toFiniteNumber(point.forgot_pct, null),
+              avg_grad: toFiniteNumber(point.avg_grad, null),
+              abs_grad_mass_pct: toFiniteNumber(point.abs_grad_mass_pct, null),
+              forgot_abs_grad_sum: toFiniteNumber(point.forgot_abs_grad_sum, null),
+              class_abs_grad_total: toFiniteNumber(point.class_abs_grad_total, null),
+              new_forgot_count: toFiniteNumber(point.new_forgot_count, null),
+              new_abs_grad_mass_pct: toFiniteNumber(point.new_abs_grad_mass_pct, null),
+              cum_rank_pct: toFiniteNumber(point.cum_rank_pct, null),
+              new_rank_pct: toFiniteNumber(point.new_rank_pct, null),
+            }))
+            .filter((point) => point.epoch !== null)
+            .sort((a, b) => a.epoch - b.epoch);
+          if (points.length > 0) {
+            groups.push({
+              dataset: dataset,
+              dataset_label: datasetName,
+              color: color,
+              class_key: classKey,
+              points: points,
+            });
+          }
+        }
+      }
+      return groups;
+    }
+
+    function renderEvolutionPrimarySvg(groups, epochMax) {
+      const rows = [];
+      const epochSet = new Set();
+      const datasetLegend = [];
+      const datasetSeen = new Set();
+      for (const group of groups) {
+        const legendKey = `${group.dataset_label}||${group.color}`;
+        if (!datasetSeen.has(legendKey)) {
+          datasetSeen.add(legendKey);
+          datasetLegend.push({ label: group.dataset_label, color: group.color });
+        }
+        const sorted = (group.points || []).slice().sort((a, b) => a.epoch - b.epoch);
+        for (const point of sorted) {
+          if (!Number.isFinite(point.forgot_pct)) {
+            continue;
+          }
+          const epochInt = Math.round(toFiniteNumber(point.epoch, 0));
+          if (!Number.isFinite(epochInt) || epochInt <= 0) {
+            continue;
+          }
+          epochSet.add(epochInt);
+          rows.push({
+            dataset_label: group.dataset_label,
+            color: group.color,
+            class_key: group.class_key,
+            point_idx: 0,
+            epoch: epochInt,
+            forgot_pct: point.forgot_pct,
+            forgot_count: point.forgot_count,
+          });
+        }
+      }
+      if (rows.length === 0) {
+        return '<p class="evo-meta">No forgotten-question points are available yet.</p>';
+      }
+
+      const orderedEpochs = Array.from(epochSet).sort((a, b) => a - b);
+      const epochToPoint = new Map();
+      for (let i = 0; i < orderedEpochs.length; i += 1) {
+        epochToPoint.set(orderedEpochs[i], i + 1);
+      }
+      for (const row of rows) {
+        row.point_idx = epochToPoint.get(row.epoch) || 0;
+      }
+
+      const pctMaxRaw = Math.max(1, ...rows.map((row) => row.forgot_pct));
+      const pctMax = Math.max(5, Math.ceil(pctMaxRaw / 5) * 5);
+      const pointMax = Math.max(1, orderedEpochs.length);
+      const width = 1280;
+      const height = 560;
+      const margin = { top: 26, right: 28, bottom: 78, left: 96 };
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+      const mapX = (value) => scaleLinear(value, 1, pointMax, margin.left, margin.left + plotWidth);
+      const mapY = (value) => scaleLinear(value, 0, pctMax, margin.top + plotHeight, margin.top);
+      const xTicksRaw = buildLinearTicks(1, pointMax, Math.min(8, Math.max(4, pointMax)));
+      const xTicks = Array.from(new Set(xTicksRaw.map((tick) => Math.round(tick))))
+        .filter((tick) => tick >= 1 && tick <= pointMax)
+        .sort((a, b) => a - b);
+      if (!xTicks.includes(1)) xTicks.unshift(1);
+      if (!xTicks.includes(pointMax)) xTicks.push(pointMax);
+      const yTicks = buildLinearTicks(0, pctMax, 6);
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Forgotten percentage versus checkpoint point index, grouped by dataset and SIM or DISSIM">`;
+
+      for (const tick of yTicks) {
+        const y = mapY(tick);
+        svg += `<line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#e2ebf4" stroke-width="1.2"></line>`;
+        svg += `<text x="${(margin.left - 10).toFixed(2)}" y="${(y + 4.6).toFixed(2)}" font-size="15" fill="#4e677d" text-anchor="end">${tick.toFixed(1)}%</text>`;
+      }
+      for (const tick of xTicks) {
+        const x = mapX(tick);
+        svg += `<line x1="${x.toFixed(2)}" y1="${margin.top}" x2="${x.toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#eef4fa" stroke-width="1.1"></line>`;
+        svg += `<text x="${x.toFixed(2)}" y="${(height - 28).toFixed(2)}" font-size="15" fill="#4e677d" text-anchor="middle">${tick}</text>`;
+      }
+      svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<line x1="${margin.left}" y1="${(margin.top + plotHeight).toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<text x="${(margin.left + (plotWidth / 2)).toFixed(2)}" y="${(height - 8).toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle">point index</text>`;
+      const yLabelAnchor = margin.top + (plotHeight / 2);
+      svg += `<text x="24" y="${yLabelAnchor.toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${yLabelAnchor.toFixed(2)})">forgotten questions (%)</text>`;
+
+      for (const group of groups) {
+        const points = (group.points || [])
+          .filter((point) => Number.isFinite(point.forgot_pct) && Number.isFinite(point.epoch))
+          .map((point) => {
+            const epochInt = Math.round(toFiniteNumber(point.epoch, 0));
+            return {
+              epoch: epochInt,
+              point_idx: epochToPoint.get(epochInt) || 0,
+              forgot_pct: point.forgot_pct,
+              forgot_count: point.forgot_count,
+            };
+          })
+          .filter((point) => point.point_idx > 0)
+          .sort((a, b) => a.point_idx - b.point_idx);
+        if (points.length === 0) {
+          continue;
+        }
+        const dash = classDash(group.class_key);
+        const dashAttr = dash ? ` stroke-dasharray="${dash}"` : "";
+        const path = points
+          .map((point, idx) => `${idx === 0 ? "M" : "L"} ${mapX(point.point_idx).toFixed(2)} ${mapY(point.forgot_pct).toFixed(2)}`)
+          .join(" ");
+        svg += `<path d="${path}" fill="none" stroke="${esc(group.color)}" stroke-width="3.4"${dashAttr} stroke-linecap="round" opacity="0.97"></path>`;
+
+        const endPointIdx = points[points.length - 1].point_idx;
+        for (const point of points) {
+          const pointIdx = point.point_idx;
+          const x = mapX(pointIdx);
+          const y = mapY(point.forgot_pct);
+          const fade = 0.45 + 0.55 * (Math.max(1, pointIdx) / Math.max(1, pointMax));
+          const tooltip = `${group.dataset_label} ${classLabel(group.class_key)} | point ${pointIdx} | epoch ${point.epoch} | forgotten ${point.forgot_count} (${point.forgot_pct.toFixed(2)}%)`;
+          if (group.class_key === "dissim") {
+            svg += `<rect x="${(x - 5.0).toFixed(2)}" y="${(y - 5.0).toFixed(2)}" width="10.0" height="10.0" fill="${esc(group.color)}" fill-opacity="${fade.toFixed(3)}" stroke="#ffffff" stroke-width="1.1"><title>${esc(tooltip)}</title></rect>`;
+            if (pointIdx === endPointIdx) {
+              svg += `<rect x="${(x - 7.0).toFixed(2)}" y="${(y - 7.0).toFixed(2)}" width="14.0" height="14.0" fill="none" stroke="#10212f" stroke-width="1.2"></rect>`;
+            }
+          } else {
+            svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="5.0" fill="${esc(group.color)}" fill-opacity="${fade.toFixed(3)}" stroke="#ffffff" stroke-width="1.1"><title>${esc(tooltip)}</title></circle>`;
+            if (pointIdx === endPointIdx) {
+              svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="7.2" fill="none" stroke="#10212f" stroke-width="1.2"></circle>`;
+            }
+          }
+        }
+      }
+
+      const legendRows = 2 + datasetLegend.length;
+      const legendRowH = 19;
+      const legendPad = 10;
+      const legendW = 250;
+      const legendH = legendPad * 2 + legendRows * legendRowH;
+      const legendX = margin.left + plotWidth - legendW - 12;
+      const legendY = Math.max(margin.top + 8, margin.top + plotHeight - legendH - 10);
+      svg += `<rect x="${legendX.toFixed(2)}" y="${legendY.toFixed(2)}" width="${legendW.toFixed(2)}" height="${legendH.toFixed(2)}" rx="8" ry="8" fill="rgba(255,255,255,0.92)" stroke="#c6d6e6" stroke-width="1.2"></rect>`;
+      svg += `<text x="${(legendX + legendPad).toFixed(2)}" y="${(legendY + 14).toFixed(2)}" font-size="12.8" fill="#21465f" font-weight="700">Legend</text>`;
+
+      const r0 = legendY + legendPad + 16;
+      const simY = r0;
+      svg += `<line x1="${(legendX + legendPad).toFixed(2)}" y1="${simY.toFixed(2)}" x2="${(legendX + legendPad + 30).toFixed(2)}" y2="${simY.toFixed(2)}" stroke="#243b53" stroke-width="2.4"></line>`;
+      svg += `<circle cx="${(legendX + legendPad + 15).toFixed(2)}" cy="${simY.toFixed(2)}" r="3.3" fill="#243b53"></circle>`;
+      svg += `<text x="${(legendX + legendPad + 38).toFixed(2)}" y="${(simY + 4).toFixed(2)}" font-size="12.6" fill="#2e516b">SIM (solid + circle)</text>`;
+
+      const dissimY = r0 + legendRowH;
+      svg += `<line x1="${(legendX + legendPad).toFixed(2)}" y1="${dissimY.toFixed(2)}" x2="${(legendX + legendPad + 30).toFixed(2)}" y2="${dissimY.toFixed(2)}" stroke="#243b53" stroke-width="2.4" stroke-dasharray="7 5"></line>`;
+      svg += `<rect x="${(legendX + legendPad + 11.7).toFixed(2)}" y="${(dissimY - 3.3).toFixed(2)}" width="6.6" height="6.6" fill="#243b53"></rect>`;
+      svg += `<text x="${(legendX + legendPad + 38).toFixed(2)}" y="${(dissimY + 4).toFixed(2)}" font-size="12.6" fill="#2e516b">DISSIM (dashed + square)</text>`;
+
+      for (let i = 0; i < datasetLegend.length; i += 1) {
+        const rowY = r0 + (i + 2) * legendRowH;
+        const entry = datasetLegend[i];
+        svg += `<rect x="${(legendX + legendPad).toFixed(2)}" y="${(rowY - 5.2).toFixed(2)}" width="10.4" height="10.4" rx="2" ry="2" fill="${esc(entry.color)}" stroke="rgba(20,40,60,0.28)" stroke-width="0.8"></rect>`;
+        svg += `<text x="${(legendX + legendPad + 16).toFixed(2)}" y="${(rowY + 4).toFixed(2)}" font-size="12.6" fill="#2e516b">${esc(entry.label)}</text>`;
+      }
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    function renderEvolutionGradSvg(groups, epochMax) {
+      const classStyle = {
+        sim: { label: "SIM", color: "#0E5E5A", band_fill: "rgba(14, 94, 90, 0.18)" },
+        dissim: { label: "DISSIM", color: "#A34D1A", band_fill: "rgba(163, 77, 26, 0.15)" },
+      };
+      const datasetMap = new Map();
+      const epochSet = new Set();
+
+      function quantile(values, q) {
+        if (!values || values.length === 0) return null;
+        const sorted = values.slice().sort((a, b) => a - b);
+        if (sorted.length === 1) return sorted[0];
+        const pos = (sorted.length - 1) * q;
+        const lo = Math.floor(pos);
+        const hi = Math.ceil(pos);
+        if (lo === hi) return sorted[lo];
+        const w = pos - lo;
+        return sorted[lo] * (1 - w) + sorted[hi] * w;
+      }
+
+      for (const group of groups) {
+        const classKey = group.class_key;
+        if (!(classKey in classStyle)) continue;
+        const dsKey = String(group.dataset || group.dataset_label || "");
+        if (!datasetMap.has(dsKey)) {
+          datasetMap.set(dsKey, {
+            dataset: dsKey,
+            dataset_label: String(group.dataset_label || dsKey),
+            color: String(group.color || "#2f6ea2"),
+            sim_cum: [],
+            sim_new: [],
+            dissim_cum: [],
+            dissim_new: [],
+          });
+        }
+        const bucket = datasetMap.get(dsKey);
+        for (const point of group.points || []) {
+          const ep = Math.round(toFiniteNumber(point.epoch, 0));
+          if (!Number.isFinite(ep) || ep <= 0) continue;
+          epochSet.add(ep);
+          const forgotCount = Math.max(0, toFiniteNumber(point.forgot_count, 0));
+          const newCount = Math.max(0, toFiniteNumber(point.new_forgot_count, 0));
+          if (Number.isFinite(point.cum_rank_pct) && forgotCount > 0) {
+            bucket[`${classKey}_cum`].push({ epoch: ep, value: point.cum_rank_pct, count: forgotCount });
+          }
+          if (Number.isFinite(point.new_rank_pct) && newCount > 0) {
+            bucket[`${classKey}_new`].push({ epoch: ep, value: point.new_rank_pct, count: newCount });
+          }
+        }
+      }
+
+      const datasets = Array.from(datasetMap.values());
+      for (const ds of datasets) {
+        for (const key of ["sim_cum", "sim_new", "dissim_cum", "dissim_new"]) {
+          ds[key].sort((a, b) => a.epoch - b.epoch);
+        }
+      }
+      if (datasets.length === 0) {
+        return '<p class="evo-meta">No gradient-rank evolution data are available yet.</p>';
+      }
+
+      function summarizeByClass(key) {
+        const perEpoch = {};
+        for (const ds of datasets) {
+          for (const point of ds[key] || []) {
+            const ep = point.epoch;
+            if (!perEpoch[ep]) perEpoch[ep] = [];
+            perEpoch[ep].push(point);
+          }
+        }
+        const epochs = Object.keys(perEpoch).map((v) => Number(v)).filter((v) => Number.isFinite(v)).sort((a, b) => a - b);
+        const out = [];
+        for (const ep of epochs) {
+          const pts = perEpoch[ep] || [];
+          const vals = pts.map((p) => p.value).filter((v) => Number.isFinite(v));
+          if (vals.length === 0) continue;
+          let wsum = 0;
+          let wtot = 0;
+          for (const p of pts) {
+            const w = Math.max(0, toFiniteNumber(p.count, 0));
+            wsum += p.value * w;
+            wtot += w;
+          }
+          out.push({
+            epoch: ep,
+            mean: wtot > 0 ? (wsum / wtot) : (vals.reduce((a, b) => a + b, 0) / vals.length),
+            q25: quantile(vals, 0.25),
+            q75: quantile(vals, 0.75),
+            n: vals.length,
+            count_sum: wtot,
+          });
+        }
+        return out;
+      }
+
+      const simCumStats = summarizeByClass("sim_cum");
+      const dissimCumStats = summarizeByClass("dissim_cum");
+      const simNewStats = summarizeByClass("sim_new");
+      const dissimNewStats = summarizeByClass("dissim_new");
+
+      const allEpochs = Array.from(epochSet).sort((a, b) => a - b);
+      const epochCeil = Math.max(1, Math.round(Math.max(epochMax, ...allEpochs)));
+
+      function pathFromSeries(series, mapXFn, mapYFn, valueKey = "mean") {
+        if (!series || series.length === 0) return "";
+        let d = "";
+        for (let i = 0; i < series.length; i += 1) {
+          const pt = series[i];
+          const val = toFiniteNumber(pt[valueKey], null);
+          if (!Number.isFinite(val)) continue;
+          const x = mapXFn(pt.epoch);
+          const y = mapYFn(val);
+          if (i === 0 || (pt.epoch - series[i - 1].epoch) > 1) {
+            d += `M ${x.toFixed(2)} ${y.toFixed(2)} `;
+          } else {
+            d += `L ${x.toFixed(2)} ${y.toFixed(2)} `;
+          }
+        }
+        return d.trim();
+      }
+
+      function bandPaths(stats, mapXFn, mapYFn) {
+        const usable = (stats || [])
+          .filter((pt) => Number.isFinite(pt.epoch) && Number.isFinite(pt.q25) && Number.isFinite(pt.q75) && Number(pt.n || 0) >= 2)
+          .sort((a, b) => a.epoch - b.epoch);
+        if (usable.length < 2) return [];
+        const segments = [];
+        let seg = [usable[0]];
+        for (let i = 1; i < usable.length; i += 1) {
+          const prev = usable[i - 1];
+          const cur = usable[i];
+          if ((cur.epoch - prev.epoch) <= 1) {
+            seg.push(cur);
+          } else {
+            if (seg.length >= 2) segments.push(seg);
+            seg = [cur];
+          }
+        }
+        if (seg.length >= 2) segments.push(seg);
+        return segments.map((segment) => {
+          const upper = segment.map((pt) => `${mapXFn(pt.epoch).toFixed(2)} ${mapYFn(pt.q75).toFixed(2)}`);
+          const lower = segment.slice().reverse().map((pt) => `${mapXFn(pt.epoch).toFixed(2)} ${mapYFn(pt.q25).toFixed(2)}`);
+          return `M ${upper[0]} L ${upper.slice(1).join(" L ")} L ${lower.join(" L ")} Z`;
+        });
+      }
+
+      const width = 1280;
+      const height = 500;
+      const margin = { top: 24, right: 40, bottom: 70, left: 92 };
+      const plotWidth = width - margin.left - margin.right;
+      const plotHeight = height - margin.top - margin.bottom;
+      const mapX = (v) => scaleLinear(v, 1, epochCeil, margin.left, margin.left + plotWidth);
+      const mapY = (v) => scaleLinear(v, 0, 100, margin.top + plotHeight, margin.top);
+      const xTicksRaw = buildLinearTicks(1, epochCeil, Math.min(8, Math.max(4, epochCeil)));
+      const xTicks = Array.from(new Set(xTicksRaw.map((t) => Math.round(t)))).filter((t) => t >= 1 && t <= epochCeil).sort((a, b) => a - b);
+      if (!xTicks.includes(1)) xTicks.unshift(1);
+      if (!xTicks.includes(epochCeil)) xTicks.push(epochCeil);
+      const yTicks = [0, 20, 40, 60, 80, 100];
+
+      const maxAggCount = Math.max(
+        1,
+        ...simNewStats.map((x) => Math.max(0, toFiniteNumber(x.count_sum, 0))),
+        ...dissimNewStats.map((x) => Math.max(0, toFiniteNumber(x.count_sum, 0))),
+      );
+      function aggMarkerRadius(countValue) {
+        const c = Math.max(0, toFiniteNumber(countValue, 0));
+        return 3.4 + (Math.sqrt(c) / Math.sqrt(maxAggCount)) * 4.4;
+      }
+
+      let svg = `<svg class="evo-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Gradient rank evolution aggregate chart">`;
+      for (const tick of yTicks) {
+        const y = mapY(tick);
+        svg += `<line x1="${margin.left}" y1="${y.toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#e4edf6" stroke-width="1.2"></line>`;
+        svg += `<text x="${(margin.left - 10).toFixed(2)}" y="${(y + 4.6).toFixed(2)}" font-size="15" fill="#4e677d" text-anchor="end">${tick}</text>`;
+      }
+      for (const tick of xTicks) {
+        const x = mapX(tick);
+        svg += `<line x1="${x.toFixed(2)}" y1="${margin.top}" x2="${x.toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#eef4fa" stroke-width="1.1"></line>`;
+        svg += `<text x="${x.toFixed(2)}" y="${(height - 26).toFixed(2)}" font-size="15" fill="#4e677d" text-anchor="middle">${tick}</text>`;
+      }
+      svg += `<line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<line x1="${margin.left}" y1="${(margin.top + plotHeight).toFixed(2)}" x2="${(margin.left + plotWidth).toFixed(2)}" y2="${(margin.top + plotHeight).toFixed(2)}" stroke="#5e7890" stroke-width="1.8"></line>`;
+      svg += `<text x="${(margin.left + (plotWidth / 2)).toFixed(2)}" y="${(height - 6).toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle">training epoch</text>`;
+      const yAnchor = margin.top + (plotHeight / 2);
+      svg += `<text x="24" y="${yAnchor.toFixed(2)}" font-size="17" fill="#294862" text-anchor="middle" transform="rotate(-90 24 ${yAnchor.toFixed(2)})">gradient-magnitude percentile (0-100)</text>`;
+
+      const classSpecs = [
+        { cls: "sim", cum_stats: simCumStats, new_stats: simNewStats },
+        { cls: "dissim", cum_stats: dissimCumStats, new_stats: dissimNewStats },
+      ];
+      for (const spec of classSpecs) {
+        const style = classStyle[spec.cls];
+        for (const d of bandPaths(spec.new_stats, mapX, mapY)) {
+          svg += `<path d="${d}" fill="${style.band_fill}" stroke="none"></path>`;
+        }
+      }
+      for (const spec of classSpecs) {
+        const style = classStyle[spec.cls];
+        const cumPath = pathFromSeries(spec.cum_stats, mapX, mapY, "mean");
+        if (cumPath) {
+          svg += `<path d="${cumPath}" fill="none" stroke="${style.color}" stroke-width="2.4" stroke-dasharray="7 5" stroke-linecap="round" opacity="0.82"></path>`;
+        }
+      }
+      for (const spec of classSpecs) {
+        const style = classStyle[spec.cls];
+        const newPath = pathFromSeries(spec.new_stats, mapX, mapY, "mean");
+        if (newPath) {
+          svg += `<path d="${newPath}" fill="none" stroke="${style.color}" stroke-width="4.2" stroke-linecap="round"></path>`;
+        }
+        for (const pt of spec.new_stats) {
+          const x = mapX(pt.epoch);
+          const y = mapY(pt.mean);
+          const r = aggMarkerRadius(pt.count_sum);
+          const tip = `${style.label} mean new | epoch ${pt.epoch} | rank=${pt.mean.toFixed(2)} | newly-forgotten=${Math.round(pt.count_sum)}`;
+          if (spec.cls === "dissim") {
+            svg += `<rect x="${(x - r).toFixed(2)}" y="${(y - r).toFixed(2)}" width="${(2 * r).toFixed(2)}" height="${(2 * r).toFixed(2)}" fill="${style.color}" stroke="#ffffff" stroke-width="1.1"><title>${esc(tip)}</title></rect>`;
+          } else {
+            svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${r.toFixed(2)}" fill="${style.color}" stroke="#ffffff" stroke-width="1.1"><title>${esc(tip)}</title></circle>`;
+          }
+        }
+        const last = spec.new_stats.length > 0 ? spec.new_stats[spec.new_stats.length - 1] : null;
+        if (last) {
+          const lx = mapX(last.epoch) + 8;
+          const ly = mapY(last.mean) - 5;
+          svg += `<text x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" font-size="14" fill="${style.color}" font-weight="700">${style.label} new ${last.mean.toFixed(1)}</text>`;
+        }
+      }
+      svg += `</svg>`;
+
+      function firstLastText(series) {
+        if (!series || series.length < 2) return "insufficient data";
+        const first = series[0].mean;
+        const last = series[series.length - 1].mean;
+        const delta = last - first;
+        const dir = delta < -1.0 ? "down" : (delta > 1.0 ? "up" : "flat");
+        return `${first.toFixed(1)} -> ${last.toFixed(1)} (${dir} by ${Math.abs(delta).toFixed(1)})`;
+      }
+
+      function nRangeText(series) {
+        if (!series || series.length === 0) return "n/a";
+        const ns = series.map((x) => Math.max(0, Math.round(toFiniteNumber(x.n, 0))));
+        return `${Math.min(...ns)}-${Math.max(...ns)}`;
+      }
+
+      function seriesPathMini(series, mapXMini, mapYMini) {
+        return pathFromSeries(series, mapXMini, mapYMini, "value");
+      }
+
+      function firstLastDataset(series) {
+        if (!series || series.length === 0) return "no events";
+        const first = series[0].value;
+        const last = series[series.length - 1].value;
+        return `${first.toFixed(1)} -> ${last.toFixed(1)}`;
+      }
+
+      function renderMiniDataset(ds) {
+        const w = 520;
+        const h = 220;
+        const m = { top: 12, right: 10, bottom: 26, left: 34 };
+        const pw = w - m.left - m.right;
+        const ph = h - m.top - m.bottom;
+        const mapXMini = (v) => scaleLinear(v, 1, epochCeil, m.left, m.left + pw);
+        const mapYMini = (v) => scaleLinear(v, 0, 100, m.top + ph, m.top);
+        const xMid = Math.max(1, Math.round((epochCeil + 1) / 2));
+        const miniXTicks = Array.from(new Set([1, xMid, epochCeil])).sort((a, b) => a - b);
+        let inner = `<svg class="evo-mini-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(ds.dataset_label)} rank evolution">`;
+        for (const t of [0, 50, 100]) {
+          const y = mapYMini(t);
+          inner += `<line x1="${m.left}" y1="${y.toFixed(2)}" x2="${(m.left + pw).toFixed(2)}" y2="${y.toFixed(2)}" stroke="#edf3f8" stroke-width="1"></line>`;
+        }
+        for (const t of miniXTicks) {
+          const x = mapXMini(t);
+          inner += `<line x1="${x.toFixed(2)}" y1="${m.top}" x2="${x.toFixed(2)}" y2="${(m.top + ph).toFixed(2)}" stroke="#f2f6fb" stroke-width="1"></line>`;
+          inner += `<text x="${x.toFixed(2)}" y="${(h - 7).toFixed(2)}" font-size="10.5" fill="#5d7488" text-anchor="middle">${t}</text>`;
+        }
+        inner += `<line x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${(m.top + ph).toFixed(2)}" stroke="#708ba3" stroke-width="1.2"></line>`;
+        inner += `<line x1="${m.left}" y1="${(m.top + ph).toFixed(2)}" x2="${(m.left + pw).toFixed(2)}" y2="${(m.top + ph).toFixed(2)}" stroke="#708ba3" stroke-width="1.2"></line>`;
+
+        const simCum = seriesPathMini(ds.sim_cum, mapXMini, mapYMini);
+        if (simCum) inner += `<path d="${simCum}" fill="none" stroke="${classStyle.sim.color}" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.75"></path>`;
+        const dissimCum = seriesPathMini(ds.dissim_cum, mapXMini, mapYMini);
+        if (dissimCum) inner += `<path d="${dissimCum}" fill="none" stroke="${classStyle.dissim.color}" stroke-width="1.6" stroke-dasharray="6 4" opacity="0.75"></path>`;
+        const simNew = seriesPathMini(ds.sim_new, mapXMini, mapYMini);
+        if (simNew) inner += `<path d="${simNew}" fill="none" stroke="${classStyle.sim.color}" stroke-width="2.2"></path>`;
+        const dissimNew = seriesPathMini(ds.dissim_new, mapXMini, mapYMini);
+        if (dissimNew) inner += `<path d="${dissimNew}" fill="none" stroke="${classStyle.dissim.color}" stroke-width="2.2"></path>`;
+        inner += `</svg>`;
+        const trendTxt = `SIM ${firstLastDataset(ds.sim_new)} | DISSIM ${firstLastDataset(ds.dissim_new)}`;
+        return `<section class="evo-mini-panel"><h4 class="evo-mini-title">${esc(ds.dataset_label)}</h4>${inner}<p class="evo-mini-note">${esc(trendTxt)}</p></section>`;
+      }
+
+      const simTrend = firstLastText(simNewStats);
+      const dissimTrend = firstLastText(dissimNewStats);
+      const datasetLabels = datasets.map((ds) => ds.dataset_label).filter((x) => x);
+      const miniPanels = datasets.map((ds) => renderMiniDataset(ds)).join("");
+
+      let html = `<div class="evo-grad-deck"><div class="evo-grad-main">${svg}</div>`;
+      html += `<div class="evo-legend">`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#0E5E5A"></span>SIM mean new-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample" style="border-top-color:#A34D1A"></span>DISSIM mean new-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:#0E5E5A"></span>SIM mean cumulative-rank</span>`;
+      html += `<span class="evo-legend-item"><span class="evo-line-sample dissim" style="border-top-color:#A34D1A"></span>DISSIM mean cumulative-rank</span>`;
+      html += `<span class="evo-legend-item">Shaded bands = IQR across datasets</span>`;
+      html += `</div>`;
+      html += `<div class="evo-legend">` + datasets.map((ds) => `<span class="evo-legend-item"><span class="evo-chip" style="background:${esc(ds.color)}"></span>${esc(ds.dataset_label)}</span>`).join("") + `</div>`;
+      html += `<div class="evo-small-grid">${miniPanels}</div>`;
+      html += `<p class="evo-grad-note"><strong>Rank (simple):</strong> inside each dataset/class, sort questions by <code>|g_i|</code> from largest to smallest. High rank means forgetting is still concentrated on stronger-gradient items.</p>`;
+      html += `<p class="evo-grad-note"><strong>Math:</strong> <code>rank_pct(q)=100*(1-(r(q)-1)/(N-1))</code>, where <code>r(q)</code> is position in that sorted list and <code>N</code> is class size.</p>`;
+      html += `<p class="evo-grad-note"><strong>Observed trend:</strong> SIM ${esc(simTrend)}; DISSIM ${esc(dissimTrend)}. Coverage per epoch (datasets): SIM ${esc(nRangeText(simNewStats))}, DISSIM ${esc(nRangeText(dissimNewStats))}. Datasets: ${esc(datasetLabels.join(", "))}.</p>`;
+      html += `</div>`;
+      return html;
+    }
+
+    function renderTable1Evolution(table) {
+      const groups = collectEvolutionGroups(table);
+      if (groups.length === 0) {
+        return `<div class="section evo-wrap"><h2>${esc(table.title || "Table 1 Evolution")}</h2><p class="evo-caption">No epoch-wise data available yet.</p></div>`;
+      }
+      const epochMax = Math.max(
+        1,
+        toFiniteNumber(table.max_epoch, 1),
+        ...groups.flatMap((group) => (group.points || []).map((point) => toFiniteNumber(point.epoch, 0))),
+      );
+
+      const byDataset = new Map();
+      for (const group of groups) {
+        if (!byDataset.has(group.dataset)) {
+          byDataset.set(group.dataset, {
+            dataset: group.dataset,
+            label: group.dataset_label,
+            color: group.color,
+          });
+        }
+      }
+      const orderedDatasets = (table.dataset_order || []).length > 0 ? (table.dataset_order || []) : Array.from(byDataset.keys());
+      const datasetLegend = [];
+      for (const ds of orderedDatasets) {
+        const item = byDataset.get(ds);
+        if (item) datasetLegend.push(item);
+      }
+      for (const [ds, item] of byDataset.entries()) {
+        if (!orderedDatasets.includes(ds)) datasetLegend.push(item);
+      }
+
+      const datasetLegendHtml = datasetLegend
+        .map(
+          (item) =>
+            `<span class="evo-legend-item"><span class="evo-chip" style="background:${esc(item.color)}"></span>${esc(item.label)}</span>`,
+        )
+        .join("");
+      const classLegendHtml = `
+        <span class="evo-legend-item"><span class="evo-line-sample"></span><span class="evo-marker-sample"></span>SIM (solid + circle)</span>
+        <span class="evo-legend-item"><span class="evo-line-sample dissim"></span><span class="evo-marker-sample square"></span>DISSIM (dashed + square)</span>
+      `;
+
+      const targetEpoch = toFiniteNumber(table.target_epoch, null);
+      const metaParts = [
+        `${datasetLegend.length} dataset(s)`,
+        `max epoch seen: ${Math.round(epochMax)}`,
+        "x-axis: point index",
+        "left-to-right: increasing training iteration",
+        "y-axis: forgotten questions (%)",
+      ];
+      if (targetEpoch !== null) {
+        metaParts.push(`target epoch: ${Math.round(targetEpoch)}`);
+      }
+
+      let html = `<div class="section evo-wrap"><h2>${esc(table.title || "Table 1 Evolution")}</h2>`;
+      if (table.caption) {
+        html += `<p class="evo-caption">${esc(table.caption)}</p>`;
+      }
+      html += `<div class="evo-panels">`;
+      html += `<section class="evo-panel"><h3>Forgetting Dynamics by Point Index</h3>${renderEvolutionPrimarySvg(groups, epochMax)}</section>`;
+      html += `<section class="evo-panel"><h3>Gradient Similarity Evolution: Rank of Newly Forgotten Samples</h3>${renderEvolutionGradSvg(groups, epochMax)}</section>`;
+      html += `</div>`;
+      html += `<div class="evo-legend">${datasetLegendHtml}</div>`;
+      html += `<div class="evo-legend">${classLegendHtml}</div>`;
+      html += `<p class="evo-meta">${esc(metaParts.join(" | "))}</p>`;
+      html += `</div>`;
+      return html;
+    }
+
+    function renderPaperTable(table) {
+      if (table.paper_table === "table1") {
+        return renderPaperTable1(table);
+      }
+      if (table.paper_table === "table2") {
+        return renderPaperTable2(table);
+      }
+      if (table.paper_table === "table3") {
+        return renderPaperTable3(table);
+      }
+      if (table.paper_table === "table4") {
+        return renderPaperTable4(table);
+      }
+      return renderTable(table);
+    }
+
+    function renderTable(table) {
+      const cols = table.columns || [];
+      const rows = table.rows || [];
+      let html = `<div class="section"><h2>${esc(table.title || "Table")}</h2>`;
+      html += "<table><tr>";
+      for (const c of cols) {
+        html += `<th>${esc(c.label || c.key || "")}</th>`;
+      }
+      html += "</tr>";
+      for (const row of rows) {
+        html += "<tr>";
+        for (const c of cols) {
+          const key = c.key || "";
+          const value = row[key] ?? "";
+          const cls = key === "status" ? `status-${String(value).toLowerCase()}` : "";
+          html += `<td class="${esc(cls)}">${esc(value)}</td>`;
+        }
+        html += "</tr>";
+      }
+      html += "</table></div>";
+      return html;
+    }
+
+    function normalizeHeading(line) {
+      let title = String(line || "").trim();
+      title = title.replace(/^[0-9]+\)\s*/, "");
+      title = title.replace(/:$/, "");
+      return title;
+    }
+
+    function panelTone(title) {
+      const t = String(title || "").toLowerCase();
+      if (t.includes("can safely conclude")) {
+        return "tone-good";
+      }
+      if (t.includes("cannot claim")) {
+        return "tone-caution";
+      }
+      return "";
+    }
+
+    function parseAppendix(content) {
+      const lines = String(content || "").split(/\r?\n/);
+      const sections = [];
+      const intro = [];
+      let current = null;
+
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) {
+          continue;
+        }
+        if (line.toLowerCase().startsWith("quick read")) {
+          intro.push(line.replace(/:$/, ""));
+          continue;
+        }
+
+        const isHeading = (/^[0-9]+\)\s+/.test(line) || (line.endsWith(":") && !line.startsWith("- ")));
+        if (isHeading) {
+          current = { title: normalizeHeading(line), bullets: [], paragraphs: [] };
+          sections.push(current);
+          continue;
+        }
+
+        if (line.startsWith("- ")) {
+          if (!current) {
+            current = { title: "Summary", bullets: [], paragraphs: [] };
+            sections.push(current);
+          }
+          current.bullets.push(line.slice(2).trim());
+          continue;
+        }
+
+        if (!current) {
+          intro.push(line);
+        } else {
+          current.paragraphs.push(line);
+        }
+      }
+
+      return { intro, sections };
+    }
+
+    function renderBeautifulAppendix(content) {
+      const parsed = parseAppendix(content);
+      let html = `<div class="appendix-shell">`;
+      html += `<span class="appendix-kicker">Interpretation Layer</span>`;
+      html += `<h2 class="appendix-title">Paper Comparison Appendix</h2>`;
+      const subtitle = parsed.intro.length > 0 ? parsed.intro.join(" ") : "Simple explanation of what these results mean.";
+      html += `<p class="appendix-subtitle">${esc(subtitle)}</p>`;
+      html += `<div class="appendix-grid">`;
+
+      for (const section of parsed.sections) {
+        const tone = panelTone(section.title);
+        html += `<section class="appendix-panel ${esc(tone)}">`;
+        html += `<h3>${esc(section.title)}</h3>`;
+        for (const para of section.paragraphs || []) {
+          html += `<p>${esc(para)}</p>`;
+        }
+        if ((section.bullets || []).length > 0) {
+          html += `<ul class="appendix-list">`;
+          for (const item of section.bullets) {
+            html += `<li>${esc(item)}</li>`;
+          }
+          html += `</ul>`;
+        }
+        html += `</section>`;
+      }
+
+      html += `</div></div>`;
+      return html;
+    }
+
+    function renderProject(project) {
+      const statusEl = document.getElementById("projectStatus");
+      const status = String(project.status || "unknown").toLowerCase();
+      const badgeTone = status === "error" ? "error" : (status === "stale" ? "warn" : "ok");
+      statusEl.textContent = status;
+      statusEl.className = `badge status-${badgeTone}`;
+
+      const errEl = document.getElementById("projectError");
+      if (status === "error") {
+        errEl.innerHTML = `<div class="card"><strong>Collection Error</strong><div class="value">${esc(project.error || "unknown")}</div></div>`;
+      } else {
+        errEl.innerHTML = "";
+      }
+
+      const cards = project.cards || [];
+      document.getElementById("cards").innerHTML = cards.map((card) => `
+        <div class="card">
+          <div class="label">${esc(card.label || "")}</div>
+          <div class="value">${esc(card.value || "")}</div>
+        </div>
+      `).join("");
+
+      const texts = project.texts || [];
+      const appendix = texts.find((block) => (block.title || "") === "Paper Comparison Appendix (Simple)");
+      const appendixEl = document.getElementById("appendix");
+      if (appendix) {
+        appendixEl.innerHTML = renderBeautifulAppendix(appendix.content || "");
+      } else {
+        appendixEl.innerHTML = "";
+      }
+
+      const links = project.links || [];
+      const linksEl = document.getElementById("links");
+      if (links.length > 0) {
+        linksEl.innerHTML = `
+          <h2>Verified Links</h2>
+          <div class="card">
+            ${
+              links.map((link) => `<div><a href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${esc(link.label || link.url)}</a> <span class="muted">(health: ${esc(link.health || "")}, http: ${esc(link.http_code || "")})</span></div>`).join("")
+            }
+          </div>
+        `;
+      } else {
+        linksEl.innerHTML = "";
+      }
+
+      const tables = project.tables || [];
+      document.getElementById("tables").innerHTML = tables
+        .map((table) => {
+          if (table.viz === "table1_evolution") {
+            return renderTable1Evolution(table);
+          }
+          return table.paper_table ? renderPaperTable(table) : renderTable(table);
+        })
+        .join("");
+
+      document.getElementById("texts").innerHTML = texts
+        .filter((block) => (block.title || "") !== "Paper Comparison Appendix (Simple)")
+        .map((block) => `
+        <div class="section">
+          <h2>${esc(block.title || "Text")}</h2>
+          <pre>${esc(block.content || "")}</pre>
+        </div>
+      `)
+        .join("");
+    }
+
+    function projectById(id) {
+      const projects = payload.projects || [];
+      return projects.find((p) => p.project_id === id) || projects[0] || null;
+    }
+
+    function bindSelect(defaultId) {
+      const select = document.getElementById("projectSelect");
+      const projects = payload.projects || [];
+      const previousValue = select.value || "";
+      select.innerHTML = projects.map((p) => `
+        <option value="${esc(p.project_id)}">${esc(p.project_name || p.project_id)}</option>
+      `).join("");
+      const preferred = previousValue || defaultId;
+      const exists = projects.some((p) => p.project_id === preferred);
+      select.value = exists ? preferred : (projects[0] ? projects[0].project_id : "");
+      const current = projectById(select.value);
+      if (current) renderProject(current);
+      select.onchange = () => {
+        const chosen = projectById(select.value);
+        if (chosen) renderProject(chosen);
+      };
+    }
+
+    async function load() {
+      const res = await fetch(`${JSON_PATH}?t=${Date.now()}`, { cache: "no-store" });
+      payload = await res.json();
+      document.getElementById("meta").textContent = `Snapshot generated: ${payload.generated_at_utc || "-"} | Auto-refresh: 15s`;
+      bindSelect(payload.default_project_id || "");
+    }
+
+    async function tick() {
+      try {
+        await load();
+      } catch (err) {
+        document.getElementById("meta").textContent = `Load error: ${err}`;
+      }
+    }
+
+    tick();
+    setInterval(tick, 15000);
+  </script>
+</body>
+</html>

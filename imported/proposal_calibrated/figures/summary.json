@@ -1,0 +1,61 @@
+{
+  "experiment": {
+    "seed": 7,
+    "device": "cpu",
+    "n_assets": 28,
+    "t_total": 360,
+    "risk_window": 60,
+    "pretrain_days": 80,
+    "lm_d_model": 32,
+    "lm_n_heads": 4,
+    "lm_n_layers": 2,
+    "lm_d_ff": 128,
+    "lm_train_epochs": 20,
+    "lm_train_lr": 0.003,
+    "lm_batch_size": 64,
+    "hidden_dim": 32,
+    "lora_rank": 4,
+    "lora_alpha": 4.0,
+    "online_lr": 0.002,
+    "distill_lambda": 3.0,
+    "replay_batch_size": 256,
+    "stress_batch_size": 256,
+    "stress_loss_tolerance": 0.02,
+    "gamma": 50.0,
+    "leverage_l1": 1.0,
+    "w_max": 0.07,
+    "tc_per_turnover": 0.0005,
+    "es_alpha": 0.2,
+    "es_budget": 0.0008,
+    "crisis_len_1": 20,
+    "crisis_len_2": 18,
+    "crisis_start_frac_1": 0.36,
+    "crisis_start_frac_2": 0.78
+  },
+  "crisis_windows": {
+    "crisis1": [
+      130,
+      20
+    ],
+    "crisis2": [
+      281,
+      18
+    ]
+  },
+  "naive": {
+    "mean_ic": -0.14630349069241524,
+    "sharpe": 1.348976306846518,
+    "max_drawdown": -0.020580588736579957,
+    "mean_turnover": 0.033389681096189776,
+    "mean_stress_es": -0.0007816489888986622,
+    "n_rollbacks": 0
+  },
+  "cl": {
+    "mean_ic": -0.10580769861083099,
+    "sharpe": 1.6321273625816037,
+    "max_drawdown": -0.01514579329279136,
+    "mean_turnover": 0.03798318124012471,
+    "mean_stress_es": -0.0007698747906016465,
+    "n_rollbacks": 75
+  }
+}

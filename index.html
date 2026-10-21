@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CL-PLO Spine | Stable Transformer Portfolio Updates</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./coreline.css?v=71708e8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  </head>
+  <body>
+    <header class="executive" id="top">
+      <div class="shell">
+        <article class="hero-insight" aria-label="Decision summary">
+          <p class="hero-kicker">CL-PLO Decision Spine</p>
+          <h1>Keep the portfolio model learning without forgetting stress behavior — without paying it away in turnover and costs.</h1>
+
+          <div class="hero-grid">
+            <article class="hero-mini">
+              <p class="hero-mini-title">Problem</p>
+              <p>Market regimes change. A model tuned only to recent flow can forget stress patterns. And at short horizons, small output jitter can drive turnover that costs more than it earns.</p>
+            </article>
+            <article class="hero-mini">
+              <p class="hero-mini-title">Why It Matters</p>
+              <p>When memory fades, allocations can look fine in calm periods and fail in shocks. When turnover is driven by noise, costs can erase short-horizon gains.</p>
+            </article>
+            <article class="hero-mini">
+              <p class="hero-mini-title">Core Idea</p>
+              <p>Freeze the transformer. Improve the updater (replay + projection). Then trade only when the signal change is worth paying for (qualification + rebalance policy).</p>
+            </article>
+          </div>
+
+          <div class="hero-method-row" aria-label="Three strategy one-line summaries">
+            <p><span>A</span>Naive: learns fast from new flow, but stress memory fades.</p>
+            <p><span>B</span>Replay: reuses stress fixtures at every step.</p>
+            <p><span>C</span>Hybrid: replay plus a projected step inside risk limits.</p>
+          </div>
+
+          <div class="hero-result">
+            <p class="hero-signal">
+              <strong>Decision signal:</strong> choose the updater that adapts, keeps stress memory, respects risk limits, and stays tradeable after costs.
+            </p>
+            <article class="hero-proof" aria-label="One-screen check">
+              <h3>30-Second Decision Check</h3>
+              <div class="proof-row">
+                <span>Naive</span>
+                <span class="proof-metric">fast adaptation, weak stress memory</span>
+              </div>
+              <div class="proof-row">
+                <span>Replay</span>
+                <span class="proof-metric">better stress memory</span>
+              </div>
+              <div class="proof-row highlight">
+                <span>Hybrid</span>
+                <span class="proof-metric">memory plus risk-bounded updates</span>
+              </div>
+              <p class="proof-note">Run Quick, Default, and Stress+ to check if this ordering stays stable across regime mixes.</p>
+            </article>
+          </div>
+        </article>
+      </div>
+    </header>
+
+    <main class="shell flow">
+      <section class="section" id="strategies">
+        <h2>1. Three Strategy Mechanisms</h2>
+        <p class="section-note">All three strategies use the same transformer, stream, and optimizer. Only the update rule changes.</p>
+
+        <div class="notation-strip" aria-label="Notation primer">
+          <p><strong>\(x_t\)</strong>: current transformer market batch (tokens and returns)</p>
+          <p><strong>\(A_t\)</strong>: anchor set (stored stress windows)</p>
+          <p><strong>\(g_{d,t}\)</strong>: gradient from current flow</p>
+          <p><strong>\(g_{a,t}\)</strong>: gradient from replayed anchors</p>
+          <p><strong>\(w_t\)</strong>: portfolio weights sent to execution</p>
+        </div>
+
+        <div class="pipeline-legend" aria-label="Pipeline role legend">
+          <span><i class="swatch data"></i>Stream data</span>
+          <span><i class="swatch memory"></i>Anchor memory</span>
+          <span><i class="swatch update"></i>Update rule</span>
+          <span><i class="swatch decision"></i>Decision layer</span>
+        </div>
+
+        <div class="mechanism-stack">
+          <article class="mechanism-card">
+            <header class="mechanism-head">
+              <p class="method-tag">A · Prior literature</p>
+              <h3>Naive Live-Only Update</h3>
+              <p class="mechanism-intuition">Each step uses only the newest batch. It adapts quickly, but stress fixtures do not shape the update.</p>
+            </header>
+
+            <figure class="pipeline-canvas" aria-label="Naive strategy pipeline">
+              <div class="pipe-row">
+                <article class="pipe-node role-data">
+                  <p class="pipe-cap">Stream</p>
+                  <h4>Transformer market stream</h4>
+                  <p class="pipe-sub">tokens + returns</p>
+                  <p class="pipe-inline-math">\(x_t\)</p>
+                </article>
+
+                <article class="pipe-node role-core">
+                  <p class="pipe-cap">Frozen core</p>
+                  <h4>Transformer backbone</h4>
+                  <p class="pipe-sub">weights frozen</p>
+                </article>
+
+                <article class="pipe-node role-memory muted">
+                  <p class="pipe-cap">Anchor memory</p>
+                  <h4>Anchor set \(A_t\)</h4>
+                  <p class="pipe-sub">stored only</p>
+                </article>
+
+                <article class="pipe-node role-update">
+                  <p class="pipe-cap">Update</p>
+                  <h4>Drift step</h4>
+                  <div class="pipe-math">
+                    \[
+                    \begin{aligned}
+                    g_t &= g_{d,t}\\
+                    \theta_{t+1}&=\theta_t-\eta_t g_t
+                    \end{aligned}
+                    \]
+                  </div>
+                  <p class="pipe-origin prior">Prior work</p>
+                </article>
+
+                <article class="pipe-node role-decision">
+                  <p class="pipe-cap">Decision</p>
+                  <h4>Portfolio optimizer</h4>
+                  <p class="pipe-sub">weights \(w_t\)</p>
+                </article>
+              </div>
+
+              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="pipe-arrow-a" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
+                  </marker>
+                </defs>
+                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-a)"></path>
+                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-a)"></path>
+                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-a)"></path>
+                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-a)"></path>
+              </svg>
+            </figure>
+
+            <div class="mechanism-concrete">
+              <p class="mechanism-concrete-title">Concrete fixture view</p>
+              <div class="anchor-board" role="img" aria-label="Anchor fixtures stored but inactive">
+                <article class="anchor-card">
+                  <p>Liquidity freeze</p>
+                  <span>spread shock</span>
+                </article>
+                <article class="anchor-card">
+                  <p>Gap-open day</p>
+                  <span>open jump</span>
+                </article>
+                <article class="anchor-card">
+                  <p>Correlation break</p>
+                  <span>cross-asset drift</span>
+                </article>
+                <article class="anchor-card">
+                  <p>Volatility cluster</p>
+                  <span>persistent high vol</span>
+                </article>
+              </div>
+              <p class="mechanism-concrete-note">Anchors are stored but not used. In practice, this behaves like trading on recent flow alone.</p>
+            </div>
+          </article>
+
+          <article class="mechanism-card">
+            <header class="mechanism-head">
+              <p class="method-tag">B · Prior literature</p>
+              <h3>Replay-Regularized Update</h3>
+              <p class="mechanism-intuition">Each step mixes live drift with anchor replay. Stress memory improves, but the mixed step can still break tight risk limits.</p>
+            </header>
+
+            <figure class="pipeline-canvas has-arc" aria-label="Replay strategy pipeline">
+              <div class="pipe-row">
+                <article class="pipe-node role-data">
+                  <p class="pipe-cap">Stream</p>
+                  <h4>Transformer market stream</h4>
+                  <p class="pipe-sub">tokens + returns</p>
+                  <p class="pipe-inline-math">\(x_t\)</p>
+                </article>
+
+                <article class="pipe-node role-core">
+                  <p class="pipe-cap">Frozen core</p>
+                  <h4>Transformer backbone</h4>
+                  <p class="pipe-sub">weights frozen</p>
+                </article>
+
+                <article class="pipe-node role-memory">
+                  <p class="pipe-cap">Anchor memory</p>
+                  <h4>Replay set \(A_t\)</h4>
+                  <p class="pipe-sub">fixtures replayed</p>
+                  <p class="pipe-inline-math">\(g_{a,t}\)</p>
+                </article>
+
+                <article class="pipe-node role-update">
+                  <p class="pipe-cap">Update</p>
+                  <h4>Replay-mixed step</h4>
+                  <div class="pipe-math">
+                    \[
+                    \begin{aligned}
+                    g_t&=g_{d,t}+\beta_t g_{a,t}\\
+                    \theta_{t+1}&=\theta_t-\eta_t g_t
+                    \end{aligned}
+                    \]
+                  </div>
+                  <p class="pipe-origin prior">Prior work</p>
+                </article>
+
+                <article class="pipe-node role-decision">
+                  <p class="pipe-cap">Decision</p>
+                  <h4>Portfolio optimizer</h4>
+                  <p class="pipe-sub">weights \(w_t\)</p>
+                </article>
+              </div>
+
+              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="pipe-arrow-b" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
+                  </marker>
+                  <marker id="pipe-arc-b" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"></path>
+                  </marker>
+                </defs>
+                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-b)"></path>
+                <path class="arc" d="M505 132 C 560 188, 640 188, 695 132" marker-end="url(#pipe-arc-b)"></path>
+              </svg>
+            </figure>
+
+            <div class="mechanism-concrete">
+              <p class="mechanism-concrete-title">Anchor fixture board</p>
+              <div class="anchor-board" role="img" aria-label="Anchor fixtures replayed in each update">
+                <article class="anchor-card active">
+                  <p>Liquidity freeze</p>
+                  <span>funding stress</span>
+                </article>
+                <article class="anchor-card active">
+                  <p>Gap-open day</p>
+                  <span>overnight jump</span>
+                </article>
+                <article class="anchor-card active">
+                  <p>Macro shock</p>
+                  <span>policy surprise</span>
+                </article>
+                <article class="anchor-card active">
+                  <p>Regime break</p>
+                  <span>beta inversion</span>
+                </article>
+              </div>
+              <p class="mechanism-concrete-note">Fixtures are replayed before each update, so stress memory directly shapes the step.</p>
+            </div>
+          </article>
+
+          <article class="mechanism-card">
+            <header class="mechanism-head">
+              <p class="method-tag proposed">C · Proposed here</p>
+              <h3>Replay + Projection Gate</h3>
+              <p class="mechanism-intuition">First project the live step into the allowed region, then add replay. The model keeps adapting while staying inside the risk budget.</p>
+            </header>
+
+            <figure class="pipeline-canvas has-arc" aria-label="Hybrid replay projection strategy pipeline">
+              <div class="pipe-row">
+                <article class="pipe-node role-data">
+                  <p class="pipe-cap">Stream</p>
+                  <h4>Transformer market stream</h4>
+                  <p class="pipe-sub">tokens + returns</p>
+                  <p class="pipe-inline-math">\(x_t\)</p>
+                </article>
+
+                <article class="pipe-node role-core">
+                  <p class="pipe-cap">Frozen core</p>
+                  <h4>Transformer backbone</h4>
+                  <p class="pipe-sub">weights frozen</p>
+                </article>
+
+                <article class="pipe-node role-memory">
+                  <p class="pipe-cap">Anchor memory</p>
+                  <h4>Replay set \(A_t\)</h4>
+                  <p class="pipe-sub">fixtures replayed</p>
+                  <p class="pipe-inline-math">\(g_{a,t}\)</p>
+                </article>
+
+                <article class="pipe-node role-update">
+                  <p class="pipe-cap">Update</p>
+                  <h4>Projected mixed step</h4>
+                  <div class="pipe-math">
+                    \[
+                    \begin{aligned}
+                    g_t&=\Pi_{\mathcal{H}_t}(g_{d,t})+\beta_t g_{a,t}\\
+                    \theta_{t+1}&=\theta_t-\eta_t g_t
+                    \end{aligned}
+                    \]
+                  </div>
+                  <p class="pipe-origin proposed">Proposed here</p>
+                </article>
+
+                <article class="pipe-node role-decision">
+                  <p class="pipe-cap">Decision</p>
+                  <h4>Portfolio optimizer</h4>
+                  <p class="pipe-sub">weights \(w_t\)</p>
+                </article>
+              </div>
+
+              <svg class="pipe-overlay" viewBox="0 0 1000 210" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <marker id="pipe-arrow-c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#2f3d50"></path>
+                  </marker>
+                  <marker id="pipe-arc-c" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                    <path d="M0,0 L10,5 L0,10 z" fill="#7a6245"></path>
+                  </marker>
+                </defs>
+                <path d="M165 92 L245 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path d="M365 92 L445 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path d="M565 92 L645 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path d="M765 92 L845 92" marker-end="url(#pipe-arrow-c)"></path>
+                <path class="arc" d="M505 132 C 560 188, 640 188, 695 132" marker-end="url(#pipe-arc-c)"></path>
+              </svg>
+            </figure>
+
+            <div class="mechanism-concrete projection-concrete">
+              <p class="mechanism-concrete-title">Concrete projection view</p>
+              <p class="projection-intuition">The model proposes a move. If that move breaks the risk budget, we keep the direction and trim the size until it fits.</p>
+
+              <div class="projection-stage">
+                <figure class="projection-figure">
+                  <svg class="projection-diagram" viewBox="0 0 620 300" role="img" aria-label="Risk-budget constrained update projection">
+                    <defs>
+                      <marker id="proj-raw-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#b64834"></path>
+                      </marker>
+                      <marker id="proj-safe-arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+                        <path d="M0,0 L10,5 L0,10 z" fill="#1f3249"></path>
+                      </marker>
+                      <linearGradient id="proj-bg" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0%" stop-color="#fdfefe"></stop>
+                        <stop offset="100%" stop-color="#f8fbff"></stop>
+                      </linearGradient>
+                    </defs>
+
+                    <rect x="0" y="0" width="620" height="300" fill="#ffffff"></rect>
+                    <rect x="82" y="36" width="458" height="214" rx="12" fill="url(#proj-bg)" stroke="#dbe4ef" stroke-width="1.2"></rect>
+
+                    <line x1="122" y1="224" x2="522" y2="224" stroke="#8f9ba9" stroke-width="1.8"></line>
+                    <line x1="122" y1="224" x2="122" y2="60" stroke="#8f9ba9" stroke-width="1.8"></line>
+                    <text x="516" y="246" text-anchor="end" font-size="12" fill="#526175">market exposure</text>
+                    <text x="132" y="74" font-size="12" fill="#526175">style exposure</text>
+
+                    <polygon points="256,60 522,60 522,224 348,224" fill="#eaf3ec"></polygon>
+                    <line x1="256" y1="60" x2="348" y2="224" stroke="#5b7764" stroke-width="2" stroke-dasharray="7 5"></line>
+
+                    <rect x="392" y="202" width="106" height="20" rx="7" fill="#ffffff" stroke="#d5e4da"></rect>
+                    <text x="406" y="216" font-size="11.5" fill="#4f6b57">allowed set</text>
+
+                    <circle cx="162" cy="202" r="4.4" fill="#111827"></circle>
+
+                    <line x1="162" y1="202" x2="444" y2="96" stroke="#b64834" stroke-width="3" marker-end="url(#proj-raw-arrow)"></line>
+                    <line x1="162" y1="202" x2="318" y2="190" stroke="#1f3249" stroke-width="3" marker-end="url(#proj-safe-arrow)"></line>
+                    <line x1="318" y1="190" x2="444" y2="96" stroke="#8f9daf" stroke-width="1.8" stroke-dasharray="5 5"></line>
+
+                    <circle cx="444" cy="96" r="3.4" fill="#b64834"></circle>
+                    <circle cx="318" cy="190" r="3.4" fill="#1f3249"></circle>
+
+                    <rect x="448" y="62" width="92" height="22" rx="7" fill="#ffffff" stroke="#ecd2cd"></rect>
+                    <circle cx="460" cy="73" r="3" fill="#b64834"></circle>
+                    <text x="468" y="77.5" font-size="11.5" fill="#8d2f24">raw step</text>
+
+                    <rect x="332" y="160" width="92" height="22" rx="7" fill="#ffffff" stroke="#d4dde9"></rect>
+                    <circle cx="344" cy="171" r="3" fill="#1f3249"></circle>
+                    <text x="352" y="175.5" font-size="11.5" fill="#1f3249">safe step</text>
+
+                    <rect x="86" y="162" width="80" height="22" rx="7" fill="#ffffff" stroke="#d8dfeb"></rect>
+                    <circle cx="98" cy="173" r="3" fill="#111827"></circle>
+                    <text x="106" y="177.5" font-size="11.5" fill="#334155">start</text>
+                  </svg>
+                </figure>
+
+                <aside class="projection-key">
+                  <h4>Quick read</h4>
+                  <p><span>Raw step</span>proposed change from the live signal.</p>
+                  <p><span>Allowed set</span>changes that stay within risk limits.</p>
+                  <p><span>Safe step</span>closest allowed change sent to execution.</p>
+                </aside>
+              </div>
+
+              <div class="projection-math-block">
+                <p class="projection-origin">Proposed here</p>
+                <p class="projection-equation-intro">Plain meaning: choose the allowed step that is closest to the proposed step.</p>
+                <p class="projection-symbol-key"><span>\(g_{d,t}\)</span> proposed step from current flow · <span>\(\mathcal{F}_t\)</span> set of allowed steps from risk limits · <span>\(g_t^{\mathrm{safe}}\)</span> step sent to execution.</p>
+                <div class="projection-math">
+                  \[
+                  g_t^{\mathrm{safe}}=\arg\min_{g\in\mathcal{F}_t}\lVert g-g_{d,t}\rVert_2^2
+                  \]
+                </div>
+                <p class="projection-operational">Operational meaning: keep the signal direction, then clip size to stay inside the risk budget.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="workspace" aria-label="Interactive validation workspace">
+        <h2>2. Deployment Decision Dashboard</h2>
+        <p class="section-note">Use this as a release gate. Start with costs and rebalance, then churn control, then stress behavior, then the scorecard.</p>
+
+        <div class="metric-primer" aria-label="Metric primer">
+          <p>
+            Metrics used below:<br />
+            • Portfolio value: total capital after transaction costs.<br />
+            • Drawdown: loss from the latest peak (smaller is safer).<br />
+            • Turnover: how much weights change each step (lower is easier to trade).<br />
+            • Regime Sharpe: risk-adjusted return measured separately by regime.
+          </p>
+        </div>
+
+        <div class="experiment-layout">
+          <aside class="control-panel">
+            <article class="protocol-board">
+              <h3>Modes</h3>
+              <div class="preset-row mode-row">
+                <button id="apply-quick" data-preset="quick_check" class="btn btn-ghost" type="button">Quick</button>
+                <button id="apply-proposal" data-preset="proposal_like" class="btn btn-ghost" type="button">Default</button>
+                <button id="apply-stress" data-preset="stress_heavy" class="btn btn-ghost" type="button">Stress+</button>
+              </div>
+              <p id="mode-readout" class="mode-readout"></p>
+            </article>
+
+            <div class="action-row">
+              <button id="run-demo" class="btn btn-primary" type="button">Run Demo</button>
+              <button id="reset-form" class="btn btn-ghost" type="button">Reset</button>
+            </div>
+
+            <div class="control-stack">
+              <article class="focus-panel" aria-label="Strategy focus selector">
+                <h3>Strategy</h3>
+                <div class="focus-grid">
+                  <button id="focus-all" data-focus="all" class="focus-btn active" type="button">All</button>
+                  <button id="focus-naive" data-focus="naive" class="focus-btn" type="button">Naive</button>
+                  <button id="focus-anchor" data-focus="anchor" class="focus-btn" type="button">Replay</button>
+                  <button id="focus-proj" data-focus="anchor_proj" class="focus-btn" type="button">Hybrid</button>
+                </div>
+              </article>
+
+              <article class="component-panel" aria-label="Constraint toggle interface">
+                <h3>Constraints</h3>
+                <label class="switch-row" for="toggle-anchor">
+                  <span>Anchor fixtures</span>
+                  <input id="toggle-anchor" type="checkbox" checked />
+                </label>
+                <label class="switch-row" for="toggle-projection">
+                  <span>Projection gate</span>
+                  <input id="toggle-projection" type="checkbox" checked />
+                </label>
+              </article>
+
+              <article class="realism-panel" aria-label="Implementation realism controls">
+                <h3>Implementation realism</h3>
+                <form id="implementation-form" class="knob-grid">
+                  <label>
+                    Rebalance policy
+                    <select name="rebalancePolicy">
+                      <option value="daily">Daily</option>
+                      <option value="periodic">Periodic (k-step)</option>
+                      <option value="event">Event-driven</option>
+                      <option value="threshold">Threshold-based</option>
+                    </select>
+                  </label>
+                  <label>
+                    Rebalance every k
+                    <input name="rebalanceEveryK" type="number" step="1" />
+                  </label>
+                  <label>
+                    Rebalance threshold
+                    <input name="rebalanceThreshold" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Cost model
+                    <select name="costModel">
+                      <option value="off">Off</option>
+                      <option value="linear">Linear</option>
+                      <option value="linear_quadratic">Linear + impact</option>
+                    </select>
+                  </label>
+                  <label>
+                    Linear cost
+                    <input name="cLin" type="number" step="0.0001" />
+                  </label>
+                  <label>
+                    Quadratic impact
+                    <input name="cQuad" type="number" step="0.0001" />
+                  </label>
+                  <label>
+                    AUM scale
+                    <input name="aumScale" type="number" step="0.1" />
+                  </label>
+                  <label>
+                    Turnover penalty
+                    <input name="turnoverPenalty" type="number" step="0.1" />
+                  </label>
+                  <label class="switch-row" for="qual-enabled">
+                    <span>Qualification gate</span>
+                    <input id="qual-enabled" name="qualificationEnabled" type="checkbox" />
+                  </label>
+                  <label class="switch-row" for="qual-advanced">
+                    <span>Advanced qualification</span>
+                    <input id="qual-advanced" name="qualificationAdvanced" type="checkbox" />
+                  </label>
+                  <label class="switch-row" for="qual-fundamental">
+                    <span>Require info change</span>
+                    <input id="qual-fundamental" name="qualRequireFundamental" type="checkbox" />
+                  </label>
+                  <label>
+                    Qual threshold (Δw)
+                    <input name="qualTauW" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Qual threshold (Δμ)
+                    <input name="qualTauMu" type="number" step="0.001" />
+                  </label>
+                  <label>
+                    Qual threshold (rank)
+                    <input name="qualTauRank" type="number" step="0.01" />
+                  </label>
+                </form>
+                <div class="realism-actions">
+                  <button id="apply-realism-off" class="btn btn-ghost" type="button">Baseline (realism off)</button>
+                </div>
+              </article>
+
+              <details class="advanced-panel">
+                <summary>Advanced settings</summary>
+                <form id="config-form" class="knob-grid">
+                  <label>
+                    Anchor weight
+                    <input name="anchorBeta" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Stress probability
+                    <input name="pStress" type="number" step="0.01" />
+                  </label>
+                  <label>
+                    Update steps
+                    <input name="steps" type="number" step="1" />
+                  </label>
+                  <label>
+                    Seed
+                    <input name="seed" type="number" step="1" />
+                  </label>
+                </form>
+              </details>
+            </div>
+
+            <div class="run-status">
+              <p id="status-line">Ready to run.</p>
+              <div class="progress-track"><div id="progress-fill"></div></div>
+            </div>
+          </aside>
+
+          <div class="results-panel">
+            <article id="decision-card" class="decision-card"></article>
+
+            <div id="impact-kpis" class="kpi-row"></div>
+
+            <div class="plot-stack">
+              <h3 class="gate-heading">Gate A — Tradeable after costs</h3>
+              <div class="realism-note-block">
+                <article>
+                  <h3>Why we do not assume daily rebalancing</h3>
+                  <p>Start here. If turnover is high, costs can wipe out the edge. These plots show when net collapses even if gross looks fine.</p>
+                </article>
+              </div>
+
+              <article class="chart-card">
+                <h3>Q1. Gross vs Net Equity</h3>
+                <p class="plot-caption">Gross path is alpha before trading costs. Net path subtracts implementation friction from every accepted rebalance.</p>
+                <canvas id="gross-net-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="gross-net-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q2. Cost Attribution</h3>
+                <p class="plot-caption">Side-by-side gross and net return by strategy. Gap size is implementation drag under the current policy.</p>
+                <canvas id="cost-attribution-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="cost-attribution-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q3. Rebalance Policy Sweep</h3>
+                <p class="plot-caption">Net return under Daily, Weekly, Event, and Threshold policies using the same strategy outputs and cost assumptions.</p>
+                <canvas id="rebalance-sweep-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="rebalance-sweep-reading"></p>
+              </article>
+
+              <h3 class="gate-heading">Gate B — Don’t trade on jitter</h3>
+              <div class="realism-note-block">
+                <article>
+                  <h3>Qualification gate (deployment realism)</h3>
+                  <p>Trade only when the signal change is meaningful. The qualification gate blocks trades when output jitters inside the same market state.</p>
+                </article>
+              </div>
+
+              <article class="chart-card">
+                <h3>Q4. Qualification Gate View</h3>
+                <p class="plot-caption">Signal-change magnitude vs threshold. Trade markers appear only when rebalance policy and qualification both pass.</p>
+                <canvas id="qualification-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="qualification-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q5. Allocation vs Turnover</h3>
+                <p class="plot-caption">Top: risky allocation path. Bottom: turnover response. Read both together to see stability versus responsiveness.</p>
+                <div id="allocation-legend" class="plot-legend" aria-label="Allocation strategy legend"></div>
+                <p class="plot-legend-note">Color identifies strategy. Solid = allocation, dotted = turnover.</p>
+                <canvas id="allocation-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="allocation-reading"></p>
+              </article>
+
+              <h3 class="gate-heading">Gate C — Stress behavior stays controlled</h3>
+              <article class="chart-card">
+                <h3>Q6. Drawdown and Recovery</h3>
+                <p class="plot-caption">Depth is worst peak-to-trough loss. Recovery is time to regain that peak.</p>
+                <canvas id="drawdown-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="drawdown-reading"></p>
+              </article>
+
+              <article class="chart-card">
+                <h3>Q7. Regime Sharpe</h3>
+                <p class="plot-caption">Each bar is annualized Sharpe by regime. This shows where each strategy earns return per unit risk.</p>
+                <canvas id="regime-risk-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="regime-risk-reading"></p>
+              </article>
+
+              <article class="chart-card chart-card-wide">
+                <h3>Q8. Portfolio Policy View</h3>
+                <p class="plot-caption">For each strategy: risky sleeve in calm versus stress regimes. Lower stress sleeve means tighter risk control.</p>
+                <canvas id="portfolio-state-chart" class="chart-canvas chart-canvas-short"></canvas>
+                <p class="chart-reading" id="portfolio-state-reading"></p>
+              </article>
+
+              <h3 class="gate-heading">Scorecard</h3>
+              <article class="chart-card">
+                <h3>Q9. Portfolio Value Through Regimes</h3>
+                <p class="plot-caption">Final scorecard: net equity on the same market path and cost model for every strategy.</p>
+                <canvas id="pnl-chart" class="chart-canvas"></canvas>
+                <p class="chart-reading" id="pnl-reading"></p>
+              </article>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="takeaway-section">
+        <h2>3. Deploy Path</h2>
+        <p class="section-note">Ship this like a normal production change: lock the core model, test the updater, then release only if risk stays controlled.</p>
+
+        <div class="deploy-path">
+          <figure class="deploy-flow" aria-label="End-to-end deployment flow">
+            <article class="deploy-node">
+              <p class="deploy-step">Step 1</p>
+              <h3>Lock the core</h3>
+              <p>Freeze the transformer and optimizer. The updater is the only moving part.</p>
+            </article>
+            <div class="deploy-arrow">→</div>
+            <article class="deploy-node">
+              <p class="deploy-step">Step 2</p>
+              <h3>Replay the path</h3>
+              <p>Run the same timeline with transaction costs and regime tags (see Gate C).</p>
+            </article>
+            <div class="deploy-arrow">→</div>
+            <article class="deploy-node proposed">
+              <p class="deploy-step">Step 3</p>
+              <h3>Pass the gate</h3>
+              <p>Approve only if drawdown, turnover, costs, and stress Sharpe stay inside the release band (see Gates A–C).</p>
+            </article>
+            <div class="deploy-arrow">→</div>
+            <article class="deploy-node">
+              <p class="deploy-step">Step 4</p>
+              <h3>Ship in stages</h3>
+              <p>Paper trade first, then ramp capital gradually with rollback armed.</p>
+            </article>
+          </figure>
+
+          <article class="deploy-checks" aria-label="Go hold rollback checks">
+            <p class="deploy-gate-title">Go / hold / rollback checks</p>
+            <ul>
+              <li><strong>Go:</strong> hybrid stays best after costs and remains inside risk limits.</li>
+              <li><strong>Hold:</strong> stress behavior weakens versus replay or limits are hit.</li>
+              <li><strong>Rollback:</strong> live drawdown or turnover leaves the approved operating band.</li>
+            </ul>
+          </article>
+
+          <p class="deploy-outcome">Bottom line: change one part, run one gate, and keep one fast rollback path live at all times.</p>
+        </div>
+
+        <article id="takeaway" class="takeaway"></article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="shell footer-inner">
+        <a href="./alipes-cinematic.html" class="inline-link">ALIPES cinematic page</a>
+        <a href="#top" class="inline-link">Back to top</a>
+      </div>
+    </footer>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+    <script>
+      window.addEventListener("load", () => {
+        if (!window.renderMathInElement) {
+          return;
+        }
+        window.renderMathInElement(document.body, {
+          delimiters: [
+            { left: "\\[", right: "\\]", display: true },
+            { left: "\\(", right: "\\)", display: false },
+          ],
+          throwOnError: false,
+          strict: "ignore",
+        });
+      });
+    </script>
+    <script type="module" src="./src/main.js?v=20260216r4"></script>
+  </body>
+</html>

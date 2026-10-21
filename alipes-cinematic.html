@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALIPES Portfolio Optimization Cinematic</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./alipes-cinematic.css?v=20260220a" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="hero">
+        <p class="kicker">New Page</p>
+        <h1>ALIPES Portfolio Optimization Cinematic</h1>
+        <p class="subtitle">
+          Frame-faithful animation rebuilt from the attached presentation. Use play mode to run the full sequence,
+          or scrub frame-by-frame.
+        </p>
+      </header>
+
+      <section class="player" aria-label="Presentation animation player">
+        <div class="stage">
+          <img id="frame-a" class="frame frame-show" src="" alt="ALIPES cinematic frame" />
+          <img id="frame-b" class="frame frame-hide" src="" alt="" />
+          <div class="caption">
+            <div id="frame-step" class="step">Frame 1 / 16</div>
+            <h2 id="frame-title">Portfolio optimization</h2>
+            <p id="frame-subtitle">signals -> constrained weights -> executable trades</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="buttons">
+            <button id="prev-btn" type="button">Prev</button>
+            <button id="play-btn" type="button">Pause</button>
+            <button id="next-btn" type="button">Next</button>
+          </div>
+
+          <label class="scrub" for="frame-range">
+            <span>Timeline</span>
+            <input id="frame-range" type="range" min="0" max="15" step="1" value="0" />
+          </label>
+
+          <label class="speed" for="speed-select">
+            <span>Speed</span>
+            <select id="speed-select">
+              <option value="0.8">Slow</option>
+              <option value="1" selected>Normal</option>
+              <option value="1.3">Fast</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <footer class="foot">
+        <a href="./index.html">Back to CL-PLO main page</a>
+      </footer>
+    </main>
+
+    <script type="module" src="./src/alipes-cinematic.js?v=20260220a"></script>
+  </body>
+</html>

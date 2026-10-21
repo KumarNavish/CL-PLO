@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 336" role="img" aria-label="Naive strategy pipeline">
+  <defs>
+    <style>
+      .title { font: 600 21px 'IBM Plex Sans', sans-serif; fill: #101722; }
+      .meta { font: 500 12px 'IBM Plex Sans', sans-serif; fill: #4f5b6a; }
+      .cap { font: 600 10px 'IBM Plex Sans', sans-serif; letter-spacing: 0.09em; text-transform: uppercase; fill: #5b6675; }
+      .node { font: 600 14px 'IBM Plex Sans', sans-serif; fill: #1f2a37; }
+      .sub { font: 500 11px 'IBM Plex Sans', sans-serif; fill: #445064; }
+      .foot { font: 600 11px 'IBM Plex Sans', sans-serif; fill: #2a3646; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2e3c4f"/>
+    </marker>
+  </defs>
+
+  <rect width="1320" height="336" fill="#ffffff"/>
+  <rect x="10" y="10" width="1300" height="316" rx="12" fill="#ffffff" stroke="#d4dce6"/>
+
+  <text x="34" y="40" class="title">A. Naive online update</text>
+  <text x="34" y="60" class="meta">Drift gradient updates the adapter directly. Stress memory is present but not used.</text>
+
+  <g transform="translate(36,108)">
+    <text x="14" y="-14" class="cap">Stream</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#eaf1f8" stroke="#4f6b88"/>
+    <text x="110" y="52" text-anchor="middle" class="node">LLM market stream</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">tokens plus returns</text>
+  </g>
+
+  <line x1="256" y1="168" x2="276" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(284,108)">
+    <text x="14" y="-14" class="cap">Frozen core</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f8fafc" stroke="#7a8798"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Transformer backbone</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">weights fixed</text>
+  </g>
+
+  <line x1="504" y1="168" x2="524" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(532,108)">
+    <text x="14" y="-14" class="cap">Anchor memory</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#fbfcfd" stroke="#aeb8c4" stroke-dasharray="9 6"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Anchor store A<tspan baseline-shift="sub" font-size="10">t</tspan></text>
+    <text x="110" y="72" text-anchor="middle" class="sub">inactive in update</text>
+  </g>
+
+  <line x1="752" y1="168" x2="772" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(780,108)">
+    <text x="14" y="-14" class="cap">Update operator</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#f8f2ea" stroke="#915f2c"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Raw drift step</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">g = g<tspan baseline-shift="sub" font-size="10">d</tspan></text>
+  </g>
+
+  <line x1="1000" y1="168" x2="1020" y2="168" stroke="#2e3c4f" stroke-width="2.4" marker-end="url(#arrow)"/>
+
+  <g transform="translate(1028,108)">
+    <text x="14" y="-14" class="cap">Decision layer</text>
+    <rect x="0" y="0" width="220" height="120" rx="12" fill="#eef5ef" stroke="#40634d"/>
+    <text x="110" y="52" text-anchor="middle" class="node">Portfolio optimizer</text>
+    <text x="110" y="72" text-anchor="middle" class="sub">weights and costs</text>
+  </g>
+
+  <rect x="36" y="258" width="404" height="44" rx="22" fill="#f8fafc" stroke="#d4dce6"/>
+  <text x="56" y="284" class="foot">Preserves: frozen backbone and fixed optimizer</text>
+
+  <rect x="454" y="258" width="348" height="44" rx="22" fill="#f8fafc" stroke="#d4dce6"/>
+  <text x="474" y="284" class="foot">Changes: full drift direction</text>
+
+  <rect x="816" y="258" width="432" height="44" rx="22" fill="#fdf6f1" stroke="#e1c2a7"/>
+  <text x="836" y="284" class="foot">Control point: no pre-trade gate</text>
+</svg>
